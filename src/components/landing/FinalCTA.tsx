@@ -22,7 +22,7 @@ export function FinalCTA() {
               hidup, dan bertumbuh sedikit demi sedikit setiap hari.
             </p>
             <a
-              href="#harga"
+              href="/auth?mode=register"
               className="mt-10 inline-flex items-center gap-2 rounded-full bg-accent px-9 py-4 text-base font-semibold text-accent-foreground shadow-peach transition-all duration-300 hover:-translate-y-0.5 hover:shadow-float"
             >
               Mulai Gratis Hari Ini
