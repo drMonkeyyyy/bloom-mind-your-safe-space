@@ -14,6 +14,19 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/app'
+import { Route as AuthenticatedAppIndexRouteImport } from './routes/_authenticated/app/index'
+import { Route as AuthenticatedAppProfileRouteImport } from './routes/_authenticated/app/profile'
+import { Route as AuthenticatedAppPremiumRouteImport } from './routes/_authenticated/app/premium'
+import { Route as AuthenticatedAppOnboardingRouteImport } from './routes/_authenticated/app/onboarding'
+import { Route as AuthenticatedAppMoodRouteImport } from './routes/_authenticated/app/mood'
+import { Route as AuthenticatedAppJournalRouteImport } from './routes/_authenticated/app/journal'
+import { Route as AuthenticatedAppHabitsRouteImport } from './routes/_authenticated/app/habits'
+import { Route as AuthenticatedAppGrowthRouteImport } from './routes/_authenticated/app/growth'
+import { Route as AuthenticatedAppGratitudeRouteImport } from './routes/_authenticated/app/gratitude'
+import { Route as AuthenticatedAppEatingRouteImport } from './routes/_authenticated/app/eating'
+import { Route as AuthenticatedAppCalmRouteImport } from './routes/_authenticated/app/calm'
+import { Route as AuthenticatedAppChatIndexRouteImport } from './routes/_authenticated/app/chat/index'
+import { Route as AuthenticatedAppChatChatIdRouteImport } from './routes/_authenticated/app/chat/$chatId'
 
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
   id: '/reset-password',
@@ -39,18 +52,112 @@ const AuthenticatedAppRoute = AuthenticatedAppRouteImport.update({
   path: '/app',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAppIndexRoute = AuthenticatedAppIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AuthenticatedAppRoute,
+} as any)
+const AuthenticatedAppProfileRoute = AuthenticatedAppProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => AuthenticatedAppRoute,
+} as any)
+const AuthenticatedAppPremiumRoute = AuthenticatedAppPremiumRouteImport.update({
+  id: '/premium',
+  path: '/premium',
+  getParentRoute: () => AuthenticatedAppRoute,
+} as any)
+const AuthenticatedAppOnboardingRoute =
+  AuthenticatedAppOnboardingRouteImport.update({
+    id: '/onboarding',
+    path: '/onboarding',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
+const AuthenticatedAppMoodRoute = AuthenticatedAppMoodRouteImport.update({
+  id: '/mood',
+  path: '/mood',
+  getParentRoute: () => AuthenticatedAppRoute,
+} as any)
+const AuthenticatedAppJournalRoute = AuthenticatedAppJournalRouteImport.update({
+  id: '/journal',
+  path: '/journal',
+  getParentRoute: () => AuthenticatedAppRoute,
+} as any)
+const AuthenticatedAppHabitsRoute = AuthenticatedAppHabitsRouteImport.update({
+  id: '/habits',
+  path: '/habits',
+  getParentRoute: () => AuthenticatedAppRoute,
+} as any)
+const AuthenticatedAppGrowthRoute = AuthenticatedAppGrowthRouteImport.update({
+  id: '/growth',
+  path: '/growth',
+  getParentRoute: () => AuthenticatedAppRoute,
+} as any)
+const AuthenticatedAppGratitudeRoute =
+  AuthenticatedAppGratitudeRouteImport.update({
+    id: '/gratitude',
+    path: '/gratitude',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
+const AuthenticatedAppEatingRoute = AuthenticatedAppEatingRouteImport.update({
+  id: '/eating',
+  path: '/eating',
+  getParentRoute: () => AuthenticatedAppRoute,
+} as any)
+const AuthenticatedAppCalmRoute = AuthenticatedAppCalmRouteImport.update({
+  id: '/calm',
+  path: '/calm',
+  getParentRoute: () => AuthenticatedAppRoute,
+} as any)
+const AuthenticatedAppChatIndexRoute =
+  AuthenticatedAppChatIndexRouteImport.update({
+    id: '/chat/',
+    path: '/chat/',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
+const AuthenticatedAppChatChatIdRoute =
+  AuthenticatedAppChatChatIdRouteImport.update({
+    id: '/chat/$chatId',
+    path: '/chat/$chatId',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/reset-password': typeof ResetPasswordRoute
-  '/app': typeof AuthenticatedAppRoute
+  '/app': typeof AuthenticatedAppRouteWithChildren
+  '/app/calm': typeof AuthenticatedAppCalmRoute
+  '/app/eating': typeof AuthenticatedAppEatingRoute
+  '/app/gratitude': typeof AuthenticatedAppGratitudeRoute
+  '/app/growth': typeof AuthenticatedAppGrowthRoute
+  '/app/habits': typeof AuthenticatedAppHabitsRoute
+  '/app/journal': typeof AuthenticatedAppJournalRoute
+  '/app/mood': typeof AuthenticatedAppMoodRoute
+  '/app/onboarding': typeof AuthenticatedAppOnboardingRoute
+  '/app/premium': typeof AuthenticatedAppPremiumRoute
+  '/app/profile': typeof AuthenticatedAppProfileRoute
+  '/app/': typeof AuthenticatedAppIndexRoute
+  '/app/chat/$chatId': typeof AuthenticatedAppChatChatIdRoute
+  '/app/chat/': typeof AuthenticatedAppChatIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/reset-password': typeof ResetPasswordRoute
-  '/app': typeof AuthenticatedAppRoute
+  '/app/calm': typeof AuthenticatedAppCalmRoute
+  '/app/eating': typeof AuthenticatedAppEatingRoute
+  '/app/gratitude': typeof AuthenticatedAppGratitudeRoute
+  '/app/growth': typeof AuthenticatedAppGrowthRoute
+  '/app/habits': typeof AuthenticatedAppHabitsRoute
+  '/app/journal': typeof AuthenticatedAppJournalRoute
+  '/app/mood': typeof AuthenticatedAppMoodRoute
+  '/app/onboarding': typeof AuthenticatedAppOnboardingRoute
+  '/app/premium': typeof AuthenticatedAppPremiumRoute
+  '/app/profile': typeof AuthenticatedAppProfileRoute
+  '/app': typeof AuthenticatedAppIndexRoute
+  '/app/chat/$chatId': typeof AuthenticatedAppChatChatIdRoute
+  '/app/chat': typeof AuthenticatedAppChatIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -58,13 +165,59 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/reset-password': typeof ResetPasswordRoute
-  '/_authenticated/app': typeof AuthenticatedAppRoute
+  '/_authenticated/app': typeof AuthenticatedAppRouteWithChildren
+  '/_authenticated/app/calm': typeof AuthenticatedAppCalmRoute
+  '/_authenticated/app/eating': typeof AuthenticatedAppEatingRoute
+  '/_authenticated/app/gratitude': typeof AuthenticatedAppGratitudeRoute
+  '/_authenticated/app/growth': typeof AuthenticatedAppGrowthRoute
+  '/_authenticated/app/habits': typeof AuthenticatedAppHabitsRoute
+  '/_authenticated/app/journal': typeof AuthenticatedAppJournalRoute
+  '/_authenticated/app/mood': typeof AuthenticatedAppMoodRoute
+  '/_authenticated/app/onboarding': typeof AuthenticatedAppOnboardingRoute
+  '/_authenticated/app/premium': typeof AuthenticatedAppPremiumRoute
+  '/_authenticated/app/profile': typeof AuthenticatedAppProfileRoute
+  '/_authenticated/app/': typeof AuthenticatedAppIndexRoute
+  '/_authenticated/app/chat/$chatId': typeof AuthenticatedAppChatChatIdRoute
+  '/_authenticated/app/chat/': typeof AuthenticatedAppChatIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth' | '/reset-password' | '/app'
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/reset-password'
+    | '/app'
+    | '/app/calm'
+    | '/app/eating'
+    | '/app/gratitude'
+    | '/app/growth'
+    | '/app/habits'
+    | '/app/journal'
+    | '/app/mood'
+    | '/app/onboarding'
+    | '/app/premium'
+    | '/app/profile'
+    | '/app/'
+    | '/app/chat/$chatId'
+    | '/app/chat/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/reset-password' | '/app'
+  to:
+    | '/'
+    | '/auth'
+    | '/reset-password'
+    | '/app/calm'
+    | '/app/eating'
+    | '/app/gratitude'
+    | '/app/growth'
+    | '/app/habits'
+    | '/app/journal'
+    | '/app/mood'
+    | '/app/onboarding'
+    | '/app/premium'
+    | '/app/profile'
+    | '/app'
+    | '/app/chat/$chatId'
+    | '/app/chat'
   id:
     | '__root__'
     | '/'
@@ -72,6 +225,19 @@ export interface FileRouteTypes {
     | '/auth'
     | '/reset-password'
     | '/_authenticated/app'
+    | '/_authenticated/app/calm'
+    | '/_authenticated/app/eating'
+    | '/_authenticated/app/gratitude'
+    | '/_authenticated/app/growth'
+    | '/_authenticated/app/habits'
+    | '/_authenticated/app/journal'
+    | '/_authenticated/app/mood'
+    | '/_authenticated/app/onboarding'
+    | '/_authenticated/app/premium'
+    | '/_authenticated/app/profile'
+    | '/_authenticated/app/'
+    | '/_authenticated/app/chat/$chatId'
+    | '/_authenticated/app/chat/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -118,15 +284,141 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/app/': {
+      id: '/_authenticated/app/'
+      path: '/'
+      fullPath: '/app/'
+      preLoaderRoute: typeof AuthenticatedAppIndexRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/profile': {
+      id: '/_authenticated/app/profile'
+      path: '/profile'
+      fullPath: '/app/profile'
+      preLoaderRoute: typeof AuthenticatedAppProfileRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/premium': {
+      id: '/_authenticated/app/premium'
+      path: '/premium'
+      fullPath: '/app/premium'
+      preLoaderRoute: typeof AuthenticatedAppPremiumRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/onboarding': {
+      id: '/_authenticated/app/onboarding'
+      path: '/onboarding'
+      fullPath: '/app/onboarding'
+      preLoaderRoute: typeof AuthenticatedAppOnboardingRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/mood': {
+      id: '/_authenticated/app/mood'
+      path: '/mood'
+      fullPath: '/app/mood'
+      preLoaderRoute: typeof AuthenticatedAppMoodRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/journal': {
+      id: '/_authenticated/app/journal'
+      path: '/journal'
+      fullPath: '/app/journal'
+      preLoaderRoute: typeof AuthenticatedAppJournalRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/habits': {
+      id: '/_authenticated/app/habits'
+      path: '/habits'
+      fullPath: '/app/habits'
+      preLoaderRoute: typeof AuthenticatedAppHabitsRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/growth': {
+      id: '/_authenticated/app/growth'
+      path: '/growth'
+      fullPath: '/app/growth'
+      preLoaderRoute: typeof AuthenticatedAppGrowthRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/gratitude': {
+      id: '/_authenticated/app/gratitude'
+      path: '/gratitude'
+      fullPath: '/app/gratitude'
+      preLoaderRoute: typeof AuthenticatedAppGratitudeRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/eating': {
+      id: '/_authenticated/app/eating'
+      path: '/eating'
+      fullPath: '/app/eating'
+      preLoaderRoute: typeof AuthenticatedAppEatingRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/calm': {
+      id: '/_authenticated/app/calm'
+      path: '/calm'
+      fullPath: '/app/calm'
+      preLoaderRoute: typeof AuthenticatedAppCalmRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/chat/': {
+      id: '/_authenticated/app/chat/'
+      path: '/chat'
+      fullPath: '/app/chat/'
+      preLoaderRoute: typeof AuthenticatedAppChatIndexRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/chat/$chatId': {
+      id: '/_authenticated/app/chat/$chatId'
+      path: '/chat/$chatId'
+      fullPath: '/app/chat/$chatId'
+      preLoaderRoute: typeof AuthenticatedAppChatChatIdRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
   }
 }
 
+interface AuthenticatedAppRouteChildren {
+  AuthenticatedAppCalmRoute: typeof AuthenticatedAppCalmRoute
+  AuthenticatedAppEatingRoute: typeof AuthenticatedAppEatingRoute
+  AuthenticatedAppGratitudeRoute: typeof AuthenticatedAppGratitudeRoute
+  AuthenticatedAppGrowthRoute: typeof AuthenticatedAppGrowthRoute
+  AuthenticatedAppHabitsRoute: typeof AuthenticatedAppHabitsRoute
+  AuthenticatedAppJournalRoute: typeof AuthenticatedAppJournalRoute
+  AuthenticatedAppMoodRoute: typeof AuthenticatedAppMoodRoute
+  AuthenticatedAppOnboardingRoute: typeof AuthenticatedAppOnboardingRoute
+  AuthenticatedAppPremiumRoute: typeof AuthenticatedAppPremiumRoute
+  AuthenticatedAppProfileRoute: typeof AuthenticatedAppProfileRoute
+  AuthenticatedAppIndexRoute: typeof AuthenticatedAppIndexRoute
+  AuthenticatedAppChatChatIdRoute: typeof AuthenticatedAppChatChatIdRoute
+  AuthenticatedAppChatIndexRoute: typeof AuthenticatedAppChatIndexRoute
+}
+
+const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
+  AuthenticatedAppCalmRoute: AuthenticatedAppCalmRoute,
+  AuthenticatedAppEatingRoute: AuthenticatedAppEatingRoute,
+  AuthenticatedAppGratitudeRoute: AuthenticatedAppGratitudeRoute,
+  AuthenticatedAppGrowthRoute: AuthenticatedAppGrowthRoute,
+  AuthenticatedAppHabitsRoute: AuthenticatedAppHabitsRoute,
+  AuthenticatedAppJournalRoute: AuthenticatedAppJournalRoute,
+  AuthenticatedAppMoodRoute: AuthenticatedAppMoodRoute,
+  AuthenticatedAppOnboardingRoute: AuthenticatedAppOnboardingRoute,
+  AuthenticatedAppPremiumRoute: AuthenticatedAppPremiumRoute,
+  AuthenticatedAppProfileRoute: AuthenticatedAppProfileRoute,
+  AuthenticatedAppIndexRoute: AuthenticatedAppIndexRoute,
+  AuthenticatedAppChatChatIdRoute: AuthenticatedAppChatChatIdRoute,
+  AuthenticatedAppChatIndexRoute: AuthenticatedAppChatIndexRoute,
+}
+
+const AuthenticatedAppRouteWithChildren =
+  AuthenticatedAppRoute._addFileChildren(AuthenticatedAppRouteChildren)
+
 interface AuthenticatedRouteRouteChildren {
-  AuthenticatedAppRoute: typeof AuthenticatedAppRoute
+  AuthenticatedAppRoute: typeof AuthenticatedAppRouteWithChildren
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
-  AuthenticatedAppRoute: AuthenticatedAppRoute,
+  AuthenticatedAppRoute: AuthenticatedAppRouteWithChildren,
 }
 
 const AuthenticatedRouteRouteWithChildren =
