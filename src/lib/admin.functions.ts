@@ -99,15 +99,19 @@ export const setUserPlan = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const update: Record<string, unknown> = { plan: data.plan };
     if (data.plan === "premium") {
       const start = new Date(); const end = new Date(start);
       end.setDate(end.getDate() + data.days);
-      update.premium_start_date = start.toISOString();
-      update.premium_end_date = end.toISOString();
+      await supabaseAdmin.from("profiles").update({
+        plan: "premium",
+        premium_start_date: start.toISOString(),
+        premium_end_date: end.toISOString(),
+      }).eq("id", data.userId);
     } else {
-      update.premium_end_date = new Date().toISOString();
+      await supabaseAdmin.from("profiles").update({
+        plan: "free",
+        premium_end_date: new Date().toISOString(),
+      }).eq("id", data.userId);
     }
-    await supabaseAdmin.from("profiles").update(update).eq("id", data.userId);
     return { ok: true };
   });
