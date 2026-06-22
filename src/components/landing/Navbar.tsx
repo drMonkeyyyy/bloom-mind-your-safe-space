@@ -37,12 +37,15 @@ export function Navbar() {
             </a>
           ))}
         </nav>
+        <div className="flex items-center gap-3">
+          <a href="/auth?mode=login" className="hidden text-sm font-medium text-muted-foreground hover:text-foreground sm:inline">Masuk</a>
         <a
           href="/auth?mode=register"
           className="inline-flex items-center gap-1.5 rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-accent-foreground shadow-peach transition-all duration-300 hover:-translate-y-0.5 hover:shadow-float"
         >
           Mulai Gratis
         </a>
+        </div>
       </div>
     </header>
   );
