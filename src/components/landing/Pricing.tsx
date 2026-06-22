@@ -61,7 +61,7 @@ export function Pricing() {
               </ul>
 
               <a
-                href="#"
+                href="/auth?mode=register"
                 className="mt-10 inline-flex w-full items-center justify-center gap-2 rounded-full bg-accent px-8 py-4 text-base font-semibold text-accent-foreground shadow-peach transition-all duration-300 hover:-translate-y-0.5 hover:shadow-float"
               >
                 Mulai Sekarang
