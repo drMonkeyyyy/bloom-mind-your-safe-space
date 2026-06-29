@@ -10,7 +10,6 @@ import {
 import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
-import { reportLovableError } from "../lib/lovable-error-reporting";
 import { Toaster } from "@/components/ui/sonner";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -39,9 +38,6 @@ function NotFoundComponent() {
 function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   console.error(error);
   const router = useRouter();
-  useEffect(() => {
-    reportLovableError(error, { boundary: "tanstack_root_error_component" });
-  }, [error]);
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
@@ -82,12 +78,12 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:type", content: "website" },
       { property: "og:site_name", content: "Bloom Mind" },
       { name: "twitter:card", content: "summary_large_image" },
-      { title: "Lovable App" },
-      { property: "og:title", content: "Lovable App" },
-      { name: "twitter:title", content: "Lovable App" },
-      { name: "description", content: "Bloom Mind is an AI companion app for emotional wellness and self-discovery." },
-      { property: "og:description", content: "Bloom Mind is an AI companion app for emotional wellness and self-discovery." },
-      { name: "twitter:description", content: "Bloom Mind is an AI companion app for emotional wellness and self-discovery." },
+      { title: "Bloom Mind — Pendamping AI untuk Tumbuh & Memahami Diri" },
+      { property: "og:title", content: "Bloom Mind — Pendamping AI untuk Tumbuh & Memahami Diri" },
+      { name: "twitter:title", content: "Bloom Mind — Pendamping AI untuk Tumbuh & Memahami Diri" },
+      { name: "description", content: "Bloom Mind adalah pendamping AI untuk overthinking, stres, burnout, dan emotional eating. Tempat aman untuk curhat, bertumbuh, dan memahami diri." },
+      { property: "og:description", content: "Bloom Mind adalah pendamping AI untuk overthinking, stres, burnout, dan emotional eating. Tempat aman untuk curhat, bertumbuh, dan memahami diri." },
+      { name: "twitter:description", content: "Bloom Mind adalah pendamping AI untuk overthinking, stres, burnout, dan emotional eating. Tempat aman untuk curhat, bertumbuh, dan memahami diri." },
       { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/01c6c969-df1e-44ee-8bef-dee0e2b4cdcc/id-preview-33e42499--606e9880-1d47-4993-a7dc-79bb436c30ea.lovable.app-1781696876412.png" },
       { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/01c6c969-df1e-44ee-8bef-dee0e2b4cdcc/id-preview-33e42499--606e9880-1d47-4993-a7dc-79bb436c30ea.lovable.app-1781696876412.png" },
     ],

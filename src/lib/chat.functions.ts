@@ -91,19 +91,19 @@ export const sendChatMessage = createServerFn({ method: "POST" })
       .from("messages").select("role, content").eq("chat_id", chatId)
       .order("created_at", { ascending: true }).limit(20);
 
-    const apiKey = process.env.LOVABLE_API_KEY;
-    if (!apiKey) throw new Error("LOVABLE_API_KEY belum dikonfigurasi");
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) throw new Error("GEMINI_API_KEY belum dikonfigurasi");
 
-    const { createLovableAi } = await import("./ai-gateway.server");
+    const { createGeminiClient } = await import("./ai-client.server");
     const { generateText } = await import("ai");
-    const gateway = createLovableAi(apiKey);
+    const gateway = createGeminiClient(apiKey);
 
     const sysPrompt = `${companion.system_prompt}\n\nGaya komunikasi user: ${profile?.communication_style ?? "supportive"}. Nama user: ${profile?.name ?? "teman"}. Selalu Bahasa Indonesia. Maksimal 4-6 kalimat. Akhiri dengan 1 pertanyaan reflektif singkat (opsional).`;
 
     let reply = "";
     try {
       const result = await generateText({
-        model: gateway("google/gemini-3-flash-preview"),
+        model: gateway("gemini-1.5-flash"),
         system: sysPrompt,
         messages: (history ?? []).map((m) => ({
           role: m.role === "assistant" ? ("assistant" as const) : ("user" as const),
@@ -148,12 +148,12 @@ export const analyzeEmotionalEating = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => EatingInput.parse(d))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
-    const apiKey = process.env.LOVABLE_API_KEY;
-    if (!apiKey) throw new Error("LOVABLE_API_KEY belum dikonfigurasi");
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) throw new Error("GEMINI_API_KEY belum dikonfigurasi");
 
-    const { createLovableAi } = await import("./ai-gateway.server");
+    const { createGeminiClient } = await import("./ai-client.server");
     const { generateText } = await import("ai");
-    const gateway = createLovableAi(apiKey);
+    const gateway = createGeminiClient(apiKey);
 
     const prompt = `User Bloom Mind sedang refleksi emotional eating.
 Emosi: ${data.emotion || "-"}
@@ -165,7 +165,7 @@ Tugasmu: berikan respons hangat dan tidak menghakimi dalam Bahasa Indonesia, mak
 
     let insight = "";
     try {
-      const r = await generateText({ model: gateway("google/gemini-3-flash-preview"), prompt });
+      const r = await generateText({ model: gateway("gemini-1.5-flash"), prompt });
       insight = r.text?.trim() ?? "";
     } catch {
       insight = "Tarik napas dulu 5 menit. Tanyakan: apa yang sebenarnya kamu butuhkan saat ini? Mungkin bukan makanan, tapi rasa nyaman.";
@@ -197,11 +197,11 @@ export const generateJournalFromChat = createServerFn({ method: "POST" })
       .select("role, content").eq("chat_id", data.chatId).order("created_at").limit(50);
     if (!msgs || msgs.length === 0) throw new Error("Tidak ada percakapan");
 
-    const apiKey = process.env.LOVABLE_API_KEY;
-    if (!apiKey) throw new Error("LOVABLE_API_KEY belum dikonfigurasi");
-    const { createLovableAi } = await import("./ai-gateway.server");
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) throw new Error("GEMINI_API_KEY belum dikonfigurasi");
+    const { createGeminiClient } = await import("./ai-client.server");
     const { generateText } = await import("ai");
-    const gateway = createLovableAi(apiKey);
+    const gateway = createGeminiClient(apiKey);
 
     const transcript = msgs.map((m) => `${m.role === "user" ? "Aku" : "AI"}: ${m.content}`).join("\n");
 
@@ -218,7 +218,7 @@ ${transcript}
 
 JSON:`;
 
-    const r = await generateText({ model: gateway("google/gemini-3-flash-preview"), prompt });
+    const r = await generateText({ model: gateway("gemini-1.5-flash"), prompt });
     let parsed: Record<string, string> = {};
     try {
       const m = r.text.match(/\{[\s\S]*\}/);
@@ -257,15 +257,15 @@ export const getWeeklyInsight = createServerFn({ method: "POST" })
       return { text: "Belum cukup data minggu ini. Mulai mood check-in harian untuk dapat insight personal." };
     }
 
-    const apiKey = process.env.LOVABLE_API_KEY;
+    const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) return { text: "Data terkumpul, namun layanan insight sedang tidak tersedia." };
-    const { createLovableAi } = await import("./ai-gateway.server");
+    const { createGeminiClient } = await import("./ai-client.server");
     const { generateText } = await import("ai");
-    const gateway = createLovableAi(apiKey);
+    const gateway = createGeminiClient(apiKey);
 
     const summary = `Mood check-in minggu ini: ${JSON.stringify(moods)}. Emotional eating: ${JSON.stringify(eating ?? [])}.`;
     const r = await generateText({
-      model: gateway("google/gemini-3-flash-preview"),
+      model: gateway("gemini-1.5-flash"),
       prompt: `Sebagai pendamping AI Bloom Mind, buat insight mingguan singkat (maks 5 kalimat) dalam Bahasa Indonesia yang hangat dan tidak menghakimi. Sebutkan: mood dominan, trigger paling sering, satu hal positif, dan satu fokus untuk minggu depan. Data: ${summary}`,
     });
     return { text: r.text };
