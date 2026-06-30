@@ -66,11 +66,10 @@ function NavSection({ title, items, path }: { title: string; items: typeof prima
           <Link
             key={n.to}
             to={n.to}
-            className={`group flex items-center gap-3 rounded-2xl px-4 py-2.5 text-sm font-medium transition-all duration-150 ${
-              active
+            className={`group flex items-center gap-3 rounded-2xl px-4 py-2.5 text-sm font-medium transition-all duration-150 ${active
                 ? "bg-primary-soft text-foreground shadow-[inset_0_1px_0_0_rgba(255,255,255,0.6)]"
                 : "text-muted-foreground hover:bg-cream-deep hover:text-foreground"
-            }`}
+              }`}
           >
             <span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-xl transition-colors ${active ? "bg-primary text-primary-foreground" : "bg-cream-deep group-hover:bg-primary-soft"}`}>
               <Icon d={n.icon} className="h-4 w-4" />
