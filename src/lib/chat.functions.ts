@@ -91,10 +91,9 @@ export const sendChatMessage = createServerFn({ method: "POST" })
       .from("messages").select("role, content").eq("chat_id", chatId)
       .order("created_at", { ascending: true }).limit(20);
 
-    const apiKey = process.env.GEMINI_API_KEY;
+    const { createGeminiClient, getGeminiApiKey } = await import("./ai-client.server");
+    const apiKey = getGeminiApiKey();
     if (!apiKey) throw new Error("GEMINI_API_KEY belum dikonfigurasi");
-
-    const { createGeminiClient } = await import("./ai-client.server");
     const { generateText } = await import("ai");
     const gateway = createGeminiClient(apiKey);
 
@@ -125,12 +124,16 @@ export const sendChatMessage = createServerFn({ method: "POST" })
 
     // Bump usage for free users
     if (plan === "free") {
-      const { data: u } = await supabase
-        .from("daily_chat_usage").select("ai_reply_count").eq("user_id", userId).eq("date", today).maybeSingle();
-      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-      await supabaseAdmin.from("daily_chat_usage").upsert({
-        user_id: userId, date: today, ai_reply_count: (u?.ai_reply_count ?? 0) + 1,
-      });
+      try {
+        const { data: u } = await supabase
+          .from("daily_chat_usage").select("ai_reply_count").eq("user_id", userId).eq("date", today).maybeSingle();
+        const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+        await supabaseAdmin.from("daily_chat_usage").upsert({
+          user_id: userId, date: today, ai_reply_count: (u?.ai_reply_count ?? 0) + 1,
+        });
+      } catch (adminError) {
+        console.warn("Gagal mencatat limit harian karena SUPABASE_SERVICE_ROLE_KEY tidak diset:", adminError);
+      }
     }
 
     return { chatId, reply, crisis: false };
@@ -148,10 +151,9 @@ export const analyzeEmotionalEating = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => EatingInput.parse(d))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
-    const apiKey = process.env.GEMINI_API_KEY;
+    const { createGeminiClient, getGeminiApiKey } = await import("./ai-client.server");
+    const apiKey = getGeminiApiKey();
     if (!apiKey) throw new Error("GEMINI_API_KEY belum dikonfigurasi");
-
-    const { createGeminiClient } = await import("./ai-client.server");
     const { generateText } = await import("ai");
     const gateway = createGeminiClient(apiKey);
 
@@ -197,9 +199,9 @@ export const generateJournalFromChat = createServerFn({ method: "POST" })
       .select("role, content").eq("chat_id", data.chatId).order("created_at").limit(50);
     if (!msgs || msgs.length === 0) throw new Error("Tidak ada percakapan");
 
-    const apiKey = process.env.GEMINI_API_KEY;
+    const { createGeminiClient, getGeminiApiKey } = await import("./ai-client.server");
+    const apiKey = getGeminiApiKey();
     if (!apiKey) throw new Error("GEMINI_API_KEY belum dikonfigurasi");
-    const { createGeminiClient } = await import("./ai-client.server");
     const { generateText } = await import("ai");
     const gateway = createGeminiClient(apiKey);
 
@@ -257,9 +259,9 @@ export const getWeeklyInsight = createServerFn({ method: "POST" })
       return { text: "Belum cukup data minggu ini. Mulai mood check-in harian untuk dapat insight personal." };
     }
 
-    const apiKey = process.env.GEMINI_API_KEY;
+    const { createGeminiClient, getGeminiApiKey } = await import("./ai-client.server");
+    const apiKey = getGeminiApiKey();
     if (!apiKey) return { text: "Data terkumpul, namun layanan insight sedang tidak tersedia." };
-    const { createGeminiClient } = await import("./ai-client.server");
     const { generateText } = await import("ai");
     const gateway = createGeminiClient(apiKey);
 

@@ -1,4 +1,35 @@
 import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
+import fs from "node:fs";
+import path from "node:path";
+
+export function getGeminiApiKey(): string | undefined {
+  // 1. Try process.env
+  if (process.env.GEMINI_API_KEY) {
+    return process.env.GEMINI_API_KEY;
+  }
+  
+  // 2. Try import.meta.env
+  if (typeof import.meta !== "undefined" && (import.meta as any).env?.GEMINI_API_KEY) {
+    return (import.meta as any).env.GEMINI_API_KEY;
+  }
+  
+  // 3. Try reading .env file from disk (fallback for dev server started before env was set)
+  try {
+    const envPath = path.resolve(process.cwd(), ".env");
+    if (fs.existsSync(envPath)) {
+      const envContent = fs.readFileSync(envPath, "utf-8");
+      const match = envContent.match(/^GEMINI_API_KEY\s*=\s*["']?([^"'\r\n]+)["']?/m);
+      if (match && match[1]) {
+        process.env.GEMINI_API_KEY = match[1];
+        return match[1];
+      }
+    }
+  } catch (err) {
+    console.error("Failed to read .env file for GEMINI_API_KEY:", err);
+  }
+  
+  return undefined;
+}
 
 export function createGeminiClient(apiKey: string) {
   return createOpenAICompatible({
