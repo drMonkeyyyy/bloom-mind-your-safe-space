@@ -22,7 +22,7 @@ function getEnvValue(key: string): string | undefined {
         return match[1];
       }
     }
-  } catch {}
+  } catch { }
   return undefined;
 }
 
