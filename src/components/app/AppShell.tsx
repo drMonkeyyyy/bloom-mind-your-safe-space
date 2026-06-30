@@ -121,6 +121,35 @@ export function AppShell({ children }: { children: ReactNode }) {
   };
 
   const isPremium = profile?.plan === "premium";
+  const isOnboarding = path === "/app/onboarding";
+
+  if (isOnboarding) {
+    return (
+      <div className="min-h-screen bg-background text-foreground">
+        <header className="sticky top-0 z-20 flex items-center justify-between border-b border-border bg-card/85 px-5 py-4 backdrop-blur-xl">
+          <div className="flex items-center gap-2">
+            <div className="grid h-7 w-7 place-items-center rounded-lg bg-gradient-to-br from-primary to-accent shadow-soft">
+              <svg viewBox="0 0 24 24" fill="white" className="h-4.5 w-4.5" aria-hidden="true">
+                <path d="M12 2C8 2 5 5 5 9c0 2.5 1.2 4.7 3 6.1V17a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-1.9c1.8-1.4 3-3.6 3-6.1 0-4-3-7-7-7z" opacity=".9" />
+              </svg>
+            </div>
+            <span className="font-display text-base font-semibold">Bloom Mind</span>
+          </div>
+          <button
+            onClick={signOut}
+            className="rounded-full border border-border px-3.5 py-1.5 text-xs font-semibold text-muted-foreground hover:bg-cream-deep hover:text-foreground"
+          >
+            Keluar
+          </button>
+        </header>
+        <main className="mx-auto max-w-2xl px-4 py-10 sm:px-6">
+          <div className="rounded-3xl bg-card p-6 sm:p-10 ring-1 ring-border shadow-elevated animate-scale-in">
+            {children}
+          </div>
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background text-foreground">

@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useNavigate, useSearch } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
 import { z } from "zod";
 
@@ -38,11 +39,18 @@ const TESTIMONIAL = {
 function AuthPage() {
   const { mode = "login" } = useSearch({ from: "/auth" });
   const navigate = useNavigate();
+  const { user, loading: authLoading } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   const [showPw, setShowPw] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (!authLoading && user) {
+      navigate({ to: "/app", replace: true });
+    }
+  }, [user, authLoading, navigate]);
 
   const pwStrength = mode === "register" ? passwordStrength(password) : null;
 
