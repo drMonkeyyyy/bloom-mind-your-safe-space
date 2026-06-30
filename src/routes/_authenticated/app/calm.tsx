@@ -1,77 +1,322 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 
 export const Route = createFileRoute("/_authenticated/app/calm")({
   component: Page,
 });
 
+type Tool = "breath" | "ground" | "selftalk" | null;
+
+/* ── Breathing Timer ────────────────────────────────────────────── */
+const PHASES = [
+  { label: "Tarik Napas", duration: 4, color: "var(--color-primary)" },
+  { label: "Tahan", duration: 7, color: "oklch(0.70 0.08 200)" },
+  { label: "Buang Napas", duration: 8, color: "var(--color-accent)" },
+];
+
+function BreathingExercise() {
+  const [active, setActive] = useState(false);
+  const [phaseIdx, setPhaseIdx] = useState(0);
+  const [countdown, setCountdown] = useState(PHASES[0].duration);
+  const [cycle, setCycle] = useState(0);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const phase = PHASES[phaseIdx];
+  const totalCycles = 4;
+
+  const start = () => {
+    setActive(true);
+    setPhaseIdx(0);
+    setCountdown(PHASES[0].duration);
+    setCycle(0);
+  };
+
+  const stop = () => {
+    setActive(false);
+    if (timerRef.current) clearInterval(timerRef.current);
+    setPhaseIdx(0);
+    setCountdown(PHASES[0].duration);
+    setCycle(0);
+  };
+
+  useEffect(() => {
+    if (!active) return;
+    timerRef.current = setInterval(() => {
+      setCountdown((prev) => {
+        if (prev <= 1) {
+          const nextIdx = (phaseIdx + 1) % PHASES.length;
+          if (nextIdx === 0) {
+            const nextCycle = cycle + 1;
+            if (nextCycle >= totalCycles) {
+              setActive(false);
+              setCycle(0);
+              return PHASES[0].duration;
+            }
+            setCycle(nextCycle);
+          }
+          setPhaseIdx(nextIdx);
+          return PHASES[nextIdx].duration;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    return () => { if (timerRef.current) clearInterval(timerRef.current); };
+  }, [active, phaseIdx, cycle]);
+
+  const breatheScale = phaseIdx === 0 ? "scale-110" : phaseIdx === 1 ? "scale-110" : "scale-90";
+
+  return (
+    <section className="rounded-3xl overflow-hidden" style={{ background: "var(--gradient-calm)" }}>
+      <div className="p-8 text-center">
+        <p className="text-sm font-semibold text-primary mb-6">Teknik Napas 4-7-8</p>
+
+        {/* Circle */}
+        <div className="relative mx-auto w-52 h-52 grid place-items-center">
+          <div
+            className={`absolute inset-0 rounded-full transition-all ease-in-out ${breatheScale}`}
+            style={{
+              background: `${phase.color}18`,
+              transitionDuration: `${phase.duration * 1000}ms`,
+            }}
+          />
+          <div
+            className={`absolute inset-8 rounded-full transition-all ease-in-out ${breatheScale}`}
+            style={{
+              background: `${phase.color}28`,
+              transitionDuration: `${phase.duration * 1000}ms`,
+            }}
+          />
+          <div
+            className="relative grid h-24 w-24 place-items-center rounded-full text-white shadow-lg transition-all duration-500"
+            style={{ background: phase.color }}
+          >
+            {active ? (
+              <>
+                <p className="font-display text-3xl font-bold leading-none">{countdown}</p>
+                <p className="text-[10px] font-medium opacity-90">detik</p>
+              </>
+            ) : (
+              <p className="font-display text-lg font-semibold">4·7·8</p>
+            )}
+          </div>
+        </div>
+
+        {/* Phase label */}
+        <div className="mt-6 h-8">
+          {active && (
+            <div className="animate-slide-up">
+              <p className="font-display text-xl font-semibold text-foreground">{phase.label}</p>
+              <p className="text-xs text-muted-foreground">{phase.duration} detik</p>
+            </div>
+          )}
+          {!active && (
+            <p className="text-sm text-muted-foreground">Tarik napas 4 detik · Tahan 7 · Buang 8</p>
+          )}
+        </div>
+
+        {/* Cycle indicator */}
+        {active && (
+          <div className="mt-4 flex justify-center gap-1.5">
+            {Array.from({ length: totalCycles }).map((_, i) => (
+              <div key={i} className={`h-1.5 w-6 rounded-full transition-colors ${i < cycle ? "bg-primary" : i === cycle ? "bg-primary/60" : "bg-border"}`} />
+            ))}
+          </div>
+        )}
+
+        {/* Controls */}
+        <div className="mt-6 flex justify-center gap-3">
+          {!active ? (
+            <button
+              onClick={start}
+              className="rounded-full bg-primary px-8 py-3 text-sm font-semibold text-primary-foreground shadow-soft transition-all hover:-translate-y-0.5"
+            >
+              Mulai Latihan
+            </button>
+          ) : (
+            <button
+              onClick={stop}
+              className="rounded-full border border-border bg-card px-8 py-3 text-sm font-semibold text-foreground"
+            >
+              Stop
+            </button>
+          )}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ── Grounding ──────────────────────────────────────────────────── */
+const GROUNDING_STEPS = [
+  { num: 5, sense: "Lihat", prompt: "Sebutkan 5 hal yang bisa kamu lihat sekarang", icon: "👀" },
+  { num: 4, sense: "Sentuh", prompt: "Sebutkan 4 hal yang bisa kamu sentuh atau rasakan", icon: "🤚" },
+  { num: 3, sense: "Dengar", prompt: "Sebutkan 3 suara yang bisa kamu dengar sekarang", icon: "👂" },
+  { num: 2, sense: "Cium", prompt: "Sebutkan 2 hal yang bisa kamu cium atau bayangkan baunya", icon: "👃" },
+  { num: 1, sense: "Rasakan", prompt: "Sebutkan 1 hal yang kamu syukuri atau rasakan saat ini", icon: "💛" },
+];
+
+function GroundingExercise() {
+  const [step, setStep] = useState(0);
+  const [answers, setAnswers] = useState(Array(5).fill(""));
+  const current = GROUNDING_STEPS[step];
+  const isLast = step === GROUNDING_STEPS.length - 1;
+
+  return (
+    <section className="rounded-3xl bg-card p-6 ring-1 ring-border space-y-5">
+      {/* Progress */}
+      <div className="flex gap-1.5">
+        {GROUNDING_STEPS.map((_, i) => (
+          <div key={i} className={`h-1.5 flex-1 rounded-full transition-all duration-500 ${i <= step ? "bg-primary" : "bg-cream-deep"}`} />
+        ))}
+      </div>
+
+      <div className="animate-scale-in" key={step}>
+        <div className="flex items-center gap-3">
+          <span className="text-3xl">{current.icon}</span>
+          <div>
+            <span className="rounded-full bg-primary-soft px-2.5 py-0.5 text-xs font-bold text-primary">{current.num}</span>
+            <p className="mt-1 font-display text-lg font-semibold">{current.sense}</p>
+          </div>
+        </div>
+        <p className="mt-2 text-sm text-muted-foreground">{current.prompt}</p>
+        <textarea
+          value={answers[step]}
+          onChange={(e) => {
+            const next = [...answers];
+            next[step] = e.target.value;
+            setAnswers(next);
+          }}
+          placeholder="Tulis di sini…"
+          rows={3}
+          className="mt-3 w-full rounded-2xl border border-border bg-background px-4 py-3 text-sm resize-none placeholder:text-muted-foreground/60"
+        />
+      </div>
+
+      <div className="flex gap-2">
+        {step > 0 && (
+          <button onClick={() => setStep(s => s - 1)} className="rounded-full border border-border px-5 py-2.5 text-sm font-medium hover:bg-cream-deep">
+            ← Kembali
+          </button>
+        )}
+        {!isLast ? (
+          <button
+            onClick={() => setStep(s => s + 1)}
+            className="ml-auto rounded-full bg-primary px-6 py-2.5 text-sm font-semibold text-primary-foreground"
+          >
+            Selanjutnya →
+          </button>
+        ) : (
+          <button
+            onClick={() => { setStep(0); setAnswers(Array(5).fill("")); }}
+            className="ml-auto rounded-full bg-accent px-6 py-2.5 text-sm font-semibold text-accent-foreground shadow-peach"
+          >
+            Selesai & Ulangi 🌿
+          </button>
+        )}
+      </div>
+    </section>
+  );
+}
+
+/* ── Self-Talk Carousel ─────────────────────────────────────────── */
+const PHRASES = [
+  "Aku boleh merasa seperti ini. Perasaan ini tidak akan selamanya.",
+  "Aku aman saat ini. Aku punya waktu untuk pelan-pelan.",
+  "Aku tidak harus sempurna untuk berharga.",
+  "Satu langkah kecil sudah cukup untuk hari ini.",
+  "Aku layak mendapat ketenangan dan kebaikan.",
+  "Ini momen yang sulit, bukan karakter ku.",
+];
+
+function SelfTalkCarousel() {
+  const [idx, setIdx] = useState(0);
+  return (
+    <section className="rounded-3xl bg-card p-6 ring-1 ring-border space-y-4">
+      <p className="text-sm font-semibold">Kalimat untuk dirimu sendiri</p>
+      <div
+        className="rounded-2xl bg-gradient-to-br from-primary-soft to-accent-soft p-6 text-center animate-scale-in"
+        key={idx}
+      >
+        <p className="text-2xl mb-3">🤍</p>
+        <p className="font-display text-lg font-semibold italic leading-relaxed text-foreground">
+          "{PHRASES[idx]}"
+        </p>
+      </div>
+      <div className="flex items-center justify-between">
+        <button
+          onClick={() => setIdx(i => (i - 1 + PHRASES.length) % PHRASES.length)}
+          disabled={idx === 0}
+          className="rounded-full border border-border px-4 py-2 text-sm disabled:opacity-30"
+        >
+          ← Sebelumnya
+        </button>
+        <span className="text-xs text-muted-foreground">{idx + 1} / {PHRASES.length}</span>
+        <button
+          onClick={() => setIdx(i => (i + 1) % PHRASES.length)}
+          disabled={idx === PHRASES.length - 1}
+          className="rounded-full border border-border px-4 py-2 text-sm disabled:opacity-30"
+        >
+          Selanjutnya →
+        </button>
+      </div>
+    </section>
+  );
+}
+
+/* ── Main Page ──────────────────────────────────────────────────── */
 function Page() {
-  const [tool, setTool] = useState<"breath"|"ground"|"selftalk"|null>(null);
+  const [tool, setTool] = useState<Tool>(null);
+
+  const tools = [
+    { k: "breath" as Tool, icon: "🌬️", title: "Breathing 4-7-8", desc: "Latihan napas terbimbing dengan timer", color: "from-primary/10 to-primary/5" },
+    { k: "ground" as Tool, icon: "🌍", title: "Grounding 5-4-3-2-1", desc: "Kembali ke momen saat ini", color: "from-sky-50 to-blue-50" },
+    { k: "selftalk" as Tool, icon: "🤍", title: "Self-Calming Talk", desc: "Kalimat menenangkan untuk dirimu", color: "from-rose-50 to-pink-50" },
+  ];
 
   return (
     <div className="space-y-6">
       <div>
         <h1 className="font-display text-3xl font-semibold">Emergency Calm Mode</h1>
-        <p className="mt-1 text-sm text-muted-foreground">Tarik napas. Kamu aman di sini.</p>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Tarik napas dalam. Kamu aman di sini. 🌿
+        </p>
       </div>
 
+      {/* Tool selector */}
       <div className="grid gap-3 sm:grid-cols-2">
-        {[
-          { k:"breath" as const, icon:"🌬️", title:"Breathing 4-7-8", desc:"Latihan napas singkat." },
-          { k:"ground" as const, icon:"🌍", title:"Grounding 5-4-3-2-1", desc:"Kembali ke saat ini." },
-          { k:"selftalk" as const, icon:"🤍", title:"Self-Calming Talk", desc:"Kalimat menenangkan." },
-        ].map((t)=>(
-          <button key={t.k} onClick={()=>setTool(t.k)} className="rounded-3xl bg-card p-5 text-left ring-1 ring-border hover:-translate-y-0.5 transition">
+        {tools.map((t) => (
+          <button
+            key={t.k}
+            onClick={() => setTool(tool === t.k ? null : t.k)}
+            className={`rounded-3xl bg-gradient-to-br ${t.color} p-5 text-left ring-1 transition-all duration-200 hover:-translate-y-0.5 ${
+              tool === t.k ? "ring-primary shadow-soft" : "ring-border"
+            }`}
+          >
             <p className="text-2xl">{t.icon}</p>
-            <h3 className="mt-2 font-display text-lg font-semibold">{t.title}</h3>
-            <p className="text-xs text-muted-foreground">{t.desc}</p>
+            <h3 className="mt-2 font-display text-lg font-semibold text-foreground">{t.title}</h3>
+            <p className="mt-0.5 text-xs text-muted-foreground">{t.desc}</p>
           </button>
         ))}
-        <a href="tel:119" className="rounded-3xl bg-accent p-5 text-left text-accent-foreground shadow-peach">
+        <a
+          href="tel:119"
+          className="rounded-3xl bg-gradient-to-br from-red-50 to-orange-50 p-5 text-left ring-1 ring-red-200 transition-all hover:-translate-y-0.5"
+        >
           <p className="text-2xl">📞</p>
-          <h3 className="mt-2 font-display text-lg font-semibold">Hubungi orang terdekat</h3>
-          <p className="text-xs opacity-90">Atau telpon 119 (Sehat Jiwa).</p>
+          <h3 className="mt-2 font-display text-lg font-semibold text-red-700">Hubungi Bantuan</h3>
+          <p className="mt-0.5 text-xs text-red-600/80">Telepon 119 ext. 8 (Into The Light)</p>
         </a>
       </div>
 
-      {tool === "breath" && (
-        <section className="rounded-3xl bg-gradient-to-br from-primary-soft to-accent-soft p-8 text-center">
-          <div className="relative mx-auto h-56 w-56 grid place-items-center">
-            <div className="absolute inset-0 rounded-full bg-primary/15 animate-breathe" />
-            <div className="absolute inset-6 rounded-full bg-primary/25 animate-breathe" style={{ animationDelay:"0.6s" }} />
-            <div className="relative grid h-24 w-24 place-items-center rounded-full bg-primary text-primary-foreground">
-              <p className="font-display text-xl">4·7·8</p>
-            </div>
-          </div>
-          <p className="mt-6 text-sm text-muted-foreground">Tarik napas 4 detik · Tahan 7 detik · Buang 8 detik. Ulangi 4–6 siklus.</p>
-        </section>
-      )}
-      {tool === "ground" && (
-        <section className="rounded-3xl bg-card p-6 ring-1 ring-border">
-          <p className="font-display text-xl font-semibold">Grounding 5-4-3-2-1</p>
-          <ul className="mt-3 space-y-2 text-sm">
-            <li><strong>5</strong> hal yang kamu lihat</li>
-            <li><strong>4</strong> hal yang kamu sentuh</li>
-            <li><strong>3</strong> hal yang kamu dengar</li>
-            <li><strong>2</strong> hal yang kamu cium</li>
-            <li><strong>1</strong> hal yang kamu rasakan/syukuri</li>
-          </ul>
-        </section>
-      )}
-      {tool === "selftalk" && (
-        <section className="rounded-3xl bg-card p-6 ring-1 ring-border space-y-2 text-sm">
-          {[
-            "Aku boleh merasa seperti ini. Perasaan ini tidak akan selamanya.",
-            "Aku aman saat ini. Aku punya waktu untuk pelan-pelan.",
-            "Aku tidak harus sempurna untuk berharga.",
-            "Satu langkah kecil sudah cukup untuk hari ini.",
-          ].map((s,i)=>(<p key={i} className="rounded-2xl bg-cream-deep px-4 py-3">🤍 {s}</p>))}
-        </section>
-      )}
+      {/* Active tool */}
+      {tool === "breath" && <BreathingExercise />}
+      {tool === "ground" && <GroundingExercise />}
+      {tool === "selftalk" && <SelfTalkCarousel />}
 
-      <p className="text-xs text-muted-foreground text-center">
-        Bloom Mind bukan pengganti layanan darurat. Jika dalam krisis, hubungi 119 ext. 8 atau orang terdekat.
-      </p>
+      {/* Disclaimer */}
+      <div className="rounded-2xl bg-cream-deep/60 px-5 py-4 text-center text-xs text-muted-foreground">
+        🛡️ Bloom Mind bukan pengganti layanan darurat. Jika dalam krisis, hubungi{" "}
+        <a href="tel:119" className="font-semibold text-primary">119 ext. 8</a> atau orang terdekat.
+      </div>
     </div>
   );
 }
