@@ -31,6 +31,117 @@ function StatCard({ label, value, suffix = "/10", trend }: { label: string; valu
   );
 }
 
+/* ── MindPlant SVG Plant Renderer ───────────────────────────────── */
+function MindPlant({ score }: { score: number }) {
+  let stage = 1;
+  let label = "Tunas Baru (Sprout)";
+  let desc = "Tanaman jiwamu baru saja bertunas. Teruskan langkah kecilmu merawat diri! 🌱";
+  
+  if (score > 200) {
+    stage = 5;
+    label = "Bunga Emas Abadi (Golden Bloom)";
+    desc = "Luar biasa! Tanaman jiwamu mekar penuh dengan cahaya emas kebahagiaan. 🌟";
+  } else if (score > 120) {
+    stage = 4;
+    label = "Bunga Mekar (Blooming)";
+    desc = "Bunga mekar dengan indah! Jiwamu memancarkan kehangatan dan ketenangan. 🌼";
+  } else if (score > 60) {
+    stage = 3;
+    label = "Kuncup Bunga (Bud)";
+    desc = "Kuncup bunga telah tumbuh! Keindahan mulai tampak dari konsistensimu. 🌸";
+  } else if (score > 20) {
+    stage = 2;
+    label = "Daun Rimbun (Leafy)";
+    desc = "Tanaman jiwamu mulai berdaun rimbun seiring kepedulianmu pada diri sendiri. 🌿";
+  }
+
+  return (
+    <div className="rounded-3xl bg-card p-6 ring-1 ring-border/60 shadow-card flex flex-col items-center text-center space-y-4 animate-scale-in">
+      <div className="relative w-44 h-48 flex items-center justify-center">
+        {stage >= 4 && (
+          <div className="absolute inset-0 pointer-events-none">
+            <span className="absolute text-yellow-400 text-lg animate-sparkle top-4 left-1/4">✨</span>
+            <span className="absolute text-yellow-300 text-sm animate-float top-8 right-1/4">🌟</span>
+            <span className="absolute text-yellow-400 text-xs animate-sparkle bottom-1/2 left-8">✨</span>
+          </div>
+        )}
+        
+        <svg viewBox="0 0 100 120" className="w-full h-full drop-shadow-md">
+          {/* Pot */}
+          <path d="M35 90 L65 90 L70 115 L30 115 Z" fill="oklch(0.70 0.08 40)" />
+          <ellipse cx="50" cy="90" rx="16" ry="4" fill="oklch(0.60 0.08 40)" />
+          <ellipse cx="50" cy="115" rx="20" ry="3" fill="oklch(0.27 0.02 80 / 0.1)" />
+
+          {/* Stem & Leaves */}
+          {stage >= 1 && (
+            <>
+              <path 
+                d={
+                  stage === 1 ? "M50 90 Q50 75 48 65" :
+                  stage === 2 ? "M50 90 Q50 65 46 50" :
+                  "M50 90 Q50 55 45 35"
+                } 
+                fill="none" 
+                stroke="oklch(0.71 0.045 160)" 
+                strokeWidth="3.5" 
+                strokeLinecap="round" 
+              />
+              <path d="M48 65 Q38 60 40 54 Q47 56 48 65" fill="oklch(0.71 0.045 160)" />
+              <path d="M48 65 Q58 62 56 56 Q50 58 48 65" fill="oklch(0.80 0.05 165)" />
+            </>
+          )}
+
+          {stage >= 2 && (
+            <>
+              <path d="M49 76 Q35 70 34 62 Q45 66 49 76" fill="oklch(0.68 0.05 155)" />
+              <path d="M50 72 Q64 68 62 60 Q52 64 50 72" fill="oklch(0.71 0.045 160)" />
+            </>
+          )}
+
+          {stage >= 3 && (
+            <>
+              <path d="M47 55 Q33 50 32 42 Q42 46 47 55" fill="oklch(0.68 0.05 155)" />
+              <path d="M46 48 Q58 42 56 34 Q48 38 46 48" fill="oklch(0.71 0.045 160)" />
+              
+              {stage === 3 && (
+                <g className="animate-breathe" style={{ transformOrigin: "45px 35px" }}>
+                  <path d="M45 35 Q40 25 45 20 Q50 25 45 35" fill="oklch(0.77 0.085 40)" />
+                  <path d="M45 35 Q45 26 43 22 Q41 28 45 35" fill="oklch(0.93 0.04 40)" />
+                </g>
+              )}
+            </>
+          )}
+
+          {stage >= 4 && (
+            <g className="animate-breathe" style={{ transformOrigin: "45px 35px" }}>
+              <circle cx="45" cy="35" r="3" fill="oklch(0.71 0.045 160)" />
+              <circle cx="45" cy="20" r="10" fill={stage === 5 ? "oklch(0.82 0.14 75)" : "oklch(0.77 0.085 40)"} opacity="0.9" />
+              <circle cx="33" cy="30" r="10" fill={stage === 5 ? "oklch(0.85 0.12 70)" : "oklch(0.77 0.085 40)"} opacity="0.9" />
+              <circle cx="57" cy="30" r="10" fill={stage === 5 ? "oklch(0.85 0.12 70)" : "oklch(0.77 0.085 40)"} opacity="0.9" />
+              <circle cx="37" cy="45" r="10" fill={stage === 5 ? "oklch(0.82 0.14 75)" : "oklch(0.77 0.085 40)"} opacity="0.9" />
+              <circle cx="53" cy="45" r="10" fill={stage === 5 ? "oklch(0.82 0.14 75)" : "oklch(0.77 0.085 40)"} opacity="0.9" />
+              
+              <circle cx="45" cy="34" r="8" fill={stage === 5 ? "oklch(0.92 0.08 80)" : "oklch(0.93 0.04 40)"} />
+              <circle cx="45" cy="34" r="3" fill="white" opacity="0.5" />
+            </g>
+          )}
+        </svg>
+      </div>
+
+      <div className="space-y-1">
+        <p className="text-[10px] font-bold uppercase tracking-wider text-primary">Level Tanaman Jiwa</p>
+        <h3 className="font-display text-xl font-bold text-foreground">{label}</h3>
+        <p className="text-sm text-muted-foreground leading-relaxed max-w-sm">
+          {desc}
+        </p>
+        <div className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-primary-soft/60 px-3 py-1 text-xs font-semibold text-primary">
+          Skor Jiwa: {score} Pts
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function Page() {
   const { user } = useAuth();
   const { data: profile } = useProfile(user?.id);
@@ -50,6 +161,26 @@ function Page() {
       return data ?? [];
     },
   });
+
+  const { data: journalsCount } = useQuery({
+    queryKey: ["journals-count", user?.id],
+    enabled: !!user && isPremium,
+    queryFn: async () => {
+      const { count } = await supabase.from("journals").select("*", { count: "exact", head: true }).eq("user_id", user!.id);
+      return count ?? 0;
+    },
+  });
+
+  const { data: gratitudeCount } = useQuery({
+    queryKey: ["gratitude-count", user?.id],
+    enabled: !!user && isPremium,
+    queryFn: async () => {
+      const { count } = await supabase.from("gratitude_entries").select("*", { count: "exact", head: true }).eq("user_id", user!.id);
+      return count ?? 0;
+    },
+  });
+
+  const growthScore = (moods?.length || 0) * 8 + (journalsCount || 0) * 12 + (gratitudeCount || 0) * 12;
 
   if (!isPremium) {
     return (
@@ -88,6 +219,9 @@ function Page() {
         <h1 className="font-display text-3xl font-semibold">Growth Dashboard</h1>
         <p className="mt-1 text-sm text-muted-foreground">30 hari terakhir · Data personalmu</p>
       </div>
+
+      {/* ── MINDPLANT ────────────────────────────────────────────── */}
+      <MindPlant score={growthScore} />
 
       {/* ── STATS ─────────────────────────────────────────────────── */}
       {moodsLoading ? (

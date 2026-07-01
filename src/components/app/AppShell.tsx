@@ -66,16 +66,16 @@ function NavSection({ title, items, path }: { title: string; items: typeof prima
           <Link
             key={n.to}
             to={n.to}
-            className={`group flex items-center gap-3 rounded-2xl px-4 py-2.5 text-sm font-medium transition-all duration-150 ${active
+            className={`group flex items-center gap-3 rounded-2xl px-4 py-2.5 text-sm font-medium transition-all duration-200 ${active
                 ? "bg-primary-soft text-foreground shadow-[inset_0_1px_0_0_rgba(255,255,255,0.6)]"
                 : "text-muted-foreground hover:bg-cream-deep hover:text-foreground"
               }`}
           >
-            <span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-xl transition-colors ${active ? "bg-primary text-primary-foreground" : "bg-cream-deep group-hover:bg-primary-soft"}`}>
+            <span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-xl transition-all duration-200 ${active ? "bg-primary text-primary-foreground shadow-soft scale-105" : "bg-cream-deep group-hover:bg-primary-soft group-hover:scale-105"}`}>
               <Icon d={n.icon} className="h-4 w-4" />
             </span>
             {n.label}
-            {active && <span className="ml-auto h-1.5 w-1.5 rounded-full bg-primary" />}
+            {active && <span className="ml-auto h-1.5 w-1.5 rounded-full bg-primary animate-glow-pulse" />}
           </Link>
         );
       })}
@@ -86,8 +86,21 @@ function NavSection({ title, items, path }: { title: string; items: typeof prima
 function UserAvatar({ name, plan }: { name?: string | null; plan?: string | null }) {
   const initials = name ? name.slice(0, 2).toUpperCase() : "BM";
   return (
-    <div className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-gradient-to-br from-primary to-accent font-display text-sm font-bold text-white shadow-soft">
+    <div className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-gradient-to-br from-primary to-accent font-display text-sm font-bold text-white shadow-soft transition-transform duration-200 hover:scale-105">
       {initials}
+    </div>
+  );
+}
+
+/* ─── Bloom logo SVG ───────────────────────────────────────────── */
+function BloomLogo({ size = "md" }: { size?: "sm" | "md" }) {
+  const sz = size === "sm" ? { outer: "h-7 w-7", inner: "h-4 w-4", rounded: "rounded-lg" } : { outer: "h-9 w-9", inner: "h-5 w-5", rounded: "rounded-xl" };
+  return (
+    <div className={`grid ${sz.outer} place-items-center ${sz.rounded} bg-gradient-to-br from-primary to-accent shadow-soft transition-all duration-300 hover:shadow-glow-sage hover:scale-105`}>
+      <svg viewBox="0 0 24 24" fill="white" className={sz.inner} aria-hidden="true">
+        <path d="M12 2C8 2 5 5 5 9c0 2.5 1.2 4.7 3 6.1V17a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-1.9c1.8-1.4 3-3.6 3-6.1 0-4-3-7-7-7z" opacity=".9" />
+        <path d="M9 22h6M10 19h4" stroke="white" strokeWidth="1.5" strokeLinecap="round" fill="none" />
+      </svg>
     </div>
   );
 }
@@ -127,16 +140,12 @@ export function AppShell({ children }: { children: ReactNode }) {
       <div className="min-h-screen bg-background text-foreground">
         <header className="sticky top-0 z-20 flex items-center justify-between border-b border-border bg-card/85 px-5 py-4 backdrop-blur-xl">
           <div className="flex items-center gap-2">
-            <div className="grid h-7 w-7 place-items-center rounded-lg bg-gradient-to-br from-primary to-accent shadow-soft">
-              <svg viewBox="0 0 24 24" fill="white" className="h-4.5 w-4.5" aria-hidden="true">
-                <path d="M12 2C8 2 5 5 5 9c0 2.5 1.2 4.7 3 6.1V17a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-1.9c1.8-1.4 3-3.6 3-6.1 0-4-3-7-7-7z" opacity=".9" />
-              </svg>
-            </div>
+            <BloomLogo size="sm" />
             <span className="font-display text-base font-semibold">Bloom Mind</span>
           </div>
           <button
             onClick={signOut}
-            className="rounded-full border border-border px-3.5 py-1.5 text-xs font-semibold text-muted-foreground hover:bg-cream-deep hover:text-foreground"
+            className="rounded-full border border-border px-3.5 py-1.5 text-xs font-semibold text-muted-foreground hover:bg-cream-deep hover:text-foreground transition-all duration-200"
           >
             Keluar
           </button>
@@ -153,16 +162,14 @@ export function AppShell({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-screen bg-background text-foreground">
       {/* ── DESKTOP SIDEBAR ──────────────────────────────── */}
-      <aside className="fixed inset-y-0 left-0 hidden w-64 flex-col border-r border-border bg-card/70 backdrop-blur-xl lg:flex">
+      <aside className="fixed inset-y-0 left-0 hidden w-64 flex-col border-r border-border/60 bg-card/70 backdrop-blur-xl lg:flex" style={{ boxShadow: "1px 0 0 0 var(--color-border)" }}>
+        {/* Subtle grain on sidebar */}
+        <div className="absolute inset-0 opacity-[0.015] pointer-events-none" style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")", backgroundRepeat: "repeat", backgroundSize: "128px" }} />
+
         {/* Logo */}
-        <div className="px-5 py-6">
+        <div className="relative px-5 py-6">
           <Link to="/app" className="flex items-center gap-2.5">
-            <div className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-primary to-accent shadow-soft">
-              <svg viewBox="0 0 24 24" fill="white" className="h-5 w-5" aria-hidden="true">
-                <path d="M12 2C8 2 5 5 5 9c0 2.5 1.2 4.7 3 6.1V17a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-1.9c1.8-1.4 3-3.6 3-6.1 0-4-3-7-7-7z" opacity=".9" />
-                <path d="M9 22h6M10 19h4" stroke="white" strokeWidth="1.5" strokeLinecap="round" fill="none" />
-              </svg>
-            </div>
+            <BloomLogo />
             <div>
               <p className="font-display text-lg font-semibold leading-tight">Bloom Mind</p>
               <p className="text-[10px] text-muted-foreground leading-tight">Your Safe Space</p>
@@ -171,7 +178,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         </div>
 
         {/* Nav */}
-        <nav className="flex-1 overflow-y-auto space-y-4 px-3 py-2">
+        <nav className="relative flex-1 overflow-y-auto space-y-4 px-3 py-2">
           <NavSection title="Utama" items={primaryNav} path={path} />
           <NavSection title="Wellness" items={wellnessNav} path={path} />
           <NavSection title="Akun" items={accountNav} path={path} />
@@ -179,7 +186,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             <div>
               <Link
                 to="/admin"
-                className="flex items-center gap-3 rounded-2xl bg-accent-soft px-4 py-2.5 text-sm font-semibold text-foreground"
+                className="flex items-center gap-3 rounded-2xl bg-accent-soft px-4 py-2.5 text-sm font-semibold text-foreground transition-all duration-200 hover:shadow-soft"
               >
                 <span className="flex h-7 w-7 items-center justify-center rounded-xl bg-accent text-accent-foreground">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4" aria-hidden="true">
@@ -193,7 +200,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         </nav>
 
         {/* Footer */}
-        <div className="border-t border-border p-4">
+        <div className="relative border-t border-border/60 p-4">
           <div className="flex items-center gap-3">
             <UserAvatar name={profile?.name} plan={profile?.plan} />
             <div className="min-w-0 flex-1">
@@ -202,12 +209,12 @@ export function AppShell({ children }: { children: ReactNode }) {
             </div>
           </div>
           <div className="mt-3 flex items-center justify-between gap-2">
-            <span className={`inline-flex rounded-full px-3 py-1 text-[11px] font-semibold ${isPremium ? "bg-gradient-to-r from-amber-100 to-orange-100 text-amber-700" : "bg-primary-soft text-foreground"}`}>
+            <span className={`inline-flex rounded-full px-3 py-1 text-[11px] font-semibold transition-all ${isPremium ? "bg-gradient-to-r from-amber-100 to-orange-100 text-amber-700 shadow-sm" : "bg-primary-soft text-foreground"}`}>
               {isPremium ? "✨ Premium" : "Free Plan"}
             </span>
             <button
               onClick={signOut}
-              className="rounded-full border border-border px-3 py-1 text-[11px] text-muted-foreground transition-colors hover:bg-cream-deep hover:text-foreground"
+              className="rounded-full border border-border px-3 py-1 text-[11px] text-muted-foreground transition-all duration-200 hover:bg-cream-deep hover:text-foreground"
             >
               Keluar
             </button>
@@ -216,13 +223,9 @@ export function AppShell({ children }: { children: ReactNode }) {
       </aside>
 
       {/* ── MOBILE TOP HEADER ────────────────────────────── */}
-      <header className="sticky top-0 z-20 flex items-center justify-between border-b border-border bg-card/85 px-5 py-3 backdrop-blur-xl lg:hidden">
+      <header className="sticky top-0 z-20 flex items-center justify-between border-b border-border/60 bg-card/85 px-5 py-3 backdrop-blur-xl lg:hidden" style={{ boxShadow: "0 1px 0 0 var(--color-border)" }}>
         <Link to="/app" className="flex items-center gap-2">
-          <div className="grid h-7 w-7 place-items-center rounded-lg bg-gradient-to-br from-primary to-accent shadow-soft">
-            <svg viewBox="0 0 24 24" fill="white" className="h-4 w-4" aria-hidden="true">
-              <path d="M12 2C8 2 5 5 5 9c0 2.5 1.2 4.7 3 6.1V17a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-1.9c1.8-1.4 3-3.6 3-6.1 0-4-3-7-7-7z" opacity=".9" />
-            </svg>
-          </div>
+          <BloomLogo size="sm" />
           <span className="font-display text-base font-semibold">Bloom Mind</span>
         </Link>
         <div className="flex items-center gap-2">
@@ -242,7 +245,10 @@ export function AppShell({ children }: { children: ReactNode }) {
       {/* ── MAIN CONTENT ─────────────────────────────────── */}
       <main className="lg:pl-64 pb-28 lg:pb-12">
         <div className="mx-auto max-w-5xl px-4 py-6 sm:px-6 sm:py-10">
-          {children}
+          {/* Page transition wrapper keyed to path */}
+          <div key={path} className="page-transition">
+            {children}
+          </div>
         </div>
       </main>
 
@@ -260,10 +266,13 @@ export function AppShell({ children }: { children: ReactNode }) {
               <Link
                 key={n.to}
                 to={n.to}
-                className={`flex flex-col items-center gap-1 py-3 text-[10px] font-medium transition-colors ${active ? "text-primary" : "text-muted-foreground"}`}
+                className={`flex flex-col items-center gap-1 py-3 text-[10px] font-medium transition-all duration-250 ${active ? "text-primary" : "text-muted-foreground hover:text-foreground"}`}
               >
-                <span className={`flex h-7 w-7 items-center justify-center rounded-xl transition-all duration-200 ${active ? "bg-primary-soft scale-110" : ""}`}>
+                <span className={`relative flex h-7 w-7 items-center justify-center rounded-xl transition-all duration-250 ${active ? "bg-primary-soft scale-110 shadow-sm" : "hover:bg-cream-deep"}`}>
                   <Icon d={n.icon} className="h-4.5 w-4.5" />
+                  {active && (
+                    <span className="absolute -bottom-0.5 left-1/2 -translate-x-1/2 h-1 w-1 rounded-full bg-primary" />
+                  )}
                 </span>
                 {n.label}
               </Link>
@@ -272,15 +281,27 @@ export function AppShell({ children }: { children: ReactNode }) {
 
           {/* Center FAB — Chat */}
           <div className="flex flex-col items-center pb-1">
-            <Link
-              to="/app/chat"
-              className="group flex h-14 w-14 -translate-y-3 items-center justify-center rounded-full bg-gradient-to-br from-primary to-accent shadow-float transition-all duration-300 hover:scale-105 active:scale-95"
-              aria-label="Buka Chat AI"
-            >
-              <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="h-6 w-6" aria-hidden="true">
-                <path d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 0 1-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-              </svg>
-            </Link>
+            <div className="relative">
+              {/* Pulse ring */}
+              <span
+                className="absolute inset-0 rounded-full bg-gradient-to-br from-primary to-accent opacity-0 animate-fab-ring"
+                aria-hidden="true"
+              />
+              <span
+                className="absolute inset-0 rounded-full bg-gradient-to-br from-primary to-accent opacity-0 animate-fab-ring"
+                style={{ animationDelay: "0.8s" }}
+                aria-hidden="true"
+              />
+              <Link
+                to="/app/chat"
+                className="group flex h-14 w-14 -translate-y-3 items-center justify-center rounded-full bg-gradient-to-br from-primary to-accent shadow-float transition-all duration-300 hover:scale-110 hover:shadow-glow-sage active:scale-95"
+                aria-label="Buka Chat AI"
+              >
+                <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="h-6 w-6" aria-hidden="true">
+                  <path d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 0 1-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                </svg>
+              </Link>
+            </div>
             <span className={`-mt-0.5 text-[10px] font-medium ${path.startsWith("/app/chat") ? "text-primary" : "text-muted-foreground"}`}>Chat</span>
           </div>
 
@@ -291,10 +312,13 @@ export function AppShell({ children }: { children: ReactNode }) {
               <Link
                 key={n.to}
                 to={n.to}
-                className={`flex flex-col items-center gap-1 py-3 text-[10px] font-medium transition-colors ${active ? "text-primary" : "text-muted-foreground"}`}
+                className={`flex flex-col items-center gap-1 py-3 text-[10px] font-medium transition-all duration-250 ${active ? "text-primary" : "text-muted-foreground hover:text-foreground"}`}
               >
-                <span className={`flex h-7 w-7 items-center justify-center rounded-xl transition-all duration-200 ${active ? "bg-primary-soft scale-110" : ""}`}>
+                <span className={`relative flex h-7 w-7 items-center justify-center rounded-xl transition-all duration-250 ${active ? "bg-primary-soft scale-110 shadow-sm" : "hover:bg-cream-deep"}`}>
                   <Icon d={n.icon} className="h-4.5 w-4.5" />
+                  {active && (
+                    <span className="absolute -bottom-0.5 left-1/2 -translate-x-1/2 h-1 w-1 rounded-full bg-primary" />
+                  )}
                 </span>
                 {n.label}
               </Link>
@@ -304,11 +328,11 @@ export function AppShell({ children }: { children: ReactNode }) {
           {/* More button */}
           <button
             onClick={() => setMoreOpen(true)}
-            className={`flex flex-col items-center gap-1 py-3 text-[10px] font-medium transition-colors ${moreOpen ? "text-primary" : "text-muted-foreground"}`}
+            className={`flex flex-col items-center gap-1 py-3 text-[10px] font-medium transition-all duration-250 ${moreOpen ? "text-primary" : "text-muted-foreground hover:text-foreground"}`}
             aria-label="Lebih banyak menu"
             aria-expanded={moreOpen}
           >
-            <span className={`flex h-7 w-7 items-center justify-center rounded-xl transition-all duration-200 ${moreOpen ? "bg-primary-soft scale-110" : ""}`}>
+            <span className={`relative flex h-7 w-7 items-center justify-center rounded-xl transition-all duration-250 ${moreOpen ? "bg-primary-soft scale-110 shadow-sm" : "hover:bg-cream-deep"}`}>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" className="h-4.5 w-4.5" aria-hidden="true">
                 <circle cx="12" cy="5" r="1" /><circle cx="12" cy="12" r="1" /><circle cx="12" cy="19" r="1" />
               </svg>
@@ -325,9 +349,9 @@ export function AppShell({ children }: { children: ReactNode }) {
             <Link
               key={item.to}
               to={item.to}
-              className="flex flex-col items-center gap-2 rounded-2xl bg-cream-deep/60 p-4 text-center text-xs font-medium text-foreground transition-all duration-150 hover:bg-cream-deep active:scale-95"
+              className="group flex flex-col items-center gap-2 rounded-2xl bg-cream-deep/60 p-4 text-center text-xs font-medium text-foreground transition-all duration-200 hover:bg-cream-deep hover:scale-105 hover:shadow-card active:scale-95"
             >
-              <span className={`grid h-12 w-12 place-items-center rounded-2xl ${item.color}`}>
+              <span className={`grid h-12 w-12 place-items-center rounded-2xl transition-all duration-200 group-hover:scale-110 ${item.color}`}>
                 <Icon d={item.icon} className="h-5 w-5" />
               </span>
               {item.label}
@@ -338,7 +362,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         <div className="mt-6 border-t border-border pt-5">
           <button
             onClick={signOut}
-            className="flex w-full items-center justify-center gap-2 rounded-2xl border border-destructive/30 py-3 text-sm font-medium text-destructive transition-colors hover:bg-destructive/5"
+            className="flex w-full items-center justify-center gap-2 rounded-2xl border border-destructive/30 py-3 text-sm font-medium text-destructive transition-all duration-200 hover:bg-destructive/5 hover:scale-[1.01]"
           >
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4" aria-hidden="true">
               <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9" />

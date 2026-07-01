@@ -36,15 +36,29 @@ function Page() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="font-display text-3xl font-semibold">Emotional Eating</h1>
-        <p className="mt-1 text-sm text-muted-foreground italic">
-          "Tidak semua rasa lapar berasal dari perut."
-        </p>
+      {/* Coral gradient header */}
+      <div
+        className="relative overflow-hidden rounded-3xl px-6 pt-6 pb-5"
+        style={{
+          background: "linear-gradient(135deg, oklch(0.977 0.008 85) 0%, oklch(0.96 0.04 25) 40%, oklch(0.97 0.03 40) 100%)",
+          backgroundSize: "300% 300%",
+          animation: "gradient-shift 13s ease-in-out infinite",
+        }}
+      >
+        <div
+          className="absolute -right-6 -top-6 h-36 w-36 rounded-full pointer-events-none"
+          style={{ background: "oklch(0.77 0.085 40 / 0.18)", filter: "blur(35px)", animation: "blob-drift 18s ease-in-out infinite" }}
+        />
+        <div className="relative">
+          <h1 className="font-display text-3xl font-semibold">Emotional Eating</h1>
+          <p className="mt-1 text-sm text-muted-foreground italic">
+            "Tidak semua rasa lapar berasal dari perut."
+          </p>
+        </div>
       </div>
 
       {/* ── HUNGER TYPE ─────────────────────────────────────────── */}
-      <section className="rounded-3xl bg-card p-6 ring-1 ring-border space-y-5">
+      <section className="rounded-3xl bg-card p-6 ring-1 ring-border/60 shadow-card space-y-5">
         <div>
           <p className="text-sm font-semibold text-foreground mb-3">Apa yang sebenarnya kamu rasakan sekarang?</p>
           <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
@@ -55,17 +69,24 @@ function Page() {
                   key={h.key}
                   onClick={() => setHunger(h.key)}
                   aria-pressed={sel}
-                  className={`flex items-center gap-3 rounded-2xl border-2 p-4 text-left transition-all duration-200 ${
-                    sel ? "border-primary bg-primary-soft shadow-soft" : "border-transparent bg-cream-deep hover:border-primary/30"
+                  className={`flex items-center gap-3 rounded-2xl border-2 p-4 text-left transition-all duration-250 ${
+                    sel
+                      ? "border-accent/40 bg-accent-soft/50 shadow-soft scale-[1.01]"
+                      : "border-transparent bg-cream-deep hover:border-accent/20 hover:bg-accent-soft/20 hover:scale-[1.01]"
                   }`}
                 >
-                  <span className="shrink-0 text-2xl">{h.icon}</span>
+                  <span
+                    className="shrink-0 text-2xl transition-transform duration-250"
+                    style={{ display: "inline-block", transform: sel ? "scale(1.15)" : "scale(1)" }}
+                  >
+                    {h.icon}
+                  </span>
                   <div className="min-w-0">
                     <p className="text-sm font-semibold text-foreground">{h.label}</p>
                     <p className="mt-0.5 text-[11px] text-muted-foreground">{h.desc}</p>
                   </div>
                   {sel && (
-                    <span className="ml-auto shrink-0 text-primary">
+                    <span className="ml-auto shrink-0 text-accent">
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" className="h-4 w-4" aria-hidden="true">
                         <path d="m5 12 4 4 10-10" />
                       </svg>
@@ -88,7 +109,7 @@ function Page() {
               onChange={(e) => setEmotion(e.target.value)}
               placeholder="Ceritakan perasaanmu sekarang… (contoh: cemas, bosan, marah, sedih)"
               rows={2}
-              className="w-full rounded-2xl border border-border bg-background px-4 py-3 text-sm resize-none placeholder:text-muted-foreground/60"
+              className="w-full rounded-2xl border border-border bg-background px-4 py-3 text-sm resize-none placeholder:text-muted-foreground/60 transition-all duration-200"
             />
           </div>
           <div>
@@ -100,7 +121,7 @@ function Page() {
               value={food}
               onChange={(e) => setFood(e.target.value)}
               placeholder="Makanan apa yang sedang kamu inginkan?"
-              className="w-full rounded-2xl border border-border bg-background px-4 py-3 text-sm"
+              className="w-full rounded-2xl border border-border bg-background px-4 py-3 text-sm transition-all duration-200"
             />
           </div>
           <div>
@@ -112,7 +133,7 @@ function Page() {
               value={trigger}
               onChange={(e) => setTrigger(e.target.value)}
               placeholder="Kejadian atau situasi yang memicu keinginan ini…"
-              className="w-full rounded-2xl border border-border bg-background px-4 py-3 text-sm"
+              className="w-full rounded-2xl border border-border bg-background px-4 py-3 text-sm transition-all duration-200"
             />
           </div>
         </div>
@@ -120,7 +141,7 @@ function Page() {
         <button
           onClick={submit}
           disabled={loading || !hunger}
-          className="w-full rounded-full bg-accent py-3.5 text-sm font-semibold text-accent-foreground shadow-peach transition-all duration-300 hover:-translate-y-0.5 disabled:opacity-60"
+          className="w-full rounded-full bg-accent py-3.5 text-sm font-semibold text-accent-foreground shadow-peach transition-all duration-300 btn-spring disabled:opacity-60"
         >
           {loading ? (
             <span className="inline-flex items-center gap-2">
@@ -138,10 +159,12 @@ function Page() {
       {result && (
         <section
           className="rounded-3xl p-6 space-y-4 animate-slide-up"
-          style={{ background: "var(--gradient-calm)" }}
+          style={{
+            background: "linear-gradient(135deg, oklch(0.96 0.025 155) 0%, oklch(0.97 0.015 165) 100%)",
+          }}
         >
           <div className="flex items-center gap-2">
-            <div className="grid h-8 w-8 place-items-center rounded-xl bg-primary text-primary-foreground">
+            <div className="grid h-8 w-8 place-items-center rounded-xl bg-primary text-primary-foreground shadow-soft">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" className="h-4 w-4" aria-hidden="true">
                 <path d="M12 3v3m0 12v3m9-9h-3M6 12H3m14.5-6.5-2 2m-9 9-2 2m13 0-2-2m-9-9-2-2" />
               </svg>
@@ -149,7 +172,7 @@ function Page() {
             <p className="text-xs font-bold uppercase tracking-wider text-primary">Insight Bloom Mind</p>
           </div>
           <p className="text-sm leading-relaxed text-foreground italic">{result.insight}</p>
-          <div className="rounded-2xl bg-card/80 p-4 ring-1 ring-border">
+          <div className="rounded-2xl bg-card/80 backdrop-blur-sm p-4 ring-1 ring-border/60">
             <p className="text-xs font-bold text-primary mb-1.5">💡 Coba lakukan ini:</p>
             <p className="text-sm text-foreground leading-relaxed">{result.action}</p>
           </div>

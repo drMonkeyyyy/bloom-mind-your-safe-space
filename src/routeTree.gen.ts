@@ -13,6 +13,7 @@ import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ApiMayarWebhookRouteImport } from './routes/api/mayar-webhook'
 import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/app'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedAppIndexRouteImport } from './routes/_authenticated/app/index'
@@ -51,6 +52,11 @@ const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiMayarWebhookRoute = ApiMayarWebhookRouteImport.update({
+  id: '/api/mayar-webhook',
+  path: '/api/mayar-webhook',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedAppRoute = AuthenticatedAppRouteImport.update({
@@ -167,6 +173,7 @@ export interface FileRoutesByFullPath {
   '/reset-password': typeof ResetPasswordRoute
   '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/app': typeof AuthenticatedAppRouteWithChildren
+  '/api/mayar-webhook': typeof ApiMayarWebhookRoute
   '/admin/analytics': typeof AuthenticatedAdminAnalyticsRoute
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/admin/transactions': typeof AuthenticatedAdminTransactionsRoute
@@ -190,6 +197,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/api/mayar-webhook': typeof ApiMayarWebhookRoute
   '/admin/analytics': typeof AuthenticatedAdminAnalyticsRoute
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/admin/transactions': typeof AuthenticatedAdminTransactionsRoute
@@ -217,6 +225,7 @@ export interface FileRoutesById {
   '/reset-password': typeof ResetPasswordRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
   '/_authenticated/app': typeof AuthenticatedAppRouteWithChildren
+  '/api/mayar-webhook': typeof ApiMayarWebhookRoute
   '/_authenticated/admin/analytics': typeof AuthenticatedAdminAnalyticsRoute
   '/_authenticated/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/_authenticated/admin/transactions': typeof AuthenticatedAdminTransactionsRoute
@@ -244,6 +253,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/admin'
     | '/app'
+    | '/api/mayar-webhook'
     | '/admin/analytics'
     | '/admin/settings'
     | '/admin/transactions'
@@ -267,6 +277,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/reset-password'
+    | '/api/mayar-webhook'
     | '/admin/analytics'
     | '/admin/settings'
     | '/admin/transactions'
@@ -293,6 +304,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/_authenticated/admin'
     | '/_authenticated/app'
+    | '/api/mayar-webhook'
     | '/_authenticated/admin/analytics'
     | '/_authenticated/admin/settings'
     | '/_authenticated/admin/transactions'
@@ -318,6 +330,7 @@ export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
+  ApiMayarWebhookRoute: typeof ApiMayarWebhookRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -348,6 +361,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/mayar-webhook': {
+      id: '/api/mayar-webhook'
+      path: '/api/mayar-webhook'
+      fullPath: '/api/mayar-webhook'
+      preLoaderRoute: typeof ApiMayarWebhookRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/app': {
@@ -565,6 +585,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
   ResetPasswordRoute: ResetPasswordRoute,
+  ApiMayarWebhookRoute: ApiMayarWebhookRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

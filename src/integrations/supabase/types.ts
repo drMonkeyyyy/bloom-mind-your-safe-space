@@ -395,8 +395,11 @@ export type Database = {
           id: string
           order_number: string
           package_name: string
+          payment_link: string | null
+          payment_link_id: string | null
           payment_method: string
           payment_status: Database["public"]["Enums"]["payment_status"]
+          transaction_id: string | null
           transfer_proof_url: string | null
           user_id: string
           verified_at: string | null
@@ -408,8 +411,11 @@ export type Database = {
           id?: string
           order_number: string
           package_name?: string
+          payment_link?: string | null
+          payment_link_id?: string | null
           payment_method?: string
           payment_status?: Database["public"]["Enums"]["payment_status"]
+          transaction_id?: string | null
           transfer_proof_url?: string | null
           user_id: string
           verified_at?: string | null
@@ -421,8 +427,11 @@ export type Database = {
           id?: string
           order_number?: string
           package_name?: string
+          payment_link?: string | null
+          payment_link_id?: string | null
           payment_method?: string
           payment_status?: Database["public"]["Enums"]["payment_status"]
+          transaction_id?: string | null
           transfer_proof_url?: string | null
           user_id?: string
           verified_at?: string | null

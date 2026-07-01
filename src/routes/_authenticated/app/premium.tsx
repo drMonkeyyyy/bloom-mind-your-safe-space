@@ -4,6 +4,8 @@ import { useAuth } from "@/hooks/use-auth";
 import { useProfile } from "@/hooks/use-profile";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
+import { createPayment } from "@/lib/payment.functions";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/app/premium")({
@@ -30,13 +32,16 @@ const STATUS_COLORS: Record<string, string> = {
   menunggu_pembayaran: "bg-amber-50 text-amber-700",
   menunggu_verifikasi: "bg-blue-50 text-blue-700",
   verified: "bg-emerald-50 text-emerald-700",
+  disetujui: "bg-emerald-50 text-emerald-700",
   rejected: "bg-red-50 text-red-700",
+  ditolak: "bg-red-50 text-red-700",
 };
 
 function Page() {
   const { user } = useAuth();
   const { data: profile } = useProfile(user?.id);
   const qc = useQueryClient();
+  const startPayment = useServerFn(createPayment);
 
   const { data: settings } = useQuery({
     queryKey: ["settings"],
@@ -50,39 +55,25 @@ function Page() {
 
   const activeOrder = orders?.find((o) => o.payment_status === "menunggu_pembayaran" || o.payment_status === "menunggu_verifikasi");
   const [creating, setCreating] = useState(false);
-  const [uploading, setUploading] = useState(false);
-  const [dragOver, setDragOver] = useState(false);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
   const createOrder = async () => {
     if (!user) return;
     setCreating(true);
-    const order_number = makeOrderNumber();
-    const { error } = await supabase.from("orders").insert({
-      order_number, user_id: user.id, amount: settings?.premium_price ?? 49000,
-      package_name: "Premium Bulanan", payment_method: "transfer_bank",
-    });
-    setCreating(false);
-    if (error) { toast.error(error.message); return; }
-    toast.success("Pesanan dibuat. Silakan transfer sesuai instruksi.");
-    qc.invalidateQueries({ queryKey: ["my-orders", user.id] });
-  };
-
-  const handleFile = async (file: File | null | undefined, orderId: string) => {
-    if (!file || !user) return;
-    if (file.size > 5 * 1024 * 1024) { toast.error("File terlalu besar. Maksimal 5MB."); return; }
-    setUploading(true);
-    const reader = new FileReader();
-    reader.onload = (e) => setPreviewUrl(e.target?.result as string);
-    reader.readAsDataURL(file);
-    const path = `${user.id}/${orderId}-${Date.now()}.${file.name.split(".").pop()}`;
-    const { error: upErr } = await supabase.storage.from("transfer-proofs").upload(path, file, { upsert: true });
-    if (upErr) { setUploading(false); toast.error(upErr.message); return; }
-    const { error } = await supabase.from("orders").update({ transfer_proof_url: path, payment_status: "menunggu_verifikasi" }).eq("id", orderId);
-    setUploading(false);
-    if (error) { toast.error(error.message); return; }
-    toast.success("Bukti transfer terkirim. Menunggu verifikasi admin.");
-    qc.invalidateQueries({ queryKey: ["my-orders", user.id] });
+    try {
+      const redirectUrl = window.location.origin + "/app/premium";
+      const result = await startPayment({ data: { redirectUrl } });
+      if (result && result.paymentLink) {
+        toast.success("Mengarahkan ke halaman pembayaran...");
+        window.location.href = result.paymentLink;
+      } else {
+        throw new Error("Gagal mendapatkan link pembayaran");
+      }
+    } catch (err: any) {
+      toast.error(err.message || "Gagal membuat pembayaran");
+    } finally {
+      setCreating(false);
+      qc.invalidateQueries({ queryKey: ["my-orders", user.id] });
+    }
   };
 
   const copyToClipboard = (text: string) => {
@@ -181,11 +172,11 @@ function Page() {
         </section>
       </div>
 
-      {/* ── TRANSFER INSTRUCTIONS ─────────────────────────────────── */}
+      {/* ── PAYMENT DETAILS ─────────────────────────────────────────── */}
       {activeOrder && (
         <section className="rounded-3xl bg-card p-6 ring-1 ring-border space-y-4">
           <div className="flex items-center justify-between">
-            <p className="font-display text-lg font-semibold">Instruksi Transfer</p>
+            <p className="font-display text-lg font-semibold">Status Pembayaran</p>
             <span className={`rounded-full px-3 py-1 text-xs font-semibold capitalize ${STATUS_COLORS[activeOrder.payment_status] ?? "bg-cream-deep text-muted-foreground"}`}>
               {activeOrder.payment_status.replace(/_/g, " ")}
             </span>
@@ -193,11 +184,10 @@ function Page() {
 
           <div className="rounded-2xl bg-cream-deep p-5 space-y-3">
             {[
-              { label: "Bank", value: settings?.bank_name },
-              { label: "No. Rekening", value: settings?.bank_account_number, copyable: true },
-              { label: "Atas Nama", value: settings?.bank_account_holder },
+              { label: "No. Pesanan", value: activeOrder.order_number, copyable: true },
+              { label: "Paket", value: activeOrder.package_name },
               { label: "Nominal", value: `Rp${activeOrder.amount.toLocaleString("id-ID")}` },
-              { label: "Kode Unik / No. Pesanan", value: activeOrder.order_number, copyable: true },
+              { label: "Metode Pembayaran", value: activeOrder.payment_method === "mayar" ? "Mayar Payment Gateway" : "Transfer Bank" },
             ].map(({ label, value, copyable }) => (
               <div key={label} className="flex items-center justify-between gap-2">
                 <span className="text-xs text-muted-foreground shrink-0">{label}</span>
@@ -216,61 +206,25 @@ function Page() {
             ))}
           </div>
 
-          <p className="text-xs text-muted-foreground">
-            ⚠️ Sertakan nomor pesanan <strong>{activeOrder.order_number}</strong> di kolom berita transfer.
-          </p>
-
           {activeOrder.payment_status === "menunggu_pembayaran" && (
-            <div>
-              <p className="mb-3 text-sm font-semibold">Upload bukti transfer</p>
-
-              {/* Drop zone */}
-              <label
-                htmlFor="proof-upload"
-                className={`flex flex-col items-center justify-center rounded-2xl border-2 border-dashed p-8 text-center cursor-pointer transition-all duration-200 ${
-                  dragOver ? "border-primary bg-primary-soft/30" : "border-border bg-cream-deep/50 hover:border-primary/50"
-                }`}
-                onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
-                onDragLeave={() => setDragOver(false)}
-                onDrop={(e) => {
-                  e.preventDefault(); setDragOver(false);
-                  handleFile(e.dataTransfer.files[0], activeOrder.id);
-                }}
-              >
-                {previewUrl ? (
-                  <img src={previewUrl} alt="Preview bukti transfer" className="max-h-40 rounded-xl object-contain" />
-                ) : uploading ? (
-                  <div className="flex flex-col items-center gap-2">
-                    <svg className="animate-spin h-8 w-8 text-primary" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                    </svg>
-                    <p className="text-sm text-muted-foreground">Mengupload…</p>
-                  </div>
-                ) : (
-                  <>
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" className="h-10 w-10 text-primary/50 mb-3" aria-hidden="true">
-                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12" />
-                    </svg>
-                    <p className="text-sm font-medium text-foreground">Drag & drop atau klik untuk upload</p>
-                    <p className="mt-1 text-xs text-muted-foreground">JPG, PNG, PDF · Maksimal 5MB</p>
-                  </>
-                )}
-                <input
-                  id="proof-upload"
-                  type="file"
-                  accept="image/*,application/pdf"
-                  className="sr-only"
-                  onChange={(e) => handleFile(e.target.files?.[0], activeOrder.id)}
-                  disabled={uploading}
-                />
-              </label>
-            </div>
+            <button
+              onClick={() => {
+                if (activeOrder.payment_link) {
+                  window.location.href = activeOrder.payment_link;
+                } else {
+                  createOrder();
+                }
+              }}
+              disabled={creating}
+              className="w-full rounded-full bg-primary py-4 text-sm font-semibold text-primary-foreground shadow-peach transition-all duration-300 hover:-translate-y-0.5 disabled:opacity-60"
+            >
+              {creating ? "Memproses…" : activeOrder.payment_link ? "Lanjutkan Pembayaran →" : "Bayar Sekarang via Mayar →"}
+            </button>
           )}
 
           {activeOrder.admin_note && (
             <div className="rounded-2xl bg-destructive/10 px-4 py-3 text-sm text-destructive">
-              <strong>Catatan admin:</strong> {activeOrder.admin_note}
+              <strong>Catatan:</strong> {activeOrder.admin_note}
             </div>
           )}
         </section>
