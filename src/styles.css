@@ -783,9 +783,9 @@
   input:not([type="range"]):not([type="checkbox"]):not([type="radio"]):not([type="file"]):focus,
   textarea:focus,
   select:focus {
-    border-color: var(--color-primary) !important;
+    border-color: var(--color-primary);
     box-shadow: 0 0 0 3px color-mix(in oklab, var(--primary) 15%, transparent);
-    background: white !important;
+    background: white;
   }
 
   /* Focus visible for keyboard nav */

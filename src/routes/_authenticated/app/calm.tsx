@@ -467,14 +467,20 @@ function VentingBox() {
             </div>
 
             {/* Textarea on paper */}
-            <div className="absolute inset-0 pl-14 pr-5 pt-3 pb-3">
+            <div className="absolute inset-0">
               <textarea
                 value={text}
                 onChange={(e) => { if (e.target.value.length <= maxChars) setText(e.target.value); }}
                 disabled={isReleasing}
                 placeholder="Tulis apa yang sedang mengganjal pikiranmu…"
-                className="w-full h-full bg-transparent text-sm border-none outline-none focus:ring-0 resize-none placeholder:text-amber-900/25 text-amber-950/80 leading-[28px]"
-                style={{ fontFamily: "'Georgia', 'Times New Roman', serif", fontStyle: "italic", boxShadow: "none" }}
+                className="w-full h-full bg-transparent text-sm border-none outline-none focus:ring-0 resize-none placeholder:text-amber-900/35 text-amber-950/80 leading-[28px] pl-16 pr-5 pt-[6px] pb-2"
+                style={{ 
+                  fontFamily: "'Georgia', 'Times New Roman', serif", 
+                  fontStyle: "italic", 
+                  boxShadow: "none",
+                  backgroundColor: "transparent",
+                  lineHeight: "28px"
+                }}
               />
             </div>
 

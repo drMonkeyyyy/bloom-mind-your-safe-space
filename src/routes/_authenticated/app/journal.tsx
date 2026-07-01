@@ -6,6 +6,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { BottomSheet, ModalDialog } from "@/components/app/BottomSheet";
 import { EmptyState } from "@/components/app/EmptyState";
+import { useProfile } from "@/hooks/use-profile";
 
 interface TimeCapsule {
   id: string;
@@ -18,16 +19,108 @@ export const Route = createFileRoute("/_authenticated/app/journal")({
   component: JournalPage,
 });
 
-const FIELDS = [
-  { key: "summary" as const, label: "Ringkasan hari ini", placeholder: "Apa yang terjadi hari ini?", rows: 4, icon: "📝" },
-  { key: "main_emotion" as const, label: "Emosi utama", placeholder: "Apa yang kamu rasakan?", rows: 2, icon: "💭" },
-  { key: "main_trigger" as const, label: "Pemicu utama", placeholder: "Apa yang memicunya?", rows: 2, icon: "⚡" },
-  { key: "lesson" as const, label: "Pelajaran hari ini", placeholder: "Apa yang bisa kamu pelajari?", rows: 2, icon: "💡" },
-  { key: "gratitude" as const, label: "Syukur hari ini", placeholder: "Hal kecil yang kamu syukuri…", rows: 2, icon: "🙏" },
-  { key: "tomorrow_focus" as const, label: "Fokus besok", placeholder: "Satu hal yang ingin kamu lakukan besok", rows: 2, icon: "🎯" },
+const COMPANION_LABELS: Record<string, string> = {
+  ibu: "👩‍👦 Ibu",
+  ayah: "👨‍👦 Ayah",
+  kakak_perempuan: "👩 Kakak",
+  kakak_laki: "👨 Kakak",
+  sahabat: "🤗 Sahabat",
+  partner: "💖 Pacar",
+  coach: "🧠 Coach",
+};
+
+/* ─── Cozy Diary Definitions ───────────────────────────────────── */
+const MOOD_OPTIONS = [
+  { label: "Bahagia", emoji: "😊", theme: "peach", desc: "Hari yang menyenangkan & ceria!" },
+  { label: "Tenang", emoji: "😌", theme: "mint", desc: "Damai, rileks, dan tenteram." },
+  { label: "Sedih", emoji: "😢", theme: "ocean", desc: "Perasaan biru, sepi, atau haru." },
+  { label: "Cemas", emoji: "😰", theme: "lavender", desc: "Gelisah, khawatir, atau tegang." },
+  { label: "Marah", emoji: "😡", theme: "coral", desc: "Kesal, dongkol, atau jengkel." },
+  { label: "Lelah", emoji: "😴", theme: "cozy", desc: "Energi habis, capek, butuh istirahat." },
 ];
 
-type FormKey = typeof FIELDS[number]["key"];
+const STICKERS = [
+  { label: "Santai", emoji: "☕" },
+  { label: "Belajar/Kerja", emoji: "🎒" },
+  { label: "Olahraga", emoji: "🏃" },
+  { label: "Makan Enak", emoji: "🍕" },
+  { label: "Belanja", emoji: "🛍️" },
+  { label: "Nonton", emoji: "🎬" },
+  { label: "Rehat", emoji: "🛌" },
+  { label: "Ngobrol", emoji: "💬" },
+  { label: "Musik", emoji: "🎵" },
+];
+
+const THEME_STYLES: Record<string, { bg: string; border: string; accent: string; tagBg: string; text: string; headerBg: string }> = {
+  peach: {
+    bg: "linear-gradient(135deg, oklch(0.99 0.012 70) 0%, oklch(0.975 0.025 70) 100%)",
+    border: "border-orange-200/50",
+    accent: "border-l-[5px] border-l-orange-400/90",
+    tagBg: "bg-orange-100/60 text-orange-800 font-bold",
+    text: "text-orange-950",
+    headerBg: "linear-gradient(135deg, oklch(0.98 0.035 70), oklch(0.95 0.05 60))"
+  },
+  mint: {
+    bg: "linear-gradient(135deg, oklch(0.99 0.008 140) 0%, oklch(0.975 0.015 140) 100%)",
+    border: "border-emerald-200/50",
+    accent: "border-l-[5px] border-l-emerald-400/90",
+    tagBg: "bg-emerald-100/60 text-emerald-800 font-bold",
+    text: "text-emerald-950",
+    headerBg: "linear-gradient(135deg, oklch(0.97 0.02 140), oklch(0.94 0.035 150))"
+  },
+  ocean: {
+    bg: "linear-gradient(135deg, oklch(0.99 0.008 220) 0%, oklch(0.97 0.018 220) 100%)",
+    border: "border-sky-200/50",
+    accent: "border-l-[5px] border-l-sky-400/90",
+    tagBg: "bg-sky-100/60 text-sky-800 font-bold",
+    text: "text-sky-950",
+    headerBg: "linear-gradient(135deg, oklch(0.96 0.02 220), oklch(0.93 0.045 230))"
+  },
+  lavender: {
+    bg: "linear-gradient(135deg, oklch(0.99 0.008 280) 0%, oklch(0.97 0.02 280) 100%)",
+    border: "border-purple-200/50",
+    accent: "border-l-[5px] border-l-purple-400/90",
+    tagBg: "bg-purple-100/60 text-purple-800 font-bold",
+    text: "text-purple-950",
+    headerBg: "linear-gradient(135deg, oklch(0.96 0.02 280), oklch(0.93 0.04 290))"
+  },
+  coral: {
+    bg: "linear-gradient(135deg, oklch(0.99 0.01 15) 0%, oklch(0.97 0.025 15) 100%)",
+    border: "border-rose-200/50",
+    accent: "border-l-[5px] border-l-rose-400/90",
+    tagBg: "bg-rose-100/60 text-rose-800 font-bold",
+    text: "text-rose-950",
+    headerBg: "linear-gradient(135deg, oklch(0.96 0.04 15), oklch(0.92 0.06 20))"
+  },
+  cozy: {
+    bg: "linear-gradient(135deg, oklch(0.99 0.003 90) 0%, oklch(0.97 0.006 90) 100%)",
+    border: "border-slate-200/50",
+    accent: "border-l-[5px] border-l-slate-400/90",
+    tagBg: "bg-slate-100/70 text-slate-800 font-bold",
+    text: "text-slate-950",
+    headerBg: "linear-gradient(135deg, oklch(0.95 0.01 100), oklch(0.91 0.02 90))"
+  },
+  default: {
+    bg: "linear-gradient(135deg, oklch(0.997 0.001 90) 0%, oklch(0.985 0.004 90) 100%)",
+    border: "border-border/60",
+    accent: "border-l-[4px] border-l-primary/45",
+    tagBg: "bg-muted text-muted-foreground font-bold",
+    text: "text-foreground",
+    headerBg: "linear-gradient(140deg, oklch(0.977 0.008 85) 0%, oklch(0.96 0.04 70) 50%, oklch(0.97 0.025 50) 100%)"
+  }
+};
+
+const getThemeByEmotion = (emotion: string | null) => {
+  if (!emotion) return "default";
+  const clean = emotion.trim().toLowerCase();
+  if (clean.includes("bahagia") || clean.includes("senang")) return "peach";
+  if (clean.includes("tenang") || clean.includes("damai")) return "mint";
+  if (clean.includes("sedih") || clean.includes("nangis")) return "ocean";
+  if (clean.includes("cemas") || clean.includes("takut") || clean.includes("khawatir")) return "lavender";
+  if (clean.includes("marah") || clean.includes("kesal")) return "coral";
+  if (clean.includes("lelah") || clean.includes("capek") || clean.includes("ngantuk") || clean.includes("burnout")) return "cozy";
+  return "default";
+};
 
 function groupByMonth(items: any[]) {
   const groups: Record<string, any[]> = {};
@@ -44,10 +137,20 @@ function JournalPage() {
   const qc = useQueryClient();
   const [sheetOpen, setSheetOpen] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
-  const [form, setForm] = useState<Record<FormKey, string>>({ summary: "", main_emotion: "", main_trigger: "", lesson: "", gratitude: "", tomorrow_focus: "" });
+  const [form, setForm] = useState({
+    summary: "",
+    main_emotion: "",
+    main_trigger: "",
+    lesson: "",
+    gratitude: "",
+    tomorrow_focus: ""
+  });
   const [editId, setEditId] = useState<string | null>(null);
   const [expanded, setExpanded] = useState<string | null>(null);
   const [savedAnim, setSavedAnim] = useState(false);
+
+  const { data: profile } = useProfile(user?.id);
+  const companionLabel = COMPANION_LABELS[profile?.selected_companion || "sahabat"] || "🤗 Sahabat";
 
   // Time Capsule setup
   const [capsules, setCapsules] = useState<TimeCapsule[]>([]);
@@ -115,18 +218,32 @@ function JournalPage() {
     },
   });
 
-  const reset = () => { setForm({ summary: "", main_emotion: "", main_trigger: "", lesson: "", gratitude: "", tomorrow_focus: "" }); setEditId(null); };
+  const reset = () => {
+    setForm({ summary: "", main_emotion: "", main_trigger: "", lesson: "", gratitude: "", tomorrow_focus: "" });
+    setEditId(null);
+  };
 
   const save = async () => {
     if (!user) return;
-    const payload = { ...form, user_id: user.id, source: "manual" as "manual" };
+    if (!form.summary.trim()) {
+      toast.error("Harap isi cerita diary Anda hari ini!");
+      return;
+    }
+    if (!form.main_emotion) {
+      toast.error("Harap pilih mood perasaan Anda hari ini!");
+      return;
+    }
+
+    const payload = { ...form, user_id: user.id, source: "manual" as const };
     const { error } = editId
       ? await supabase.from("journals").update(payload).eq("id", editId)
       : await supabase.from("journals").insert(payload);
     if (error) { toast.error(error.message); return; }
+    
     setSavedAnim(true);
-    toast.success(editId ? "Journal diperbarui." : "Journal tersimpan 📓");
-    setSheetOpen(false); reset();
+    toast.success(editId ? "Diary diperbarui." : "Diary tersimpan 📓");
+    setSheetOpen(false);
+    reset();
     setTimeout(() => setSavedAnim(false), 1000);
     qc.invalidateQueries({ queryKey: ["journals", user.id] });
     qc.invalidateQueries({ queryKey: ["last-journal", user.id] });
@@ -137,71 +254,107 @@ function JournalPage() {
     setDeleteConfirm(null);
     qc.invalidateQueries({ queryKey: ["journals", user!.id] });
     qc.invalidateQueries({ queryKey: ["last-journal", user!.id] });
-    toast.success("Journal dihapus.");
+    toast.success("Diary dihapus.");
   };
 
   const edit = (j: NonNullable<typeof items>[number]) => {
     setEditId(j.id);
-    setForm({ summary: j.summary ?? "", main_emotion: j.main_emotion ?? "", main_trigger: j.main_trigger ?? "", lesson: j.lesson ?? "", gratitude: j.gratitude ?? "", tomorrow_focus: j.tomorrow_focus ?? "" });
+    setForm({
+      summary: j.summary ?? "",
+      main_emotion: j.main_emotion ?? "",
+      main_trigger: j.main_trigger ?? "",
+      lesson: j.lesson ?? "",
+      gratitude: j.gratitude ?? "",
+      tomorrow_focus: j.tomorrow_focus ?? ""
+    });
     setSheetOpen(true);
+  };
+
+  const toggleSticker = (emoji: string, label: string) => {
+    const current = form.main_trigger ? form.main_trigger.split(", ").filter(Boolean) : [];
+    const item = `${emoji} ${label}`;
+    let next: string[];
+    if (current.includes(item)) {
+      next = current.filter(x => x !== item);
+    } else {
+      next = [...current, item];
+    }
+    setForm({ ...form, main_trigger: next.join(", ") });
   };
 
   const groups = groupByMonth(items ?? []);
 
   return (
     <div className="space-y-6">
-      {/* Warm amber gradient header */}
+      {/* ── Custom Notebook Styles ── */}
+      <style dangerouslySetInnerHTML={{ __html: `
+        @keyframes diary-bounce {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-3px); }
+        }
+        .animate-diary-bounce {
+          animation: diary-bounce 3s infinite ease-in-out;
+        }
+        .notebook-stitch {
+          background-image: radial-gradient(circle, oklch(0.45 0.05 70 / 0.15) 1px, transparent 1px);
+          background-size: 8px 8px;
+        }
+      `}} />
+
+      {/* Diary Canvas Binder Cover Header */}
       <div
-        className="relative overflow-hidden rounded-3xl px-6 pt-6 pb-5"
+        className="relative overflow-hidden rounded-[2rem] px-7 py-7 shadow-elevated border-2 border-amber-950/10"
         style={{
-          background: "linear-gradient(140deg, oklch(0.977 0.008 85) 0%, oklch(0.96 0.04 70) 50%, oklch(0.97 0.025 50) 100%)",
-          backgroundSize: "300% 300%",
-          animation: "gradient-shift 14s ease-in-out infinite",
+          background: "linear-gradient(135deg, oklch(0.35 0.06 65) 0%, oklch(0.25 0.04 60) 100%)",
         }}
       >
-        <div
-          className="absolute -right-6 -top-6 h-36 w-36 rounded-full pointer-events-none"
-          style={{ background: "oklch(0.77 0.085 40 / 0.15)", filter: "blur(35px)", animation: "blob-drift 20s ease-in-out infinite" }}
-        />
-        <div className="relative flex items-center justify-between">
+        {/* Binder Stitch Visual */}
+        <div className="absolute left-4 top-0 bottom-0 w-3 border-r border-dashed border-white/20" />
+        <div className="absolute right-6 -top-6 h-36 w-36 rounded-full pointer-events-none bg-white/5 blur-3xl animate-pulse" />
+
+        <div className="relative pl-6 flex items-center justify-between">
           <div>
-            <h1 className="font-display text-3xl font-semibold">Journal</h1>
-            <p className="mt-1 text-sm text-muted-foreground">Refleksikan harimu, satu cerita setiap kali</p>
+            <div className="flex items-center gap-2">
+              <span className="text-3xl animate-diary-bounce select-none">📓</span>
+              <h1 className="font-display text-2xl font-bold text-white tracking-wide">My Personal Diary</h1>
+            </div>
+            <p className="mt-1 text-xs text-stone-300 font-medium">Buku harian rahasiamu, aman & menenangkan.</p>
           </div>
           <button
             onClick={() => { reset(); setSheetOpen(true); }}
-            className={`relative overflow-hidden rounded-full px-4 py-2.5 text-sm font-semibold shadow-peach transition-all duration-350 btn-spring ${
-              savedAnim ? "bg-primary text-primary-foreground" : "bg-accent text-accent-foreground"
+            className={`relative overflow-hidden rounded-full px-5 py-2.5 text-xs font-bold shadow-soft transition-all duration-350 btn-spring ${
+              savedAnim ? "bg-emerald-500 text-white" : "bg-cream-deep hover:bg-white text-stone-900 border border-stone-200"
             }`}
-            aria-label="Tambah journal baru"
+            aria-label="Tulis lembar baru"
           >
-            {savedAnim ? "✓ Tersimpan!" : "+ Tulis"}
+            {savedAnim ? "✓ Tersimpan!" : "✍️ Tulis Diary"}
           </button>
         </div>
       </div>
 
       {/* ── TIME CAPSULE WIDGET ─────────────────────────────────── */}
-      <div className="rounded-3xl bg-card p-5 ring-1 ring-border/60 shadow-card space-y-4">
+      <div className="rounded-3xl bg-card p-5 ring-1 ring-border/60 shadow-card space-y-4 relative overflow-hidden">
+        <div className="absolute -right-4 -bottom-4 text-6xl opacity-5 select-none pointer-events-none">💌</div>
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="text-xl">✉️</span>
+          <div className="flex items-center gap-2.5">
+            <span className="text-2xl shrink-0 select-none">✉️</span>
             <div>
-              <h2 className="font-display text-lg font-semibold text-foreground">Kapsul Waktu Diri Sendiri</h2>
-              <p className="text-[11px] text-muted-foreground">Kirim surat penyemangat untuk dirimu di masa depan.</p>
+              <h2 className="font-display text-sm font-bold text-foreground">Kapsul Waktu Diri Sendiri</h2>
+              <p className="text-[10px] text-muted-foreground">Kunci surat harapan Anda untuk dibuka di masa depan.</p>
             </div>
           </div>
           <button
             onClick={() => setCapsuleOpen(true)}
-            className="rounded-full bg-accent-soft px-3.5 py-1.5 text-xs font-semibold text-foreground transition-all duration-200 hover:shadow-sm hover:scale-102"
+            className="rounded-full bg-amber-50 hover:bg-amber-100/80 border border-amber-200 text-amber-900 px-3.5 py-1.5 text-xs font-bold transition-all duration-200 hover:shadow-sm active:scale-95"
           >
-            + Kunci Surat 🔒
+            🔒 Kirim Surat
           </button>
         </div>
 
         {capsules.length === 0 ? (
-          <p className="text-xs text-muted-foreground/80 italic">Belum ada kapsul waktu yang terkunci.</p>
+          <p className="text-[10px] text-muted-foreground/80 italic pl-1">Belum ada kapsul waktu yang Anda kunci.</p>
         ) : (
-          <div className="flex gap-2 overflow-x-auto pb-1" style={{ scrollbarWidth: "none" }}>
+          <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
             {capsules.map((cap) => {
               const status = getCapsuleStatus(cap.unlockDate);
               return (
@@ -209,21 +362,21 @@ function JournalPage() {
                   key={cap.id}
                   onClick={() => {
                     if (status.locked) {
-                      toast.info(`Sabar ya, surat ini terkunci dan akan terbuka ${status.label} 🤫`);
+                      toast.info(`Sabar ya, surat rahasia ini baru bisa dibuka ${status.label} 🤫`);
                     } else {
                       setViewCapsule(cap);
                     }
                   }}
-                  className={`flex shrink-0 items-center gap-2.5 rounded-2xl px-3.5 py-2.5 text-left border transition-all duration-250 hover:scale-102 active:scale-95 ${
+                  className={`flex shrink-0 items-center gap-2 rounded-2xl px-3.5 py-2 text-left border transition-all duration-250 hover:scale-102 active:scale-95 ${
                     status.locked
-                      ? "border-border/60 bg-cream-deep/40 text-muted-foreground"
-                      : "border-primary/30 bg-primary-soft/45 text-foreground animate-glow-pulse shadow-sm"
+                      ? "border-border/60 bg-cream-deep/30 text-muted-foreground"
+                      : "border-amber-300/40 bg-amber-50/50 text-foreground animate-glow-pulse shadow-sm"
                   }`}
                 >
-                  <span className="text-lg">{status.locked ? "🔒" : "✉️"}</span>
-                  <div className="text-[11px] leading-tight">
-                    <p className="font-semibold">{status.locked ? "Kapsul Terkunci" : "Siap Dibuka!"}</p>
-                    <p className="text-[10px] opacity-75">{status.label}</p>
+                  <span className="text-base">{status.locked ? "🔒" : "✉️"}</span>
+                  <div className="text-[10px] leading-tight">
+                    <p className="font-bold">{status.locked ? "Kapsul Terkunci" : "Siap Dibuka!"}</p>
+                    <p className="text-[9px] opacity-75">{status.label}</p>
                   </div>
                 </button>
               );
@@ -232,106 +385,133 @@ function JournalPage() {
         )}
       </div>
 
-      {/* Journal list */}
+      {/* Diary history list */}
       {items?.length === 0 ? (
         <EmptyState
-          emoji="📓"
-          title="Belum ada journal"
-          description="Mulai tulis refleksi pertamamu. Sekecil apapun itu berarti."
-          action={{ label: "Tulis Journal Pertama", onClick: () => { reset(); setSheetOpen(true); } }}
+          emoji="✍️"
+          title="Buku Diary Masih Kosong"
+          description="Mulailah mengukir cerita hari ini. Setiap momen adalah lembaran berharga."
+          action={{ label: "Tulis Lembaran Pertama", onClick: () => { reset(); setSheetOpen(true); } }}
         />
       ) : (
         <div className="space-y-6">
           {Object.entries(groups).map(([month, entries]) => (
-            <div key={month}>
-              <div className="mb-3 flex items-center gap-3">
+            <div key={month} className="space-y-3">
+              <div className="mb-2.5 flex items-center gap-3">
                 <div className="h-px flex-1 bg-border/60" />
-                <p className="text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground/60">{month}</p>
+                <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-muted-foreground/60">{month}</p>
                 <div className="h-px flex-1 bg-border/60" />
               </div>
-              <div className="space-y-3">
+              <div className="space-y-4">
                 {entries.map((j, idx) => {
                   const isExpanded = expanded === j.id;
+                  const themeKey = getThemeByEmotion(j.main_emotion);
+                  const theme = THEME_STYLES[themeKey] || THEME_STYLES.default;
+
                   return (
                     <div
                       key={j.id}
-                      className="rounded-3xl bg-card p-5 ring-1 ring-border/60 shadow-card transition-all duration-250 hover:shadow-elevated hover:-translate-y-0.5 animate-slide-up"
+                      className={`rounded-[2rem] p-5 border transition-all duration-250 hover:shadow-elevated hover:-translate-y-0.5 animate-slide-up ${theme.border}`}
                       style={{
+                        background: theme.bg,
                         animationDelay: `${idx * 40}ms`,
-                        borderLeft: "3px solid oklch(0.77 0.085 40 / 0.35)",
+                        ... (themeKey !== "default" ? { borderLeft: `5px solid ${theme.border.includes("orange") ? "oklch(0.75 0.13 70)" : theme.border.includes("emerald") ? "oklch(0.7 0.12 140)" : theme.border.includes("sky") ? "oklch(0.68 0.1 220)" : theme.border.includes("purple") ? "oklch(0.68 0.1 280)" : theme.border.includes("rose") ? "oklch(0.68 0.14 15)" : "oklch(0.6 0.02 90)"}` } : {})
                       }}
                     >
-                      {/* Header */}
+                      {/* Top Header info */}
                       <div className="flex items-start justify-between gap-3">
                         <button
                           className="min-w-0 flex-1 text-left"
                           onClick={() => setExpanded(isExpanded ? null : j.id)}
                           aria-expanded={isExpanded}
                         >
-                          <div className="flex items-center gap-2">
-                            <span className="text-sm font-semibold text-foreground">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className={`text-xs font-extrabold ${theme.text}`}>
                               {new Date(j.created_at).toLocaleDateString("id-ID", { weekday: "long", day: "numeric", month: "long" })}
                             </span>
-                            <span className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${j.source === "from_chat" ? "bg-primary-soft text-primary" : "bg-cream-deep text-muted-foreground"}`}>
-                              {j.source === "from_chat" ? "Dari Chat" : "Manual"}
+                            {j.main_emotion && (
+                              <span className={`rounded-full px-2.5 py-0.5 text-[9px] font-bold ${theme.tagBg} shadow-sm border border-black/5`}>
+                                {j.main_emotion}
+                              </span>
+                            )}
+                            <span className={`rounded-full px-2 py-0.5 text-[8.5px] font-bold bg-white/80 border border-stone-200/50 text-stone-500`}>
+                              {j.source === "from_chat" ? companionLabel : "✍️ Manual"}
                             </span>
                           </div>
+
+                          {/* Preview / Lined summary */}
                           {j.summary && (
-                            <p className={`mt-2 text-sm leading-relaxed text-muted-foreground ${isExpanded ? "" : "line-clamp-2"}`}>
-                              {j.summary}
-                            </p>
+                            <div className="mt-3">
+                              {isExpanded ? (
+                                <div className="p-4 rounded-2xl bg-white/85 shadow-inner border border-stone-200/40">
+                                  <p className="text-xs text-stone-700 leading-relaxed whitespace-pre-wrap font-medium pl-1">
+                                    {j.summary}
+                                  </p>
+                                </div>
+                              ) : (
+                                <p className="text-xs font-semibold leading-relaxed text-stone-600 line-clamp-2 pl-1">
+                                  {j.summary}
+                                </p>
+                              )}
+                            </div>
                           )}
                         </button>
 
-                        <div className="flex shrink-0 flex-col gap-1">
+                        <div className="flex shrink-0 flex-col gap-1.5 pl-2">
                           <button
                             onClick={() => edit(j)}
-                            className="rounded-full border border-border px-3 py-1 text-[11px] font-medium text-foreground transition-all duration-200 hover:bg-cream-deep hover:scale-105"
+                            className="rounded-full border border-stone-300 bg-white/95 px-3 py-1.5 text-[10px] font-bold text-stone-700 shadow-sm transition-all duration-200 hover:bg-stone-50 hover:scale-105 active:scale-95"
                           >
                             Edit
                           </button>
                           <button
                             onClick={() => setDeleteConfirm(j.id)}
-                            className="rounded-full border border-destructive/30 px-3 py-1 text-[11px] font-medium text-destructive transition-all duration-200 hover:bg-destructive/5"
+                            className="rounded-full border border-destructive/20 bg-white/95 px-3 py-1.5 text-[10px] font-bold text-destructive shadow-sm transition-all duration-200 hover:bg-destructive/5 active:scale-95"
                           >
                             Hapus
                           </button>
                         </div>
                       </div>
 
-                      {/* Tags */}
-                      <div className="mt-3 flex flex-wrap gap-2">
-                        {j.main_emotion && (
-                          <span className="inline-flex items-center gap-1 rounded-full bg-primary-soft px-2.5 py-1 text-[11px] font-medium">
-                            💭 {j.main_emotion}
-                          </span>
-                        )}
-                        {j.main_trigger && (
-                          <span className="inline-flex items-center gap-1 rounded-full bg-accent-soft px-2.5 py-1 text-[11px] font-medium">
-                            ⚡ {j.main_trigger}
-                          </span>
-                        )}
-                      </div>
+                      {/* Display Stickers / Activities */}
+                      {j.main_trigger && (
+                        <div className="mt-3.5 flex flex-wrap gap-1.5 pl-1">
+                          {j.main_trigger.split(", ").map((stick: string, sIdx: number) => (
+                            <span key={sIdx} className="inline-flex items-center gap-1 rounded-xl bg-white/90 border border-stone-200/50 px-2 py-0.5 text-[10px] font-bold text-stone-700 shadow-sm">
+                              {stick}
+                            </span>
+                          ))}
+                        </div>
+                      )}
 
-                      {/* Expanded content */}
+                      {/* Expanded extra reflection boxes */}
                       {isExpanded && (
-                        <div className="mt-4 space-y-2.5 border-t border-border/60 pt-4 animate-slide-up">
-                          {j.lesson && (
-                            <div className="flex gap-2 text-sm">
-                              <span className="shrink-0">💡</span>
-                              <div><span className="font-medium">Pelajaran: </span><span className="text-muted-foreground">{j.lesson}</span></div>
+                        <div className="mt-4 space-y-3 border-t border-stone-200/50 pt-4 animate-slide-up pl-1 text-xs">
+                          {j.gratitude && (
+                            <div className="p-3 rounded-2xl bg-amber-50/50 border border-amber-100 flex gap-2">
+                              <span className="text-base select-none">🙏</span>
+                              <div>
+                                <p className="font-extrabold text-amber-900 leading-none text-[9px] uppercase tracking-wider mb-1">Hal Yang Disyukuri</p>
+                                <p className="text-stone-700 font-medium leading-relaxed">{j.gratitude}</p>
+                              </div>
                             </div>
                           )}
-                          {j.gratitude && (
-                            <div className="flex gap-2 text-sm">
-                              <span className="shrink-0">🙏</span>
-                              <div><span className="font-medium">Syukur: </span><span className="text-muted-foreground">{j.gratitude}</span></div>
+                          {j.lesson && (
+                            <div className="p-3 rounded-2xl bg-blue-50/55 border border-blue-100 flex gap-2">
+                              <span className="text-base select-none">💡</span>
+                              <div>
+                                <p className="font-extrabold text-blue-900 leading-none text-[9px] uppercase tracking-wider mb-1">Pelajaran Berharga</p>
+                                <p className="text-stone-700 font-medium leading-relaxed">{j.lesson}</p>
+                              </div>
                             </div>
                           )}
                           {j.tomorrow_focus && (
-                            <div className="flex gap-2 text-sm">
-                              <span className="shrink-0">🎯</span>
-                              <div><span className="font-medium">Besok: </span><span className="text-muted-foreground">{j.tomorrow_focus}</span></div>
+                            <div className="p-3 rounded-2xl bg-teal-50/60 border border-teal-100 flex gap-2">
+                              <span className="text-base select-none">🎯</span>
+                              <div>
+                                <p className="font-extrabold text-teal-900 leading-none text-[9px] uppercase tracking-wider mb-1">Fokus Esok Hari</p>
+                                <p className="text-stone-700 font-medium leading-relaxed">{j.tomorrow_focus}</p>
+                              </div>
                             </div>
                           )}
                         </div>
@@ -345,62 +525,171 @@ function JournalPage() {
         </div>
       )}
 
-      {/* ── WRITE SHEET ─────────────────────────────────────────── */}
+      {/* ── WRITE DIARY DIALOG SHEET ───────────────────────────── */}
       <BottomSheet
         open={sheetOpen}
         onClose={() => { setSheetOpen(false); reset(); }}
-        title={editId ? "Edit Journal" : "Tulis Journal Baru"}
+        title={editId ? "📝 Edit Diary" : "✍️ Tulis Lembaran Baru"}
       >
-        <div className="space-y-4">
-          {FIELDS.map(({ key, label, placeholder, rows, icon }) => (
-            <div key={key}>
-              <label className="mb-1.5 flex items-center gap-1.5 text-sm font-semibold text-foreground" htmlFor={`journal-${key}`}>
-                <span>{icon}</span> {label}
-              </label>
+        <div className="space-y-4 max-h-[75vh] overflow-y-auto scrollbar-none pr-1 pb-4">
+          
+          {/* Step 1: Mood Selector */}
+          <div>
+            <label className="mb-2 block text-xs font-bold text-stone-700 uppercase tracking-wider">
+              1. Bagaimana perasaanmu hari ini? (Pilih Mood)
+            </label>
+            <div className="grid grid-cols-3 gap-2">
+              {MOOD_OPTIONS.map((m) => {
+                const isSelected = form.main_emotion.includes(m.label);
+                return (
+                  <button
+                    key={m.label}
+                    type="button"
+                    onClick={() => setForm({ ...form, main_emotion: `${m.emoji} ${m.label}` })}
+                    className={`p-2.5 rounded-2xl text-left border transition-all duration-350 active:scale-95 ${
+                      isSelected
+                        ? "border-amber-400 bg-amber-50/70 font-extrabold shadow-sm scale-[1.02]"
+                        : "border-stone-200 bg-white hover:bg-stone-50 font-semibold"
+                    }`}
+                  >
+                    <span className="text-2xl block select-none mb-1">{m.emoji}</span>
+                    <span className="text-xs text-stone-900">{m.label}</span>
+                    <span className="text-[8px] text-stone-500 font-medium block leading-tight mt-0.5">{m.desc}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Step 2: Activity Stickers */}
+          <div>
+            <label className="mb-2 block text-xs font-bold text-stone-700 uppercase tracking-wider">
+              2. Stiker Aktivitas Hari Ini (Bisa pilih lebih dari satu)
+            </label>
+            <div className="flex flex-wrap gap-2">
+              {STICKERS.map((s) => {
+                const currentList = form.main_trigger ? form.main_trigger.split(", ").filter(Boolean) : [];
+                const itemStr = `${s.emoji} ${s.label}`;
+                const isSelected = currentList.includes(itemStr);
+                return (
+                  <button
+                    key={s.label}
+                    type="button"
+                    onClick={() => toggleSticker(s.emoji, s.label)}
+                    className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition-all duration-200 active:scale-95 ${
+                      isSelected
+                        ? "bg-amber-400 text-stone-900 shadow-sm scale-[1.02]"
+                        : "bg-stone-100 hover:bg-stone-200/80 text-stone-700 border border-stone-200/40"
+                    }`}
+                  >
+                    <span className="select-none">{s.emoji}</span>
+                    <span>{s.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Step 3: Notebook Writing Area */}
+          <div>
+            <label className="mb-1.5 block text-xs font-bold text-stone-700 uppercase tracking-wider" htmlFor="diary-summary">
+              3. Ceritakan harimu di sini...
+            </label>
+            <div className="relative rounded-2xl bg-stone-50/50 border border-stone-200 overflow-hidden shadow-inner focus-within:ring-2 focus-within:ring-amber-300">
               <textarea
-                id={`journal-${key}`}
-                value={form[key]}
-                onChange={(e) => setForm({ ...form, [key]: e.target.value })}
-                placeholder={placeholder}
-                rows={rows}
-                className="w-full rounded-2xl border border-border bg-background px-4 py-3 text-sm resize-none placeholder:text-muted-foreground/60 transition-all duration-200"
+                id="diary-summary"
+                value={form.summary}
+                onChange={(e) => setForm({ ...form, summary: e.target.value })}
+                placeholder="Tulis apa saja yang ada di kepalamu saat ini... keluh kesah, hal lucu, kekhawatiran, atau kesuksesan kecil..."
+                rows={7}
+                className="w-full bg-transparent p-4 text-sm focus:outline-none resize-none placeholder:text-stone-400 font-medium leading-relaxed text-stone-700"
               />
             </div>
-          ))}
-          <div className="flex gap-2 pt-1">
+          </div>
+
+          {/* Step 4: Reflexive Questions */}
+          <div className="space-y-3 pt-2 border-t border-stone-200/50">
+            <h3 className="text-xs font-bold text-stone-500 uppercase tracking-wider">4. Refleksi Tambahan (Opsional)</h3>
+            
+            <div>
+              <label className="mb-1.5 flex items-center gap-1.5 text-xs font-bold text-stone-700" htmlFor="diary-gratitude">
+                <span>🙏</span> Hal yang disyukuri hari ini?
+              </label>
+              <textarea
+                id="diary-gratitude"
+                value={form.gratitude}
+                onChange={(e) => setForm({ ...form, gratitude: e.target.value })}
+                placeholder="Hal kecil yang membuatmu tersenyum..."
+                rows={2}
+                className="w-full rounded-2xl border border-stone-200 bg-background px-4 py-3 text-xs resize-none placeholder:text-stone-400 focus:ring-1 focus:ring-amber-300 transition-all"
+              />
+            </div>
+
+            <div>
+              <label className="mb-1.5 flex items-center gap-1.5 text-xs font-bold text-stone-700" htmlFor="diary-lesson">
+                <span>💡</span> Pelajaran berharga hari ini?
+              </label>
+              <textarea
+                id="diary-lesson"
+                value={form.lesson}
+                onChange={(e) => setForm({ ...form, lesson: e.target.value })}
+                placeholder="Apa pelajaran hidup berharga yang didapat?"
+                rows={2}
+                className="w-full rounded-2xl border border-stone-200 bg-background px-4 py-3 text-xs resize-none placeholder:text-stone-400 focus:ring-1 focus:ring-amber-300 transition-all"
+              />
+            </div>
+
+            <div>
+              <label className="mb-1.5 flex items-center gap-1.5 text-xs font-bold text-stone-700" htmlFor="diary-tomorrow">
+                <span>🎯</span> Satu fokus untuk esok hari?
+              </label>
+              <textarea
+                id="diary-tomorrow"
+                value={form.tomorrow_focus}
+                onChange={(e) => setForm({ ...form, tomorrow_focus: e.target.value })}
+                placeholder="Satu niat baik untuk esok..."
+                rows={2}
+                className="w-full rounded-2xl border border-stone-200 bg-background px-4 py-3 text-xs resize-none placeholder:text-stone-400 focus:ring-1 focus:ring-amber-300 transition-all"
+              />
+            </div>
+          </div>
+
+          {/* Action buttons */}
+          <div className="flex gap-2.5 pt-3">
             <button
               onClick={save}
-              className="flex-1 rounded-full bg-accent py-3 text-sm font-semibold text-accent-foreground shadow-peach transition-all duration-250 hover:-translate-y-0.5 active:scale-95"
+              className="flex-1 rounded-full bg-amber-400 hover:bg-amber-500 py-3 text-xs font-bold text-stone-900 shadow-md transition-all duration-250 hover:-translate-y-0.5 active:scale-95"
             >
-              Simpan Journal
+              Simpan Lembaran Diary 📓
             </button>
             <button
               onClick={() => { setSheetOpen(false); reset(); }}
-              className="rounded-full border border-border px-5 py-3 text-sm font-medium text-foreground transition-all duration-200 hover:bg-cream-deep"
+              className="rounded-full border border-stone-200 px-5 py-3 text-xs font-bold text-stone-600 transition-all duration-200 hover:bg-stone-50"
             >
               Batal
             </button>
           </div>
+
         </div>
       </BottomSheet>
 
-      {/* ── DELETE CONFIRM ──────────────────────────────────────── */}
+      {/* ── DELETE DIALOG ───────────────────────────────────────── */}
       <ModalDialog
         open={!!deleteConfirm}
         onClose={() => setDeleteConfirm(null)}
-        title="Hapus Journal?"
+        title="Hapus Lembaran Diary?"
       >
-        <p className="text-sm text-muted-foreground">Journal ini akan dihapus permanen dan tidak bisa dikembalikan.</p>
+        <p className="text-xs text-muted-foreground leading-normal">Catatan harian ini akan terhapus selamanya dan tidak dapat dikembalikan kembali ke buku harianmu.</p>
         <div className="mt-5 flex gap-2">
           <button
             onClick={() => deleteConfirm && remove(deleteConfirm)}
-            className="flex-1 rounded-full bg-destructive py-2.5 text-sm font-semibold text-destructive-foreground transition-all duration-200 hover:opacity-90"
+            className="flex-1 rounded-full bg-destructive py-2.5 text-xs font-bold text-white transition-all duration-200 hover:opacity-90"
           >
-            Ya, Hapus
+            Ya, Hapus Permanen
           </button>
           <button
             onClick={() => setDeleteConfirm(null)}
-            className="flex-1 rounded-full border border-border py-2.5 text-sm font-medium hover:bg-cream-deep transition-all duration-200"
+            className="flex-1 rounded-full border border-border py-2.5 text-xs font-bold hover:bg-cream-deep transition-all duration-200"
           >
             Batal
           </button>
@@ -415,28 +704,28 @@ function JournalPage() {
       >
         <div className="space-y-4">
           <div>
-            <label className="mb-1.5 block text-sm font-semibold" htmlFor="capsule-msg">
-              Pesan untuk dirimu di masa depan
+            <label className="mb-1.5 block text-xs font-bold" htmlFor="capsule-msg">
+              Pesan rahasia untuk dirimu di masa depan
             </label>
             <textarea
               id="capsule-msg"
               value={newCapsuleText}
               onChange={(e) => setNewCapsuleText(e.target.value)}
-              placeholder="Tulis harapan, saran, doa, atau apa pun yang ingin kamu sampaikan kepada dirimu sendiri..."
+              placeholder="Tulis harapan, doa, atau nasihat untuk dirimu di masa depan... Kapsul ini akan terkunci rapat hingga tanggal buka."
               rows={5}
-              className="w-full rounded-2xl border border-border bg-background px-4 py-3 text-sm resize-none placeholder:text-muted-foreground/60 transition-all duration-200"
+              className="w-full rounded-2xl border border-stone-200 bg-background px-4 py-3 text-xs resize-none placeholder:text-stone-400 focus:ring-1 focus:ring-amber-300 transition-all"
             />
           </div>
 
           <div>
-            <label className="mb-1.5 block text-sm font-semibold" htmlFor="capsule-time">
-              Kapan kapsul ini boleh dibuka?
+            <label className="mb-1.5 block text-xs font-bold" htmlFor="capsule-time">
+              Kapan kapsul ini boleh dibuka kembali?
             </label>
             <select
               id="capsule-time"
               value={newCapsuleTarget}
               onChange={(e) => setNewCapsuleTarget(e.target.value)}
-              className="w-full rounded-2xl border border-border bg-background px-4 py-3 text-sm transition-all duration-200"
+              className="w-full rounded-2xl border border-stone-200 bg-background px-4 py-3 text-xs focus:ring-1 focus:ring-amber-300 transition-all"
             >
               <option value="1min">1 Menit (Untuk testing)</option>
               <option value="3mins">3 Menit (Untuk testing)</option>
@@ -450,13 +739,13 @@ function JournalPage() {
             <button
               onClick={saveCapsule}
               disabled={!newCapsuleText.trim()}
-              className="flex-1 rounded-full bg-accent py-3 text-sm font-semibold text-accent-foreground shadow-peach transition-all duration-250 hover:-translate-y-0.5 disabled:opacity-40"
+              className="flex-1 rounded-full bg-amber-400 py-3 text-xs font-bold text-stone-900 shadow-md transition-all duration-250 hover:-translate-y-0.5 disabled:opacity-40"
             >
               Kunci Kapsul 🔒
             </button>
             <button
               onClick={() => { setCapsuleOpen(false); setNewCapsuleText(""); }}
-              className="rounded-full border border-border px-5 py-3 text-sm font-medium hover:bg-cream-deep transition-all duration-200"
+              className="rounded-full border border-stone-200 px-5 py-3 text-xs font-bold text-stone-600 transition-all duration-200 hover:bg-stone-50"
             >
               Batal
             </button>
@@ -468,24 +757,27 @@ function JournalPage() {
       <ModalDialog
         open={!!viewCapsule}
         onClose={() => setViewCapsule(null)}
-        title="💌 Surat Dari Dirimu di Masa Lalu"
+        title="💌 Surat Dari Masa Lalu"
       >
         {viewCapsule && (
           <div className="space-y-4">
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">
+            <p className="text-[9px] text-muted-foreground uppercase tracking-wider font-extrabold">
               Ditulis pada: {new Date(viewCapsule.createdAt).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" })}
             </p>
             <div 
-              className="rounded-2xl p-5 border border-amber-200/40 shadow-sm leading-relaxed text-foreground/90 font-display italic text-base whitespace-pre-wrap"
-              style={{ background: "linear-gradient(135deg, oklch(0.97 0.05 75 / 0.3) 0%, oklch(0.99 0.03 80 / 0.1) 100%)" }}
+              className="rounded-2xl p-5 border border-amber-200/40 shadow-sm leading-relaxed text-stone-700 font-display italic text-sm whitespace-pre-wrap relative overflow-hidden"
+              style={{ background: "linear-gradient(135deg, oklch(0.98 0.035 70 / 0.4) 0%, oklch(0.99 0.02 80 / 0.1) 100%)" }}
             >
-              "{viewCapsule.message}"
+              <div className="absolute left-3 top-0 bottom-0 w-[1px] bg-red-300/40" />
+              <div className="pl-4">
+                "{viewCapsule.message}"
+              </div>
             </div>
             <button
               onClick={() => setViewCapsule(null)}
-              className="w-full rounded-full bg-primary py-2.5 text-sm font-semibold text-primary-foreground shadow-soft transition-all duration-200 hover:-translate-y-0.5 active:scale-95"
+              className="w-full rounded-full bg-amber-400 py-2.5 text-xs font-bold text-stone-900 shadow-md transition-all duration-200 hover:-translate-y-0.5 active:scale-95"
             >
-              Tutup & Simpan Kembali 🤍
+              Simpan Kembali Ke Lemari Kapsul 🤍
             </button>
           </div>
         )}

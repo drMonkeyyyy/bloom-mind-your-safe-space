@@ -188,6 +188,16 @@ Tugasmu: berikan respons hangat dan tidak menghakimi dalam Bahasa Indonesia, mak
     return { insight, action };
   });
 
+const COMPANION_ROLES: Record<string, string> = {
+  ibu: "Ibu",
+  ayah: "Ayah",
+  kakak_perempuan: "Kakak Perempuan",
+  kakak_laki: "Kakak Laki-laki",
+  sahabat: "Sahabat",
+  partner: "Pacar",
+  coach: "Coach",
+};
+
 const JournalFromChatInput = z.object({ chatId: z.string().uuid() });
 
 export const generateJournalFromChat = createServerFn({ method: "POST" })
@@ -195,9 +205,17 @@ export const generateJournalFromChat = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => JournalFromChatInput.parse(d))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
-    const { data: msgs } = await supabase.from("messages")
-      .select("role, content").eq("chat_id", data.chatId).order("created_at").limit(50);
+    
+    // Fetch chat to get companion key
+    const [{ data: msgs }, { data: chat }] = await Promise.all([
+      supabase.from("messages").select("role, content").eq("chat_id", data.chatId).order("created_at").limit(50),
+      supabase.from("chats").select("companion_key").eq("id", data.chatId).maybeSingle(),
+    ]);
+
     if (!msgs || msgs.length === 0) throw new Error("Tidak ada percakapan");
+
+    const companionKey = chat?.companion_key || "sahabat";
+    const companionRole = COMPANION_ROLES[companionKey] || "Sahabat";
 
     const { createGeminiClient, getGeminiApiKey } = await import("./ai-client.server");
     const apiKey = getGeminiApiKey();
@@ -205,9 +223,9 @@ export const generateJournalFromChat = createServerFn({ method: "POST" })
     const { generateText } = await import("ai");
     const gateway = createGeminiClient(apiKey);
 
-    const transcript = msgs.map((m) => `${m.role === "user" ? "Aku" : "AI"}: ${m.content}`).join("\n");
+    const transcript = msgs.map((m) => `${m.role === "user" ? "Aku" : companionRole}: ${m.content}`).join("\n");
 
-    const prompt = `Buat ringkasan journal dari percakapan berikut. Output HANYA JSON valid dengan key:
+    const prompt = `Buat ringkasan journal dari percakapan berikut antara Aku dan ${companionRole} saya. JANGAN gunakan kata "AI", "AI Chat", atau "asisten" dalam ringkasan, melainkan tulis sebagai masukan/saran/percakapan dengan "${companionRole}" Anda. Output HANYA JSON valid dengan key:
 summary (string, 2-3 kalimat ringkasan hari ini dari sudut pandang user),
 main_emotion (string, 1-3 kata),
 main_trigger (string, 1-5 kata),
@@ -248,16 +266,20 @@ export const getWeeklyInsight = createServerFn({ method: "POST" })
   .handler(async ({ context }) => {
     const { supabase, userId } = context;
     const since = new Date(Date.now() - 7 * 86400000).toISOString().slice(0, 10);
-    const [{ data: moods }, { data: eating }] = await Promise.all([
+    const [{ data: moods }, { data: eating }, { data: chat }] = await Promise.all([
       supabase.from("mood_checkins").select("mood, mood_score, stress_score, energy_score, triggers, date")
         .eq("user_id", userId).gte("date", since).order("date"),
       supabase.from("emotional_eating_logs").select("hunger_type, emotion, trigger, date")
         .eq("user_id", userId).gte("date", since),
+      supabase.from("chats").select("companion_key").eq("user_id", userId).order("updated_at", { ascending: false }).limit(1).maybeSingle(),
     ]);
 
     if (!moods || moods.length === 0) {
       return { text: "Belum cukup data minggu ini. Mulai mood check-in harian untuk dapat insight personal." };
     }
+
+    const companionKey = chat?.companion_key || "sahabat";
+    const companionRole = COMPANION_ROLES[companionKey] || "Sahabat";
 
     const { createGeminiClient, getGeminiApiKey } = await import("./ai-client.server");
     const apiKey = getGeminiApiKey();
@@ -268,7 +290,7 @@ export const getWeeklyInsight = createServerFn({ method: "POST" })
     const summary = `Mood check-in minggu ini: ${JSON.stringify(moods)}. Emotional eating: ${JSON.stringify(eating ?? [])}.`;
     const r = await generateText({
       model: gateway("gemini-3.5-flash"),
-      prompt: `Sebagai pendamping AI Bloom Mind, buat insight mingguan singkat (maks 5 kalimat) dalam Bahasa Indonesia yang hangat dan tidak menghakimi. Sebutkan: mood dominan, trigger paling sering, satu hal positif, dan satu fokus untuk minggu depan. Data: ${summary}`,
+      prompt: `Sebagai pendamping ${companionRole} Bloom Mind, buat insight mingguan singkat (maks 5 kalimat) dalam Bahasa Indonesia yang hangat dan tidak menghakimi. Sebutkan: mood dominan, trigger paling sering, satu hal positif, dan satu fokus untuk minggu depan. Data: ${summary}`,
     });
     return { text: r.text };
   });
