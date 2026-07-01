@@ -6,7 +6,7 @@ export const Route = createFileRoute("/_authenticated/app/calm")({
   component: Page,
 });
 
-type Tool = "breath" | "ground" | "selftalk" | "vent" | null;
+type Tool = "breath" | "ground" | "selftalk" | "vent" | "reframing" | "somatic" | null;
 
 /* ── Breathing Timer ────────────────────────────────────────────── */
 const PHASES = [
@@ -322,15 +322,17 @@ function VentingBox() {
   const [text, setText] = useState("");
   const [isReleasing, setIsReleasing] = useState(false);
   const [released, setReleased] = useState(false);
+  const [releaseMethod, setReleaseMethod] = useState<"burn" | "shred" | null>(null);
 
-  const handleRelease = () => {
+  const handleRelease = (method: "burn" | "shred") => {
     if (!text.trim()) return;
+    setReleaseMethod(method);
     setIsReleasing(true);
     setTimeout(() => {
       setReleased(true);
       setIsReleasing(false);
       setText("");
-    }, 1500);
+    }, 1800);
   };
 
   if (released) {
@@ -339,12 +341,16 @@ function VentingBox() {
         <div className="mx-auto grid h-16 w-16 place-items-center rounded-2xl bg-primary-soft text-3xl animate-float">
           🌿
         </div>
-        <h3 className="font-display text-xl font-semibold text-primary">Beban Pikiran Telah Dilepaskan</h3>
+        <h3 className="font-display text-xl font-semibold text-primary">
+          {releaseMethod === "burn" ? "Beban Pikiran Telah Dibakar" : "Beban Pikiran Telah Dihancurkan"}
+        </h3>
         <p className="text-sm text-muted-foreground leading-relaxed max-w-sm mx-auto">
-          Pikiranmu telah dilepaskan dan ditiup angin. Tarik napas dalam-dalam. Semuanya akan baik-baik saja. 🤍
+          {releaseMethod === "burn"
+            ? "Kecemasanmu telah terbakar habis menjadi abu hangat yang terbang ditiup angin. Tarik napas dalam-dalam, lepaskan semuanya. 🤍"
+            : "Kekhawatiranmu telah dicabik-cabik berkeping-keping hingga tak bersisa. Kamu aman sekarang. 🤍"}
         </p>
         <button
-          onClick={() => setReleased(false)}
+          onClick={() => { setReleased(false); setReleaseMethod(null); }}
           className="rounded-full border border-border px-5 py-2 text-xs font-semibold hover:bg-cream-deep transition-all duration-200"
         >
           Tulis Lagi
@@ -359,40 +365,381 @@ function VentingBox() {
         <span className="text-3xl animate-float">🌬️</span>
         <div>
           <p className="font-display text-lg font-semibold">Kotak Pelepasan Beban</p>
-          <p className="text-xs text-muted-foreground">Tuliskan apa pun kecemasanmu, lalu biarkan menguap pergi.</p>
+          <p className="text-xs text-muted-foreground">Tuliskan kecemasanmu, lalu pilih cara melenyapkannya.</p>
         </div>
       </div>
 
-      <div className="relative">
+      <div className="relative min-h-[140px] rounded-2xl border border-border bg-background overflow-hidden p-1">
         <textarea
           value={text}
           onChange={(e) => setText(e.target.value)}
           disabled={isReleasing}
           placeholder="Tulis apa saja yang mengganjal di pikiranmu di sini tanpa takut dihakimi..."
           rows={5}
-          className="w-full rounded-2xl border border-border bg-background px-4 py-3 text-sm resize-none placeholder:text-muted-foreground/60 transition-all duration-200"
-          style={{
-            transition: "all 1.5s cubic-bezier(0.25, 0.8, 0.25, 1)",
-            opacity: isReleasing ? 0 : 1,
-            transform: isReleasing ? "scale(0.85) translateY(-20px)" : "scale(1)",
-            filter: isReleasing ? "blur(10px)" : "none",
-            pointerEvents: isReleasing ? "none" : "auto",
-          }}
+          className={`w-full bg-transparent px-3 py-2 text-sm border-none focus:ring-0 resize-none placeholder:text-muted-foreground/60 transition-all duration-[1600ms] ${
+            isReleasing
+              ? releaseMethod === "burn"
+                ? "opacity-0 blur-md scale-95 pointer-events-none"
+                : "opacity-0 pointer-events-none"
+              : "opacity-100"
+          }`}
         />
-        {isReleasing && (
-          <div className="absolute inset-0 grid place-items-center pointer-events-none animate-pulse">
-            <span className="text-sm font-semibold text-primary">Melepaskan beban pikiranmu... 🍃</span>
+
+        {/* Shredding Effect Overlay */}
+        {isReleasing && releaseMethod === "shred" && (
+          <div className="absolute inset-0 w-full h-full pointer-events-none">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <div
+                key={i}
+                className="absolute inset-0 bg-background text-sm px-4 py-3 select-none animate-shred"
+                style={{
+                  clipPath: `inset(0 ${(100 - (i + 1) * 12.5)}% 0 ${i * 12.5}%)`,
+                  whiteSpace: "pre-wrap",
+                  wordBreak: "break-word",
+                  fontFamily: "inherit",
+                  lineHeight: "inherit",
+                  ["--shred-rot" as any]: `${(i - 3.5) * 5}deg`,
+                  animationDelay: `${i * 0.06}s`,
+                }}
+              >
+                {text}
+              </div>
+            ))}
           </div>
+        )}
+
+        {/* Burning Effect Overlay */}
+        {isReleasing && releaseMethod === "burn" && (
+          <>
+            <div
+              className="absolute inset-0 bg-gradient-to-t from-orange-500/30 via-yellow-500/10 to-transparent pointer-events-none"
+              style={{
+                transform: "translateY(-100%)",
+                transition: "transform 1.6s ease-out",
+              }}
+            />
+            <div className="absolute inset-0 pointer-events-none overflow-hidden">
+              {Array.from({ length: 25 }).map((_, i) => {
+                const randomX = Math.random() * 60 - 30;
+                const randomDelay = Math.random() * 0.5;
+                const size = Math.random() * 5 + 3;
+                return (
+                  <span
+                    key={i}
+                    className="absolute bottom-2 rounded-full bg-gradient-to-t from-red-500 to-yellow-400 animate-ash"
+                    style={{
+                      left: `${10 + Math.random() * 80}%`,
+                      width: `${size}px`,
+                      height: `${size}px`,
+                      ["--ash-x" as any]: `${randomX}px`,
+                      animationDelay: `${randomDelay}s`,
+                    }}
+                  />
+                );
+              })}
+            </div>
+          </>
         )}
       </div>
 
-      <button
-        onClick={handleRelease}
-        disabled={isReleasing || !text.trim()}
-        className="w-full rounded-full bg-accent py-3.5 text-sm font-semibold text-accent-foreground shadow-peach transition-all duration-300 btn-spring disabled:opacity-40"
-      >
-        {isReleasing ? "Menguap..." : "Lepaskan & Biarkan Pergi 🌬️"}
-      </button>
+      <div className="grid grid-cols-2 gap-3">
+        <button
+          onClick={() => handleRelease("burn")}
+          disabled={isReleasing || !text.trim()}
+          className="flex items-center justify-center gap-2 rounded-full bg-accent text-accent-foreground py-3.5 text-xs font-semibold shadow-peach transition-all duration-300 btn-spring disabled:opacity-40"
+        >
+          <span>🔥</span> Bakar Pikiran
+        </button>
+        <button
+          onClick={() => handleRelease("shred")}
+          disabled={isReleasing || !text.trim()}
+          className="flex items-center justify-center gap-2 rounded-full bg-primary text-primary-foreground py-3.5 text-xs font-semibold shadow-soft transition-all duration-300 btn-spring disabled:opacity-40"
+        >
+          <span>✂️</span> Hancurkan Kertas
+        </button>
+      </div>
+    </section>
+  );
+}
+
+/* ── Cognitive Reframing Wizard Component ─────────────────────────── */
+function CognitiveReframing() {
+  const [step, setStep] = useState(0);
+  const [answers, setAnswers] = useState<string[]>(Array(4).fill(""));
+  const [completed, setCompleted] = useState(false);
+
+  const steps = [
+    {
+      title: "Pikiran Negatif 🧠",
+      desc: "Apa pikiran buruk atau kekhawatiran yang sedang membebanimu saat ini?",
+      placeholder: "Contoh: Aku gagal ujian hari ini, aku memang lambat belajar...",
+    },
+    {
+      title: "Lingkaran Kendali ⭕",
+      desc: "Apakah situasi ini berada dalam kendalimu? Bagian mana yang bisa kamu ubah, dan bagian mana yang perlu kamu ikhlaskan?",
+      placeholder: "Contoh: Hasil ujian hari ini sudah terjadi dan di luar kendaliku. Yang bisa kukendalikan adalah cara belajarku selanjutnya...",
+    },
+    {
+      title: "Sudut Pandang Sahabat 🤝",
+      desc: "Jika sahabat dekatmu menceritakan beban ini kepadamu, kata-kata penuh kasih dan dukungan apa yang akan kamu katakan padanya?",
+      placeholder: "Contoh: Kamu sudah belajar keras akhir-akhir ini. Satu nilai tidak mendefinisikan kepintaranmu. Kamu bisa mencobanya lagi...",
+    },
+    {
+      title: "Formulasi Baru ✨",
+      desc: "Sekarang, mari satukan kebaikan tersebut. Tulis kembali pikiran negatif tadi menggunakan sudut pandang baru yang lebih ramah dan realistis pada dirimu sendiri.",
+      placeholder: "Contoh: Meskipun ujian ini mengecewakan, aku menghargai kerja kerasku. Aku akan belajar dengan strategi baru untuk ujian depan...",
+    },
+  ];
+
+  const handleNext = () => {
+    if (step < steps.length - 1) {
+      setStep(s => s + 1);
+    } else {
+      setCompleted(true);
+    }
+  };
+
+  const handleBack = () => {
+    if (step > 0) {
+      setStep(s => s - 1);
+    }
+  };
+
+  const handleReset = () => {
+    setStep(0);
+    setAnswers(Array(4).fill(""));
+    setCompleted(false);
+  };
+
+  if (completed) {
+    return (
+      <section className="rounded-3xl bg-card p-6 ring-1 ring-border/60 shadow-card space-y-5 animate-scale-in">
+        <div className="text-center space-y-2">
+          <span className="text-4xl animate-float inline-block">🪞</span>
+          <h3 className="font-display text-xl font-semibold text-primary">Sudut Pandang Baru Terbentuk</h3>
+          <p className="text-xs text-muted-foreground">Ini adalah cerminan pikiranmu yang lebih ramah dan bijak.</p>
+        </div>
+
+        <div className="space-y-4 pt-2">
+          <div className="rounded-2xl bg-destructive/5 p-4 border border-destructive/10">
+            <p className="text-[10px] font-bold text-destructive uppercase tracking-wider">Pikiran Awal</p>
+            <p className="mt-1 text-sm text-foreground italic">"{answers[0]}"</p>
+          </div>
+
+          <div className="rounded-2xl bg-primary-soft/60 p-4 border border-primary/10">
+            <p className="text-[10px] font-bold text-primary uppercase tracking-wider">Sudut Pandang Baru</p>
+            <p className="mt-1 text-sm font-medium text-foreground">
+              "{answers[3] || answers[2] || "Aku memilih untuk lebih berbelas kasih pada diriku sendiri."}"
+            </p>
+          </div>
+        </div>
+
+        <div className="flex justify-center pt-2">
+          <button
+            onClick={handleReset}
+            className="rounded-full bg-primary px-8 py-2.5 text-xs font-semibold text-primary-foreground shadow-soft transition-all duration-200 active:scale-95"
+          >
+            Mulai Ulang 🌿
+          </button>
+        </div>
+      </section>
+    );
+  }
+
+  const current = steps[step];
+
+  return (
+    <section className="rounded-3xl bg-card p-6 ring-1 ring-border/60 shadow-card space-y-5">
+      <div className="flex gap-1.5">
+        {steps.map((_, i) => (
+          <div
+            key={i}
+            className="h-1.5 flex-1 rounded-full transition-all duration-500"
+            style={{
+              background: i <= step
+                ? "linear-gradient(90deg, var(--color-primary), oklch(0.77 0.085 40))"
+                : "var(--color-cream-deep)",
+            }}
+          />
+        ))}
+      </div>
+
+      <div className="animate-scale-in" key={step}>
+        <h3 className="font-display text-lg font-semibold text-foreground">{current.title}</h3>
+        <p className="mt-1 text-sm text-muted-foreground">{current.desc}</p>
+
+        <textarea
+          value={answers[step]}
+          onChange={(e) => {
+            const newAns = [...answers];
+            newAns[step] = e.target.value;
+            setAnswers(newAns);
+          }}
+          placeholder={current.placeholder}
+          rows={4}
+          className="mt-4 w-full rounded-2xl border border-border bg-background px-4 py-3 text-sm resize-none placeholder:text-muted-foreground/50 transition-all duration-200"
+        />
+      </div>
+
+      <div className="flex justify-between items-center pt-2">
+        <button
+          onClick={handleBack}
+          disabled={step === 0}
+          className="rounded-full border border-border px-5 py-2 text-xs font-medium transition-all duration-200 hover:bg-cream-deep disabled:opacity-30"
+        >
+          ← Kembali
+        </button>
+
+        <button
+          onClick={handleNext}
+          disabled={!answers[step].trim()}
+          className="rounded-full bg-primary px-6 py-2.5 text-xs font-semibold text-primary-foreground shadow-soft transition-all duration-250 hover:-translate-y-0.5 active:scale-95 disabled:opacity-40"
+        >
+          {step === steps.length - 1 ? "Selesai 🌿" : "Selanjutnya →"}
+        </button>
+      </div>
+    </section>
+  );
+}
+
+/* ── Somatic Grounding & Tapping Component ────────────────────────── */
+type SomaticType = "butterfly" | "chest" | null;
+
+function SomaticExercise() {
+  const [selected, setSelected] = useState<SomaticType>(null);
+
+  return (
+    <div className="space-y-4">
+      {selected === null ? (
+        <div className="grid gap-3 sm:grid-cols-2">
+          <button
+            onClick={() => setSelected("butterfly")}
+            className="rounded-3xl bg-card p-5 text-left ring-1 ring-border/60 shadow-card hover:ring-primary/30 transition-all duration-200 hover:-translate-y-0.5 card-lift"
+          >
+            <p className="text-2xl">🦋</p>
+            <h4 className="mt-2 font-display text-base font-semibold text-foreground">Butterfly Hug</h4>
+            <p className="mt-1 text-xs text-muted-foreground">Ketukan dada bergantian (bilateral) untuk menenangkan sistem saraf.</p>
+          </button>
+          <button
+            onClick={() => setSelected("chest")}
+            className="rounded-3xl bg-card p-5 text-left ring-1 ring-border/60 shadow-card hover:ring-primary/30 transition-all duration-200 hover:-translate-y-0.5 card-lift"
+          >
+            <p className="text-2xl">🤲</p>
+            <h4 className="mt-2 font-display text-base font-semibold text-foreground">Chest Containment</h4>
+            <p className="mt-1 text-xs text-muted-foreground">Sentuhan tangan hangat di dada & perut untuk rasa aman fisik.</p>
+          </button>
+        </div>
+      ) : selected === "butterfly" ? (
+        <ButterflyHugExercise onBack={() => setSelected(null)} />
+      ) : (
+        <ChestContainmentExercise onBack={() => setSelected(null)} />
+      )}
+    </div>
+  );
+}
+
+function ButterflyHugExercise({ onBack }: { onBack: () => void }) {
+  const [active, setActive] = useState(false);
+
+  return (
+    <section className="rounded-3xl bg-card p-6 ring-1 ring-border/60 shadow-card space-y-6 text-center animate-scale-in">
+      <div className="flex items-center justify-between border-b border-border/40 pb-3">
+        <h4 className="font-display text-base font-semibold text-foreground">Butterfly Hug</h4>
+        <button onClick={onBack} className="text-xs text-muted-foreground hover:text-foreground">Kembali</button>
+      </div>
+
+      <div className="max-w-sm mx-auto space-y-4">
+        <p className="text-sm text-muted-foreground leading-relaxed">
+          Silangkan kedua tanganmu di dada (kaitkan ibu jari seperti kupu-kupu). Ketuk pundak/dada atas bergantian secara perlahan.
+        </p>
+
+        <div className="relative h-44 flex items-center justify-center gap-12 overflow-hidden my-4">
+          <div
+            className={`w-20 h-20 rounded-full flex items-center justify-center text-3xl transition-all duration-300 ${
+              active ? "animate-somatic-left bg-primary-soft/80 border border-primary text-primary" : "bg-cream-deep text-muted-foreground/60"
+            }`}
+          >
+            🤚
+          </div>
+          <div
+            className={`w-20 h-20 rounded-full flex items-center justify-center text-3xl transition-all duration-300 ${
+              active ? "animate-somatic-right bg-primary-soft/80 border border-primary text-primary" : "bg-cream-deep text-muted-foreground/60"
+            }`}
+          >
+            ✋
+          </div>
+
+          {active && (
+            <div className="absolute inset-x-0 bottom-2 text-[10px] font-bold text-primary tracking-widest uppercase animate-pulse">
+              Kiri · Kanan · Kiri · Kanan
+            </div>
+          )}
+        </div>
+
+        <p className="text-xs text-muted-foreground italic">
+          {active
+            ? "Tepuk pundak kiri dan kanan bergantian secara konstan mengikuti irama warna di atas."
+            : "Tekan tombol di bawah untuk memulai panduan ritme ketukan."}
+        </p>
+      </div>
+
+      <div className="flex justify-center pt-2">
+        <button
+          onClick={() => setActive(!active)}
+          className={`rounded-full px-8 py-3 text-xs font-semibold shadow-soft transition-all duration-250 active:scale-95 ${
+            active ? "bg-card border border-border text-foreground hover:bg-cream-deep" : "bg-primary text-primary-foreground hover:-translate-y-0.5"
+          }`}
+        >
+          {active ? "Hentikan Latihan" : "Mulai Panduan Ritme"}
+        </button>
+      </div>
+    </section>
+  );
+}
+
+function ChestContainmentExercise({ onBack }: { onBack: () => void }) {
+  const [active, setActive] = useState(false);
+
+  return (
+    <section className="rounded-3xl bg-card p-6 ring-1 ring-border/60 shadow-card space-y-6 text-center animate-scale-in">
+      <div className="flex items-center justify-between border-b border-border/40 pb-3">
+        <h4 className="font-display text-base font-semibold text-foreground">Sentuhan Tenang</h4>
+        <button onClick={onBack} className="text-xs text-muted-foreground hover:text-foreground">Kembali</button>
+      </div>
+
+      <div className="max-w-sm mx-auto space-y-4">
+        <p className="text-sm text-muted-foreground leading-relaxed">
+          Letakkan satu tangan di dada tengah dan tangan lainnya di perut bawah. Rasakan kontak fisik hangat ini.
+        </p>
+
+        <div className="h-44 flex items-center justify-center my-4">
+          <div
+            className={`w-32 h-32 rounded-full flex flex-col items-center justify-center transition-all duration-500 border border-primary/20 ${
+              active ? "animate-somatic-breath bg-primary-soft/40" : "bg-cream-deep"
+            }`}
+          >
+            <span className="text-3xl">🤲</span>
+            {active && <span className="text-[10px] font-bold text-primary uppercase mt-1 tracking-wider">Napas Lambat</span>}
+          </div>
+        </div>
+
+        <p className="text-xs text-muted-foreground italic">
+          {active
+            ? "Tarik napas dan hembuskan perlahan mengikuti denyutan lingkaran di atas. Rasakan kehangatan kedua telapak tanganmu."
+            : "Tekan tombol di bawah untuk memulai panduan visual napas somatik."}
+        </p>
+      </div>
+
+      <div className="flex justify-center pt-2">
+        <button
+          onClick={() => setActive(!active)}
+          className={`rounded-full px-8 py-3 text-xs font-semibold shadow-soft transition-all duration-250 active:scale-95 ${
+            active ? "bg-card border border-border text-foreground hover:bg-cream-deep" : "bg-primary text-primary-foreground hover:-translate-y-0.5"
+          }`}
+        >
+          {active ? "Hentikan Latihan" : "Mulai Panduan Napas"}
+        </button>
+      </div>
     </section>
   );
 }
@@ -531,9 +878,6 @@ function AmbientSoundPlayer() {
     if (rainGainRef.current && audioCtxRef.current) {
       rainGainRef.current.gain.setTargetAtTime(volume * 0.35, audioCtxRef.current.currentTime, 0.1);
     }
-    if (wavesGainRef.current && audioCtxRef.current) {
-      // Modulator handles waves, this sets master baseline volume
-    }
   }, [volume]);
 
   useEffect(() => {
@@ -621,7 +965,9 @@ function Page() {
     { k: "breath" as Tool, icon: "🌬️", title: "Breathing 4-7-8", desc: "Latihan napas terbimbing dengan timer", color: "oklch(0.71 0.045 160)" },
     { k: "ground" as Tool, icon: "🌍", title: "Grounding 5-4-3-2-1", desc: "Kembali ke momen saat ini", color: "oklch(0.65 0.06 230)" },
     { k: "selftalk" as Tool, icon: "🤍", title: "Self-Calming Talk", desc: "Kalimat menenangkan untuk dirimu", color: "oklch(0.70 0.05 310)" },
-    { k: "vent" as Tool, icon: "🍃", title: "Kotak Pelepasan", desc: "Tulis beban pikiran lalu biarkan melarut", color: "oklch(0.77 0.085 40)" },
+    { k: "vent" as Tool, icon: "🍃", title: "Kotak Pelepasan", desc: "Tulis dan bakar/hancurkan beban pikiran", color: "oklch(0.77 0.085 40)" },
+    { k: "reframing" as Tool, icon: "🪞", title: "Ubah Sudut Pandang", desc: "Tulis ulang pikiran negatif secara ramah", color: "oklch(0.75 0.08 40)" },
+    { k: "somatic" as Tool, icon: "🦋", title: "Latihan Somatik", desc: "Tenangkan saraf tubuh secara fisik", color: "oklch(0.71 0.045 160)" },
   ];
 
   return (
@@ -684,6 +1030,8 @@ function Page() {
       {tool === "ground" && <GroundingExercise />}
       {tool === "selftalk" && <SelfTalkCarousel />}
       {tool === "vent" && <VentingBox />}
+      {tool === "reframing" && <CognitiveReframing />}
+      {tool === "somatic" && <SomaticExercise />}
     </div>
   );
 }

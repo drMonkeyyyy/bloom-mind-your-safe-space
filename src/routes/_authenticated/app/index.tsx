@@ -57,12 +57,13 @@ function StreakFlame({ count }: { count: number }) {
 }
 
 /* ── Floating leaf SVG ─────────────────────────────────────────── */
-function FloatingLeaf({ className }: { className?: string }) {
+function FloatingLeaf({ className, style }: { className?: string; style?: React.CSSProperties }) {
   return (
     <svg
       viewBox="0 0 48 48"
       fill="none"
       className={className}
+      style={style}
       aria-hidden="true"
     >
       <path
