@@ -155,19 +155,22 @@ function Dashboard() {
   ];
 
   const todayStr = new Date().toISOString().slice(0, 10);
-  const questStorageKey = `bloom_quest_completed_${user?.id}_${todayStr}`;
+  const questStorageKey = user?.id ? `bloom_quest_completed_${user.id}_${todayStr}` : null;
   const dayOfMonth = new Date().getDate();
   const currentQuest = QUESTS[dayOfMonth % QUESTS.length];
 
-  const [questCompleted, setQuestCompleted] = useState(() => {
-    if (typeof window !== "undefined") {
-      return localStorage.getItem(questStorageKey) === "true";
-    }
-    return false;
-  });
+  const [questCompleted, setQuestCompleted] = useState(false);
   const [questCelebrated, setQuestCelebrated] = useState(false);
 
+  // Initialize from localStorage once user is loaded
+  useEffect(() => {
+    if (typeof window !== "undefined" && questStorageKey) {
+      setQuestCompleted(localStorage.getItem(questStorageKey) === "true");
+    }
+  }, [questStorageKey]);
+
   const handleCompleteQuest = () => {
+    if (!questStorageKey) return;
     setQuestCompleted(true);
     localStorage.setItem(questStorageKey, "true");
     setQuestCelebrated(true);
