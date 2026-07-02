@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { BreathingExercise } from "@/components/calm/BreathingExercise";
 import { GroundingExercise } from "@/components/calm/GroundingExercise";
 import { SelfTalkCarousel } from "@/components/calm/SelfTalkCarousel";
@@ -17,6 +17,16 @@ type Tool = "breath" | "ground" | "selftalk" | "vent" | "reframing" | "somatic" 
 
 function Page() {
   const [tool, setTool] = useState<Tool>(null);
+  const activeToolRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (tool) {
+      // Small timeout to allow the tool component to mount/render
+      setTimeout(() => {
+        activeToolRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 100);
+    }
+  }, [tool]);
 
   const tools = [
     { k: "breath" as Tool, icon: "🌬️", title: "Breathing 4-7-8", desc: "Latihan napas terbimbing dengan timer", color: "oklch(0.71 0.045 160)" },
@@ -83,14 +93,19 @@ function Page() {
         ))}
       </div>
 
-      {/* Active tool */}
-      {tool === "breath" && <BreathingExercise />}
-      {tool === "ground" && <GroundingExercise />}
-      {tool === "selftalk" && <SelfTalkCarousel />}
-      {tool === "vent" && <VentingBox />}
-      {tool === "reframing" && <CognitiveReframing />}
-      {tool === "somatic" && <SomaticExercise />}
-      {tool === "panic" && <PanicAttackTimer />}
+      {/* Active tool wrapper with scroll target */}
+      {tool && (
+        <div ref={activeToolRef} className="pt-2 scroll-mt-20">
+          {tool === "breath" && <BreathingExercise />}
+          {tool === "ground" && <GroundingExercise />}
+          {tool === "selftalk" && <SelfTalkCarousel />}
+          {tool === "vent" && <VentingBox />}
+          {tool === "reframing" && <CognitiveReframing />}
+          {tool === "somatic" && <SomaticExercise />}
+          {tool === "panic" && <PanicAttackTimer />}
+        </div>
+      )}
     </div>
   );
 }
+
