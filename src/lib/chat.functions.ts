@@ -126,7 +126,7 @@ export const sendChatMessage = createServerFn({ method: "POST" })
     let reply = "";
     try {
       const result = await generateText({
-        model: gateway("gemini-3.5-flash"),
+        model: gateway("gemini-2.5-flash"),
         system: sysPrompt,
         messages: (history ?? []).map((m) => ({
           role: m.role === "assistant" ? ("assistant" as const) : ("user" as const),
@@ -188,7 +188,7 @@ Tugasmu: berikan respons hangat dan tidak menghakimi dalam Bahasa Indonesia, mak
 
     let insight = "";
     try {
-      const r = await generateText({ model: gateway("gemini-3.5-flash"), prompt });
+      const r = await generateText({ model: gateway("gemini-2.5-flash"), prompt });
       insight = r.text?.trim() ?? "";
     } catch {
       insight = "Tarik napas dulu 5 menit. Tanyakan: apa yang sebenarnya kamu butuhkan saat ini? Mungkin bukan makanan, tapi rasa nyaman.";
@@ -261,7 +261,7 @@ JSON:`;
 
     let r;
     try {
-      r = await generateText({ model: gateway("gemini-3.5-flash"), prompt });
+      r = await generateText({ model: gateway("gemini-2.5-flash"), prompt });
     } catch (e) {
       handleAiError(e);
     }
@@ -323,7 +323,7 @@ export const getWeeklyInsight = createServerFn({ method: "POST" })
     let r;
     try {
       r = await generateText({
-        model: gateway("gemini-3.5-flash"),
+        model: gateway("gemini-2.5-flash"),
         prompt: `Sebagai pendamping ${companionRole} Bloom Mind, buat insight mingguan singkat (maks 5 kalimat) dalam Bahasa Indonesia yang hangat dan tidak menghakimi. Sebutkan: mood dominan, trigger paling sering, satu hal positif, dan satu fokus untuk minggu depan. Data: ${summary}`,
       });
     } catch (e) {
