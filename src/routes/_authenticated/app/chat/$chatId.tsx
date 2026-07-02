@@ -59,6 +59,7 @@ function ChatRoom() {
 
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
+  const [generatingJournal, setGeneratingJournal] = useState(false);
   const [panicMode, setPanicMode] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -91,12 +92,21 @@ function ChatRoom() {
   };
 
   const makeJournal = async () => {
-    if (isNew) return;
+    if (isNew || generatingJournal) return;
+    setGeneratingJournal(true);
     try {
       const res = await journalize({ data: { chatId } });
       toast.success("Journal dibuat dari percakapan.");
+      if (user?.id) {
+        qc.invalidateQueries({ queryKey: ["journals", user.id] });
+        qc.invalidateQueries({ queryKey: ["last-journal", user.id] });
+      }
       if (res.journalId) navigate({ to: "/app/journal" });
-    } catch (e) { toast.error(e instanceof Error ? e.message : "Gagal"); }
+    } catch (e) { 
+      toast.error(e instanceof Error ? e.message : "Gagal"); 
+    } finally {
+      setGeneratingJournal(false);
+    }
   };
 
   const showLimitWarning = profile?.plan === "free";
@@ -113,8 +123,19 @@ function ChatRoom() {
           </div>
         </div>
         {!isNew && (
-          <button onClick={makeJournal} className="rounded-full border border-border px-3 py-1.5 text-xs hover:bg-cream-deep">
-            📓 Jadikan Journal
+          <button 
+            disabled={generatingJournal} 
+            onClick={makeJournal} 
+            className="rounded-full border border-border px-3 py-1.5 text-xs hover:bg-cream-deep disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5"
+          >
+            {generatingJournal ? (
+              <>
+                <span className="h-1.5 w-1.5 animate-ping rounded-full bg-primary" />
+                Memproses Jurnal...
+              </>
+            ) : (
+              "📓 Jadikan Journal"
+            )}
           </button>
         )}
       </div>

@@ -13,6 +13,30 @@ function detectCrisis(text: string) {
   return CRISIS_KEYWORDS.some((k) => t.includes(k));
 }
 
+function handleAiError(e: unknown): never {
+  const err = e as any;
+  const msg = err instanceof Error ? err.message : String(err);
+  const msgLower = msg.toLowerCase();
+
+  const isRateLimit = 
+    msgLower.includes("429") || 
+    msgLower.includes("too many requests") || 
+    msgLower.includes("quota exceeded") || 
+    msgLower.includes("resource_exhausted") ||
+    err.statusCode === 429 ||
+    (err.lastError && err.lastError.statusCode === 429);
+
+  if (isRateLimit) {
+    throw new Error("RATE_LIMIT");
+  }
+
+  if (msgLower.includes("402") || msgLower.includes("payment required") || err.statusCode === 402) {
+    throw new Error("AI_CREDITS");
+  }
+
+  throw new Error("Gagal menghubungi AI: " + msg);
+}
+
 const CRISIS_REPLY = `Aku dengar kamu, dan aku sangat khawatir dengan apa yang sedang kamu rasakan. Kamu tidak sendirian. 🤍
 
 Tolong, dalam beberapa menit ke depan:
@@ -111,10 +135,7 @@ export const sendChatMessage = createServerFn({ method: "POST" })
       });
       reply = result.text?.trim() || "Aku di sini menemanimu. Bisa cerita lebih lanjut?";
     } catch (e: unknown) {
-      const msg = e instanceof Error ? e.message : String(e);
-      if (msg.includes("429")) throw new Error("RATE_LIMIT");
-      if (msg.includes("402")) throw new Error("AI_CREDITS");
-      throw new Error("Gagal menghubungi AI: " + msg);
+      handleAiError(e);
     }
 
     await supabase.from("messages").insert({
@@ -194,7 +215,7 @@ const COMPANION_ROLES: Record<string, string> = {
   kakak_perempuan: "Kakak Perempuan",
   kakak_laki: "Kakak Laki-laki",
   sahabat: "Sahabat",
-  partner: "Pacar",
+  partner: "Partner",
   coach: "Coach",
 };
 
@@ -238,7 +259,12 @@ ${transcript}
 
 JSON:`;
 
-    const r = await generateText({ model: gateway("gemini-3.5-flash"), prompt });
+    let r;
+    try {
+      r = await generateText({ model: gateway("gemini-3.5-flash"), prompt });
+    } catch (e) {
+      handleAiError(e);
+    }
     let parsed: Record<string, string> = {};
     try {
       const m = r.text.match(/\{[\s\S]*\}/);
@@ -247,9 +273,10 @@ JSON:`;
       parsed = { summary: r.text.slice(0, 400) };
     }
 
-    const { data: journal } = await supabase.from("journals").insert({
+    const { data: journal, error: insertError } = await supabase.from("journals").insert({
       user_id: userId,
       source: "from_chat",
+      companion_key: companionKey,
       summary: parsed.summary ?? null,
       main_emotion: parsed.main_emotion ?? null,
       main_trigger: parsed.main_trigger ?? null,
@@ -257,6 +284,11 @@ JSON:`;
       gratitude: parsed.gratitude ?? null,
       tomorrow_focus: parsed.tomorrow_focus ?? null,
     }).select("id").single();
+
+    if (insertError) {
+      console.error("Gagal menyimpan journal:", insertError);
+      throw new Error(`Gagal menyimpan journal: ${insertError.message}`);
+    }
 
     return { journalId: journal?.id };
   });
@@ -288,9 +320,14 @@ export const getWeeklyInsight = createServerFn({ method: "POST" })
     const gateway = createGeminiClient(apiKey);
 
     const summary = `Mood check-in minggu ini: ${JSON.stringify(moods)}. Emotional eating: ${JSON.stringify(eating ?? [])}.`;
-    const r = await generateText({
-      model: gateway("gemini-3.5-flash"),
-      prompt: `Sebagai pendamping ${companionRole} Bloom Mind, buat insight mingguan singkat (maks 5 kalimat) dalam Bahasa Indonesia yang hangat dan tidak menghakimi. Sebutkan: mood dominan, trigger paling sering, satu hal positif, dan satu fokus untuk minggu depan. Data: ${summary}`,
-    });
+    let r;
+    try {
+      r = await generateText({
+        model: gateway("gemini-3.5-flash"),
+        prompt: `Sebagai pendamping ${companionRole} Bloom Mind, buat insight mingguan singkat (maks 5 kalimat) dalam Bahasa Indonesia yang hangat dan tidak menghakimi. Sebutkan: mood dominan, trigger paling sering, satu hal positif, dan satu fokus untuk minggu depan. Data: ${summary}`,
+      });
+    } catch (e) {
+      handleAiError(e);
+    }
     return { text: r.text };
   });

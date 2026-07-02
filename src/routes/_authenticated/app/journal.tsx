@@ -25,7 +25,7 @@ const COMPANION_LABELS: Record<string, string> = {
   kakak_perempuan: "👩 Kakak",
   kakak_laki: "👨 Kakak",
   sahabat: "🤗 Sahabat",
-  partner: "💖 Pacar",
+  partner: "💖 Partner",
   coach: "🧠 Coach",
 };
 
@@ -435,7 +435,7 @@ function JournalPage() {
                               </span>
                             )}
                             <span className={`rounded-full px-2 py-0.5 text-[8.5px] font-bold bg-white/80 border border-stone-200/50 text-stone-500`}>
-                              {j.source === "from_chat" ? companionLabel : "✍️ Manual"}
+                              {j.source === "from_chat" ? (COMPANION_LABELS[j.companion_key || "sahabat"] || "🤗 Sahabat") : "✍️ Manual"}
                             </span>
                           </div>
 

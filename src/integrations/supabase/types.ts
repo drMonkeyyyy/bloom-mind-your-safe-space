@@ -270,6 +270,7 @@ export type Database = {
       }
       journals: {
         Row: {
+          companion_key: Database["public"]["Enums"]["companion_key"] | null
           created_at: string
           date: string
           gratitude: string | null
@@ -284,6 +285,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          companion_key?: Database["public"]["Enums"]["companion_key"] | null
           created_at?: string
           date?: string
           gratitude?: string | null
@@ -298,6 +300,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          companion_key?: Database["public"]["Enums"]["companion_key"] | null
           created_at?: string
           date?: string
           gratitude?: string | null
