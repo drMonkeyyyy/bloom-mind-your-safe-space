@@ -7,12 +7,20 @@ export const Route = createFileRoute('/api/mayar-webhook')({
         try {
           console.log('[Mayar Webhook] Received webhook notification');
           
-          // 1. Verify webhook secret if set in environment
+          // 1. Verify webhook secret
           const url = new URL(request.url);
           const secretParam = url.searchParams.get('secret');
           const envSecret = process.env.MAYAR_WEBHOOK_SECRET;
 
-          if (envSecret && secretParam !== envSecret) {
+          if (!envSecret) {
+            console.error('[Mayar Webhook] MAYAR_WEBHOOK_SECRET is not configured in env!');
+            return new Response(JSON.stringify({ error: 'Webhook misconfigured' }), {
+              status: 500,
+              headers: { 'Content-Type': 'application/json' },
+            });
+          }
+
+          if (secretParam !== envSecret) {
             console.warn('[Mayar Webhook] Unauthorized request (secret mismatch)');
             return new Response(JSON.stringify({ error: 'Unauthorized' }), {
               status: 401,
