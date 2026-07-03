@@ -188,7 +188,7 @@ Tugasmu: berikan respons hangat dan tidak menghakimi dalam Bahasa Indonesia, mak
 
     let insight = "";
     try {
-      const r = await generateText({ model: gateway("gemini-2.5-flash"), prompt });
+      const r = await generateText({ model: gateway("gemini-2.5-flash-lite"), prompt });
       insight = r.text?.trim() ?? "";
     } catch {
       insight = "Tarik napas dulu 5 menit. Tanyakan: apa yang sebenarnya kamu butuhkan saat ini? Mungkin bukan makanan, tapi rasa nyaman.";
@@ -261,7 +261,7 @@ JSON:`;
 
     let r;
     try {
-      r = await generateText({ model: gateway("gemini-2.5-flash"), prompt });
+      r = await generateText({ model: gateway("gemini-2.5-flash-lite"), prompt });
     } catch (e) {
       handleAiError(e);
     }

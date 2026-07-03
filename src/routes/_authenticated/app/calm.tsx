@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState, useRef, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import { BreathingExercise } from "@/components/calm/BreathingExercise";
 import { GroundingExercise } from "@/components/calm/GroundingExercise";
 import { SelfTalkCarousel } from "@/components/calm/SelfTalkCarousel";
@@ -18,15 +19,42 @@ type Tool = "breath" | "ground" | "selftalk" | "vent" | "reframing" | "somatic" 
 function Page() {
   const [tool, setTool] = useState<Tool>(null);
   const activeToolRef = useRef<HTMLDivElement>(null);
+  const [feedbackSubmitted, setFeedbackSubmitted] = useState<boolean>(false);
+  const [submitting, setSubmitting] = useState<boolean>(false);
 
   useEffect(() => {
     if (tool) {
+      setFeedbackSubmitted(false);
       // Small timeout to allow the tool component to mount/render
       setTimeout(() => {
         activeToolRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
       }, 100);
     }
   }, [tool]);
+
+  const submitFeedback = async (isHelpful: boolean) => {
+    if (!tool) return;
+    setSubmitting(true);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("Pengguna tidak terautentikasi");
+
+      const { error } = await supabase.from("calm_feedback_logs" as any).insert({
+        user_id: user.id,
+        exercise_key: tool,
+        is_helpful: isHelpful
+      });
+
+      if (error) throw error;
+      setFeedbackSubmitted(true);
+    } catch (e) {
+      console.error("Gagal mengirim feedback:", e);
+      // Fallback so user UX is not broken
+      setFeedbackSubmitted(true);
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   const tools = [
     { k: "breath" as Tool, icon: "🌬️", title: "Breathing 4-7-8", desc: "Latihan napas terbimbing dengan timer", color: "oklch(0.71 0.045 160)" },
@@ -95,14 +123,46 @@ function Page() {
 
       {/* Active tool wrapper with scroll target */}
       {tool && (
-        <div ref={activeToolRef} className="pt-2 scroll-mt-20">
-          {tool === "breath" && <BreathingExercise />}
-          {tool === "ground" && <GroundingExercise />}
-          {tool === "selftalk" && <SelfTalkCarousel />}
-          {tool === "vent" && <VentingBox />}
-          {tool === "reframing" && <CognitiveReframing />}
-          {tool === "somatic" && <SomaticExercise />}
-          {tool === "panic" && <PanicAttackTimer />}
+        <div ref={activeToolRef} className="pt-2 scroll-mt-20 space-y-6">
+          <div className="bg-card rounded-3xl p-5 ring-1 ring-border/50">
+            {tool === "breath" && <BreathingExercise />}
+            {tool === "ground" && <GroundingExercise />}
+            {tool === "selftalk" && <SelfTalkCarousel />}
+            {tool === "vent" && <VentingBox />}
+            {tool === "reframing" && <CognitiveReframing />}
+            {tool === "somatic" && <SomaticExercise />}
+            {tool === "panic" && <PanicAttackTimer />}
+          </div>
+
+          {/* Feedback Section */}
+          <div className="rounded-3xl bg-card p-6 ring-1 ring-border text-center space-y-3.5 shadow-sm animate-scale-in">
+            {!feedbackSubmitted ? (
+              <>
+                <p className="text-sm font-semibold text-foreground">Apakah latihan ini membantu menenangkan pikiran Anda?</p>
+                <div className="flex justify-center gap-3">
+                  <button
+                    onClick={() => submitFeedback(true)}
+                    disabled={submitting}
+                    className="rounded-full bg-[#6E8C71] hover:bg-[#5D7B60] text-white px-6 py-2.5 text-xs font-semibold active:scale-98 transition-all disabled:opacity-50"
+                  >
+                    👍 Ya, Membantu
+                  </button>
+                  <button
+                    onClick={() => submitFeedback(false)}
+                    disabled={submitting}
+                    className="rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 border px-6 py-2.5 text-xs font-semibold active:scale-98 transition-all disabled:opacity-50"
+                  >
+                    👎 Belum Membantu
+                  </button>
+                </div>
+              </>
+            ) : (
+              <div className="text-emerald-700 py-2 space-y-1">
+                <p className="text-sm font-bold">Terima kasih atas masukannya! ❤️</p>
+                <p className="text-xs text-muted-foreground">Masukan Anda membantu kami mengembangkan intervensi klinis yang lebih efektif.</p>
+              </div>
+            )}
+          </div>
         </div>
       )}
     </div>

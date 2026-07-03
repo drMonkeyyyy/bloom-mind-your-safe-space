@@ -6,24 +6,24 @@ export function SomaticExercise() {
   const [selected, setSelected] = useState<SomaticType>(null);
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 animate-fade-in">
       {selected === null ? (
         <div className="grid gap-3 sm:grid-cols-2">
           <button
             onClick={() => setSelected("butterfly")}
-            className="rounded-3xl bg-card p-5 text-left ring-1 ring-border/60 shadow-card hover:ring-primary/30 transition-all duration-200 hover:-translate-y-0.5 card-lift"
+            className="rounded-3xl bg-card p-5 text-left ring-1 ring-border/60 shadow-card hover:ring-[#6E8C71]/40 transition-all duration-200 hover:-translate-y-0.5 card-lift"
           >
             <p className="text-2xl">🦋</p>
             <h4 className="mt-2 font-display text-base font-semibold text-foreground">Butterfly Hug</h4>
-            <p className="mt-1 text-xs text-muted-foreground">Ketukan dada bergantian (bilateral) untuk menenangkan sistem saraf.</p>
+            <p className="mt-1 text-xs text-muted-foreground">Silangkan tangan di dada, kaitkan jempol, lalu ketuk pundak kiri & kanan secara bergantian perlahan untuk menenangkan saraf.</p>
           </button>
           <button
             onClick={() => setSelected("chest")}
-            className="rounded-3xl bg-card p-5 text-left ring-1 ring-border/60 shadow-card hover:ring-primary/30 transition-all duration-200 hover:-translate-y-0.5 card-lift"
+            className="rounded-3xl bg-card p-5 text-left ring-1 ring-border/60 shadow-card hover:ring-[#6E8C71]/40 transition-all duration-200 hover:-translate-y-0.5 card-lift"
           >
             <p className="text-2xl">🤲</p>
-            <h4 className="mt-2 font-display text-base font-semibold text-foreground">Chest Containment</h4>
-            <p className="mt-1 text-xs text-muted-foreground">Sentuhan tangan hangat di dada & perut untuk rasa aman fisik.</p>
+            <h4 className="mt-2 font-display text-base font-semibold text-foreground">Chest Containment (Sentuhan Tenang)</h4>
+            <p className="mt-1 text-xs text-muted-foreground">Letakkan tangan di dada & perut, ikuti panduan kembang-kempis napas somatik untuk menciptakan rasa aman fisik.</p>
           </button>
         </div>
       ) : selected === "butterfly" ? (
@@ -63,10 +63,18 @@ function ButterflyHugExercise({ onBack }: { onBack: () => void }) {
         <button onClick={onBack} className="text-xs text-muted-foreground/60 hover:text-muted-foreground transition-colors px-3 py-1.5 rounded-full hover:bg-cream-deep">← Kembali</button>
       </div>
 
-      {/* Instruction */}
-      <div className="px-6 pt-4">
-        <div className="rounded-2xl bg-primary-soft/30 border border-primary/10 px-4 py-3 text-xs text-foreground/70 leading-relaxed">
-          Silangkan kedua tanganmu di dada, kaitkan ibu jari seperti sayap kupu-kupu. Ketuk pundak kiri & kanan bergantian perlahan mengikuti ritme di bawah.
+      {/* Step by Step Instruction */}
+      <div className="px-6 pt-4 space-y-3">
+        <div className="bg-[#6E8C71]/10 border border-[#6E8C71]/20 p-4 rounded-2xl space-y-2.5 text-xs text-foreground/80">
+          <p className="font-bold text-foreground text-xs uppercase tracking-wider flex items-center gap-1.5">
+            <span>📋</span> Cara Melakukan Latihan:
+          </p>
+          <ul className="list-decimal pl-4 space-y-1.5 leading-relaxed">
+            <li><strong>Silangkan Tangan:</strong> Silangkan kedua tangan Anda di dada (telapak tangan kanan di bahu kiri, telapak tangan kiri di bahu kanan).</li>
+            <li><strong>Kaitkan Jempol:</strong> Kaitkan kedua ibu jari (jempol) Anda hingga membentuk seperti sayap kupu-kupu di dada Anda.</li>
+            <li><strong>Ketuk Bergantian:</strong> Tekan tombol <strong>Mulai</strong> di bawah, lalu tepuk pundak kiri dan kanan Anda secara bergantian mengikuti lampu lingkaran di bawah secara perlahan.</li>
+            <li><strong>Fokus:</strong> Pejamkan mata, bernapaslah perlahan, dan rasakan ketukan menstabilkan sistem saraf Anda.</li>
+          </ul>
         </div>
       </div>
 
@@ -194,17 +202,31 @@ function ChestContainmentExercise({ onBack }: { onBack: () => void }) {
         <div className="flex items-center gap-3">
           <span className="text-2xl">🤲</span>
           <div>
-            <h4 className="font-display text-sm font-bold text-foreground">Sentuhan Tenang</h4>
+            <h4 className="font-display text-sm font-bold text-foreground">Sentuhan Tenang (Chest Containment)</h4>
             <p className="text-[11px] text-muted-foreground">Napas somatik dengan panduan visual</p>
           </div>
         </div>
         <button onClick={onBack} className="text-xs text-muted-foreground/60 hover:text-muted-foreground transition-colors px-3 py-1.5 rounded-full hover:bg-cream-deep">← Kembali</button>
       </div>
 
-      {/* Instruction */}
-      <div className="px-6 pt-4">
-        <div className="rounded-2xl bg-primary-soft/30 border border-primary/10 px-4 py-3 text-xs text-foreground/70 leading-relaxed">
-          Letakkan satu tangan di dada dan satu di perut. Ikuti panduan lingkaran bernapas di bawah — tarik napas saat melebar, hembuskan saat mengecil.
+      {/* Step by Step Instruction */}
+      <div className="px-6 pt-4 space-y-3">
+        <div className="bg-[#6E8C71]/10 border border-[#6E8C71]/20 p-4 rounded-2xl space-y-2.5 text-xs text-foreground/80">
+          <p className="font-bold text-foreground text-xs uppercase tracking-wider flex items-center gap-1.5">
+            <span>📋</span> Cara Melakukan Latihan:
+          </p>
+          <ul className="list-decimal pl-4 space-y-1.5 leading-relaxed">
+            <li><strong>Letakkan Tangan:</strong> Letakkan satu telapak tangan Anda di dada (area jantung) dan telapak tangan lainnya di atas perut Anda.</li>
+            <li><strong>Mulai Napas:</strong> Tekan tombol <strong>Mulai</strong> di bawah untuk membuka panduan lingkaran visual bernapas.</li>
+            <li><strong>Ikuti Ritme:</strong> 
+              <ul className="list-disc pl-4 mt-1 space-y-1">
+                <li>Hirup napas perlahan saat lingkaran melebar (5 detik).</li>
+                <li>Tahan napas sejenak saat lingkaran diam (2 detik).</li>
+                <li>Hembuskan napas perlahan saat lingkaran mengecil (7 detik).</li>
+              </ul>
+            </li>
+            <li><strong>Homeostasis:</strong> Rasakan hangatnya sentuhan tangan Anda sendiri yang menstimulasi saraf somatik untuk menurunkan kepanikan fisik.</li>
+          </ul>
         </div>
       </div>
 

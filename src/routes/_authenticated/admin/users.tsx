@@ -24,7 +24,19 @@ function Page() {
       let qb = supabase.from("profiles").select("*").order("created_at", { ascending: false }).limit(200);
       if (filter !== "all") qb = qb.eq("plan", filter);
       if (q) qb = qb.or(`email.ilike.%${q}%,name.ilike.%${q}%`);
-      return (await qb).data ?? [];
+      
+      const [profilesRes, statsRes] = await Promise.all([
+        qb,
+        supabase.from("user_message_stats" as any).select("*").then(res => res).catch(() => ({ data: [] }))
+      ]);
+
+      const profiles = profilesRes.data ?? [];
+      const statsMap = new Map((statsRes.data ?? []).map((s: any) => [s.user_id, s.total_replies]));
+
+      return profiles.map(p => ({
+        ...p,
+        total_replies: statsMap.get(p.id) ?? 0
+      }));
     },
   });
 
@@ -62,7 +74,17 @@ function Page() {
               </div>
               <span className={`rounded-full px-3 py-1 text-xs capitalize ${u.plan==="premium"?"bg-accent-soft":"bg-cream-deep"}`}>{u.plan}</span>
             </div>
-            <div className="mt-3 flex flex-wrap gap-2">
+            
+            {/* AI usage details */}
+            <div className="mt-2.5 pt-2.5 border-t border-border/40 flex flex-wrap items-center gap-x-6 gap-y-1.5 text-xs text-muted-foreground">
+              <span>💬 <strong>{u.total_replies || 0}</strong> chat AI</span>
+              <span>🪙 Est. <strong>{(u.total_replies * 1650).toLocaleString("id-ID")}</strong> token</span>
+              <span className="text-emerald-700 font-semibold bg-emerald-50 px-2 py-0.5 rounded-md">
+                Est. Biaya: Rp {(u.total_replies * 2.57).toLocaleString("id-ID", { maximumFractionDigits: 1 })}
+              </span>
+            </div>
+
+            <div className="mt-3.5 flex flex-wrap gap-2 pt-2 border-t border-border/10">
               <button onClick={async()=>{ await setPlan({ data: { userId: u.id, plan: u.plan==="premium"?"free":"premium", days: 30 } }); toast.success("Plan diperbarui"); qc.invalidateQueries({ queryKey:["admin-users"]}); }}
                 className="rounded-full border border-border px-3 py-1 text-xs">{u.plan==="premium"?"Set Free":"Set Premium 30 hari"}</button>
               <button onClick={async()=>{ await suspend({ data: { userId: u.id, suspended: !u.suspended } }); qc.invalidateQueries({ queryKey:["admin-users"]}); }}

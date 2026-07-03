@@ -55,19 +55,19 @@ function MindPlant({ score, onClick }: { score: number; onClick?: () => void }) 
   
   if (score > 200) {
     stage = 5;
-    label = "Bunga Emas Abadi (Golden Bloom)";
+    label = "Bunga Emas Abadi";
     desc = "Luar biasa! Tanaman jiwamu mekar penuh dengan cahaya emas kebahagiaan. 🌟";
   } else if (score > 120) {
     stage = 4;
-    label = "Bunga Mekar (Blooming)";
+    label = "Bunga Mekar";
     desc = "Bunga mekar dengan indah! Jiwamu memancarkan kehangatan dan ketenangan. 🌼";
   } else if (score > 60) {
     stage = 3;
-    label = "Kuncup Bunga (Bud)";
+    label = "Kuncup Bunga";
     desc = "Kuncup bunga telah tumbuh! Keindahan mulai tampak dari konsistensimu. 🌸";
   } else if (score > 20) {
     stage = 2;
-    label = "Daun Rimbun (Leafy)";
+    label = "Daun Rimbun";
     desc = "Tanaman jiwamu mulai berdaun rimbun seiring kepedulianmu pada diri sendiri. 🌿";
   }
 
@@ -436,11 +436,11 @@ function Page() {
 
           <div className="space-y-2.5">
             {[
-              { level: 1, range: "0–20 Pts", emoji: "🌱", name: "Tunas Baru (Sprout)", desc: "Tanaman jiwamu baru saja bertunas. Teruskan langkah kecilmu merawat diri!" },
-              { level: 2, range: "21–60 Pts", emoji: "🌿", name: "Daun Rimbun (Leafy)", desc: "Tanaman jiwamu mulai berdaun rimbun seiring kepedulianmu pada diri sendiri." },
-              { level: 3, range: "61–120 Pts", emoji: "🌸", name: "Kuncup Bunga (Bud)", desc: "Kuncup bunga telah tumbuh! Keindahan mulai tampak dari konsistensimu." },
-              { level: 4, range: "121–200 Pts", emoji: "🌼", name: "Bunga Mekar (Blooming)", desc: "Bunga mekar dengan indah! Jiwamu memancarkan kehangatan dan ketenangan." },
-              { level: 5, range: "> 200 Pts", emoji: "🌟", name: "Bunga Emas Abadi (Golden Bloom)", desc: "Luar biasa! Tanaman jiwamu mekar penuh dengan cahaya emas kebahagiaan." }
+              { level: 1, range: "0–20 Pts", emoji: "🌱", name: "Tunas Baru", desc: "Tanaman jiwamu baru saja bertunas. Teruskan langkah kecilmu merawat diri!" },
+              { level: 2, range: "21–60 Pts", emoji: "🌿", name: "Daun Rimbun", desc: "Tanaman jiwamu mulai berdaun rimbun seiring kepedulianmu pada diri sendiri." },
+              { level: 3, range: "61–120 Pts", emoji: "🌸", name: "Kuncup Bunga", desc: "Kuncup bunga telah tumbuh! Keindahan mulai tampak dari konsistensimu." },
+              { level: 4, range: "121–200 Pts", emoji: "🌼", name: "Bunga Mekar", desc: "Bunga mekar dengan indah! Jiwamu memancarkan kehangatan dan ketenangan." },
+              { level: 5, range: "> 200 Pts", emoji: "🌟", name: "Bunga Emas Abadi", desc: "Luar biasa! Tanaman jiwamu mekar penuh dengan cahaya emas kebahagiaan." }
             ].map((st) => {
               const currentStage = growthScore > 200 ? 5 : growthScore > 120 ? 4 : growthScore > 60 ? 3 : growthScore > 20 ? 2 : 1;
               const isActive = currentStage === st.level;

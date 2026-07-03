@@ -1071,3 +1071,232 @@ export function exportGratitudesReportPDF(entries: any[]) {
   triggerPrint(html);
 }
 
+export function exportAnalyticsReportPDF(data: any) {
+  const printTimestamp = getTimestampIndo();
+  
+  const toolsInfo = {
+    breath: { name: "Breathing 4-7-8", emoji: "🌬️" },
+    ground: { name: "Grounding 5-4-3-2-1", emoji: "🌍" },
+    selftalk: { name: "Self-Calming Talk", emoji: "🤍" },
+    vent: { name: "Kotak Pelepasan", emoji: "🍃" },
+    reframing: { name: "Ubah Sudut Pandang", emoji: "🪞" },
+    somatic: { name: "Latihan Somatik", emoji: "🦋" },
+    panic: { name: "Panic Attack Timer", emoji: "🆘" },
+  };
+
+  const efficacyRowsHtml = Object.entries(toolsInfo).map(([key, info]) => {
+    const stats = data?.feedbackStats?.efficacy?.[key] ?? { total: 0, helpful: 0, pct: 0 };
+    return `
+      <tr>
+        <td style="padding: 8px; border-bottom: 1px solid #f0ede6; font-size: 11px;">${info.emoji} ${info.name}</td>
+        <td style="padding: 8px; border-bottom: 1px solid #f0ede6; font-size: 11px; text-align: center;">${stats.pct}%</td>
+        <td style="padding: 8px; border-bottom: 1px solid #f0ede6; font-size: 11px; text-align: center;">${stats.helpful} / ${stats.total} sesi</td>
+      </tr>
+    `;
+  }).join("");
+
+  const MOOD_RESOLUTIONS_INFO: any = {
+    stress: { emoji: "😰", name: "Stres (Stress)", neuro: "Aktivasi Aksis HPA -> Sekresi Kortisol & Adrenalin -> Menurunkan kontrol kognitif PFC.", transmitter: "Peningkatan Asetilkolin (Vagus) & Supresi Kortisol" },
+    cemas: { emoji: "😨", name: "Cemas (Anxiety)", neuro: "Hiperaktivitas Amigdala -> Hambatan GABAergik -> Sinyal ancaman persisten ke PFC.", transmitter: "Peningkatan Transmisi GABA & Supresi Amigdala" },
+    sedih: { emoji: "😢", name: "Sedih (Sadness)", neuro: "Hipofungsi Serotonergik Raphe Nucleus -> Hiperaktivitas Default Mode Network (DMN).", transmitter: "Stimulasi Serotonin & Reduksi Aktivitas DMN" },
+    lelah: { emoji: "🥱", name: "Lelah (Fatigue)", neuro: "Akumulasi Adenosin basal otak -> Deplesi cadangan glikogen astrosit.", transmitter: "Klirens Adenosin & Restorasi Glikogen Astrosit" },
+    burnout: { emoji: "🔥", name: "Burnout", neuro: "Downregulation reseptor Dopamin D2 di jalur mesolimbik akibat kortisol jangka panjang.", transmitter: "Resensitisasi Dopamin D2 & Regulasi Kortisol" },
+    kesepian: { emoji: "👤", name: "Kesepian (Loneliness)", neuro: "Aktivasi nyeri sosial di ACC -> Menginduksi respon simpatis & inflamasi.", transmitter: "Stimulasi Oksitosin & Pelepasan Endorfin" },
+    marah: { emoji: "😡", name: "Marah (Anger)", neuro: "Amygdala Hijack -> Pelepasan Norepinefrin & Adrenalin -> Kerusakan inhibisi PFC.", transmitter: "Supresi Norepinefrin & Aktivasi Kognitif PFC" },
+  };
+
+  const neuroRowsHtml = Object.entries(MOOD_RESOLUTIONS_INFO).map(([key, info]: any) => {
+    const stats = data?.moodStats30Days?.[key] ?? { uniqueUsers: 0, avgFrequency: 0 };
+    return `
+      <tr>
+        <td style="padding: 8px; border-bottom: 1px solid #f0ede6; font-size: 11px; font-weight: bold;">${info.emoji} ${info.name}</td>
+        <td style="padding: 8px; border-bottom: 1px solid #f0ede6; font-size: 11px; text-align: center;">${stats.uniqueUsers} orang</td>
+        <td style="padding: 8px; border-bottom: 1px solid #f0ede6; font-size: 11px; text-align: center;">${stats.avgFrequency}x / bln</td>
+        <td style="padding: 8px; border-bottom: 1px solid #f0ede6; font-size: 10px; line-height: 1.4;">${info.neuro}</td>
+        <td style="padding: 8px; border-bottom: 1px solid #f0ede6; font-size: 10px; line-height: 1.4; color: #15803d; font-weight: bold;">${info.transmitter}</td>
+      </tr>
+    `;
+  }).join("");
+
+  const estApiCost = (data?.aiReplyCount ?? 0) * 2.57;
+
+  const html = `
+    <html>
+    <head>
+      <title>Laporan Klinis & Efektivitas Intervensi Neurologi JN-CALM</title>
+      <style>
+        body {
+          font-family: 'system-ui', -apple-system, sans-serif;
+          color: #3f3f46;
+          background-color: #faf8f5;
+          padding: 25px;
+          margin: 0;
+          -webkit-print-color-adjust: exact;
+          print-color-adjust: exact;
+        }
+        .container {
+          background: white;
+          border: 1px solid #e5e2dc;
+          border-radius: 20px;
+          padding: 30px;
+          margin: 0 auto;
+          box-shadow: 0 4px 20px rgba(0,0,0,0.01);
+        }
+        .header {
+          text-align: center;
+          border-bottom: 2px dashed #e5e2dc;
+          padding-bottom: 15px;
+          margin-bottom: 25px;
+        }
+        .logo {
+          font-size: 20px;
+          font-weight: bold;
+          color: #7b8e72;
+        }
+        .title {
+          font-size: 16px;
+          font-weight: bold;
+          margin-top: 5px;
+          color: #27272a;
+        }
+        .subtitle {
+          font-size: 10px;
+          color: #71717a;
+          text-transform: uppercase;
+          letter-spacing: 1px;
+          margin-top: 3px;
+        }
+        .stats-grid {
+          display: grid;
+          grid-template-cols: repeat(5, 1fr);
+          gap: 12px;
+          margin-bottom: 25px;
+        }
+        .stats-card {
+          border: 1px solid #f0ede6;
+          border-radius: 12px;
+          padding: 10px;
+          background: #fdf9f2;
+          text-align: center;
+        }
+        .stats-label {
+          font-size: 9px;
+          color: #8b6e51;
+          text-transform: uppercase;
+          font-weight: bold;
+        }
+        .stats-value {
+          font-size: 14px;
+          font-weight: bold;
+          margin-top: 5px;
+          color: #27272a;
+        }
+        .section-title {
+          font-size: 13px;
+          font-weight: bold;
+          color: #7b8e72;
+          text-transform: uppercase;
+          border-left: 3px solid #7b8e72;
+          padding-left: 8px;
+          margin-top: 25px;
+          margin-bottom: 12px;
+        }
+        table {
+          width: 100%;
+          border-collapse: collapse;
+          margin-bottom: 20px;
+        }
+        th {
+          background: #fdf9f2;
+          color: #8b6e51;
+          font-size: 10px;
+          font-weight: bold;
+          text-transform: uppercase;
+          padding: 8px;
+          border-bottom: 2px solid #e5e2dc;
+        }
+        .footer {
+          text-align: center;
+          font-size: 8px;
+          color: #a1a1aa;
+          margin-top: 30px;
+          border-top: 1px solid #f0ede6;
+          padding-top: 10px;
+        }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <div class="header">
+          <div class="logo">🧠 JN-CALM RESEARCH DIVISION</div>
+          <div class="title">Laporan Analisis Klinis & Efektivitas Intervensi Neurologi</div>
+          <div class="subtitle">Data Prevalensi Pengguna & Efikasi Intervensi Darurat</div>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stats-card">
+            <div class="stats-label">Total Jurnal</div>
+            <div class="stats-value">${data?.journalCount ?? "—"}</div>
+          </div>
+          <div class="stats-card">
+            <div class="stats-label">Kebiasaan Selesai</div>
+            <div class="stats-value">${data?.habitCompletions ?? "—"}</div>
+          </div>
+          <div class="stats-card">
+            <div class="stats-label">Lapar Emosional</div>
+            <div class="stats-value">${data?.eatingCount ?? "—"}</div>
+          </div>
+          <div class="stats-card">
+            <div class="stats-label">Total Obrolan AI</div>
+            <div class="stats-value">${data?.aiReplyCount ?? "—"}</div>
+          </div>
+          <div class="stats-card">
+            <div class="stats-label">Est. Cost API</div>
+            <div class="stats-value">Rp ${Math.round(estApiCost).toLocaleString("id-ID")}</div>
+          </div>
+        </div>
+
+        <div class="section-title">Hasil Uji Efektivitas Emergency Calm Mode (Clinical Efficacy)</div>
+        <p style="font-size: 11px; margin-top: 0; color: #71717a; line-height: 1.5;">
+          Tingkat efikasi global: <strong>${data?.feedbackStats?.overallPct ?? 0}%</strong> (dari <strong>${data?.feedbackStats?.total ?? 0} kali intervensi</strong>, sebanyak <strong>${data?.feedbackStats?.helpful ?? 0} sesi</strong> dinilai berhasil menenangkan pengguna secara mandiri). Total pasien unik terbantu: <strong>${data?.feedbackStats?.uniqueHelpedCount ?? 0} orang</strong>.
+        </p>
+
+        <table>
+          <thead>
+            <tr>
+              <th style="text-align: left; width: 50%;">Modul Latihan Emergency Calm</th>
+              <th style="width: 25%; text-align: center;">Tingkat Efikasi (%)</th>
+              <th style="width: 25%; text-align: center;">Jumlah Log Terkumpul</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${efficacyRowsHtml}
+          </tbody>
+        </table>
+
+        <div class="section-title">Prevalensi Emosional & Landasan Patofisiologi Neurosains</div>
+        <table>
+          <thead>
+            <tr>
+              <th style="text-align: left; width: 20%;">Kondisi Mental</th>
+              <th style="width: 15%; text-align: center;">Prevalensi (Orang)</th>
+              <th style="width: 15%; text-align: center;">Intensitas (Frekuensi)</th>
+              <th style="text-align: left; width: 25%;">Mekanisme Patofisiologi Saraf</th>
+              <th style="text-align: left; width: 25%;">Target Neurotransmiter</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${neuroRowsHtml}
+          </tbody>
+        </table>
+
+        <div class="footer">
+          Laporan penelitian ilmiah ini digenerasikan secara otomatis oleh JN-CALM pada ${printTimestamp}. Dokumen ini ditujukan untuk tinjauan riset klinis dan presentasi ilmiah neurologi. 🧬
+        </div>
+      </div>
+    </body>
+    </html>
+  `;
+  triggerPrint(html);
+}
+
