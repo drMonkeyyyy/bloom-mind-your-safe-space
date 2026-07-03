@@ -844,3 +844,230 @@ export function exportChatPDF(companionName: string, companionEmoji: string, mes
   `;
   triggerPrint(html);
 }
+
+export function exportMoodsReportPDF(moods: any[]) {
+  const printTimestamp = getTimestampIndo();
+  
+  const moodsHtml = moods.map((m) => {
+    const formattedDate = formatDateIndo(m.created_at || m.date);
+    const moodOpt = MOOD_OPTIONS.find((x: any) => x.key === m.mood);
+    const emoji = moodOpt?.emoji ?? "🌿";
+    const moodLabel = moodOpt?.label ?? m.mood;
+    const noteText = m.note ? `"${m.note}"` : "—";
+    const triggersText = m.triggers && m.triggers.length > 0 ? m.triggers.join(", ") : "—";
+    
+    return `
+      <tr>
+        <td style="padding: 10px; border-bottom: 1px solid #f0ede6; font-size: 11px;">${formattedDate}</td>
+        <td style="padding: 10px; border-bottom: 1px solid #f0ede6; font-size: 13px; font-weight: bold; text-align: center;">${emoji} ${moodLabel}</td>
+        <td style="padding: 10px; border-bottom: 1px solid #f0ede6; font-size: 12px; text-align: center;">M: ${m.mood_score}/10<br>S: ${m.stress_score}/10<br>E: ${m.energy_score}/10</td>
+        <td style="padding: 10px; border-bottom: 1px solid #f0ede6; font-size: 11px;">${triggersText}</td>
+        <td style="padding: 10px; border-bottom: 1px solid #f0ede6; font-size: 11px; font-style: italic;">${noteText}</td>
+      </tr>
+    `;
+  }).join("");
+
+  const html = `
+    <html>
+    <head>
+      <title>Bloom Mind - Laporan Riwayat Mood</title>
+      <style>
+        body {
+          font-family: 'system-ui', -apple-system, sans-serif;
+          color: #3f3f46;
+          background-color: #faf8f5;
+          padding: 20px;
+          margin: 0;
+          -webkit-print-color-adjust: exact;
+          print-color-adjust: exact;
+        }
+        .container {
+          background: white;
+          border: 1px solid #e5e2dc;
+          border-radius: 24px;
+          padding: 30px;
+          margin: 0 auto;
+          box-shadow: 0 4px 20px rgba(0,0,0,0.01);
+        }
+        .header {
+          text-align: center;
+          border-bottom: 2px dashed #e5e2dc;
+          padding-bottom: 15px;
+          margin-bottom: 20px;
+        }
+        .logo {
+          font-size: 20px;
+          font-weight: bold;
+          color: #7b8e72;
+        }
+        .title {
+          font-size: 16px;
+          font-weight: bold;
+          margin-top: 10px;
+          color: #27272a;
+        }
+        table {
+          width: 100%;
+          border-collapse: collapse;
+          margin-top: 15px;
+        }
+        th {
+          background: #f4f2ed;
+          color: #4a5c43;
+          font-size: 11px;
+          font-weight: bold;
+          text-transform: uppercase;
+          padding: 10px;
+          border-bottom: 2px solid #e5e2dc;
+        }
+        .footer {
+          text-align: center;
+          font-size: 9px;
+          color: #a1a1aa;
+          margin-top: 25px;
+          border-top: 1px solid #f0ede6;
+          padding-top: 10px;
+        }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <div class="header">
+          <div class="logo">🌿 Bloom Mind</div>
+          <div class="title">Laporan Riwayat Mood (Mood Check-ins)</div>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 20%; text-align: left;">Tanggal</th>
+              <th style="width: 15%; text-align: center;">Mood</th>
+              <th style="width: 15%; text-align: center;">Skor</th>
+              <th style="width: 20%; text-align: left;">Pemicu</th>
+              <th style="width: 30%; text-align: left;">Catatan</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${moodsHtml}
+          </tbody>
+        </table>
+        <div class="footer">
+          Laporan diunduh secara aman dari Bloom Mind pada ${printTimestamp}. Setiap catatan adalah langkah kecilmu yang berharga. 🤍
+        </div>
+      </div>
+    </body>
+    </html>
+  `;
+  triggerPrint(html);
+}
+
+export function exportGratitudesReportPDF(entries: any[]) {
+  const printTimestamp = getTimestampIndo();
+  
+  const entriesHtml = entries.map((e) => {
+    const formattedDate = formatDateIndo(e.created_at || e.date);
+    const gratitudes = [e.gratitude1, e.gratitude2, e.gratitude3].filter(Boolean).map((g, i) => `${i+1}. ${g}`).join("<br>");
+    const bestMoment = e.best_moment ? `⭐ ${e.best_moment}` : "—";
+    const lessonText = e.lesson ? `💡 ${e.lesson}` : "—";
+    
+    return `
+      <tr>
+        <td style="padding: 10px; border-bottom: 1px solid #f0ede6; font-size: 11px; vertical-align: top;">${formattedDate}</td>
+        <td style="padding: 10px; border-bottom: 1px solid #f0ede6; font-size: 12px; vertical-align: top; line-height: 1.5;">${gratitudes}</td>
+        <td style="padding: 10px; border-bottom: 1px solid #f0ede6; font-size: 12px; vertical-align: top;">${bestMoment}</td>
+        <td style="padding: 10px; border-bottom: 1px solid #f0ede6; font-size: 12px; vertical-align: top;">${lessonText}</td>
+      </tr>
+    `;
+  }).join("");
+
+  const html = `
+    <html>
+    <head>
+      <title>Bloom Mind - Laporan Jurnal Syukur</title>
+      <style>
+        body {
+          font-family: 'system-ui', -apple-system, sans-serif;
+          color: #3f3f46;
+          background-color: #faf8f5;
+          padding: 20px;
+          margin: 0;
+          -webkit-print-color-adjust: exact;
+          print-color-adjust: exact;
+        }
+        .container {
+          background: white;
+          border: 1px solid #e5e2dc;
+          border-radius: 24px;
+          padding: 30px;
+          margin: 0 auto;
+          box-shadow: 0 4px 20px rgba(0,0,0,0.01);
+        }
+        .header {
+          text-align: center;
+          border-bottom: 2px dashed #e5e2dc;
+          padding-bottom: 15px;
+          margin-bottom: 20px;
+        }
+        .logo {
+          font-size: 20px;
+          font-weight: bold;
+          color: #7b8e72;
+        }
+        .title {
+          font-size: 16px;
+          font-weight: bold;
+          margin-top: 10px;
+          color: #27272a;
+        }
+        table {
+          width: 100%;
+          border-collapse: collapse;
+          margin-top: 15px;
+        }
+        th {
+          background: #fdf9f2;
+          color: #8b6e51;
+          font-size: 11px;
+          font-weight: bold;
+          text-transform: uppercase;
+          padding: 10px;
+          border-bottom: 2px solid #e5e2dc;
+        }
+        .footer {
+          text-align: center;
+          font-size: 9px;
+          color: #a1a1aa;
+          margin-top: 25px;
+          border-top: 1px solid #f0ede6;
+          padding-top: 10px;
+        }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <div class="header">
+          <div class="logo">🌿 Bloom Mind</div>
+          <div class="title">Laporan Riwayat Jurnal Syukur (Gratitude Journal)</div>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 20%; text-align: left;">Tanggal</th>
+              <th style="width: 35%; text-align: left;">Hal yang Disyukuri</th>
+              <th style="width: 22%; text-align: left;">Momen Terbaik</th>
+              <th style="width: 23%; text-align: left;">Pelajaran</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${entriesHtml}
+          </tbody>
+        </table>
+        <div class="footer">
+          Laporan diunduh secara aman dari Bloom Mind pada ${printTimestamp}. Bersyukur membawa damai di hati. 🙏
+        </div>
+      </div>
+    </body>
+    </html>
+  `;
+  triggerPrint(html);
+}
+

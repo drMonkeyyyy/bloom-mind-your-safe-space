@@ -6,7 +6,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { EmptyState } from "@/components/app/EmptyState";
 import { BottomSheet, ModalDialog } from "@/components/app/BottomSheet";
-import { exportGratitudePDF } from "@/lib/export-pdf";
+import { exportGratitudePDF, exportGratitudesReportPDF } from "@/lib/export-pdf";
 
 export const Route = createFileRoute("/_authenticated/app/gratitude")({
   component: Page,
@@ -53,6 +53,72 @@ function Page() {
   const [heart, setHeart] = useState(false);
   const [selectedEntry, setSelectedEntry] = useState<any | null>(null);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
+  const [cleanupModalOpen, setCleanupModalOpen] = useState(false);
+  const [cleaning, setCleaning] = useState(false);
+
+  const sixMonthsAgo = new Date(Date.now() - 180 * 24 * 60 * 60 * 1000);
+
+  const { data: oldGratitudesCount, refetch: refetchOldGratitudesCount } = useQuery({
+    queryKey: ["old-gratitudes-count", user?.id],
+    enabled: !!user,
+    queryFn: async () => {
+      const { count } = await supabase
+        .from("gratitude_entries")
+        .select("*", { count: "exact", head: true })
+        .eq("user_id", user!.id)
+        .lt("created_at", sixMonthsAgo.toISOString());
+      return count ?? 0;
+    }
+  });
+
+  const clearOldGratitudes = async (exportFormat: 'pdf' | 'json' | 'none') => {
+    if (!user) return;
+    setCleaning(true);
+    try {
+      const threeMonthsCutoff = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000);
+      const { data: oldGratitudes } = await supabase
+        .from("gratitude_entries")
+        .select("*")
+        .eq("user_id", user.id)
+        .lt("created_at", threeMonthsCutoff.toISOString())
+        .order("created_at", { ascending: true });
+
+      if (oldGratitudes && oldGratitudes.length > 0) {
+        if (exportFormat === 'pdf') {
+          exportGratitudesReportPDF(oldGratitudes);
+        } else if (exportFormat === 'json') {
+          const exportData = {
+            title: "Bloom Mind - Riwayat Jurnal Syukur",
+            export_date: new Date().toISOString(),
+            data: oldGratitudes
+          };
+          const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: "application/json" });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = `gratitudes_history_${new Date().toISOString().slice(0, 10)}.json`;
+          a.click();
+          URL.revokeObjectURL(url);
+        }
+      }
+
+      const { error } = await supabase
+        .from("gratitude_entries")
+        .delete()
+        .eq("user_id", user.id)
+        .lt("created_at", threeMonthsCutoff.toISOString());
+
+      if (error) throw error;
+      toast.success("Catatan rasa syukur lama berhasil dibersihkan! 🙏");
+      setCleanupModalOpen(false);
+      qc.invalidateQueries({ queryKey: ["gratitude", user.id] });
+      refetchOldGratitudesCount();
+    } catch (err: any) {
+      toast.error(err.message || "Gagal membersihkan catatan syukur");
+    } finally {
+      setCleaning(false);
+    }
+  };
 
   const removeEntry = async (id: string) => {
     if (!user) return;
@@ -342,6 +408,23 @@ function Page() {
       </div>
 
       {/* ── HISTORY ─────────────────────────────────────────────── */}
+      {oldGratitudesCount && oldGratitudesCount > 0 ? (
+        <div className="flex items-center justify-between gap-3 rounded-2xl bg-amber-50/70 border border-amber-100/50 p-3.5 text-xs text-amber-900 animate-slide-up mb-4">
+          <div className="flex items-center gap-2">
+            <span className="text-base select-none">⏳</span>
+            <p className="leading-relaxed">
+              Terdapat catatan syukur yang sudah berjalan lebih dari 6 bulan. Bersihkan riwayat lama di atas 3 bulan untuk menghemat ruang?
+            </p>
+          </div>
+          <button
+            onClick={() => setCleanupModalOpen(true)}
+            className="shrink-0 rounded-full bg-amber-600 hover:bg-amber-700 px-3 py-1.5 font-bold text-white transition-all active:scale-95 shadow-sm"
+          >
+            Bersihkan 🧹
+          </button>
+        </div>
+      ) : null}
+
       {list?.length === 0 ? (
         <EmptyState
           emoji="🙏"
@@ -504,6 +587,56 @@ function Page() {
           >
             Batal
           </button>
+        </div>
+      </ModalDialog>
+
+      {/* ── CLEANUP CONFIRMATION DIALOG ─────────────────────────── */}
+      <ModalDialog
+        open={cleanupModalOpen}
+        onClose={() => setCleanupModalOpen(false)}
+        title="🧹 Bersihkan Catatan Syukur Lama?"
+      >
+        <div className="space-y-4">
+          <p className="text-xs text-muted-foreground leading-normal">
+            Catatan syukur yang lebih lama dari 3 bulan (90 hari) akan dihapus secara permanen dari database. Catatan 3 bulan terakhir tetap disimpan di aplikasi.
+          </p>
+          <div className="rounded-2xl bg-amber-50 border border-amber-100 p-3.5 flex gap-3 text-amber-950">
+            <span className="text-2xl select-none">💡</span>
+            <div className="text-xs leading-relaxed">
+              <p className="font-bold text-amber-900 mb-0.5 font-display">Saran Penyimpanan</p>
+              <p>Apakah Anda ingin menyimpan seluruh catatan syukur yang akan dihapus (di atas 3 bulan) sebagai **PDF** atau mendownload file **JSON** di laptop Anda sebelum dihapus?</p>
+            </div>
+          </div>
+          <div className="mt-5 flex flex-col gap-2 pt-3 border-t border-border/40">
+            <button
+              disabled={cleaning}
+              onClick={() => clearOldGratitudes('pdf')}
+              className="w-full rounded-full bg-primary py-3 text-xs font-bold text-white transition-all duration-200 active:scale-95 shadow-soft flex items-center justify-center gap-1.5"
+            >
+              📄 Simpan Laporan PDF & Bersihkan
+            </button>
+            <button
+              disabled={cleaning}
+              onClick={() => clearOldGratitudes('json')}
+              className="w-full rounded-full border border-primary/20 bg-primary-soft/60 hover:bg-primary-soft py-3 text-xs font-bold text-primary transition-all duration-200 active:scale-95 flex items-center justify-center gap-1.5"
+            >
+              💻 Download JSON ke Laptop & Bersihkan
+            </button>
+            <button
+              disabled={cleaning}
+              onClick={() => clearOldGratitudes('none')}
+              className="w-full rounded-full border border-destructive/20 hover:bg-destructive/5 py-3 text-xs font-bold text-destructive transition-all duration-200 active:scale-95"
+            >
+              Hapus Langsung Tanpa Menyimpan 🗑️
+            </button>
+            <button
+              disabled={cleaning}
+              onClick={() => setCleanupModalOpen(false)}
+              className="w-full rounded-full border border-stone-200 bg-stone-50 hover:bg-stone-100 py-3 text-xs font-bold text-stone-600 transition-all duration-200"
+            >
+              Batal
+            </button>
+          </div>
         </div>
       </ModalDialog>
     </div>

@@ -9,7 +9,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { MoodSparkline } from "@/components/app/MoodSparkline";
 import { EmptyState } from "@/components/app/EmptyState";
 import { BottomSheet, ModalDialog } from "@/components/app/BottomSheet";
-import { exportMoodPDF } from "@/lib/export-pdf";
+import { exportMoodPDF, exportMoodsReportPDF } from "@/lib/export-pdf";
 
 const search = z.object({ pre: z.string().optional() });
 
@@ -86,6 +86,72 @@ function MoodPage() {
   const [sparkleId, setSparkleId] = useState<string | null>(null);
   const [selectedCheckIn, setSelectedCheckIn] = useState<any | null>(null);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
+  const [cleanupModalOpen, setCleanupModalOpen] = useState(false);
+  const [cleaning, setCleaning] = useState(false);
+
+  const sixMonthsAgo = new Date(Date.now() - 180 * 24 * 60 * 60 * 1000);
+
+  const { data: oldMoodsCount, refetch: refetchOldMoodsCount } = useQuery({
+    queryKey: ["old-moods-count", user?.id],
+    enabled: !!user,
+    queryFn: async () => {
+      const { count } = await supabase
+        .from("mood_checkins")
+        .select("*", { count: "exact", head: true })
+        .eq("user_id", user!.id)
+        .lt("created_at", sixMonthsAgo.toISOString());
+      return count ?? 0;
+    }
+  });
+
+  const clearOldMoods = async (exportFormat: 'pdf' | 'json' | 'none') => {
+    if (!user) return;
+    setCleaning(true);
+    try {
+      const threeMonthsCutoff = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000);
+      const { data: oldMoods } = await supabase
+        .from("mood_checkins")
+        .select("*")
+        .eq("user_id", user.id)
+        .lt("created_at", threeMonthsCutoff.toISOString())
+        .order("created_at", { ascending: true });
+
+      if (oldMoods && oldMoods.length > 0) {
+        if (exportFormat === 'pdf') {
+          exportMoodsReportPDF(oldMoods);
+        } else if (exportFormat === 'json') {
+          const exportData = {
+            title: "Bloom Mind - Riwayat Mood",
+            export_date: new Date().toISOString(),
+            data: oldMoods
+          };
+          const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: "application/json" });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = `moods_history_${new Date().toISOString().slice(0, 10)}.json`;
+          a.click();
+          URL.revokeObjectURL(url);
+        }
+      }
+
+      const { error } = await supabase
+        .from("mood_checkins")
+        .delete()
+        .eq("user_id", user.id)
+        .lt("created_at", threeMonthsCutoff.toISOString());
+
+      if (error) throw error;
+      toast.success("Catatan mood lama berhasil dibersihkan! 🌿");
+      setCleanupModalOpen(false);
+      qc.invalidateQueries({ queryKey: ["mood-list", user.id] });
+      refetchOldMoodsCount();
+    } catch (err: any) {
+      toast.error(err.message || "Gagal membersihkan catatan mood");
+    } finally {
+      setCleaning(false);
+    }
+  };
 
   const removeCheckIn = async (id: string) => {
     if (!user) return;
@@ -297,6 +363,23 @@ function MoodPage() {
 
       {/* ── HISTORY ─────────────────────────────────────────────── */}
       <section>
+        {oldMoodsCount && oldMoodsCount > 0 ? (
+          <div className="flex items-center justify-between gap-3 rounded-2xl bg-amber-50/70 border border-amber-100/50 p-3.5 text-xs text-amber-900 animate-slide-up mb-4">
+            <div className="flex items-center gap-2">
+              <span className="text-base select-none">⏳</span>
+              <p className="leading-relaxed">
+                Terdapat catatan mood yang sudah berjalan lebih dari 6 bulan. Bersihkan riwayat lama di atas 3 bulan untuk menghemat ruang?
+              </p>
+            </div>
+            <button
+              onClick={() => setCleanupModalOpen(true)}
+              className="shrink-0 rounded-full bg-amber-600 hover:bg-amber-700 px-3 py-1.5 font-bold text-white transition-all active:scale-95 shadow-sm"
+            >
+              Bersihkan 🧹
+            </button>
+          </div>
+        ) : null}
+
         <div className="mb-4 flex items-center justify-between">
           <h2 className="font-display text-xl font-semibold">Riwayat 14 Hari</h2>
           {chartData.length > 1 && (
@@ -550,6 +633,56 @@ function MoodPage() {
           >
             Batal
           </button>
+        </div>
+      </ModalDialog>
+
+      {/* ── CLEANUP CONFIRMATION DIALOG ─────────────────────────── */}
+      <ModalDialog
+        open={cleanupModalOpen}
+        onClose={() => setCleanupModalOpen(false)}
+        title="🧹 Bersihkan Catatan Mood Lama?"
+      >
+        <div className="space-y-4">
+          <p className="text-xs text-muted-foreground leading-normal">
+            Catatan mood yang lebih lama dari 3 bulan (90 hari) akan dihapus secara permanen dari database. Catatan 3 bulan terakhir tetap disimpan di aplikasi.
+          </p>
+          <div className="rounded-2xl bg-amber-50 border border-amber-100 p-3.5 flex gap-3 text-amber-950">
+            <span className="text-2xl select-none">💡</span>
+            <div className="text-xs leading-relaxed">
+              <p className="font-bold text-amber-900 mb-0.5 font-display">Saran Penyimpanan</p>
+              <p>Apakah Anda ingin menyimpan seluruh catatan mood yang akan dihapus (di atas 3 bulan) sebagai **PDF** atau mendownload file **JSON** di laptop Anda sebelum dihapus?</p>
+            </div>
+          </div>
+          <div className="mt-5 flex flex-col gap-2 pt-3 border-t border-border/40">
+            <button
+              disabled={cleaning}
+              onClick={() => clearOldMoods('pdf')}
+              className="w-full rounded-full bg-primary py-3 text-xs font-bold text-white transition-all duration-200 active:scale-95 shadow-soft flex items-center justify-center gap-1.5"
+            >
+              📄 Simpan Laporan PDF & Bersihkan
+            </button>
+            <button
+              disabled={cleaning}
+              onClick={() => clearOldMoods('json')}
+              className="w-full rounded-full border border-primary/20 bg-primary-soft/60 hover:bg-primary-soft py-3 text-xs font-bold text-primary transition-all duration-200 active:scale-95 flex items-center justify-center gap-1.5"
+            >
+              💻 Download JSON ke Laptop & Bersihkan
+            </button>
+            <button
+              disabled={cleaning}
+              onClick={() => clearOldMoods('none')}
+              className="w-full rounded-full border border-destructive/20 hover:bg-destructive/5 py-3 text-xs font-bold text-destructive transition-all duration-200 active:scale-95"
+            >
+              Hapus Langsung Tanpa Menyimpan 🗑️
+            </button>
+            <button
+              disabled={cleaning}
+              onClick={() => setCleanupModalOpen(false)}
+              className="w-full rounded-full border border-stone-200 bg-stone-50 hover:bg-stone-100 py-3 text-xs font-bold text-stone-600 transition-all duration-200"
+            >
+              Batal
+            </button>
+          </div>
         </div>
       </ModalDialog>
     </div>

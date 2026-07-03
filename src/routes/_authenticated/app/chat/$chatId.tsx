@@ -11,6 +11,7 @@ import { COMPANIONS, type CompanionKey } from "@/lib/companions";
 import { toast } from "sonner";
 import { PaywallCard } from "@/components/app/PaywallCard";
 import { exportChatPDF } from "@/lib/export-pdf";
+import { ModalDialog } from "@/components/app/BottomSheet";
 
 const search = z.object({
   companion: z.enum(["ibu","ayah","kakak_perempuan","kakak_laki","sahabat","partner","coach"]).optional(),
@@ -62,7 +63,53 @@ function ChatRoom() {
   const [sending, setSending] = useState(false);
   const [generatingJournal, setGeneratingJournal] = useState(false);
   const [panicMode, setPanicMode] = useState(false);
-  const scrollRef = useRef<HTMLDivElement>(null);
+  const [cleanupModalOpen, setCleanupModalOpen] = useState(false);
+  const [cleaning, setCleaning] = useState(false);
+  const sixMonthsAgo = new Date(Date.now() - 180 * 24 * 60 * 60 * 1000);
+  const hasOldMessages = messages && messages.length > 0 && messages.some(m => new Date(m.created_at) < sixMonthsAgo);
+
+  const clearOldMessages = async (exportFormat: 'pdf' | 'json' | 'none') => {
+    if (!user || isNew) return;
+    setCleaning(true);
+    try {
+      const threeMonthsCutoff = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000);
+      const messagesToExport = messages?.filter(m => new Date(m.created_at) < threeMonthsCutoff) ?? [];
+
+      if (messagesToExport.length > 0) {
+        if (exportFormat === 'pdf') {
+          exportChatPDF(comp?.name ?? "Pendamping", comp?.emoji ?? "🌿", messagesToExport);
+        } else if (exportFormat === 'json') {
+          const chatData = {
+            companion: comp?.name,
+            emoji: comp?.emoji,
+            export_date: new Date().toISOString(),
+            messages: messagesToExport.map(m => ({ role: m.role, content: m.content, created_at: m.created_at }))
+          };
+          const blob = new Blob([JSON.stringify(chatData, null, 2)], { type: "application/json" });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = `chat_bloom_mind_${comp?.name || 'companion'}_${new Date().toISOString().slice(0, 10)}.json`;
+          a.click();
+          URL.revokeObjectURL(url);
+        }
+      }
+      const { error } = await supabase
+        .from("messages")
+        .delete()
+        .eq("chat_id", chatId)
+        .lt("created_at", threeMonthsCutoff.toISOString());
+        
+      if (error) throw error;
+      toast.success("Pesan lama (di atas 3 bulan) berhasil dibersihkan! 🌿");
+      setCleanupModalOpen(false);
+      refetch();
+    } catch (err: any) {
+      toast.error(err.message || "Gagal menghapus pesan lama");
+    } finally {
+      setCleaning(false);
+    }
+  };
 
   useEffect(() => { scrollRef.current?.scrollTo({ top: 999999, behavior: "smooth" }); }, [messages, sending]);
 
@@ -150,6 +197,22 @@ function ChatRoom() {
       </div>
 
       <div ref={scrollRef} className="flex-1 overflow-y-auto py-4 space-y-3">
+        {hasOldMessages && (
+          <div className="flex items-center justify-between gap-3 rounded-2xl bg-amber-50/70 border border-amber-100/50 p-3.5 text-xs text-amber-900 animate-slide-up mb-2">
+            <div className="flex items-center gap-2">
+              <span className="text-base select-none">⏳</span>
+              <p className="leading-relaxed">
+                Riwayat obrolan sudah berjalan lebih dari 6 bulan. Bersihkan pesan lama di atas 3 bulan untuk menghemat ruang?
+              </p>
+            </div>
+            <button
+              onClick={() => setCleanupModalOpen(true)}
+              className="shrink-0 rounded-full bg-amber-600 hover:bg-amber-700 px-3 py-1 font-bold text-white transition-all active:scale-95 shadow-sm"
+            >
+              Bersihkan 🧹
+            </button>
+          </div>
+        )}
         {isNew && (
           <div className="rounded-2xl bg-primary-soft/50 p-4 text-sm text-foreground">
             Halo 🌿 Aku <strong>{comp?.name}</strong>. Apa pun yang kamu rasakan sekarang, aku siap mendengarkan. Mulai dari mana saja.
@@ -179,11 +242,62 @@ function ChatRoom() {
         </div>
         <form onSubmit={submit} className="flex gap-2">
           <textarea value={input} onChange={(e)=>setInput(e.target.value)} rows={2} placeholder="Tulis perasaanmu…"
+            maxLength={2000}
             onKeyDown={(e)=>{ if (e.key==="Enter" && !e.shiftKey) { e.preventDefault(); submit(); } }}
             className="flex-1 resize-none rounded-2xl border border-border bg-card px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
           <button disabled={sending || !input.trim()} className="self-end rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-accent-foreground shadow-peach disabled:opacity-50">Kirim</button>
         </form>
       </div>
+
+      {/* ── CLEANUP CONFIRMATION DIALOG ─────────────────────────── */}
+      <ModalDialog
+        open={cleanupModalOpen}
+        onClose={() => setCleanupModalOpen(false)}
+        title="🧹 Bersihkan Chat Lama?"
+      >
+        <div className="space-y-4">
+          <p className="text-xs text-muted-foreground leading-normal">
+            Pesan obrolan yang lebih lama dari 3 bulan (90 hari) akan dihapus secara permanen untuk mengosongkan ruang penyimpanan database. Catatan 3 bulan terakhir tetap disimpan di aplikasi.
+          </p>
+          <div className="rounded-2xl bg-amber-50 border border-amber-100 p-3.5 flex gap-3 text-amber-950">
+            <span className="text-2xl select-none">💡</span>
+            <div className="text-xs leading-relaxed">
+              <p className="font-bold text-amber-900 mb-0.5 font-display">Saran Penyimpanan</p>
+              <p>Apakah Anda ingin menyimpan seluruh riwayat chat yang akan dihapus (di atas 3 bulan) sebagai **PDF** atau mendownload file **JSON** di laptop Anda terlebih dahulu?</p>
+            </div>
+          </div>
+          <div className="mt-5 flex flex-col gap-2 pt-3 border-t border-border/40">
+            <button
+              disabled={cleaning}
+              onClick={() => clearOldMessages('pdf')}
+              className="w-full rounded-full bg-primary py-3 text-xs font-bold text-white transition-all duration-200 active:scale-95 shadow-soft flex items-center justify-center gap-1.5"
+            >
+              📄 Simpan Laporan PDF & Bersihkan
+            </button>
+            <button
+              disabled={cleaning}
+              onClick={() => clearOldMessages('json')}
+              className="w-full rounded-full border border-primary/20 bg-primary-soft/60 hover:bg-primary-soft py-3 text-xs font-bold text-primary transition-all duration-200 active:scale-95 flex items-center justify-center gap-1.5"
+            >
+              💻 Download JSON ke Laptop & Bersihkan
+            </button>
+            <button
+              disabled={cleaning}
+              onClick={() => clearOldMessages('none')}
+              className="w-full rounded-full border border-destructive/20 hover:bg-destructive/5 py-3 text-xs font-bold text-destructive transition-all duration-200 active:scale-95"
+            >
+              Hapus Langsung Tanpa Menyimpan 🗑️
+            </button>
+            <button
+              disabled={cleaning}
+              onClick={() => setCleanupModalOpen(false)}
+              className="w-full rounded-full border border-stone-200 bg-stone-50 hover:bg-stone-100 py-3 text-xs font-bold text-stone-600 transition-all duration-200"
+            >
+              Batal
+            </button>
+          </div>
+        </div>
+      </ModalDialog>
     </div>
   );
 }
