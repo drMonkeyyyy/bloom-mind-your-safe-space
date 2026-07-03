@@ -1,4 +1,6 @@
-import { useEffect, useRef, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
+import { createPortal } from "react-dom";
+
 
 interface BottomSheetProps {
   open: boolean;
@@ -95,6 +97,9 @@ interface ModalDialogProps {
 }
 
 export function ModalDialog({ open, onClose, title, children, className = "" }: ModalDialogProps) {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { setMounted(true); }, []);
+
   useEffect(() => {
     if (!open) return;
     const handler = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
@@ -103,31 +108,35 @@ export function ModalDialog({ open, onClose, title, children, className = "" }: 
   }, [open, onClose]);
 
   useEffect(() => {
-    document.body.style.overflow = open ? "hidden" : "";
+    if (!open) return;
+    document.body.style.overflow = "hidden";
     return () => { document.body.style.overflow = ""; };
   }, [open]);
 
-  if (!open) return null;
+  if (!mounted || !open) return null;
 
-  return (
+  return createPortal(
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-5"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6"
       role="dialog"
       aria-modal="true"
     >
+      {/* Backdrop */}
       <div
         className="absolute inset-0 bg-foreground/20 backdrop-blur-sm"
         onClick={onClose}
         aria-hidden="true"
         style={{ animation: "fade-in-up 0.2s ease-out both" }}
       />
+      
+      {/* Modal Card */}
       <div
-        className={`relative z-10 w-full max-w-lg max-h-[85vh] overflow-y-auto rounded-3xl bg-card p-6 shadow-elevated ring-1 ring-border ${className}`}
+        className={`relative z-10 w-full max-w-lg max-h-[85vh] sm:max-h-[90vh] flex flex-col rounded-3xl bg-card shadow-elevated ring-1 ring-border ${className}`}
         style={{ animation: "scale-in 0.3s cubic-bezier(0.16, 1, 0.3, 1) both" }}
       >
         {title && (
-          <div className="mb-5 flex items-center justify-between">
-            <h2 className="font-display text-xl font-semibold">{title}</h2>
+          <div className="p-6 pb-4 flex items-center justify-between shrink-0 border-b border-border/40">
+            <h2 className="font-display text-xl font-semibold text-foreground">{title}</h2>
             <button
               onClick={onClose}
               className="grid h-8 w-8 place-items-center rounded-full bg-cream-deep text-muted-foreground hover:bg-border"
@@ -139,8 +148,13 @@ export function ModalDialog({ open, onClose, title, children, className = "" }: 
             </button>
           </div>
         )}
-        {children}
+        
+        {/* Scrollable Content */}
+        <div className="flex-1 overflow-y-auto p-6 scrollbar-thin text-left">
+          {children}
+        </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

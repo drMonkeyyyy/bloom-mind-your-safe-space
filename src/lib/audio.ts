@@ -1,4 +1,4 @@
-// Global Audio Engine for Bloom Mind Ambient Soundscapes
+// Global Audio Engine for Bloom Mind Ambient Soundscapes (Multi-channel Mixer)
 export type SoundType = "rain" | "waves" | "forest" | "wind" | "whitenoise";
 
 export const SOUNDS: { id: SoundType; emoji: string; label: string; desc: string }[] = [
@@ -9,15 +9,20 @@ export const SOUNDS: { id: SoundType; emoji: string; label: string; desc: string
   { id: "whitenoise", emoji: "🌫️", label: "White Noise", desc: "Suara putih untuk fokus & tidur" },
 ];
 
+export interface ActiveSoundChannel {
+  source: AudioBufferSourceNode;
+  gainNode: GainNode;
+  interval?: ReturnType<typeof setInterval>;
+}
+
 declare global {
   interface Window {
     __bloomAudioCtx?: AudioContext;
-    __bloomSource?: AudioBufferSourceNode;
-    __bloomGain?: GainNode;
-    __bloomModInterval?: ReturnType<typeof setInterval>;
-    __bloomActiveSound?: SoundType | null;
-    __bloomVolume?: number;
-    __bloomListeners?: Set<(sound: SoundType | null, volume: number) => void>;
+    __bloomMasterGain?: GainNode;
+    __bloomChannels?: Partial<Record<SoundType, ActiveSoundChannel>>;
+    __bloomChannelVolumes?: Record<SoundType, number>;
+    __bloomMasterVolume?: number;
+    __bloomListeners?: Set<(channels: Record<SoundType, number>, masterVolume: number) => void>;
   }
 }
 
@@ -29,18 +34,42 @@ const getListeners = () => {
   return window.__bloomListeners;
 };
 
-export const subscribeAudioState = (cb: (sound: SoundType | null, volume: number) => void) => {
+export const subscribeAudioState = (cb: (channels: Record<SoundType, number>, masterVolume: number) => void) => {
   const listeners = getListeners();
   listeners.add(cb);
+  // Initial fire
+  cb(getChannelVolumesState(), getMasterVolumeState());
   return () => {
     listeners.delete(cb);
   };
 };
 
+const getChannelVolumesState = (): Record<SoundType, number> => {
+  const state: Record<SoundType, number> = {
+    rain: 0,
+    waves: 0,
+    forest: 0,
+    wind: 0,
+    whitenoise: 0,
+  };
+  if (window.__bloomChannels && window.__bloomChannelVolumes) {
+    for (const key of Object.keys(state) as SoundType[]) {
+      if (window.__bloomChannels[key]) {
+        state[key] = window.__bloomChannelVolumes[key] ?? 0.5;
+      }
+    }
+  }
+  return state;
+};
+
+const getMasterVolumeState = (): number => {
+  return typeof window.__bloomMasterVolume === "number" ? window.__bloomMasterVolume : 0.5;
+};
+
 const notifyListeners = () => {
-  const sound = window.__bloomActiveSound || null;
-  const vol = typeof window.__bloomVolume === "number" ? window.__bloomVolume : 0.5;
-  getListeners().forEach((cb) => cb(sound, vol));
+  const channels = getChannelVolumesState();
+  const vol = getMasterVolumeState();
+  getListeners().forEach((cb) => cb(channels, vol));
 };
 
 function createNoiseBuffer(ctx: AudioContext, type: "brown" | "white" | "pink") {
@@ -81,57 +110,115 @@ export const initCtx = () => {
   return window.__bloomAudioCtx;
 };
 
-export const stopAllAmbient = () => {
-  try { window.__bloomSource?.stop(); } catch (e) {}
-  window.__bloomSource = undefined;
-  window.__bloomGain = undefined;
-  if (window.__bloomModInterval) {
-    clearInterval(window.__bloomModInterval);
-    window.__bloomModInterval = undefined;
+const getMasterGain = (ctx: AudioContext) => {
+  if (!window.__bloomMasterGain) {
+    const masterGain = ctx.createGain();
+    masterGain.connect(ctx.destination);
+    const masterVol = typeof window.__bloomMasterVolume === "number" ? window.__bloomMasterVolume : 0.5;
+    masterGain.gain.setValueAtTime(masterVol, ctx.currentTime);
+    window.__bloomMasterGain = masterGain;
   }
-  window.__bloomActiveSound = null;
+  return window.__bloomMasterGain;
+};
+
+export const stopAllAmbient = () => {
+  if (window.__bloomChannels) {
+    const keys = Object.keys(window.__bloomChannels) as SoundType[];
+    for (const key of keys) {
+      stopChannel(key);
+    }
+  }
   notifyListeners();
 };
 
-export const setAmbientVolume = (vol: number) => {
-  window.__bloomVolume = vol;
-  if (window.__bloomGain && window.__bloomAudioCtx) {
-    // Some sounds scale the master volume, let's keep master gain responsive
-    const sound = window.__bloomActiveSound;
-    let factor = 1.0;
-    if (sound === "rain") factor = 0.4;
-    else if (sound === "waves") factor = 0.18; // base gain factor
-    else if (sound === "forest") factor = 0.15;
-    else if (sound === "wind") factor = 0.2;
-    else if (sound === "whitenoise") factor = 0.12;
-    
-    window.__bloomGain.gain.setTargetAtTime(vol * factor, window.__bloomAudioCtx.currentTime, 0.1);
+const stopChannel = (sound: SoundType) => {
+  const channel = window.__bloomChannels?.[sound];
+  if (channel) {
+    try { channel.source.stop(); } catch (e) {}
+    if (channel.interval) {
+      clearInterval(channel.interval);
+    }
+    if (window.__bloomChannels) {
+      delete window.__bloomChannels[sound];
+    }
   }
+};
+
+const updateChannelGain = (sound: SoundType) => {
+  const channel = window.__bloomChannels?.[sound];
+  if (!channel || !window.__bloomAudioCtx) return;
+
+  const localVol = window.__bloomChannelVolumes?.[sound] ?? 0.5;
+  
+  let factor = 1.0;
+  if (sound === "rain") factor = 0.45;
+  else if (sound === "waves") factor = 0.35;
+  else if (sound === "forest") factor = 0.25;
+  else if (sound === "wind") factor = 0.35;
+  else if (sound === "whitenoise") factor = 0.2;
+
+  channel.gainNode.gain.setTargetAtTime(localVol * factor, window.__bloomAudioCtx.currentTime, 0.1);
+};
+
+export const setAmbientVolume = (vol: number) => {
+  window.__bloomMasterVolume = vol;
+  const ctx = window.__bloomAudioCtx;
+  if (ctx) {
+    const masterGain = getMasterGain(ctx);
+    masterGain.gain.setTargetAtTime(vol, ctx.currentTime, 0.15);
+  }
+  notifyListeners();
+};
+
+export const setChannelVolume = (sound: SoundType, vol: number) => {
+  if (!window.__bloomChannelVolumes) {
+    window.__bloomChannelVolumes = { rain: 0.5, waves: 0.5, forest: 0.5, wind: 0.5, whitenoise: 0.5 };
+  }
+  window.__bloomChannelVolumes[sound] = vol;
+  updateChannelGain(sound);
   notifyListeners();
 };
 
 export const playAmbientSound = (sound: SoundType) => {
-  stopAllAmbient();
   const ctx = initCtx();
-  const masterGain = ctx.createGain();
-  masterGain.connect(ctx.destination);
-  window.__bloomGain = masterGain;
+  const masterGain = getMasterGain(ctx);
 
-  const currentVol = typeof window.__bloomVolume === "number" ? window.__bloomVolume : 0.5;
+  if (!window.__bloomChannels) {
+    window.__bloomChannels = {};
+  }
+  if (!window.__bloomChannelVolumes) {
+    window.__bloomChannelVolumes = { rain: 0.5, waves: 0.5, forest: 0.5, wind: 0.5, whitenoise: 0.5 };
+  }
+
+  // If already playing, do nothing
+  if (window.__bloomChannels[sound]) return;
+
+  const channelGain = ctx.createGain();
+  channelGain.connect(masterGain);
+
+  let sourceNode: AudioBufferSourceNode;
+  let intervalId: ReturnType<typeof setInterval> | undefined;
+
+  const localVol = window.__bloomChannelVolumes[sound] ?? 0.5;
 
   if (sound === "rain") {
     const src = ctx.createBufferSource();
     src.buffer = createNoiseBuffer(ctx, "brown");
     src.loop = true;
     const lp = ctx.createBiquadFilter(); lp.type = "lowpass"; lp.frequency.value = 900;
-    src.connect(lp); lp.connect(masterGain);
-    masterGain.gain.value = currentVol * 0.4;
+    src.connect(lp); lp.connect(channelGain);
+    sourceNode = src;
+    
+    // Initial gain
+    channelGain.gain.value = localVol * 0.45;
     src.start();
-    window.__bloomSource = src;
+
     let tick = 0;
-    window.__bloomModInterval = setInterval(() => {
+    intervalId = setInterval(() => {
+      if (!window.__bloomChannels?.["rain"]) return;
+      const curLocalVol = window.__bloomChannelVolumes?.["rain"] ?? 0.5;
       const v = 0.35 + 0.1 * Math.sin((2 * Math.PI * tick) / 60);
-      masterGain.gain.setTargetAtTime(v * currentVol, ctx.currentTime, 0.5);
+      channelGain.gain.setTargetAtTime(v * curLocalVol * 0.45, ctx.currentTime, 0.5);
       tick++;
     }, 200);
 
@@ -140,14 +227,18 @@ export const playAmbientSound = (sound: SoundType) => {
     src.buffer = createNoiseBuffer(ctx, "brown");
     src.loop = true;
     const lp = ctx.createBiquadFilter(); lp.type = "lowpass"; lp.frequency.value = 450;
-    src.connect(lp); lp.connect(masterGain);
-    masterGain.gain.value = 0.05;
+    src.connect(lp); lp.connect(channelGain);
+    sourceNode = src;
+
+    channelGain.gain.value = localVol * 0.35;
     src.start();
-    window.__bloomSource = src;
+
     let tick = 0;
-    window.__bloomModInterval = setInterval(() => {
+    intervalId = setInterval(() => {
+      if (!window.__bloomChannels?.["waves"]) return;
+      const curLocalVol = window.__bloomChannelVolumes?.["waves"] ?? 0.5;
       const v = 0.18 + 0.15 * Math.sin((2 * Math.PI * tick) / 80);
-      masterGain.gain.setTargetAtTime(v * currentVol, ctx.currentTime, 0.1);
+      channelGain.gain.setTargetAtTime(v * curLocalVol * 2.0 * 0.35, ctx.currentTime, 0.15);
       tick = (tick + 1) % 80;
     }, 100);
 
@@ -156,14 +247,17 @@ export const playAmbientSound = (sound: SoundType) => {
     src.buffer = createNoiseBuffer(ctx, "pink");
     src.loop = true;
     const lp = ctx.createBiquadFilter(); lp.type = "bandpass"; lp.frequency.value = 1800; lp.Q.value = 0.5;
-    src.connect(lp); lp.connect(masterGain);
-    masterGain.gain.value = currentVol * 0.15;
+    src.connect(lp); lp.connect(channelGain);
+    sourceNode = src;
+
+    channelGain.gain.value = localVol * 0.25;
     src.start();
-    window.__bloomSource = src;
+
     const makeChirp = (freq: number, delay: number) => {
       setTimeout(() => {
-        if (!window.__bloomAudioCtx) return;
+        if (!window.__bloomAudioCtx || !window.__bloomChannels?.["forest"]) return;
         const c = window.__bloomAudioCtx;
+        const curLocalVol = window.__bloomChannelVolumes?.["forest"] ?? 0.5;
         const osc = c.createOscillator();
         const g = c.createGain();
         osc.type = "sine";
@@ -171,13 +265,14 @@ export const playAmbientSound = (sound: SoundType) => {
         osc.frequency.exponentialRampToValueAtTime(freq * 1.35, c.currentTime + 0.08);
         osc.frequency.exponentialRampToValueAtTime(freq, c.currentTime + 0.2);
         g.gain.setValueAtTime(0, c.currentTime);
-        g.gain.linearRampToValueAtTime(currentVol * 0.06, c.currentTime + 0.02);
+        g.gain.linearRampToValueAtTime(curLocalVol * 0.06, c.currentTime + 0.02);
         g.gain.exponentialRampToValueAtTime(0.001, c.currentTime + 0.25);
-        osc.connect(g); g.connect(c.destination);
+        osc.connect(g); g.connect(channelGain); // connect to channel gain!
         osc.start(); osc.stop(c.currentTime + 0.28);
       }, delay);
     };
-    window.__bloomModInterval = setInterval(() => {
+
+    intervalId = setInterval(() => {
       if (Math.random() < 0.35) {
         const freq = 1800 + Math.random() * 1400;
         makeChirp(freq, 0);
@@ -191,14 +286,18 @@ export const playAmbientSound = (sound: SoundType) => {
     src.loop = true;
     const hp = ctx.createBiquadFilter(); hp.type = "highpass"; hp.frequency.value = 200;
     const lp = ctx.createBiquadFilter(); lp.type = "lowpass"; lp.frequency.value = 2000;
-    src.connect(hp); hp.connect(lp); lp.connect(masterGain);
-    masterGain.gain.value = currentVol * 0.2;
+    src.connect(hp); hp.connect(lp); lp.connect(channelGain);
+    sourceNode = src;
+
+    channelGain.gain.value = localVol * 0.35;
     src.start();
-    window.__bloomSource = src;
+
     let tick = 0;
-    window.__bloomModInterval = setInterval(() => {
+    intervalId = setInterval(() => {
+      if (!window.__bloomChannels?.["wind"]) return;
+      const curLocalVol = window.__bloomChannelVolumes?.["wind"] ?? 0.5;
       const v = 0.12 + 0.12 * (0.5 + 0.5 * Math.sin((2 * Math.PI * tick) / 200));
-      masterGain.gain.setTargetAtTime(v * currentVol, ctx.currentTime, 1.5);
+      channelGain.gain.setTargetAtTime(v * curLocalVol * 2.0 * 0.35, ctx.currentTime, 1.5);
       tick++;
     }, 100);
 
@@ -207,19 +306,28 @@ export const playAmbientSound = (sound: SoundType) => {
     src.buffer = createNoiseBuffer(ctx, "white");
     src.loop = true;
     const lp = ctx.createBiquadFilter(); lp.type = "lowpass"; lp.frequency.value = 6000;
-    src.connect(lp); lp.connect(masterGain);
-    masterGain.gain.value = currentVol * 0.12;
+    src.connect(lp); lp.connect(channelGain);
+    sourceNode = src;
+
+    channelGain.gain.value = localVol * 0.2;
     src.start();
-    window.__bloomSource = src;
+  } else {
+    return; // Fallback safety
   }
 
-  window.__bloomActiveSound = sound;
+  window.__bloomChannels[sound] = {
+    source: sourceNode,
+    gainNode: channelGain,
+    interval: intervalId
+  };
+
   notifyListeners();
 };
 
 export const toggleAmbientSound = (sound: SoundType) => {
-  if (window.__bloomActiveSound === sound) {
-    stopAllAmbient();
+  if (window.__bloomChannels?.[sound]) {
+    stopChannel(sound);
+    notifyListeners();
   } else {
     playAmbientSound(sound);
   }
