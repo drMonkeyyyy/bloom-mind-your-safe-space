@@ -18,7 +18,7 @@ export function FinalCTA() {
               <span className="italic">Kamu Hadapi Sendiri.</span>
             </h2>
             <p className="mx-auto mt-6 max-w-xl text-lg leading-relaxed text-primary-foreground/85">
-              Bloom Mind siap menemanimu memahami diri, menghadapi tantangan
+              JN-CALM siap menemanimu memahami diri, menghadapi tantangan
               hidup, dan bertumbuh sedikit demi sedikit setiap hari.
             </p>
             <a

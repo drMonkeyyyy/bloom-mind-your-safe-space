@@ -37,7 +37,7 @@ export function EmergencyMode() {
               <span className="italic text-primary">Terlalu Berat</span>
             </h2>
             <p className="mt-5 max-w-md text-base leading-relaxed text-muted-foreground">
-              Satu tap untuk menenangkan diri. Bloom Mind menemani kamu melewati
+              Satu tap untuk menenangkan diri. JN-CALM menemani kamu melewati
               momen-momen paling berat dengan latihan singkat yang menentramkan.
             </p>
 

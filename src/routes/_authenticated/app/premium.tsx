@@ -94,7 +94,7 @@ function Page() {
           <div className="absolute -bottom-10 right-20 h-28 w-28 rounded-full bg-white/5" />
           <div className="relative">
             <p className="text-4xl">✨</p>
-            <h2 className="mt-3 font-display text-2xl font-semibold">Bloom Mind Premium</h2>
+            <h2 className="mt-3 font-display text-2xl font-semibold">JN-CALM Premium</h2>
             <p className="mt-1 text-sm opacity-80">Akun premium aktif</p>
             <div className="mt-6 rounded-2xl bg-white/15 px-5 py-4 backdrop-blur-sm">
               <p className="text-xs opacity-75">Berlaku hingga</p>

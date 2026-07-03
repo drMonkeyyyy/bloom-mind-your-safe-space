@@ -9,7 +9,7 @@ const searchSchema = z.object({ mode: z.enum(["login", "register", "forgot"]).op
 
 export const Route = createFileRoute("/auth")({
   validateSearch: searchSchema,
-  head: () => ({ meta: [{ title: "Masuk · Bloom Mind" }] }),
+  head: () => ({ meta: [{ title: "Masuk · JN-CALM" }] }),
   component: AuthPage,
 });
 
@@ -31,7 +31,7 @@ function passwordStrength(pw: string): { score: number; label: string; color: st
 }
 
 const TESTIMONIAL = {
-  quote: "Bloom Mind benar-benar tempat aku bisa jadi diri sendiri. Nggak dihakimi, nggak harus kuat.",
+  quote: "JN-CALM benar-benar tempat aku bisa jadi diri sendiri. Nggak dihakimi, nggak harus kuat.",
   name: "Naya, 23",
   role: "Mahasiswi",
 };
@@ -64,7 +64,7 @@ function AuthPage() {
           options: { data: { name }, emailRedirectTo: `${window.location.origin}/app` },
         });
         if (error) throw error;
-        toast.success("Akun dibuat. Selamat datang di Bloom Mind 🌿");
+        toast.success("Akun dibuat. Selamat datang di JN-CALM 🌿");
         navigate({ to: "/app" });
       } else if (mode === "forgot") {
         const { error } = await supabase.auth.resetPasswordForEmail(email, {
@@ -111,13 +111,11 @@ function AuthPage() {
         {/* Logo */}
         <div className="relative">
           <div className="flex items-center gap-3">
-            <div className="grid h-11 w-11 place-items-center rounded-2xl bg-white/20 backdrop-blur-sm">
-              <svg viewBox="0 0 24 24" fill="white" className="h-6 w-6" aria-hidden="true">
-                <path d="M12 2C8 2 5 5 5 9c0 2.5 1.2 4.7 3 6.1V17a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-1.9c1.8-1.4 3-3.6 3-6.1 0-4-3-7-7-7z" opacity=".9" />
-              </svg>
+            <div className="h-11 w-11 overflow-hidden rounded-2xl bg-white/90 backdrop-blur-sm flex items-center justify-center">
+              <img src="/logo.png" alt="JN-CALM Logo" className="h-full w-full object-cover" />
             </div>
             <div>
-              <p className="font-display text-2xl font-semibold text-white">Bloom Mind</p>
+              <p className="font-display text-2xl font-semibold text-white">JN-CALM</p>
               <p className="text-xs text-white/70">Your Safe Space To Grow</p>
             </div>
           </div>
@@ -151,12 +149,10 @@ function AuthPage() {
         {/* Mobile header */}
         <div className="px-6 py-5 lg:hidden">
           <Link to="/" className="flex items-center gap-2">
-            <div className="grid h-8 w-8 place-items-center rounded-xl bg-gradient-to-br from-primary to-accent shadow-soft">
-              <svg viewBox="0 0 24 24" fill="white" className="h-4.5 w-4.5" aria-hidden="true">
-                <path d="M12 2C8 2 5 5 5 9c0 2.5 1.2 4.7 3 6.1V17a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-1.9c1.8-1.4 3-3.6 3-6.1 0-4-3-7-7-7z" />
-              </svg>
+            <div className="h-9 w-9 overflow-hidden rounded-xl bg-white shadow-soft flex items-center justify-center border border-border/50">
+              <img src="/logo.png" alt="JN-CALM Logo" className="h-full w-full object-cover" />
             </div>
-            <span className="font-display text-lg font-semibold">Bloom Mind</span>
+            <span className="font-display text-xl font-bold tracking-widest text-[#6E8C71]">JN-CALM</span>
           </Link>
         </div>
 
@@ -297,7 +293,7 @@ function AuthPage() {
             <p className="mt-6 text-center text-xs text-muted-foreground">
               Dengan mendaftar, kamu menyetujui{" "}
               <a href="#" className="underline">Syarat Layanan</a> dan{" "}
-              <a href="#" className="underline">Kebijakan Privasi</a> Bloom Mind.
+              <a href="#" className="underline">Kebijakan Privasi</a> JN-CALM.
             </p>
           </div>
         </div>

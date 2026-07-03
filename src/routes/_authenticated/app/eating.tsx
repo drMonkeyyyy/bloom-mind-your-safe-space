@@ -169,7 +169,7 @@ function Page() {
                 <path d="M12 3v3m0 12v3m9-9h-3M6 12H3m14.5-6.5-2 2m-9 9-2 2m13 0-2-2m-9-9-2-2" />
               </svg>
             </div>
-            <p className="text-xs font-bold uppercase tracking-wider text-primary">Insight Bloom Mind</p>
+            <p className="text-xs font-bold uppercase tracking-wider text-primary">Insight JN-CALM</p>
           </div>
           <p className="text-sm leading-relaxed text-foreground italic">{result.insight}</p>
           <div className="rounded-2xl bg-card/80 backdrop-blur-sm p-4 ring-1 ring-border/60">
@@ -181,7 +181,7 @@ function Page() {
 
       {/* Disclaimer */}
       <p className="rounded-2xl bg-cream-deep/50 px-4 py-3 text-xs text-center text-muted-foreground">
-        Bloom Mind bukan pengganti ahli gizi atau psikolog. Untuk bantuan lebih lanjut, hubungi profesional kesehatan.
+        JN-CALM bukan pengganti ahli gizi atau psikolog. Untuk bantuan lebih lanjut, hubungi profesional kesehatan.
       </p>
     </div>
   );

@@ -49,7 +49,7 @@ export function EmotionalEating() {
         {/* Flow */}
         <div data-reveal className="mt-14 rounded-[2rem] bg-card p-6 ring-1 ring-border sm:p-10">
           <p className="text-center text-xs font-medium uppercase tracking-wider text-muted-foreground">
-            Bloom Mind memetakan pola ini
+            JN-CALM memetakan pola ini
           </p>
           <div className="mt-6 grid items-center gap-4 lg:grid-cols-[1fr_auto_1fr_auto_1fr_auto_1fr]">
             {flow.map((f, i) => (

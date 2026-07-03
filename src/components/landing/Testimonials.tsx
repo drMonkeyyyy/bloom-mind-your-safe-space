@@ -1,6 +1,6 @@
 const testimonials = [
   {
-    quote: "Sejak pakai Bloom Mind, aku jadi lebih ngerti kenapa aku gampang cemas. Sekarang lebih tenang menghadapi hari.",
+    quote: "Sejak pakai JN-CALM, aku jadi lebih ngerti kenapa aku gampang cemas. Sekarang lebih tenang menghadapi hari.",
     name: "Naya",
     age: 23,
     role: "Mahasiswi",

@@ -83,7 +83,7 @@ export const createPayment = createServerFn({ method: "POST" })
 
     try {
       // 5. Create payment request on Mayar
-      const description = `Upgrade Bloom Mind Premium - ${orderNumber}`;
+      const description = `Upgrade JN-CALM Premium - ${orderNumber}`;
       const paymentData = await createMayarPaymentLink({
         name: profile.name || email.split("@")[0],
         email: email,

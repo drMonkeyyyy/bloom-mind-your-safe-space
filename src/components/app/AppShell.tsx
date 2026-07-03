@@ -97,15 +97,12 @@ function UserAvatar({ name, plan }: { name?: string | null; plan?: string | null
   );
 }
 
-/* ─── Bloom logo SVG ───────────────────────────────────────────── */
-function BloomLogo({ size = "md" }: { size?: "sm" | "md" }) {
-  const sz = size === "sm" ? { outer: "h-8 w-8", inner: "h-4.5 w-4.5", rounded: "rounded-xl" } : { outer: "h-11 w-11", inner: "h-6 w-6", rounded: "rounded-2xl" };
+/* ─── Brand Logo ───────────────────────────────────────────── */
+function BrandLogo({ size = "md" }: { size?: "sm" | "md" }) {
+  const sz = size === "sm" ? { outer: "h-8 w-8", rounded: "rounded-xl" } : { outer: "h-11 w-11", rounded: "rounded-2xl" };
   return (
-    <div className={`grid ${sz.outer} place-items-center ${sz.rounded} bg-gradient-to-tr from-primary/90 via-primary to-accent/90 shadow-md transition-all duration-300 hover:scale-105`}>
-      <svg viewBox="0 0 24 24" fill="white" className={sz.inner} aria-hidden="true">
-        <path d="M12 2C8 2 5 5 5 9c0 2.5 1.2 4.7 3 6.1V17a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-1.9c1.8-1.4 3-3.6 3-6.1 0-4-3-7-7-7z" opacity=".95" />
-        <path d="M9 22h6M10 19h4" stroke="white" strokeWidth="1.8" strokeLinecap="round" fill="none" />
-      </svg>
+    <div className={`grid ${sz.outer} place-items-center ${sz.rounded} bg-white shadow-sm border border-border/50 transition-all duration-300 hover:scale-105 overflow-hidden`}>
+      <img src="/logo.png" alt="JN-CALM Logo" className="h-full w-full object-cover" />
     </div>
   );
 }
@@ -147,8 +144,8 @@ export function AppShell({ children }: { children: ReactNode }) {
       <div className="min-h-screen bg-background text-foreground">
         <header className="sticky top-0 z-20 flex items-center justify-between border-b border-border bg-card/85 px-5 py-4 backdrop-blur-xl">
           <div className="flex items-center gap-2">
-            <BloomLogo size="sm" />
-            <span className="font-display text-base font-semibold">Bloom Mind</span>
+            <BrandLogo size="sm" />
+            <span className="font-display text-base font-bold tracking-widest text-[#6E8C71]">JN-CALM</span>
           </div>
           <button
             onClick={signOut}
@@ -176,9 +173,9 @@ export function AppShell({ children }: { children: ReactNode }) {
         {/* Logo */}
         <div className="relative px-5 py-6">
           <Link to="/app" className="flex items-center gap-3">
-            <BloomLogo />
+            <BrandLogo />
             <div>
-              <p className="font-display text-xl font-bold leading-tight bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">Bloom Mind</p>
+              <p className="font-display text-2xl font-bold tracking-widest leading-tight text-[#6E8C71]">JN-CALM</p>
               <p className="text-[10px] text-muted-foreground/80 font-medium tracking-wide leading-tight">Your Safe Space</p>
             </div>
           </Link>
@@ -239,8 +236,8 @@ export function AppShell({ children }: { children: ReactNode }) {
       {/* ── MOBILE TOP HEADER ────────────────────────────── */}
       <header className="sticky top-0 z-20 flex items-center justify-between border-b border-border/60 bg-card/85 px-5 py-3 backdrop-blur-xl lg:hidden" style={{ boxShadow: "0 1px 0 0 var(--color-border)" }}>
         <Link to="/app" className="flex items-center gap-2">
-          <BloomLogo size="sm" />
-          <span className="font-display text-base font-semibold">Bloom Mind</span>
+          <BrandLogo size="sm" />
+          <span className="font-display text-base font-bold tracking-widest text-[#6E8C71]">JN-CALM</span>
         </Link>
         <div className="flex items-center gap-2">
           {isAdmin && (

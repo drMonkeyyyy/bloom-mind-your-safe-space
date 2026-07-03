@@ -28,7 +28,7 @@ function AdminLayout() {
     <div className="min-h-screen bg-background">
       <aside className="fixed inset-y-0 left-0 hidden w-60 flex-col border-r border-border bg-card lg:flex">
         <div className="px-6 py-5">
-          <p className="font-display text-lg font-semibold">Bloom Mind</p>
+          <p className="font-display text-lg font-semibold">JN-CALM</p>
           <p className="text-xs text-muted-foreground">Admin Panel</p>
         </div>
         <nav className="flex-1 space-y-1 px-3">
@@ -41,7 +41,7 @@ function AdminLayout() {
         </nav>
       </aside>
       <header className="sticky top-0 z-10 flex items-center justify-between border-b border-border bg-card px-5 py-3 lg:hidden">
-        <p className="font-display text-base">Admin · Bloom Mind</p>
+        <p className="font-display text-base">Admin · JN-CALM</p>
         <Link to="/app" className="text-xs">← App</Link>
       </header>
       <main className="lg:pl-60 pb-20"><div className="mx-auto max-w-5xl px-5 py-6"><Outlet /></div></main>

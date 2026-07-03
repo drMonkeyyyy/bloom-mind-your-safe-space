@@ -88,7 +88,7 @@ function Page() {
           exportGratitudesReportPDF(oldGratitudes);
         } else if (exportFormat === 'json') {
           const exportData = {
-            title: "Bloom Mind - Riwayat Jurnal Syukur",
+            title: "JN-CALM - Riwayat Jurnal Syukur",
             export_date: new Date().toISOString(),
             data: oldGratitudes
           };

@@ -44,7 +44,7 @@ Tolong, dalam beberapa menit ke depan:
 2. Hubungi layanan darurat: **119 ext. 8** (Kemenkes Sehat Jiwa) atau **112** (darurat umum).
 3. Datang ke IGD rumah sakit terdekat.
 
-Bloom Mind bukan pengganti psikolog atau layanan darurat. Aku akan tetap di sini, tapi aku butuh kamu untuk menghubungi bantuan profesional sekarang juga. Apa kamu bisa lakukan satu langkah dari atas?`;
+JN-CALM bukan pengganti psikolog atau layanan darurat. Aku akan tetap di sini, tapi aku butuh kamu untuk menghubungi bantuan profesional sekarang juga. Apa kamu bisa lakukan satu langkah dari atas?`;
 
 const SendInput = z.object({
   chatId: z.string().uuid().nullable(),
@@ -178,7 +178,7 @@ export const analyzeEmotionalEating = createServerFn({ method: "POST" })
     const { generateText } = await import("ai");
     const gateway = createGeminiClient(apiKey);
 
-    const prompt = `User Bloom Mind sedang refleksi emotional eating.
+    const prompt = `User JN-CALM sedang refleksi emotional eating.
 Emosi: ${data.emotion || "-"}
 Makanan yang dicraving: ${data.cravingFood || "-"}
 Trigger: ${data.trigger || "-"}
@@ -324,7 +324,7 @@ export const getWeeklyInsight = createServerFn({ method: "POST" })
     try {
       r = await generateText({
         model: gateway("gemini-2.5-flash"),
-        prompt: `Sebagai pendamping ${companionRole} Bloom Mind, buat insight mingguan singkat (maks 5 kalimat) dalam Bahasa Indonesia yang hangat dan tidak menghakimi. Sebutkan: mood dominan, trigger paling sering, satu hal positif, dan satu fokus untuk minggu depan. Data: ${summary}`,
+        prompt: `Sebagai pendamping ${companionRole} JN-CALM, buat insight mingguan singkat (maks 5 kalimat) dalam Bahasa Indonesia yang hangat dan tidak menghakimi. Sebutkan: mood dominan, trigger paling sering, satu hal positif, dan satu fokus untuk minggu depan. Data: ${summary}`,
       });
     } catch (e) {
       handleAiError(e);

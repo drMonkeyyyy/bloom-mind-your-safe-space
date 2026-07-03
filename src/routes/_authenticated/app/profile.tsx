@@ -66,7 +66,7 @@ function Page() {
           {initials}
         </div>
         <div className="min-w-0">
-          <h1 className="font-display text-xl font-semibold text-foreground">{profile?.name ?? "Pengguna Bloom Mind"}</h1>
+          <h1 className="font-display text-xl font-semibold text-foreground">{profile?.name ?? "Pengguna JN-CALM"}</h1>
           <p className="truncate text-sm text-muted-foreground">{profile?.email}</p>
           <span className={`mt-1.5 inline-flex rounded-full px-3 py-0.5 text-xs font-semibold ${isPremium ? "bg-gradient-to-r from-amber-100 to-orange-100 text-amber-700" : "bg-primary-soft text-foreground"}`}>
             {isPremium ? "✨ Premium" : "Free Plan"}
@@ -163,7 +163,7 @@ function Page() {
       </div>
 
       {/* Sign out confirm */}
-      <ModalDialog open={signOutConfirm} onClose={() => setSignOutConfirm(false)} title="Keluar dari Bloom Mind?">
+      <ModalDialog open={signOutConfirm} onClose={() => setSignOutConfirm(false)} title="Keluar dari JN-CALM?">
         <p className="text-sm text-muted-foreground">Kamu bisa masuk kembali kapan saja dengan akun yang sama.</p>
         <div className="mt-5 flex gap-2">
           <button onClick={signOut} className="flex-1 rounded-full bg-destructive py-2.5 text-sm font-semibold text-destructive-foreground">

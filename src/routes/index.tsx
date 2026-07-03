@@ -14,9 +14,9 @@ import { Pricing } from "@/components/landing/Pricing";
 import { FinalCTA } from "@/components/landing/FinalCTA";
 import { Footer } from "@/components/landing/Footer";
 
-const TITLE = "Bloom Mind — Pendamping AI untuk Tumbuh & Memahami Diri";
+const TITLE = "JN-CALM — Pendamping AI untuk Tumbuh & Memahami Diri";
 const DESC =
-  "Bloom Mind adalah pendamping AI untuk overthinking, stres, burnout, dan emotional eating. Tempat aman untuk curhat, bertumbuh, dan memahami diri.";
+  "JN-CALM adalah pendamping AI untuk overthinking, stres, burnout, dan emotional eating. Tempat aman untuk curhat, bertumbuh, dan memahami diri.";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -34,7 +34,7 @@ export const Route = createFileRoute("/")({
         children: JSON.stringify({
           "@context": "https://schema.org",
           "@type": "SoftwareApplication",
-          name: "Bloom Mind",
+          name: "JN-CALM",
           description: DESC,
           applicationCategory: "HealthApplication",
           inLanguage: "id-ID",

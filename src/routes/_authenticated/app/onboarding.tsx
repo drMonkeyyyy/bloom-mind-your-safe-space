@@ -62,7 +62,7 @@ function Onboarding() {
       <div className="flex min-h-[60vh] flex-col items-center justify-center text-center animate-scale-in">
         <div className="text-6xl mb-4">🌸</div>
         <h1 className="font-display text-3xl font-semibold text-foreground">Selamat datang, {name}!</h1>
-        <p className="mt-3 text-muted-foreground">Bloom Mind siap menemanimu bertumbuh.</p>
+        <p className="mt-3 text-muted-foreground">JN-CALM siap menemanimu bertumbuh.</p>
         <div className="mt-6 flex justify-center gap-1">
           {[..."✨🌿💛"].map((e, i) => (
             <span key={i} className="animate-float text-2xl" style={{ animationDelay: `${i * 0.3}s` }}>{e}</span>

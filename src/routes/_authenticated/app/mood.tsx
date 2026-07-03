@@ -121,7 +121,7 @@ function MoodPage() {
           exportMoodsReportPDF(oldMoods);
         } else if (exportFormat === 'json') {
           const exportData = {
-            title: "Bloom Mind - Riwayat Mood",
+            title: "JN-CALM - Riwayat Mood",
             export_date: new Date().toISOString(),
             data: oldMoods
           };

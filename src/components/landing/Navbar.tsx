@@ -35,14 +35,12 @@ export function Navbar() {
       >
         <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4 sm:px-8">
           {/* Logo */}
-          <a href="/" className="flex items-center gap-2.5" aria-label="Bloom Mind — Beranda">
-            <div className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-primary to-accent shadow-soft">
-              <svg viewBox="0 0 24 24" fill="white" className="h-5 w-5" aria-hidden="true">
-                <path d="M12 2C8 2 5 5 5 9c0 2.5 1.2 4.7 3 6.1V17a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-1.9c1.8-1.4 3-3.6 3-6.1 0-4-3-7-7-7z" opacity=".9" />
-              </svg>
+          <a href="/" className="flex items-center gap-2.5" aria-label="JN-CALM — Beranda">
+            <div className="h-10 w-10 overflow-hidden rounded-xl bg-white shadow-soft flex items-center justify-center border border-border/50">
+              <img src="/logo.png" alt="JN-CALM Logo" className="h-full w-full object-cover" />
             </div>
             <div className="hidden sm:block">
-              <p className="font-display text-lg font-semibold leading-tight text-foreground">Bloom Mind</p>
+              <p className="font-display text-xl font-bold tracking-widest leading-tight text-[#6E8C71]">JN-CALM</p>
             </div>
           </a>
 

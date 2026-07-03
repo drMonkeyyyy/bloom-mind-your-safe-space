@@ -1,4 +1,4 @@
-// Global Audio Engine for Bloom Mind Ambient Soundscapes (Multi-channel Mixer)
+// Global Audio Engine for JN-CALM Ambient Soundscapes (Multi-channel Mixer)
 export type SoundType = "rain" | "waves" | "forest" | "wind" | "whitenoise";
 
 export const SOUNDS: { id: SoundType; emoji: string; label: string; desc: string }[] = [

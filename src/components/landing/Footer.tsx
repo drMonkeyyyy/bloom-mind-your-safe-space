@@ -18,18 +18,16 @@ export function Footer() {
           {/* Brand */}
           <div>
             <div className="flex items-center gap-2.5">
-              <div className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-primary to-accent shadow-soft">
-                <svg viewBox="0 0 24 24" fill="white" className="h-5 w-5" aria-hidden="true">
-                  <path d="M12 2C8 2 5 5 5 9c0 2.5 1.2 4.7 3 6.1V17a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-1.9c1.8-1.4 3-3.6 3-6.1 0-4-3-7-7-7z" opacity=".9" />
-                </svg>
+              <div className="h-10 w-10 overflow-hidden rounded-xl bg-white shadow-soft flex items-center justify-center border border-border/50">
+                <img src="/logo.png" alt="JN-CALM Logo" className="h-full w-full object-cover" />
               </div>
               <div>
-                <p className="font-display text-lg font-semibold leading-tight text-foreground">Bloom Mind</p>
+                <p className="font-display text-xl font-bold tracking-widest leading-tight text-[#6E8C71]">JN-CALM</p>
                 <p className="text-[10px] text-muted-foreground">Your Safe Place to Grow</p>
               </div>
             </div>
             <p className="mt-5 max-w-xs text-sm leading-relaxed text-muted-foreground">
-              Pendamping AI untuk hati yang lelah. Bloom Mind hadir agar kamu tidak pernah merasa sendirian dalam perjalananmu.
+              Pendamping AI untuk hati yang lelah. JN-CALM hadir agar kamu tidak pernah merasa sendirian dalam perjalananmu.
             </p>
             <p className="mt-4 font-display text-base italic text-primary">Your Safe Place to Grow. 🌿</p>
           </div>
@@ -76,9 +74,9 @@ export function Footer() {
 
         {/* Bottom bar */}
         <div className="mt-12 flex flex-col items-center justify-between gap-3 border-t border-border pt-6 text-xs text-muted-foreground sm:flex-row">
-          <p>© {new Date().getFullYear()} Bloom Mind. Dibuat dengan 🤍 di Indonesia.</p>
+          <p>© {new Date().getFullYear()} JN-CALM. Dibuat dengan 🤍 di Indonesia.</p>
           <p className="max-w-sm text-center sm:text-right">
-            Bloom Mind bukan pengganti bantuan profesional kesehatan mental. Jika dalam krisis, hubungi 119 ext. 8.
+            JN-CALM bukan pengganti bantuan profesional kesehatan mental. Jika dalam krisis, hubungi 119 ext. 8.
           </p>
         </div>
       </div>

@@ -67,7 +67,7 @@ export function exportMoodPDF(checkIn: any) {
   const html = `
     <html>
     <head>
-      <title>Bloom Mind - Catatan Mood</title>
+      <title>JN-CALM - Catatan Mood</title>
       <style>
         body {
           font-family: 'system-ui', -apple-system, sans-serif;
@@ -204,7 +204,7 @@ export function exportMoodPDF(checkIn: any) {
     <body>
       <div class="card">
         <div class="header">
-          <div class="logo">🌿 Bloom Mind</div>
+          <div class="logo">🌿 JN-CALM</div>
           <div class="subtitle">Your Safe Space</div>
           <div class="title">Catatan Suasana Hati (Mood Check-in)</div>
           <div class="date">${formattedDate}</div>
@@ -241,7 +241,7 @@ export function exportMoodPDF(checkIn: any) {
         </div>
 
         <div class="footer">
-          Dicetak secara aman dari Bloom Mind pada ${printTimestamp}. Langkah kecilmu sangat berarti. 🤍
+          Dicetak secara aman dari JN-CALM pada ${printTimestamp}. Langkah kecilmu sangat berarti. 🤍
         </div>
       </div>
     </body>
@@ -257,7 +257,7 @@ export function exportGratitudePDF(entry: any) {
   const html = `
     <html>
     <head>
-      <title>Bloom Mind - Lembar Syukur Harian</title>
+      <title>JN-CALM - Lembar Syukur Harian</title>
       <style>
         body {
           font-family: 'system-ui', -apple-system, sans-serif;
@@ -375,7 +375,7 @@ export function exportGratitudePDF(entry: any) {
     <body>
       <div class="card">
         <div class="header">
-          <div class="logo">🌿 Bloom Mind</div>
+          <div class="logo">🌿 JN-CALM</div>
           <div class="subtitle">Your Safe Space</div>
           <div class="title">Lembar Syukur Harian (Gratitude Journal)</div>
           <div class="date">${formattedDate}</div>
@@ -399,7 +399,7 @@ export function exportGratitudePDF(entry: any) {
         </div>
 
         <div class="footer">
-          Dicetak secara aman dari Bloom Mind pada ${printTimestamp}. Bersyukur membawa kedamaian hati. 🙏
+          Dicetak secara aman dari JN-CALM pada ${printTimestamp}. Bersyukur membawa kedamaian hati. 🙏
         </div>
       </div>
     </body>
@@ -415,7 +415,7 @@ export function exportJournalPDF(journal: any) {
   const html = `
     <html>
     <head>
-      <title>Bloom Mind - Lembar Diary</title>
+      <title>JN-CALM - Lembar Diary</title>
       <style>
         body {
           font-family: 'system-ui', -apple-system, sans-serif;
@@ -538,7 +538,7 @@ export function exportJournalPDF(journal: any) {
     <body>
       <div class="card">
         <div class="header">
-          <div class="logo">🌿 Bloom Mind</div>
+          <div class="logo">🌿 JN-CALM</div>
           <div class="subtitle">Your Safe Space</div>
           <div class="title">Lembar Catatan Diary</div>
           <div class="date">${formattedDate}</div>
@@ -577,7 +577,7 @@ export function exportJournalPDF(journal: any) {
         </div>
 
         <div class="footer">
-          Dicetak secara aman dari Bloom Mind pada ${printTimestamp}. Lembar diary adalah saksi bisu perjalanan bertumbuhmu. 📓
+          Dicetak secara aman dari JN-CALM pada ${printTimestamp}. Lembar diary adalah saksi bisu perjalanan bertumbuhmu. 📓
         </div>
       </div>
     </body>
@@ -593,7 +593,7 @@ export function exportWeeklyInsightPDF(dateStr: string, text: string) {
   const html = `
     <html>
     <head>
-      <title>Bloom Mind - Weekly AI Insight</title>
+      <title>JN-CALM - Weekly AI Insight</title>
       <style>
         body {
           font-family: 'system-ui', -apple-system, sans-serif;
@@ -666,7 +666,7 @@ export function exportWeeklyInsightPDF(dateStr: string, text: string) {
     <body>
       <div class="card">
         <div class="header">
-          <div class="logo">🌿 Bloom Mind</div>
+          <div class="logo">🌿 JN-CALM</div>
           <div class="subtitle">Your Safe Space</div>
           <div class="title">Analisis Mingguan AI (Weekly Insight)</div>
           <div class="date">${formattedDate}</div>
@@ -677,7 +677,7 @@ export function exportWeeklyInsightPDF(dateStr: string, text: string) {
         </div>
 
         <div class="footer">
-          Dicetak secara aman dari Bloom Mind pada ${printTimestamp}. Setiap langkah kecil menuju kesehatan jiwamu sangat berarti. 🤍
+          Dicetak secara aman dari JN-CALM pada ${printTimestamp}. Setiap langkah kecil menuju kesehatan jiwamu sangat berarti. 🤍
         </div>
       </div>
     </body>
@@ -710,7 +710,7 @@ export function exportChatPDF(companionName: string, companionEmoji: string, mes
   const html = `
     <html>
     <head>
-      <title>Bloom Mind - Chat dengan ${companionName}</title>
+      <title>JN-CALM - Chat dengan ${companionName}</title>
       <style>
         body {
           font-family: 'system-ui', -apple-system, sans-serif;
@@ -825,7 +825,7 @@ export function exportChatPDF(companionName: string, companionEmoji: string, mes
     <body>
       <div class="card">
         <div class="header">
-          <div class="logo">🌿 Bloom Mind</div>
+          <div class="logo">🌿 JN-CALM</div>
           <div class="subtitle">Your Safe Space</div>
           <div class="title">Transkrip Percakapan Pendamping AI</div>
           <div class="companion-info">${companionEmoji} ${companionName}</div>
@@ -836,7 +836,7 @@ export function exportChatPDF(companionName: string, companionEmoji: string, mes
         </div>
 
         <div class="footer">
-          Dicetak secara aman dari Bloom Mind pada ${printTimestamp}. Percakapan dengan pendamping adalah ruang amanmu bercerita. 🤍
+          Dicetak secara aman dari JN-CALM pada ${printTimestamp}. Percakapan dengan pendamping adalah ruang amanmu bercerita. 🤍
         </div>
       </div>
     </body>
@@ -870,7 +870,7 @@ export function exportMoodsReportPDF(moods: any[]) {
   const html = `
     <html>
     <head>
-      <title>Bloom Mind - Laporan Riwayat Mood</title>
+      <title>JN-CALM - Laporan Riwayat Mood</title>
       <style>
         body {
           font-family: 'system-ui', -apple-system, sans-serif;
@@ -933,7 +933,7 @@ export function exportMoodsReportPDF(moods: any[]) {
     <body>
       <div class="container">
         <div class="header">
-          <div class="logo">🌿 Bloom Mind</div>
+          <div class="logo">🌿 JN-CALM</div>
           <div class="title">Laporan Riwayat Mood (Mood Check-ins)</div>
         </div>
         <table>
@@ -951,7 +951,7 @@ export function exportMoodsReportPDF(moods: any[]) {
           </tbody>
         </table>
         <div class="footer">
-          Laporan diunduh secara aman dari Bloom Mind pada ${printTimestamp}. Setiap catatan adalah langkah kecilmu yang berharga. 🤍
+          Laporan diunduh secara aman dari JN-CALM pada ${printTimestamp}. Setiap catatan adalah langkah kecilmu yang berharga. 🤍
         </div>
       </div>
     </body>
@@ -982,7 +982,7 @@ export function exportGratitudesReportPDF(entries: any[]) {
   const html = `
     <html>
     <head>
-      <title>Bloom Mind - Laporan Jurnal Syukur</title>
+      <title>JN-CALM - Laporan Jurnal Syukur</title>
       <style>
         body {
           font-family: 'system-ui', -apple-system, sans-serif;
@@ -1045,7 +1045,7 @@ export function exportGratitudesReportPDF(entries: any[]) {
     <body>
       <div class="container">
         <div class="header">
-          <div class="logo">🌿 Bloom Mind</div>
+          <div class="logo">🌿 JN-CALM</div>
           <div class="title">Laporan Riwayat Jurnal Syukur (Gratitude Journal)</div>
         </div>
         <table>
@@ -1062,7 +1062,7 @@ export function exportGratitudesReportPDF(entries: any[]) {
           </tbody>
         </table>
         <div class="footer">
-          Laporan diunduh secara aman dari Bloom Mind pada ${printTimestamp}. Bersyukur membawa damai di hati. 🙏
+          Laporan diunduh secara aman dari JN-CALM pada ${printTimestamp}. Bersyukur membawa damai di hati. 🙏
         </div>
       </div>
     </body>

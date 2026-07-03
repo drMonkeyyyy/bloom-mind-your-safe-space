@@ -35,7 +35,7 @@ export function Hero() {
           </h1>
 
           <p className="mt-6 max-w-xl text-lg leading-relaxed text-muted-foreground">
-            Bloom Mind adalah pendamping AI yang membantu kamu menghadapi overthinking, stres, burnout, emotional eating, dan berbagai tantangan hidup — tanpa rasa takut dihakimi.
+            JN-CALM adalah pendamping AI yang membantu kamu menghadapi overthinking, stres, burnout, emotional eating, dan berbagai tantangan hidup — tanpa rasa takut dihakimi.
           </p>
 
           {/* CTA buttons */}
@@ -63,7 +63,7 @@ export function Hero() {
           </div>
 
           {/* Trust badges */}
-          <ul className="mt-8 flex flex-wrap gap-x-5 gap-y-3" aria-label="Keunggulan Bloom Mind">
+          <ul className="mt-8 flex flex-wrap gap-x-5 gap-y-3" aria-label="Keunggulan JN-CALM">
             {badges.map((b) => (
               <li key={b.label} className="flex items-center gap-2 text-sm text-muted-foreground">
                 <span className="grid h-6 w-6 place-items-center rounded-full bg-primary text-primary-foreground text-xs" aria-hidden="true">
