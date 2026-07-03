@@ -7,7 +7,7 @@ const menu = [
 const legal = [
   { label: "Kebijakan Privasi", href: "#" },
   { label: "Syarat Layanan", href: "#" },
-  { label: "Hubungi Kami", href: "mailto:halo@bloommind.id" },
+  { label: "Hubungi Kami", href: "mailto:halo@jncalm.my.id" },
 ];
 
 export function Footer() {
@@ -68,7 +68,7 @@ export function Footer() {
               <p className="mt-1 text-sm font-bold text-rose-700">119 ext. 8</p>
               <p className="mt-1 text-xs text-rose-600/80">Layanan kesehatan jiwa 24 jam</p>
             </div>
-            <p className="mt-3 text-xs text-muted-foreground">halo@bloommind.id</p>
+            <p className="mt-3 text-xs text-muted-foreground">halo@jncalm.my.id</p>
           </div>
         </div>
 
