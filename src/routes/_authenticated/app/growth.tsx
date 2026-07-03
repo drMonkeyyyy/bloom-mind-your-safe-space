@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useAuth } from "@/hooks/use-auth";
 import { useProfile } from "@/hooks/use-profile";
 import { useQuery } from "@tanstack/react-query";
@@ -6,18 +6,33 @@ import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { getWeeklyInsight } from "@/lib/chat.functions";
 import { PaywallCard } from "@/components/app/PaywallCard";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { MoodSparkline } from "@/components/app/MoodSparkline";
 import { SkeletonCard } from "@/components/app/SkeletonCard";
+import { BottomSheet, ModalDialog } from "@/components/app/BottomSheet";
+
+const TRIGGER_EMOJIS: Record<string, string> = {
+  "Pekerjaan": "💼",
+  "Hubungan": "❤️",
+  "Keluarga": "🏡",
+  "Keuangan": "💰",
+  "Makanan": "🍔",
+  "Kesehatan": "🩺",
+  "Masa depan": "🔮",
+  "Lainnya": "🌿"
+};
 
 export const Route = createFileRoute("/_authenticated/app/growth")({
   component: Page,
 });
 
-function StatCard({ label, value, suffix = "/10", trend }: { label: string; value: string | number; suffix?: string; trend?: "up" | "down" | null }) {
+function StatCard({ label, value, suffix = "/10", trend, onClick }: { label: string; value: string | number; suffix?: string; trend?: "up" | "down" | null; onClick?: () => void }) {
   return (
-    <div className="rounded-3xl bg-card p-5 ring-1 ring-border">
-      <p className="text-xs font-medium text-muted-foreground">{label}</p>
+    <div 
+      onClick={onClick}
+      className="rounded-3xl bg-card p-5 ring-1 ring-border transition-all duration-300 hover:shadow-card hover:-translate-y-0.5 cursor-pointer active:scale-98"
+    >
+      <p className="text-xs font-semibold text-stone-500">{label}</p>
       <div className="mt-2 flex items-end gap-1.5">
         <p className="font-display text-3xl font-bold text-foreground">{value}</p>
         <p className="mb-0.5 text-sm text-muted-foreground">{suffix}</p>
@@ -32,7 +47,7 @@ function StatCard({ label, value, suffix = "/10", trend }: { label: string; valu
 }
 
 /* ── MindPlant SVG Plant Renderer ───────────────────────────────── */
-function MindPlant({ score }: { score: number }) {
+function MindPlant({ score, onClick }: { score: number; onClick?: () => void }) {
   let stage = 1;
   let label = "Tunas Baru (Sprout)";
   let desc = "Tanaman jiwamu baru saja bertunas. Teruskan langkah kecilmu merawat diri! 🌱";
@@ -56,7 +71,10 @@ function MindPlant({ score }: { score: number }) {
   }
 
   return (
-    <div className="rounded-3xl bg-card p-6 ring-1 ring-border/60 shadow-card flex flex-col items-center text-center space-y-4 animate-scale-in">
+    <div 
+      onClick={onClick}
+      className="rounded-3xl bg-card p-6 ring-1 ring-border/60 shadow-card flex flex-col items-center text-center space-y-4 animate-scale-in cursor-pointer hover:shadow-elevated hover:-translate-y-0.5 transition-all duration-300 active:scale-98"
+    >
       <div className="relative w-44 h-48 flex items-center justify-center">
         {stage >= 4 && (
           <div className="absolute inset-0 pointer-events-none">
@@ -149,6 +167,22 @@ function Page() {
   const insightFn = useServerFn(getWeeklyInsight);
   const [insight, setInsight] = useState<string | null>(null);
   const [insightLoading, setInsightLoading] = useState(false);
+  const [plantModalOpen, setPlantModalOpen] = useState(false);
+  const [selectedStat, setSelectedStat] = useState<{ title: string; desc: string } | null>(null);
+  const [historyModalOpen, setHistoryModalOpen] = useState(false);
+  const [insightHistory, setInsightHistory] = useState<Array<{ id: string; date: string; text: string }>>([]);
+
+  useEffect(() => {
+    if (!user) return;
+    const saved = localStorage.getItem(`bloom_weekly_insight_${user.id}`);
+    if (saved) {
+      setInsight(saved);
+    }
+    const savedHistory = localStorage.getItem(`bloom_weekly_insights_history_${user.id}`);
+    if (savedHistory) {
+      setInsightHistory(JSON.parse(savedHistory));
+    }
+  }, [user]);
 
   const since = new Date(Date.now() - 29 * 86400000).toISOString().slice(0, 10);
   const { data: moods, isLoading: moodsLoading } = useQuery({
@@ -208,20 +242,37 @@ function Page() {
 
   const generate = async () => {
     setInsightLoading(true);
-    try { const r = await insightFn({ data: undefined }); setInsight(r.text); }
+    try { 
+      const r = await insightFn({ data: undefined }); 
+      setInsight(r.text); 
+      if (user) {
+        localStorage.setItem(`bloom_weekly_insight_${user.id}`, r.text);
+        
+        // Save to history
+        const newEntry = {
+          id: Math.random().toString(36).substring(2, 9),
+          date: new Date().toISOString(),
+          text: r.text,
+        };
+        // Keep max 50 entries in history to prevent storage exhaustion
+        const updatedHistory = [newEntry, ...insightHistory].slice(0, 50);
+        setInsightHistory(updatedHistory);
+        localStorage.setItem(`bloom_weekly_insights_history_${user.id}`, JSON.stringify(updatedHistory));
+      }
+    }
     catch { setInsight("Gagal memuat insight. Coba lagi."); }
     finally { setInsightLoading(false); }
   };
 
   return (
     <div className="space-y-6">
-      <div>
+      <div className="relative">
         <h1 className="font-display text-3xl font-semibold">Growth Dashboard</h1>
         <p className="mt-1 text-sm text-muted-foreground">30 hari terakhir · Data personalmu</p>
       </div>
 
       {/* ── MINDPLANT ────────────────────────────────────────────── */}
-      <MindPlant score={growthScore} />
+      <MindPlant score={growthScore} onClick={() => setPlantModalOpen(true)} />
 
       {/* ── STATS ─────────────────────────────────────────────────── */}
       {moodsLoading ? (
@@ -230,9 +281,30 @@ function Page() {
         </div>
       ) : (
         <div className="grid gap-4 sm:grid-cols-3">
-          <StatCard label="Mood rata-rata" value={avgMood} />
-          <StatCard label="Stres rata-rata" value={avgStress} />
-          <StatCard label="Energi rata-rata" value={avgEnergy} />
+          <StatCard 
+            label="Mood rata-rata" 
+            value={avgMood} 
+            onClick={() => setSelectedStat({
+              title: "📊 Mood Rata-Rata",
+              desc: `Skor mood rata-rata dihitung dari seluruh check-in mood harian Anda selama 30 hari terakhir. Skor berkisar antara 1 (sangat buruk) hingga 10 (sangat bahagia). Rata-rata Anda saat ini adalah ${avgMood}/10.`
+            })}
+          />
+          <StatCard 
+            label="Stres rata-rata" 
+            value={avgStress} 
+            onClick={() => setSelectedStat({
+              title: "💆‍♀️ Stres Rata-Rata",
+              desc: `Tingkat stres rata-rata dihitung dari seluruh catatan stres harian Anda selama 30 hari terakhir. Skor berkisar antara 1 (sangat tenang/rileks) hingga 10 (sangat tertekan/stres berat). Rata-rata Anda saat ini adalah ${avgStress}/10.`
+            })}
+          />
+          <StatCard 
+            label="Energi rata-rata" 
+            value={avgEnergy} 
+            onClick={() => setSelectedStat({
+              title: "⚡ Energi Rata-Rata",
+              desc: `Tingkat energi rata-rata dihitung dari seluruh catatan tingkat energi harian Anda selama 30 hari terakhir. Skor berkisar antara 1 (lelah fisik/mental habis) hingga 10 (sangat segar/berenergi tinggi). Rata-rata Anda saat ini adalah ${avgEnergy}/10.`
+            })}
+          />
         </div>
       )}
 
@@ -275,36 +347,52 @@ function Page() {
           <p className="text-sm text-muted-foreground">Belum cukup data. Lanjutkan check-in mood harian.</p>
         ) : (
           <div className="space-y-3">
-            {topTriggers.map(([t, c]) => (
-              <div key={t} className="flex items-center gap-3">
-                <span className="w-28 shrink-0 text-sm text-foreground">{t}</span>
-                <div className="flex-1 h-2.5 rounded-full bg-cream-deep overflow-hidden">
-                  <div
-                    className="h-full rounded-full bg-primary transition-all duration-700"
-                    style={{ width: `${(c / maxTrigger) * 100}%` }}
-                  />
+            {topTriggers.map(([t, c]) => {
+              const emoji = TRIGGER_EMOJIS[t] ?? "🌿";
+              return (
+                <div key={t} className="flex items-center gap-3">
+                  <span className="w-32 shrink-0 text-sm font-semibold text-stone-700 flex items-center gap-1.5">
+                    <span className="text-base select-none">{emoji}</span>
+                    {t}
+                  </span>
+                  <div className="flex-1 h-2.5 rounded-full bg-cream-deep overflow-hidden">
+                    <div
+                      className="h-full rounded-full bg-primary transition-all duration-700"
+                      style={{ width: `${(c / maxTrigger) * 100}%` }}
+                    />
+                  </div>
+                  <span className="w-8 shrink-0 text-right text-xs font-semibold text-muted-foreground">{c}×</span>
                 </div>
-                <span className="w-8 shrink-0 text-right text-xs font-semibold text-muted-foreground">{c}×</span>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </section>
 
       {/* ── WEEKLY AI INSIGHT ────────────────────────────────────── */}
-      <section className="rounded-3xl p-6" style={{ background: "var(--gradient-calm)" }}>
+      <section className="rounded-3xl p-6 border border-primary/10 relative overflow-hidden bg-gradient-to-br from-primary-soft/40 to-cream-deep/30 shadow-soft">
         <div className="flex items-center justify-between">
           <div>
             <p className="font-display text-lg font-semibold">Weekly AI Insight</p>
             <p className="mt-0.5 text-xs text-muted-foreground">Analisis personal berdasarkan datamu</p>
           </div>
-          <button
-            onClick={generate}
-            disabled={insightLoading}
-            className="rounded-full bg-foreground px-4 py-2 text-xs font-semibold text-cream transition-all hover:-translate-y-0.5 disabled:opacity-60"
-          >
-            {insightLoading ? "Memuat…" : "Generate"}
-          </button>
+          <div className="flex items-center gap-2">
+            {insightHistory.length > 0 && (
+              <button
+                onClick={() => setHistoryModalOpen(true)}
+                className="rounded-full border border-primary/20 bg-white/80 hover:bg-white px-3.5 py-2 text-xs font-bold text-primary transition-all duration-200 active:scale-95 shadow-sm"
+              >
+                🕒 Riwayat
+              </button>
+            )}
+            <button
+              onClick={generate}
+              disabled={insightLoading}
+              className="rounded-full bg-foreground px-4 py-2 text-xs font-semibold text-cream transition-all hover:-translate-y-0.5 disabled:opacity-60"
+            >
+              {insightLoading ? "Memuat…" : "Generate"}
+            </button>
+          </div>
         </div>
 
         {insightLoading && (
@@ -316,8 +404,11 @@ function Page() {
         )}
 
         {insight && !insightLoading && (
-          <div className="mt-4 animate-slide-up rounded-2xl bg-card/80 p-5 ring-1 ring-border">
-            <p className="whitespace-pre-wrap text-sm leading-relaxed text-foreground">{insight}</p>
+          <div className="mt-4 animate-slide-up rounded-2xl bg-white/80 border border-primary/10 p-5 shadow-sm relative overflow-hidden text-sm leading-relaxed text-stone-700 whitespace-pre-wrap select-text selection:bg-primary-soft">
+            <div className="absolute left-3 top-0 bottom-0 w-[1px] bg-primary/30" />
+            <div className="pl-4">
+              {insight}
+            </div>
           </div>
         )}
 
@@ -327,6 +418,148 @@ function Page() {
           </p>
         )}
       </section>
+
+      {/* ── MINDPLANT LIBRARY DIALOG ───────────────────────────── */}
+      <ModalDialog
+        open={plantModalOpen}
+        onClose={() => setPlantModalOpen(false)}
+        title="🌱 Koleksi Tanaman Jiwa"
+      >
+        <div className="space-y-4 max-h-[70vh] overflow-y-auto pr-1">
+          <p className="text-xs text-muted-foreground leading-relaxed">
+            Skor Jiwa Anda dihitung berdasarkan keaktifan merawat diri:
+            <br />• <strong>Check-in Mood</strong> (+8 Pts per hari)
+            <br />• Menulis lembaran <strong>Diary</strong> (+12 Pts)
+            <br />• Mengisi jurnal <strong>Syukur</strong> (+12 Pts)
+          </p>
+
+          <div className="space-y-2.5">
+            {[
+              { level: 1, range: "0–20 Pts", emoji: "🌱", name: "Tunas Baru (Sprout)", desc: "Tanaman jiwamu baru saja bertunas. Teruskan langkah kecilmu merawat diri!" },
+              { level: 2, range: "21–60 Pts", emoji: "🌿", name: "Daun Rimbun (Leafy)", desc: "Tanaman jiwamu mulai berdaun rimbun seiring kepedulianmu pada diri sendiri." },
+              { level: 3, range: "61–120 Pts", emoji: "🌸", name: "Kuncup Bunga (Bud)", desc: "Kuncup bunga telah tumbuh! Keindahan mulai tampak dari konsistensimu." },
+              { level: 4, range: "121–200 Pts", emoji: "🌼", name: "Bunga Mekar (Blooming)", desc: "Bunga mekar dengan indah! Jiwamu memancarkan kehangatan dan ketenangan." },
+              { level: 5, range: "> 200 Pts", emoji: "🌟", name: "Bunga Emas Abadi (Golden Bloom)", desc: "Luar biasa! Tanaman jiwamu mekar penuh dengan cahaya emas kebahagiaan." }
+            ].map((st) => {
+              const currentStage = growthScore > 200 ? 5 : growthScore > 120 ? 4 : growthScore > 60 ? 3 : growthScore > 20 ? 2 : 1;
+              const isActive = currentStage === st.level;
+              return (
+                <div 
+                  key={st.level}
+                  className={`p-3.5 rounded-2xl border flex items-center gap-3 transition-all duration-200 ${
+                    isActive 
+                      ? "border-amber-400 bg-amber-50/50 shadow-sm scale-[1.01]" 
+                      : "border-border bg-card opacity-70"
+                  }`}
+                >
+                  <div className="text-3xl bg-white p-2 rounded-xl shadow-sm leading-none shrink-0 select-none">
+                    {st.emoji}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between gap-1 flex-wrap">
+                      <h4 className={`text-xs font-bold ${isActive ? "text-amber-900" : "text-foreground"}`}>{st.name}</h4>
+                      <span className="rounded-full bg-primary-soft px-2 py-0.5 text-[9px] font-semibold text-primary">{st.range}</span>
+                    </div>
+                    <p className="text-[10px] text-muted-foreground leading-relaxed mt-0.5">{st.desc}</p>
+                  </div>
+                  {isActive && (
+                    <span className="shrink-0 text-[10px] font-extrabold text-amber-600 animate-pulse select-none">Aktif</span>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+
+          <button 
+            onClick={() => setPlantModalOpen(false)}
+            className="w-full rounded-full bg-primary py-2.5 text-xs font-bold text-white shadow-soft transition-all duration-200 mt-2 hover:-translate-y-0.5 active:scale-95"
+          >
+            Tutup Library
+          </button>
+        </div>
+      </ModalDialog>
+
+      {/* ── STATS EXPLANATION DIALOG ───────────────────────────── */}
+      <ModalDialog
+        open={!!selectedStat}
+        onClose={() => setSelectedStat(null)}
+        title={selectedStat?.title}
+      >
+        {selectedStat && (
+          <div className="space-y-4">
+            <p className="text-sm text-stone-700 leading-relaxed font-medium">
+              {selectedStat.desc}
+            </p>
+            <button 
+              onClick={() => setSelectedStat(null)}
+              className="w-full rounded-full bg-stone-100 py-2.5 text-xs font-bold text-stone-600 hover:bg-stone-200 transition-all duration-200"
+            >
+              Tutup Penjelasan
+            </button>
+          </div>
+        )}
+      </ModalDialog>
+
+      {/* ── INSIGHT HISTORY DIALOG ────────────────────────────── */}
+      <ModalDialog
+        open={historyModalOpen}
+        onClose={() => setHistoryModalOpen(false)}
+        title="🕒 Riwayat Analisis Mingguan AI"
+      >
+        <div className="space-y-4 max-h-[70vh] overflow-y-auto pr-1">
+          <p className="text-xs text-muted-foreground leading-normal">
+            Berikut adalah catatan analisis mingguan AI Anda dari minggu-minggu sebelumnya untuk melacak progress Anda.
+          </p>
+
+          <div className="space-y-3.5">
+            {insightHistory.map((item) => {
+              const formattedDate = new Date(item.date).toLocaleDateString("id-ID", {
+                weekday: "long",
+                day: "numeric",
+                month: "long",
+                year: "numeric"
+              });
+              
+              return (
+                <div key={item.id} className="rounded-2xl border border-border bg-card p-4 relative overflow-hidden text-xs leading-relaxed text-stone-700">
+                  <div className="flex items-center justify-between mb-2 pb-2 border-b border-border/40">
+                    <span className="font-bold text-stone-500">{formattedDate}</span>
+                    <button 
+                      onClick={() => {
+                        const updated = insightHistory.filter(x => x.id !== item.id);
+                        setInsightHistory(updated);
+                        localStorage.setItem(`bloom_weekly_insights_history_${user!.id}`, JSON.stringify(updated));
+                        if (insight === item.text) {
+                          setInsight(updated[0]?.text ?? null);
+                          if (updated[0]?.text) {
+                            localStorage.setItem(`bloom_weekly_insight_${user!.id}`, updated[0].text);
+                          } else {
+                            localStorage.removeItem(`bloom_weekly_insight_${user!.id}`);
+                          }
+                        }
+                      }}
+                      className="text-stone-400 hover:text-red-500 text-[10px] font-bold"
+                      title="Hapus analisis ini"
+                    >
+                      Hapus
+                    </button>
+                  </div>
+                  <p className="whitespace-pre-wrap select-text selection:bg-primary-soft">{item.text}</p>
+                </div>
+              );
+            })}
+          </div>
+
+          <button 
+            onClick={() => setHistoryModalOpen(false)}
+            className="w-full rounded-full bg-stone-100 py-2.5 text-xs font-bold text-stone-600 hover:bg-stone-200 transition-all duration-200"
+          >
+            Tutup Riwayat
+          </button>
+        </div>
+      </ModalDialog>
     </div>
   );
 }
+
+
