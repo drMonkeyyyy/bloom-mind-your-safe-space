@@ -187,12 +187,12 @@ function MoodPage() {
   const save = async () => {
     if (!user) return;
     setSaving(true);
-    const { error } = await supabase.from("mood_checkins").insert({
+    const { data, error } = await supabase.from("mood_checkins").insert({
       user_id: user.id,
       mood: mood as "bahagia",
       mood_score: moodScore, stress_score: stress, energy_score: energy,
       triggers, note: note || null,
-    });
+    }).select("*").single();
     setSaving(false);
     if (error) { toast.error(error.message); return; }
     setSaved(true);
@@ -201,6 +201,9 @@ function MoodPage() {
     setTimeout(() => setSaved(false), 2000);
     qc.invalidateQueries({ queryKey: ["mood-list", user.id] });
     qc.invalidateQueries({ queryKey: ["moods-week", user.id] });
+    if (data) {
+      setSelectedCheckIn(data);
+    }
   };
 
   const chartData = (list ?? []).slice(0, 14).reverse().map((m) => ({ value: m.mood_score, date: m.date }));
