@@ -65,6 +65,7 @@ function ChatRoom() {
   const [panicMode, setPanicMode] = useState(false);
   const [cleanupModalOpen, setCleanupModalOpen] = useState(false);
   const [cleaning, setCleaning] = useState(false);
+  const scrollRef = useRef<HTMLDivElement>(null);
   const sixMonthsAgo = new Date(Date.now() - 180 * 24 * 60 * 60 * 1000);
   const hasOldMessages = messages && messages.length > 0 && messages.some(m => new Date(m.created_at) < sixMonthsAgo);
 
