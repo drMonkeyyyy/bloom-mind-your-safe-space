@@ -68,9 +68,9 @@ export const promoteToAdmin = createServerFn({ method: "POST" })
   });
 
 const SettingsInput = z.object({
-  bank_name: z.string().min(1),
-  bank_account_number: z.string().min(1),
-  bank_account_holder: z.string().min(1),
+  bank_name: z.string().optional(),
+  bank_account_number: z.string().optional(),
+  bank_account_holder: z.string().optional(),
   premium_price: z.number().int().positive(),
   free_chat_limit: z.number().int().positive(),
   crisis_disclaimer: z.string().min(1),

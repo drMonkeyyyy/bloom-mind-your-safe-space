@@ -17,9 +17,9 @@ const premiumFeatures = [
 ];
 
 const FAQ = [
-  { q: "Apakah data saya aman?", a: "Ya. Semua data enkripsi dan tidak pernah dibagikan ke pihak ketiga. Privasi kamu adalah prioritas kami." },
+  { q: "Apakah data saya aman?", a: "Ya. Semua data dienkripsi dan tidak pernah dibagikan ke pihak ketiga. Privasi kamu adalah prioritas kami." },
   { q: "Apakah ada kontrak jangka panjang?", a: "Tidak. Kamu bisa berlangganan bulan demi bulan dan berhenti kapan saja tanpa penalti." },
-  { q: "Bagaimana cara pembayaran?", a: "Transfer bank ke rekening yang tersedia. Admin akan memverifikasi dalam 1×24 jam." },
+  { q: "Bagaimana cara pembayaran?", a: "Pembayaran dapat dilakukan secara instan & otomatis menggunakan Kartu Kredit, E-Wallet (GoPay, OVO, ShopeePay, Dana), QRIS, atau Virtual Account melalui payment gateway Mayar.id." },
   { q: "Apakah JN-CALM bisa menggantikan psikolog?", a: "JN-CALM adalah pendamping AI, bukan pengganti profesional kesehatan mental. Untuk kondisi serius, kami sarankan menemui psikolog." },
 ];
 

@@ -53,7 +53,7 @@ function Page() {
     queryFn: async () => (await supabase.from("orders").select("*").eq("user_id", user!.id).order("created_at", { ascending: false })).data ?? [],
   });
 
-  const activeOrder = orders?.find((o) => o.payment_status === "menunggu_pembayaran" || o.payment_status === "menunggu_verifikasi");
+  const activeOrder = orders?.find((o) => (o.payment_status === "menunggu_pembayaran" || o.payment_status === "menunggu_verifikasi") && o.payment_method === "mayar");
   const [creating, setCreating] = useState(false);
 
   const createOrder = async () => {
@@ -187,7 +187,7 @@ function Page() {
               { label: "No. Pesanan", value: activeOrder.order_number, copyable: true },
               { label: "Paket", value: activeOrder.package_name },
               { label: "Nominal", value: `Rp${activeOrder.amount.toLocaleString("id-ID")}` },
-              { label: "Metode Pembayaran", value: activeOrder.payment_method === "mayar" ? "Mayar Payment Gateway" : "Transfer Bank" },
+              { label: "Metode Pembayaran", value: "Mayar Payment Gateway" },
             ].map(({ label, value, copyable }) => (
               <div key={label} className="flex items-center justify-between gap-2">
                 <span className="text-xs text-muted-foreground shrink-0">{label}</span>

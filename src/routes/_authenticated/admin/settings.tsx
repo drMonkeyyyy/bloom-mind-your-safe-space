@@ -35,9 +35,6 @@ function Page() {
     <div className="space-y-5 max-w-xl">
       <h1 className="font-display text-3xl font-semibold">Settings</h1>
       <section className="rounded-3xl bg-card p-6 ring-1 ring-border space-y-3">
-        <Field label="Bank" v={form.bank_name} set={(v)=>setForm({...form, bank_name:v})} />
-        <Field label="No. Rekening" v={form.bank_account_number} set={(v)=>setForm({...form, bank_account_number:v})} />
-        <Field label="Atas Nama" v={form.bank_account_holder} set={(v)=>setForm({...form, bank_account_holder:v})} />
         <Field label="Harga Premium (Rp)" v={String(form.premium_price)} set={(v)=>setForm({...form, premium_price: parseInt(v)||0})} />
         <Field label="Free chat limit / hari" v={String(form.free_chat_limit)} set={(v)=>setForm({...form, free_chat_limit: parseInt(v)||0})} />
         <div>

@@ -51,6 +51,11 @@ function createSupabaseFetch(supabaseKey: string): typeof fetch {
 }
 
 function createSupabaseAdminClient() {
+  // Guard for browser execution during module loading/hydration
+  if (typeof window !== 'undefined') {
+    return {} as any;
+  }
+
   const SUPABASE_URL = getEnvValue('SUPABASE_URL');
   const SUPABASE_SERVICE_ROLE_KEY = getEnvValue('SUPABASE_SERVICE_ROLE_KEY');
 
@@ -83,7 +88,16 @@ let _supabaseAdmin: ReturnType<typeof createSupabaseAdminClient> | undefined;
 // Load inside server handlers: const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 // Top-level import is safe only in other .server.ts modules - route files and *.functions.ts ship to the client bundle.
 export const supabaseAdmin = new Proxy({} as ReturnType<typeof createSupabaseAdminClient>, {
-  get(_, prop, receiver) {
+  get(target, prop, receiver) {
+    // Avoid triggering initialization on React/Vite/bundler internal lookups
+    if (
+      typeof prop === 'symbol' ||
+      prop === 'then' ||
+      prop === '$$typeof' ||
+      prop === 'toJSON'
+    ) {
+      return Reflect.get(target, prop, receiver);
+    }
     if (!_supabaseAdmin) _supabaseAdmin = createSupabaseAdminClient();
     return Reflect.get(_supabaseAdmin, prop, receiver);
   },
