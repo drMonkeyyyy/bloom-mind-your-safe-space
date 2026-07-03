@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { EmptyState } from "@/components/app/EmptyState";
+import { BottomSheet, ModalDialog } from "@/components/app/BottomSheet";
 
 export const Route = createFileRoute("/_authenticated/app/gratitude")({
   component: Page,
@@ -39,6 +40,21 @@ function Page() {
   const [g, setG] = useState({ gratitude1: "", gratitude2: "", gratitude3: "", best_moment: "", lesson: "" });
   const [saving, setSaving] = useState(false);
   const [heart, setHeart] = useState(false);
+  const [selectedEntry, setSelectedEntry] = useState<any | null>(null);
+  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
+
+  const removeEntry = async (id: string) => {
+    if (!user) return;
+    const { error } = await supabase.from("gratitude_entries").delete().eq("id", id);
+    if (error) {
+      toast.error(error.message);
+    } else {
+      toast.success("Catatan rasa syukur berhasil dihapus 🙏");
+      setSelectedEntry(null);
+      setDeleteConfirmId(null);
+      qc.invalidateQueries({ queryKey: ["gratitude", user.id] });
+    }
+  };
 
   const { data: list } = useQuery({
     queryKey: ["gratitude", user?.id],
@@ -189,7 +205,7 @@ function Page() {
         <EmptyState
           emoji="🙏"
           title="Mulai bersyukur hari ini"
-          description="Menulis gratitude setiap hari terbukti meningkatkan kebahagiaan dan mengurangi stres."
+          description="Menulin gratitude setiap hari terbukti meningkatkan kebahagiaan dan mengurangi stres."
         />
       ) : (
         <div className="space-y-3">
@@ -197,7 +213,8 @@ function Page() {
           {list?.map((e, idx) => (
             <div
               key={e.id}
-              className="rounded-3xl bg-card p-5 ring-1 ring-border/60 shadow-card transition-all duration-250 hover:shadow-elevated hover:-translate-y-0.5 animate-slide-up"
+              onClick={() => setSelectedEntry(e)}
+              className="rounded-3xl bg-card p-5 ring-1 ring-border/60 shadow-card transition-all duration-250 hover:shadow-elevated hover:-translate-y-0.5 animate-slide-up cursor-pointer hover:bg-primary-soft/30"
               style={{
                 animationDelay: `${idx * 40}ms`,
                 borderLeft: "3px solid oklch(0.82 0.14 75 / 0.4)",
@@ -228,6 +245,116 @@ function Page() {
           ))}
         </div>
       )}
+
+      {/* ── DETAIL GRATITUDE DIALOG ───────────────────────────── */}
+      <ModalDialog
+        open={!!selectedEntry}
+        onClose={() => setSelectedEntry(null)}
+        title="🙏 Lembaran Rasa Syukur"
+      >
+        {selectedEntry && (() => {
+          const formattedDate = new Date(selectedEntry.created_at).toLocaleString("id-ID", {
+            weekday: "long",
+            day: "numeric",
+            month: "long",
+            year: "numeric",
+            hour: "2-digit",
+            minute: "2-digit"
+          });
+
+          return (
+            <div className="space-y-5">
+              {/* Header Info */}
+              <div className="flex items-center gap-3 bg-amber-50/70 p-4 rounded-2xl border border-amber-200/40">
+                <div className="text-3xl bg-white p-2.5 rounded-2xl shadow-sm leading-none shrink-0">
+                  🙏
+                </div>
+                <div>
+                  <h3 className="font-display text-sm font-bold text-amber-900">Aku Bersyukur Untuk Hari Ini</h3>
+                  <p className="text-[11px] text-muted-foreground">{formattedDate}</p>
+                </div>
+              </div>
+
+              {/* Gratitude list */}
+              <div>
+                <p className="mb-2 text-xs font-bold text-stone-500 uppercase tracking-wider">Tiga hal yang disyukuri</p>
+                <ul className="space-y-2 bg-cream-deep/20 p-4 rounded-2xl border border-border/40">
+                  {[selectedEntry.gratitude1, selectedEntry.gratitude2, selectedEntry.gratitude3].filter(Boolean).map((item, i) => (
+                    <li key={i} className="flex items-start gap-2.5 text-sm">
+                      <span className="mt-0.5 font-bold text-xl leading-none select-none" style={{ color: "oklch(0.82 0.14 75)" }}>✓</span>
+                      <span className="text-foreground font-medium">{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              {/* Best Moment */}
+              {selectedEntry.best_moment && (
+                <div className="rounded-2xl bg-amber-50 border border-amber-100 p-4 flex gap-3 text-amber-950">
+                  <span className="text-2xl select-none">⭐</span>
+                  <div className="text-xs leading-relaxed">
+                    <p className="font-bold text-amber-900 mb-0.5 uppercase tracking-wider text-[10px]">Momen Terbaik</p>
+                    <p className="font-medium text-stone-700">{selectedEntry.best_moment}</p>
+                  </div>
+                </div>
+              )}
+
+              {/* Lesson */}
+              {selectedEntry.lesson && (
+                <div className="rounded-2xl bg-blue-50 border border-blue-100 p-4 flex gap-3 text-blue-950">
+                  <span className="text-2xl select-none">💡</span>
+                  <div className="text-xs leading-relaxed">
+                    <p className="font-bold text-blue-900 mb-0.5 uppercase tracking-wider text-[10px]">Pelajaran Hari Ini</p>
+                    <p className="font-medium text-stone-700">{selectedEntry.lesson}</p>
+                  </div>
+                </div>
+              )}
+
+              {/* Action buttons */}
+              <div className="flex gap-3 pt-2 border-t border-border/40">
+                <button
+                  onClick={() => setDeleteConfirmId(selectedEntry.id)}
+                  className="flex-1 rounded-full border border-destructive/20 hover:bg-destructive/5 py-3 text-xs font-bold text-destructive transition-all duration-200 active:scale-95"
+                >
+                  Hapus Catatan 🗑️
+                </button>
+                <button
+                  onClick={() => setSelectedEntry(null)}
+                  className="flex-1 rounded-full border border-stone-200 bg-stone-50 hover:bg-stone-100 py-3 text-xs font-bold text-stone-600 transition-all duration-200"
+                >
+                  Tutup
+                </button>
+              </div>
+            </div>
+          );
+        })()}
+      </ModalDialog>
+
+      {/* ── DELETE CONFIRMATION DIALOG ─────────────────────────── */}
+      <ModalDialog
+        open={!!deleteConfirmId}
+        onClose={() => setDeleteConfirmId(null)}
+        title="Hapus Catatan Gratitude?"
+      >
+        <p className="text-xs text-muted-foreground leading-normal">
+          Catatan rasa syukur ini akan terhapus secara permanen dari riwayatmu dan tidak dapat dikembalikan.
+        </p>
+        <div className="mt-5 flex gap-2">
+          <button
+            onClick={() => deleteConfirmId && removeEntry(deleteConfirmId)}
+            className="flex-1 rounded-full bg-destructive py-2.5 text-xs font-bold text-white transition-all duration-200 hover:opacity-90"
+          >
+            Ya, Hapus Permanen
+          </button>
+          <button
+            onClick={() => setDeleteConfirmId(null)}
+            className="flex-1 rounded-full border border-border py-2.5 text-xs font-bold hover:bg-cream-deep transition-all duration-200"
+          >
+            Batal
+          </button>
+        </div>
+      </ModalDialog>
     </div>
   );
 }
+

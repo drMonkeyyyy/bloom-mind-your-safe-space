@@ -147,6 +147,7 @@ function JournalPage() {
   });
   const [editId, setEditId] = useState<string | null>(null);
   const [expanded, setExpanded] = useState<string | null>(null);
+  const [selectedJournal, setSelectedJournal] = useState<any | null>(null);
   const [savedAnim, setSavedAnim] = useState(false);
 
   const { data: profile } = useProfile(user?.id);
@@ -404,7 +405,6 @@ function JournalPage() {
               </div>
               <div className="space-y-4">
                 {entries.map((j, idx) => {
-                  const isExpanded = expanded === j.id;
                   const themeKey = getThemeByEmotion(j.main_emotion);
                   const theme = THEME_STYLES[themeKey] || THEME_STYLES.default;
 
@@ -420,10 +420,9 @@ function JournalPage() {
                     >
                       {/* Top Header info */}
                       <div className="flex items-start justify-between gap-3">
-                        <button
-                          className="min-w-0 flex-1 text-left"
-                          onClick={() => setExpanded(isExpanded ? null : j.id)}
-                          aria-expanded={isExpanded}
+                        <div
+                          className="min-w-0 flex-1 text-left cursor-pointer"
+                          onClick={() => setSelectedJournal(j)}
                         >
                           <div className="flex items-center gap-2 flex-wrap">
                             <span className={`text-xs font-extrabold ${theme.text}`}>
@@ -442,20 +441,12 @@ function JournalPage() {
                           {/* Preview / Lined summary */}
                           {j.summary && (
                             <div className="mt-3">
-                              {isExpanded ? (
-                                <div className="p-4 rounded-2xl bg-white/85 shadow-inner border border-stone-200/40">
-                                  <p className="text-xs text-stone-700 leading-relaxed whitespace-pre-wrap font-medium pl-1">
-                                    {j.summary}
-                                  </p>
-                                </div>
-                              ) : (
-                                <p className="text-xs font-semibold leading-relaxed text-stone-600 line-clamp-2 pl-1">
-                                  {j.summary}
-                                </p>
-                              )}
+                              <p className="text-xs font-semibold leading-relaxed text-stone-600 line-clamp-2 pl-1">
+                                {j.summary}
+                              </p>
                             </div>
                           )}
-                        </button>
+                        </div>
 
                         <div className="flex shrink-0 flex-col gap-1.5 pl-2">
                           <button
@@ -481,39 +472,6 @@ function JournalPage() {
                               {stick}
                             </span>
                           ))}
-                        </div>
-                      )}
-
-                      {/* Expanded extra reflection boxes */}
-                      {isExpanded && (
-                        <div className="mt-4 space-y-3 border-t border-stone-200/50 pt-4 animate-slide-up pl-1 text-xs">
-                          {j.gratitude && (
-                            <div className="p-3 rounded-2xl bg-amber-50/50 border border-amber-100 flex gap-2">
-                              <span className="text-base select-none">🙏</span>
-                              <div>
-                                <p className="font-extrabold text-amber-900 leading-none text-[9px] uppercase tracking-wider mb-1">Hal Yang Disyukuri</p>
-                                <p className="text-stone-700 font-medium leading-relaxed">{j.gratitude}</p>
-                              </div>
-                            </div>
-                          )}
-                          {j.lesson && (
-                            <div className="p-3 rounded-2xl bg-blue-50/55 border border-blue-100 flex gap-2">
-                              <span className="text-base select-none">💡</span>
-                              <div>
-                                <p className="font-extrabold text-blue-900 leading-none text-[9px] uppercase tracking-wider mb-1">Pelajaran Berharga</p>
-                                <p className="text-stone-700 font-medium leading-relaxed">{j.lesson}</p>
-                              </div>
-                            </div>
-                          )}
-                          {j.tomorrow_focus && (
-                            <div className="p-3 rounded-2xl bg-teal-50/60 border border-teal-100 flex gap-2">
-                              <span className="text-base select-none">🎯</span>
-                              <div>
-                                <p className="font-extrabold text-teal-900 leading-none text-[9px] uppercase tracking-wider mb-1">Fokus Esok Hari</p>
-                                <p className="text-stone-700 font-medium leading-relaxed">{j.tomorrow_focus}</p>
-                              </div>
-                            </div>
-                          )}
                         </div>
                       )}
                     </div>
@@ -757,7 +715,6 @@ function JournalPage() {
       <ModalDialog
         open={!!viewCapsule}
         onClose={() => setViewCapsule(null)}
-        title="💌 Surat Dari Masa Lalu"
       >
         {viewCapsule && (
           <div className="space-y-4">
@@ -782,6 +739,143 @@ function JournalPage() {
           </div>
         )}
       </ModalDialog>
+
+      {/* ── DETAIL DIARY DIALOG ──────────────────────────────── */}
+      <ModalDialog
+        open={!!selectedJournal}
+        onClose={() => setSelectedJournal(null)}
+        title="📓 Lembaran Diary"
+      >
+        {selectedJournal && (() => {
+          const themeKey = getThemeByEmotion(selectedJournal.main_emotion);
+          const theme = THEME_STYLES[themeKey] || THEME_STYLES.default;
+          const formattedDate = new Date(selectedJournal.created_at).toLocaleString("id-ID", {
+            weekday: "long",
+            day: "numeric",
+            month: "long",
+            year: "numeric",
+            hour: "2-digit",
+            minute: "2-digit"
+          });
+
+          return (
+            <div className="space-y-5 max-h-[75vh] overflow-y-auto pr-1 pb-2">
+              {/* Header Info */}
+              <div 
+                className={`rounded-2xl p-4 border flex items-center justify-between gap-3 ${theme.border}`}
+                style={{ background: theme.bg }}
+              >
+                <div>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className={`text-xs font-extrabold ${theme.text}`}>
+                      {formattedDate}
+                    </span>
+                    {selectedJournal.main_emotion && (
+                      <span className={`rounded-full px-2.5 py-0.5 text-[9px] font-bold ${theme.tagBg} shadow-sm border border-black/5`}>
+                        {selectedJournal.main_emotion}
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-[10px] text-stone-500 mt-1 font-medium">
+                    Ditulis lewat: {selectedJournal.source === "from_chat" ? (COMPANION_LABELS[selectedJournal.companion_key || "sahabat"] || "🤗 Sahabat") : "✍️ Manual"}
+                  </p>
+                </div>
+              </div>
+
+              {/* Main summary diary content */}
+              <div>
+                <p className="mb-2 text-xs font-bold text-stone-500 uppercase tracking-wider">Isi Diary</p>
+                <div className="relative rounded-2xl bg-stone-50/50 border border-stone-200/60 p-5 shadow-inner overflow-hidden font-display text-sm leading-relaxed text-stone-800 whitespace-pre-wrap">
+                  <div className="absolute left-4 top-0 bottom-0 w-[1px] bg-red-300/40" />
+                  <div className="pl-6 select-text selection:bg-amber-100">
+                    {selectedJournal.summary}
+                  </div>
+                </div>
+              </div>
+
+              {/* Stickers / Activities */}
+              {selectedJournal.main_trigger && (
+                <div>
+                  <p className="mb-2 text-xs font-bold text-stone-500 uppercase tracking-wider">Aktivitas Hari Ini</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {selectedJournal.main_trigger.split(", ").map((stick: string, sIdx: number) => (
+                      <span key={sIdx} className="inline-flex items-center gap-1 rounded-xl bg-stone-100 border border-stone-200/50 px-2.5 py-1 text-xs font-bold text-stone-700 shadow-sm">
+                        {stick}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Reflections */}
+              {(selectedJournal.gratitude || selectedJournal.lesson || selectedJournal.tomorrow_focus) && (
+                <div className="space-y-3 pt-3 border-t border-stone-200/40">
+                  <p className="text-xs font-bold text-stone-500 uppercase tracking-wider">Refleksi Harian</p>
+                  
+                  {selectedJournal.gratitude && (
+                    <div className="p-3.5 rounded-2xl bg-amber-50/55 border border-amber-100 flex gap-2.5 text-stone-700">
+                      <span className="text-xl select-none">🙏</span>
+                      <div className="text-xs leading-relaxed">
+                        <p className="font-extrabold text-amber-900 leading-none text-[9px] uppercase tracking-wider mb-1">Hal Yang Disyukuri</p>
+                        <p className="font-medium">{selectedJournal.gratitude}</p>
+                      </div>
+                    </div>
+                  )}
+
+                  {selectedJournal.lesson && (
+                    <div className="p-3.5 rounded-2xl bg-blue-50/55 border border-blue-100 flex gap-2.5 text-stone-700">
+                      <span className="text-xl select-none">💡</span>
+                      <div className="text-xs leading-relaxed">
+                        <p className="font-extrabold text-blue-900 leading-none text-[9px] uppercase tracking-wider mb-1">Pelajaran Berharga</p>
+                        <p className="font-medium">{selectedJournal.lesson}</p>
+                      </div>
+                    </div>
+                  )}
+
+                  {selectedJournal.tomorrow_focus && (
+                    <div className="p-3.5 rounded-2xl bg-teal-50/60 border border-teal-100 flex gap-2.5 text-stone-700">
+                      <span className="text-xl select-none">🎯</span>
+                      <div className="text-xs leading-relaxed">
+                        <p className="font-extrabold text-teal-900 leading-none text-[9px] uppercase tracking-wider mb-1">Fokus Esok Hari</p>
+                        <p className="font-medium">{selectedJournal.tomorrow_focus}</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Actions */}
+              <div className="flex gap-3 pt-3 border-t border-stone-200/40">
+                <button
+                  onClick={() => {
+                    edit(selectedJournal);
+                    setSelectedJournal(null);
+                  }}
+                  className="flex-1 rounded-full border border-stone-300 bg-white hover:bg-stone-50 py-3 text-xs font-bold text-stone-700 transition-all duration-200 active:scale-95 shadow-sm"
+                >
+                  Edit Lembaran 📝
+                </button>
+                <button
+                  onClick={() => {
+                    setDeleteConfirm(selectedJournal.id);
+                    setSelectedJournal(null);
+                  }}
+                  className="flex-1 rounded-full border border-destructive/20 hover:bg-destructive/5 py-3 text-xs font-bold text-destructive transition-all duration-200 active:scale-95"
+                >
+                  Hapus Diary 🗑️
+                </button>
+                <button
+                  onClick={() => setSelectedJournal(null)}
+                  className="rounded-full border border-stone-200 bg-stone-50 hover:bg-stone-100 px-5 py-3 text-xs font-bold text-stone-600 transition-all duration-200"
+                >
+                  Tutup
+                </button>
+              </div>
+            </div>
+          );
+        })()}
+      </ModalDialog>
     </div>
   );
 }
+

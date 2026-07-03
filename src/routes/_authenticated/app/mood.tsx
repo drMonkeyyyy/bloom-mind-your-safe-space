@@ -1,4 +1,4 @@
-import { createFileRoute, useSearch } from "@tanstack/react-router";
+import { createFileRoute, useSearch, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { z } from "zod";
 import { useAuth } from "@/hooks/use-auth";
@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { MoodSparkline } from "@/components/app/MoodSparkline";
 import { EmptyState } from "@/components/app/EmptyState";
+import { BottomSheet, ModalDialog } from "@/components/app/BottomSheet";
 
 const search = z.object({ pre: z.string().optional() });
 
@@ -82,6 +83,22 @@ function MoodPage() {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [sparkleId, setSparkleId] = useState<string | null>(null);
+  const [selectedCheckIn, setSelectedCheckIn] = useState<any | null>(null);
+  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
+
+  const removeCheckIn = async (id: string) => {
+    if (!user) return;
+    const { error } = await supabase.from("mood_checkins").delete().eq("id", id);
+    if (error) {
+      toast.error(error.message);
+    } else {
+      toast.success("Catatan mood berhasil dihapus 🌿");
+      setSelectedCheckIn(null);
+      setDeleteConfirmId(null);
+      qc.invalidateQueries({ queryKey: ["mood-list", user.id] });
+      qc.invalidateQueries({ queryKey: ["moods-week", user.id] });
+    }
+  };
 
   const { data: list } = useQuery({
     queryKey: ["mood-list", user?.id],
@@ -301,7 +318,8 @@ function MoodPage() {
             return (
               <div
                 key={m.id}
-                className="flex items-center gap-4 rounded-2xl bg-card p-4 ring-1 ring-border/60 transition-all duration-200 hover:shadow-card hover:-translate-y-0.5 card-lift animate-slide-up"
+                onClick={() => setSelectedCheckIn(m)}
+                className="flex items-center gap-4 rounded-2xl bg-card p-4 ring-1 ring-border/60 transition-all duration-200 hover:shadow-card hover:-translate-y-0.5 card-lift animate-slide-up cursor-pointer hover:bg-primary-soft/30"
                 style={{ animationDelay: `${idx * 40}ms` }}
               >
                 <div className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-primary-soft/50 text-2xl shadow-sm">
@@ -320,6 +338,18 @@ function MoodPage() {
                   </p>
                   {m.note && (
                     <p className="mt-1 truncate text-xs text-muted-foreground">{m.note}</p>
+                  )}
+                  {m.triggers && m.triggers.length > 0 && (
+                    <div className="mt-1.5 flex flex-wrap gap-1">
+                      {m.triggers.map((t: string) => (
+                        <span
+                          key={t}
+                          className="rounded-full bg-cream-deep px-2 py-0.5 text-[9px] font-bold text-stone-500 border border-stone-200/40"
+                        >
+                          {t}
+                        </span>
+                      ))}
+                    </div>
                   )}
                 </div>
                 {/* Mini bars */}
@@ -341,6 +371,176 @@ function MoodPage() {
           })}
         </div>
       </section>
+
+      {/* ── DETAIL CHECK-IN DIALOG ───────────────────────────── */}
+      <ModalDialog
+        open={!!selectedCheckIn}
+        onClose={() => setSelectedCheckIn(null)}
+        title="🌿 Detail Catatan Mood"
+      >
+        {selectedCheckIn && (() => {
+          const checkInEmoji = MOOD_OPTIONS.find(x => x.key === selectedCheckIn.mood)?.emoji ?? "🌿";
+          const checkInLabel = MOOD_OPTIONS.find(x => x.key === selectedCheckIn.mood)?.label ?? selectedCheckIn.mood;
+          const formattedCheckInDate = new Date(selectedCheckIn.created_at).toLocaleString("id-ID", {
+            weekday: "long",
+            day: "numeric",
+            month: "long",
+            year: "numeric",
+            hour: "2-digit",
+            minute: "2-digit"
+          });
+
+          return (
+            <div className="space-y-5">
+              {/* Header Info */}
+              <div className="flex items-center gap-4 bg-primary-soft/40 p-4 rounded-2xl border border-primary/10">
+                <div className="text-4xl bg-white p-3 rounded-2xl shadow-sm leading-none shrink-0">
+                  {checkInEmoji}
+                </div>
+                <div>
+                  <h3 className="font-display text-lg font-bold capitalize text-foreground">{checkInLabel}</h3>
+                  <p className="text-[11px] text-muted-foreground">{formattedCheckInDate}</p>
+                </div>
+              </div>
+
+              {/* Metrics */}
+              <div className="space-y-3 bg-cream-deep/20 p-4 rounded-2xl border border-border/40">
+                <div>
+                  <div className="flex justify-between text-xs font-semibold mb-1">
+                    <span>Tingkat Mood</span>
+                    <span className="text-primary font-bold">{selectedCheckIn.mood_score}/10</span>
+                  </div>
+                  <div className="h-2 w-full bg-stone-100 rounded-full overflow-hidden">
+                    <div className="h-full bg-primary rounded-full" style={{ width: `${selectedCheckIn.mood_score * 10}%` }} />
+                  </div>
+                </div>
+                <div>
+                  <div className="flex justify-between text-xs font-semibold mb-1">
+                    <span>Tingkat Stres</span>
+                    <span className="text-red-500 font-bold">{selectedCheckIn.stress_score}/10</span>
+                  </div>
+                  <div className="h-2 w-full bg-stone-100 rounded-full overflow-hidden">
+                    <div className="h-full bg-red-400 rounded-full" style={{ width: `${selectedCheckIn.stress_score * 10}%` }} />
+                  </div>
+                </div>
+                <div>
+                  <div className="flex justify-between text-xs font-semibold mb-1">
+                    <span>Tingkat Energi</span>
+                    <span className="text-blue-500 font-bold">{selectedCheckIn.energy_score}/10</span>
+                  </div>
+                  <div className="h-2 w-full bg-stone-100 rounded-full overflow-hidden">
+                    <div className="h-full bg-blue-400 rounded-full" style={{ width: `${selectedCheckIn.energy_score * 10}%` }} />
+                  </div>
+                </div>
+              </div>
+
+              {/* Triggers */}
+              <div>
+                <p className="mb-2 text-xs font-bold text-stone-500 uppercase tracking-wider">Faktor yang mempengaruhi</p>
+                {selectedCheckIn.triggers && selectedCheckIn.triggers.length > 0 ? (
+                  <div className="flex flex-wrap gap-1.5">
+                    {selectedCheckIn.triggers.map((t: string) => (
+                      <span key={t} className="rounded-full bg-primary-soft text-foreground border border-primary/10 px-3 py-1 text-xs font-medium">
+                        {t}
+                      </span>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-xs text-muted-foreground italic">Tidak ada pemicu yang dicatat.</p>
+                )}
+              </div>
+
+              {/* Note */}
+              <div>
+                <p className="mb-2 text-xs font-bold text-stone-500 uppercase tracking-wider">Catatan Harian</p>
+                {selectedCheckIn.note ? (
+                  <div className="rounded-2xl bg-cream-deep/40 p-4 border border-stone-200/40 relative overflow-hidden font-display text-sm italic text-stone-700 whitespace-pre-wrap leading-relaxed">
+                    <div className="absolute left-3 top-0 bottom-0 w-[1px] bg-red-300/40" />
+                    <div className="pl-4">
+                      "{selectedCheckIn.note}"
+                    </div>
+                  </div>
+                ) : (
+                  <p className="text-xs text-muted-foreground italic">Tidak ada catatan untuk hari ini.</p>
+                )}
+              </div>
+
+              {/* AI Healing & Insights recommendations */}
+              {selectedCheckIn.stress_score >= 7 && (
+                <div className="rounded-2xl bg-rose-50 border border-rose-100 p-4 flex gap-3 text-rose-950 shadow-sm animate-pulse-subtle">
+                  <span className="text-2xl select-none">💆‍♀️</span>
+                  <div className="text-xs leading-relaxed">
+                    <p className="font-bold text-rose-900 mb-0.5">Tingkat Stresmu Cukup Tinggi</p>
+                    <p>Coba luangkan waktu sejenak untuk menenangkan pikiran. Kamu bisa mencoba bernapas perlahan di halaman <Link to="/app/calm" className="font-bold underline hover:text-rose-800">Emergency Calm</Link> atau bagikan perasaanmu dengan Companion-mu di <Link to="/app/chat" className="font-bold underline hover:text-rose-800">Chat AI</Link>.</p>
+                  </div>
+                </div>
+              )}
+
+              {(selectedCheckIn.mood === "sedih" || selectedCheckIn.mood === "cemas" || selectedCheckIn.mood === "kesepian") && selectedCheckIn.stress_score < 7 && (
+                <div className="rounded-2xl bg-amber-50 border border-amber-100 p-4 flex gap-3 text-amber-950 shadow-sm">
+                  <span className="text-2xl select-none">🤗</span>
+                  <div className="text-xs leading-relaxed">
+                    <p className="font-bold text-amber-900 mb-0.5">Kami Ada di Sini untuk Mendengar</p>
+                    <p>Ingatlah bahwa kamu tidak sendirian. Jika kamu butuh teman cerita yang aman dan tanpa penghakiman, Companion virtualmu di <Link to="/app/chat" className="font-bold underline hover:text-amber-800">Chat AI</Link> selalu siap mendengarkan.</p>
+                  </div>
+                </div>
+              )}
+
+              {(selectedCheckIn.mood === "bahagia" || selectedCheckIn.mood === "tenang") && selectedCheckIn.mood_score >= 8 && (
+                <div className="rounded-2xl bg-emerald-50 border border-emerald-100 p-4 flex gap-3 text-emerald-950 shadow-sm">
+                  <span className="text-2xl select-none">✨</span>
+                  <div className="text-xs leading-relaxed">
+                    <p className="font-bold text-emerald-900 mb-0.5">Pertahankan Energi Positif Ini!</p>
+                    <p>Hari yang indah! Catat apa saja yang membuatmu bersyukur hari ini dalam <Link to="/app/gratitude" className="font-bold underline hover:text-emerald-800">Gratitude Journal</Link> untuk menjaga kebahagiaanmu tetap menyala.</p>
+                  </div>
+                </div>
+              )}
+
+              {/* Footer Actions */}
+              <div className="flex gap-3 pt-2 border-t border-border/40">
+                <button
+                  onClick={() => setDeleteConfirmId(selectedCheckIn.id)}
+                  className="flex-1 rounded-full border border-destructive/20 hover:bg-destructive/5 py-3 text-xs font-bold text-destructive transition-all duration-200 active:scale-95"
+                >
+                  Hapus Catatan 🗑️
+                </button>
+                <button
+                  onClick={() => setSelectedCheckIn(null)}
+                  className="flex-1 rounded-full border border-stone-200 bg-stone-50 hover:bg-stone-100 py-3 text-xs font-bold text-stone-600 transition-all duration-200"
+                >
+                  Tutup
+                </button>
+              </div>
+            </div>
+          );
+        })()}
+      </ModalDialog>
+
+      {/* ── DELETE CONFIRMATION DIALOG ─────────────────────────── */}
+      <ModalDialog
+        open={!!deleteConfirmId}
+        onClose={() => setDeleteConfirmId(null)}
+        title="Hapus Catatan Mood?"
+      >
+        <p className="text-xs text-muted-foreground leading-normal">
+          Catatan mood ini akan terhapus secara permanen dari riwayatmu dan tidak dapat dikembalikan.
+        </p>
+        <div className="mt-5 flex gap-2">
+          <button
+            onClick={() => deleteConfirmId && removeCheckIn(deleteConfirmId)}
+            className="flex-1 rounded-full bg-destructive py-2.5 text-xs font-bold text-white transition-all duration-200 hover:opacity-90"
+          >
+            Ya, Hapus Permanen
+          </button>
+          <button
+            onClick={() => setDeleteConfirmId(null)}
+            className="flex-1 rounded-full border border-border py-2.5 text-xs font-bold hover:bg-cream-deep transition-all duration-200"
+          >
+            Batal
+          </button>
+        </div>
+      </ModalDialog>
     </div>
   );
 }
+
