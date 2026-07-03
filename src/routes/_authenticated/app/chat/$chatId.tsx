@@ -14,7 +14,8 @@ import { exportChatPDF } from "@/lib/export-pdf";
 import { ModalDialog } from "@/components/app/BottomSheet";
 
 const search = z.object({
-  companion: z.enum(["ibu","ayah","kakak_perempuan","kakak_laki","sahabat","partner","coach"]).optional(),
+  companion: z.string().optional(),
+  customCompanionId: z.string().uuid().optional(),
 });
 
 export const Route = createFileRoute("/_authenticated/app/chat/$chatId")({
@@ -24,7 +25,7 @@ export const Route = createFileRoute("/_authenticated/app/chat/$chatId")({
 
 function ChatRoom() {
   const { chatId } = useParams({ from: "/_authenticated/app/chat/$chatId" });
-  const { companion: companionParam } = useSearch({ from: "/_authenticated/app/chat/$chatId" });
+  const { companion: companionParam, customCompanionId: customCompanionIdParam } = useSearch({ from: "/_authenticated/app/chat/$chatId" });
   const navigate = useNavigate();
   const { user } = useAuth();
   const { data: profile } = useProfile(user?.id);
@@ -33,11 +34,15 @@ function ChatRoom() {
   const journalize = useServerFn(generateJournalFromChat);
 
   const isNew = chatId === "new";
-  const [activeCompanion, setActiveCompanion] = useState<CompanionKey>(
-    companionParam ?? profile?.selected_companion ?? "sahabat"
+  const [activeCompanion, setActiveCompanion] = useState<string | null>(
+    customCompanionIdParam ? null : (companionParam ?? profile?.selected_companion ?? "sahabat")
   );
 
-  useEffect(() => { if (!companionParam && profile?.selected_companion) setActiveCompanion(profile.selected_companion); }, [profile, companionParam]);
+  useEffect(() => {
+    if (!companionParam && !customCompanionIdParam && profile?.selected_companion) {
+      setActiveCompanion(profile.selected_companion);
+    }
+  }, [profile, companionParam, customCompanionIdParam]);
 
   const { data: chat } = useQuery({
     queryKey: ["chat", chatId],
@@ -48,7 +53,23 @@ function ChatRoom() {
     },
   });
 
-  useEffect(() => { if (chat?.companion_key) setActiveCompanion(chat.companion_key); }, [chat]);
+  const { data: customCompanion } = useQuery({
+    queryKey: ["custom-companion", chat?.custom_companion_id || customCompanionIdParam],
+    enabled: !!(chat?.custom_companion_id || customCompanionIdParam),
+    queryFn: async () => {
+      const id = chat?.custom_companion_id || customCompanionIdParam;
+      const { data } = await supabase.from("custom_companions").select("*").eq("id", id).maybeSingle();
+      return data;
+    },
+  });
+
+  useEffect(() => {
+    if (chat?.companion_key) {
+      setActiveCompanion(chat.companion_key);
+    } else if (chat?.custom_companion_id) {
+      setActiveCompanion(null);
+    }
+  }, [chat]);
 
   const { data: messages, refetch } = useQuery({
     queryKey: ["messages", chatId],
@@ -114,7 +135,16 @@ function ChatRoom() {
 
   useEffect(() => { scrollRef.current?.scrollTo({ top: 999999, behavior: "smooth" }); }, [messages, sending]);
 
-  const comp = COMPANIONS.find((c) => c.key === activeCompanion);
+  const comp = chat?.custom_companion_id || customCompanionIdParam
+    ? customCompanion
+      ? {
+          name: customCompanion.name,
+          emoji: customCompanion.emoji || "👤",
+          tone: customCompanion.tone,
+          avatar_url: customCompanion.avatar_url,
+        }
+      : null
+    : COMPANIONS.find((c) => c.key === activeCompanion);
 
   const submit = async (e?: React.FormEvent, override?: string) => {
     e?.preventDefault();
@@ -122,7 +152,9 @@ function ChatRoom() {
     if (!text || sending) return;
     setInput(""); setSending(true);
     try {
-      const res = await send({ data: { chatId: isNew ? null : chatId, companionKey: activeCompanion, content: text } });
+      const companionKeyInput = chat?.custom_companion_id || customCompanionIdParam ? null : (activeCompanion as any);
+      const customCompanionIdInput = chat?.custom_companion_id || customCompanionIdParam || null;
+      const res = await send({ data: { chatId: isNew ? null : chatId, companionKey: companionKeyInput, customCompanionId: customCompanionIdInput, content: text } });
       if (isNew && res.chatId) {
         await navigate({ to: "/app/chat/$chatId", params: { chatId: res.chatId }, search: { companion: undefined } });
         qc.invalidateQueries({ queryKey: ["messages", res.chatId] });
@@ -165,7 +197,11 @@ function ChatRoom() {
       <div className="flex items-center justify-between gap-3 border-b border-border pb-3">
         <Link to="/app/chat" className="text-xs text-muted-foreground">← Semua chat</Link>
         <div className="flex items-center gap-2">
-          <span className="text-2xl">{comp?.emoji}</span>
+          {comp?.avatar_url ? (
+            <img src={comp.avatar_url} alt={comp.name} className="w-8 h-8 rounded-full object-cover shrink-0" />
+          ) : (
+            <span className="text-2xl">{comp?.emoji}</span>
+          )}
           <div>
             <p className="text-sm font-semibold">{comp?.name}</p>
             <p className="text-[10px] text-muted-foreground">{comp?.tone}</p>

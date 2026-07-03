@@ -88,11 +88,17 @@ function NavSection({ title, items, path }: { title: string; items: typeof prima
   );
 }
 
-function UserAvatar({ name, plan }: { name?: string | null; plan?: string | null }) {
+function UserAvatar({ name, avatarUrl }: { name?: string | null; avatarUrl?: string | null }) {
   const initials = name ? name.slice(0, 2).toUpperCase() : "BM";
   return (
-    <div className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-gradient-to-br from-primary to-accent font-display text-sm font-bold text-white shadow-soft transition-transform duration-200 hover:scale-105">
-      {initials}
+    <div className="h-9 w-9 shrink-0 overflow-hidden rounded-full ring-1 ring-border shadow-soft transition-transform duration-200 hover:scale-105">
+      {avatarUrl ? (
+        <img src={avatarUrl} alt={name ?? "Avatar"} className="h-full w-full object-cover" />
+      ) : (
+        <div className="grid h-full w-full place-items-center bg-gradient-to-br from-primary to-accent font-display text-sm font-bold text-white">
+          {initials}
+        </div>
+      )}
     </div>
   );
 }
@@ -213,7 +219,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         {/* Footer */}
         <div className="relative border-t border-border/40 p-4 bg-background/25 m-3 rounded-2xl border border-white/20 shadow-sm backdrop-blur-sm">
           <div className="flex items-center gap-3">
-            <UserAvatar name={profile?.name} plan={profile?.plan} />
+            <UserAvatar name={profile?.name} avatarUrl={profile?.avatar_url} />
             <div className="min-w-0 flex-1">
               <p className="truncate text-xs font-bold text-foreground/90">{profile?.name ?? "Pengguna"}</p>
               <p className="truncate text-[10px] text-muted-foreground/75 font-medium">{profile?.email}</p>
@@ -248,7 +254,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             </Link>
           )}
           <Link to="/app/profile">
-            <UserAvatar name={profile?.name} plan={profile?.plan} />
+            <UserAvatar name={profile?.name} avatarUrl={profile?.avatar_url} />
           </Link>
         </div>
       </header>

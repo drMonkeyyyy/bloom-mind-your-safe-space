@@ -48,7 +48,8 @@ JN-CALM bukan pengganti psikolog atau layanan darurat. Aku akan tetap di sini, t
 
 const SendInput = z.object({
   chatId: z.string().uuid().nullable(),
-  companionKey: z.enum(["ibu","ayah","kakak_perempuan","kakak_laki","sahabat","partner","coach"]),
+  companionKey: z.enum(["ibu","ayah","kakak_perempuan","kakak_laki","sahabat","partner","coach"]).nullable().optional(),
+  customCompanionId: z.string().uuid().nullable().optional(),
   content: z.string().min(1).max(4000),
 });
 
@@ -58,18 +59,57 @@ export const sendChatMessage = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
 
-    // Load profile + companion + settings
-    const [{ data: profile }, { data: companion }, { data: settings }] = await Promise.all([
+    // Load profile + settings
+    const [{ data: profile }, { data: settings }] = await Promise.all([
       supabase.from("profiles").select("plan, communication_style, name").eq("id", userId).maybeSingle(),
-      supabase.from("companions").select("*").eq("key", data.companionKey).maybeSingle(),
       supabase.from("app_settings").select("free_chat_limit").eq("id", 1).maybeSingle(),
     ]);
 
-    if (!companion) throw new Error("Companion tidak ditemukan");
     const plan = profile?.plan ?? "free";
     const limit = settings?.free_chat_limit ?? 10;
 
-    // Premium gate for premium-only companions
+    // Premium gate for custom companions
+    if (data.customCompanionId && plan !== "premium") {
+      throw new Error("PREMIUM_REQUIRED");
+    }
+
+    // Load custom or catalog companion
+    let companion: {
+      name: string;
+      system_prompt: string;
+      tone: string;
+      is_premium_only?: boolean;
+    } | null = null;
+
+    if (data.customCompanionId) {
+      const { data: customCompanion, error } = await supabase
+        .from("custom_companions")
+        .select("*")
+        .eq("id", data.customCompanionId)
+        .eq("user_id", userId)
+        .maybeSingle();
+      if (error || !customCompanion) {
+        throw new Error("Custom companion tidak ditemukan");
+      }
+      companion = {
+        name: customCompanion.name,
+        system_prompt: customCompanion.system_prompt,
+        tone: customCompanion.tone,
+        is_premium_only: false,
+      };
+    } else if (data.companionKey) {
+      const { data: catalogCompanion } = await supabase
+        .from("companions")
+        .select("*")
+        .eq("key", data.companionKey)
+        .maybeSingle();
+      if (!catalogCompanion) throw new Error("Companion tidak ditemukan");
+      companion = catalogCompanion;
+    } else {
+      throw new Error("Pilih salah satu companion");
+    }
+
+    // Premium gate for premium-only catalog companions
     if (companion.is_premium_only && plan !== "premium") {
       throw new Error("PREMIUM_REQUIRED");
     }
@@ -89,7 +129,8 @@ export const sendChatMessage = createServerFn({ method: "POST" })
     if (!chatId) {
       const { data: chat, error } = await supabase.from("chats").insert({
         user_id: userId,
-        companion_key: data.companionKey,
+        companion_key: data.companionKey ?? null,
+        custom_companion_id: data.customCompanionId ?? null,
         title: data.content.slice(0, 60),
       }).select("id").single();
       if (error || !chat) throw new Error(error?.message ?? "Gagal membuat chat");
@@ -227,16 +268,27 @@ export const generateJournalFromChat = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     
-    // Fetch chat to get companion key
+    // Fetch chat to get companion details
     const [{ data: msgs }, { data: chat }] = await Promise.all([
       supabase.from("messages").select("role, content").eq("chat_id", data.chatId).order("created_at").limit(50),
-      supabase.from("chats").select("companion_key").eq("id", data.chatId).maybeSingle(),
+      supabase.from("chats").select("companion_key, custom_companion_id").eq("id", data.chatId).maybeSingle(),
     ]);
 
     if (!msgs || msgs.length === 0) throw new Error("Tidak ada percakapan");
 
-    const companionKey = chat?.companion_key || "sahabat";
-    const companionRole = COMPANION_ROLES[companionKey] || "Sahabat";
+    let companionRole = "Sahabat";
+    const companionKey = chat?.companion_key;
+
+    if (chat?.custom_companion_id) {
+      const { data: customComp } = await supabase
+        .from("custom_companions")
+        .select("name")
+        .eq("id", chat.custom_companion_id)
+        .maybeSingle();
+      companionRole = customComp?.name || "Pendamping Kustom";
+    } else if (companionKey) {
+      companionRole = COMPANION_ROLES[companionKey] || "Sahabat";
+    }
 
     const { createGeminiClient, getGeminiApiKey } = await import("./ai-client.server");
     const apiKey = getGeminiApiKey();
@@ -276,7 +328,8 @@ JSON:`;
     const { data: journal, error: insertError } = await supabase.from("journals").insert({
       user_id: userId,
       source: "from_chat",
-      companion_key: companionKey,
+      companion_key: companionKey ?? null,
+      custom_companion_id: chat?.custom_companion_id ?? null,
       summary: parsed.summary ?? null,
       main_emotion: parsed.main_emotion ?? null,
       main_trigger: parsed.main_trigger ?? null,
@@ -330,4 +383,26 @@ export const getWeeklyInsight = createServerFn({ method: "POST" })
       handleAiError(e);
     }
     return { text: r.text };
+  });
+
+export const initStorageBuckets = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async () => {
+    try {
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      const { data: buckets } = await supabaseAdmin.storage.listBuckets();
+      
+      if (!buckets?.some(b => b.id === 'companion-avatars')) {
+        await supabaseAdmin.storage.createBucket('companion-avatars', { public: true });
+      }
+      
+      if (!buckets?.some(b => b.id === 'profile-avatars')) {
+        await supabaseAdmin.storage.createBucket('profile-avatars', { public: true });
+      }
+      
+      return { success: true };
+    } catch (err: any) {
+      console.error("Gagal membuat storage bucket:", err);
+      return { success: false, error: err.message };
+    }
   });

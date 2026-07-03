@@ -7,6 +7,8 @@ import { COMPANIONS, COMM_STYLES } from "@/lib/companions";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 import { ModalDialog } from "@/components/app/BottomSheet";
+import { useServerFn } from "@tanstack/react-start";
+import { initStorageBuckets } from "@/lib/chat.functions";
 
 export const Route = createFileRoute("/_authenticated/app/profile")({
   component: Page,
@@ -17,6 +19,7 @@ function Page() {
   const { data: profile } = useProfile(user?.id);
   const qc = useQueryClient();
   const navigate = useNavigate();
+  const initBuckets = useServerFn(initStorageBuckets);
   const [name, setName] = useState("");
   const [age, setAge] = useState("");
   const [phone, setPhone] = useState("");
@@ -24,6 +27,8 @@ function Page() {
   const [style, setStyle] = useState("supportive");
   const [saving, setSaving] = useState(false);
   const [signOutConfirm, setSignOutConfirm] = useState(false);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
 
   useEffect(() => {
     if (profile) {
@@ -32,6 +37,7 @@ function Page() {
       setPhone(profile.phone ?? "");
       setCompanion(profile.selected_companion ?? "sahabat");
       setStyle(profile.communication_style ?? "supportive");
+      setAvatarUrl(profile.avatar_url ?? null);
     }
   }, [profile]);
 
@@ -49,6 +55,49 @@ function Page() {
     qc.invalidateQueries({ queryKey: ["profile", user.id] });
   };
 
+  const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !user) return;
+
+    if (file.size > 2 * 1024 * 1024) {
+      toast.error("Ukuran file maksimal 2MB");
+      return;
+    }
+
+    setUploadingAvatar(true);
+    try {
+      await initBuckets();
+      const fileExt = file.name.split(".").pop();
+      const fileName = `${user.id}/${crypto.randomUUID()}.${fileExt}`;
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from("profile-avatars")
+        .upload(fileName, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data: urlData } = supabase.storage
+        .from("profile-avatars")
+        .getPublicUrl(fileName);
+      
+      const newAvatarUrl = urlData.publicUrl;
+
+      const { error: updateError } = await supabase
+        .from("profiles")
+        .update({ avatar_url: newAvatarUrl })
+        .eq("id", user.id);
+
+      if (updateError) throw updateError;
+
+      setAvatarUrl(newAvatarUrl);
+      toast.success("Foto profil berhasil diperbarui! 📷");
+      qc.invalidateQueries({ queryKey: ["profile", user.id] });
+    } catch (err: any) {
+      toast.error(err.message || "Gagal meng-upload foto profil");
+    } finally {
+      setUploadingAvatar(false);
+    }
+  };
+
   const signOut = async () => {
     await qc.cancelQueries(); qc.clear();
     await supabase.auth.signOut();
@@ -62,8 +111,38 @@ function Page() {
     <div className="max-w-xl space-y-6">
       {/* ── PROFILE HEADER ────────────────────────────────────────── */}
       <div className="flex items-center gap-4 rounded-3xl bg-card p-6 ring-1 ring-border">
-        <div className="grid h-16 w-16 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-primary to-accent font-display text-2xl font-bold text-white shadow-soft">
-          {initials}
+        <div className="relative group shrink-0">
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handleAvatarChange}
+            disabled={uploadingAvatar}
+            className="hidden"
+            id="profile-avatar-input"
+          />
+          <label
+            htmlFor="profile-avatar-input"
+            className="relative block h-16 w-16 cursor-pointer overflow-hidden rounded-2xl ring-2 ring-primary/20 transition-all hover:ring-primary shadow-soft"
+          >
+            {uploadingAvatar ? (
+              <div className="absolute inset-0 flex items-center justify-center bg-black/40 text-white text-[10px] font-bold">
+                Memproses...
+              </div>
+            ) : avatarUrl ? (
+              <img src={avatarUrl} alt={name} className="h-full w-full object-cover" />
+            ) : (
+              <div className="grid h-full w-full place-items-center bg-gradient-to-br from-primary to-accent font-display text-2xl font-bold text-white">
+                {initials}
+              </div>
+            )}
+            
+            <div className="absolute inset-0 flex items-center justify-center bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="h-5 w-5 text-white">
+                <path d="M6.82 21h10.36c1.6 0 2.82-1.22 2.82-2.82V9.18c0-1.6-1.22-2.82-2.82-2.82h-1.3l-.9-1.8A1.9 1.9 0 0 0 13.29 3.5h-2.58c-.7 0-1.3.43-1.6.99l-.9 1.8h-1.3C5.22 6.36 4 7.58 4 9.18v9c0 1.6 1.22 2.82 2.82 2.82Z" />
+                <path d="M12 16.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z" />
+              </svg>
+            </div>
+          </label>
         </div>
         <div className="min-w-0">
           <h1 className="font-display text-xl font-semibold text-foreground">{profile?.name ?? "Pengguna JN-CALM"}</h1>
