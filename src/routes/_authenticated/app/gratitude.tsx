@@ -6,6 +6,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { EmptyState } from "@/components/app/EmptyState";
 import { BottomSheet, ModalDialog } from "@/components/app/BottomSheet";
+import { exportGratitudePDF } from "@/lib/export-pdf";
 
 export const Route = createFileRoute("/_authenticated/app/gratitude")({
   component: Page,
@@ -314,13 +315,19 @@ function Page() {
               <div className="flex gap-3 pt-2 border-t border-border/40">
                 <button
                   onClick={() => setDeleteConfirmId(selectedEntry.id)}
-                  className="flex-1 rounded-full border border-destructive/20 hover:bg-destructive/5 py-3 text-xs font-bold text-destructive transition-all duration-200 active:scale-95"
+                  className="flex-1 rounded-full border border-destructive/20 hover:bg-destructive/5 py-3 text-[10px] sm:text-xs font-bold text-destructive transition-all duration-200 active:scale-95"
                 >
                   Hapus Catatan 🗑️
                 </button>
                 <button
+                  onClick={() => exportGratitudePDF(selectedEntry)}
+                  className="flex-1 rounded-full border border-primary/20 bg-primary-soft/60 hover:bg-primary-soft py-3 text-[10px] sm:text-xs font-bold text-primary transition-all duration-200 active:scale-95"
+                >
+                  Simpan PDF 📄
+                </button>
+                <button
                   onClick={() => setSelectedEntry(null)}
-                  className="flex-1 rounded-full border border-stone-200 bg-stone-50 hover:bg-stone-100 py-3 text-xs font-bold text-stone-600 transition-all duration-200"
+                  className="flex-1 rounded-full border border-stone-200 bg-stone-50 hover:bg-stone-100 py-3 text-[10px] sm:text-xs font-bold text-stone-600 transition-all duration-200"
                 >
                   Tutup
                 </button>
@@ -336,9 +343,14 @@ function Page() {
         onClose={() => setDeleteConfirmId(null)}
         title="Hapus Catatan Gratitude?"
       >
-        <p className="text-xs text-muted-foreground leading-normal">
-          Catatan rasa syukur ini akan terhapus secara permanen dari riwayatmu dan tidak dapat dikembalikan.
-        </p>
+        <div className="space-y-3">
+          <p className="text-xs text-muted-foreground leading-normal">
+            Catatan rasa syukur ini akan terhapus secara permanen dari riwayatmu dan tidak dapat dikembalikan.
+          </p>
+          <p className="text-[10px] text-amber-700 bg-amber-50 border border-amber-100/60 rounded-xl p-2.5 font-medium leading-relaxed">
+            💡 <strong>Tips:</strong> Anda dapat mendownload lembaran ini sebagai PDF terlebih dahulu di detail catatan sebelum menghapusnya secara permanen.
+          </p>
+        </div>
         <div className="mt-5 flex gap-2">
           <button
             onClick={() => deleteConfirmId && removeEntry(deleteConfirmId)}

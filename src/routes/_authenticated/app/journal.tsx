@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { BottomSheet, ModalDialog } from "@/components/app/BottomSheet";
 import { EmptyState } from "@/components/app/EmptyState";
 import { useProfile } from "@/hooks/use-profile";
+import { exportJournalPDF } from "@/lib/export-pdf";
 
 interface TimeCapsule {
   id: string;
@@ -637,7 +638,12 @@ function JournalPage() {
         onClose={() => setDeleteConfirm(null)}
         title="Hapus Lembaran Diary?"
       >
-        <p className="text-xs text-muted-foreground leading-normal">Catatan harian ini akan terhapus selamanya dan tidak dapat dikembalikan kembali ke buku harianmu.</p>
+        <div className="space-y-3">
+          <p className="text-xs text-muted-foreground leading-normal">Catatan harian ini akan terhapus selamanya dan tidak dapat dikembalikan kembali ke buku harianmu.</p>
+          <p className="text-[10px] text-amber-700 bg-amber-50 border border-amber-100/60 rounded-xl p-2.5 font-medium leading-relaxed">
+            💡 <strong>Tips:</strong> Anda dapat mendownload lembaran ini sebagai PDF terlebih dahulu di detail catatan sebelum menghapusnya secara permanen.
+          </p>
+        </div>
         <div className="mt-5 flex gap-2">
           <button
             onClick={() => deleteConfirm && remove(deleteConfirm)}
@@ -851,22 +857,28 @@ function JournalPage() {
                     edit(selectedJournal);
                     setSelectedJournal(null);
                   }}
-                  className="flex-1 rounded-full border border-stone-300 bg-white hover:bg-stone-50 py-3 text-xs font-bold text-stone-700 transition-all duration-200 active:scale-95 shadow-sm"
+                  className="flex-1 rounded-full border border-stone-300 bg-white hover:bg-stone-50 py-3 text-[10px] sm:text-xs font-bold text-stone-700 transition-all duration-200 active:scale-95 shadow-sm"
                 >
-                  Edit Lembaran 📝
+                  Edit 📝
                 </button>
                 <button
                   onClick={() => {
                     setDeleteConfirm(selectedJournal.id);
                     setSelectedJournal(null);
                   }}
-                  className="flex-1 rounded-full border border-destructive/20 hover:bg-destructive/5 py-3 text-xs font-bold text-destructive transition-all duration-200 active:scale-95"
+                  className="flex-1 rounded-full border border-destructive/20 hover:bg-destructive/5 py-3 text-[10px] sm:text-xs font-bold text-destructive transition-all duration-200 active:scale-95"
                 >
-                  Hapus Diary 🗑️
+                  Hapus 🗑️
+                </button>
+                <button
+                  onClick={() => exportJournalPDF(selectedJournal)}
+                  className="flex-1 rounded-full border border-primary/20 bg-primary-soft/60 hover:bg-primary-soft py-3 text-[10px] sm:text-xs font-bold text-primary transition-all duration-200 active:scale-95"
+                >
+                  Simpan PDF 📄
                 </button>
                 <button
                   onClick={() => setSelectedJournal(null)}
-                  className="rounded-full border border-stone-200 bg-stone-50 hover:bg-stone-100 px-5 py-3 text-xs font-bold text-stone-600 transition-all duration-200"
+                  className="rounded-full border border-stone-200 bg-stone-50 hover:bg-stone-100 px-3.5 py-3 text-[10px] sm:text-xs font-bold text-stone-600 transition-all duration-200"
                 >
                   Tutup
                 </button>

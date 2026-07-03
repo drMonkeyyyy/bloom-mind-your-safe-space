@@ -10,6 +10,7 @@ import { useState, useEffect } from "react";
 import { MoodSparkline } from "@/components/app/MoodSparkline";
 import { SkeletonCard } from "@/components/app/SkeletonCard";
 import { BottomSheet, ModalDialog } from "@/components/app/BottomSheet";
+import { exportWeeklyInsightPDF } from "@/lib/export-pdf";
 
 const TRIGGER_EMOJIS: Record<string, string> = {
   "Pekerjaan": "💼",
@@ -524,25 +525,33 @@ function Page() {
                 <div key={item.id} className="rounded-2xl border border-border bg-card p-4 relative overflow-hidden text-xs leading-relaxed text-stone-700">
                   <div className="flex items-center justify-between mb-2 pb-2 border-b border-border/40">
                     <span className="font-bold text-stone-500">{formattedDate}</span>
-                    <button 
-                      onClick={() => {
-                        const updated = insightHistory.filter(x => x.id !== item.id);
-                        setInsightHistory(updated);
-                        localStorage.setItem(`bloom_weekly_insights_history_${user!.id}`, JSON.stringify(updated));
-                        if (insight === item.text) {
-                          setInsight(updated[0]?.text ?? null);
-                          if (updated[0]?.text) {
-                            localStorage.setItem(`bloom_weekly_insight_${user!.id}`, updated[0].text);
-                          } else {
-                            localStorage.removeItem(`bloom_weekly_insight_${user!.id}`);
+                    <div className="flex items-center gap-2.5">
+                      <button
+                        onClick={() => exportWeeklyInsightPDF(item.date, item.text)}
+                        className="text-primary hover:underline text-[10px] font-bold"
+                      >
+                        Simpan PDF 📄
+                      </button>
+                      <button 
+                        onClick={() => {
+                          const updated = insightHistory.filter(x => x.id !== item.id);
+                          setInsightHistory(updated);
+                          localStorage.setItem(`bloom_weekly_insights_history_${user!.id}`, JSON.stringify(updated));
+                          if (insight === item.text) {
+                            setInsight(updated[0]?.text ?? null);
+                            if (updated[0]?.text) {
+                              localStorage.setItem(`bloom_weekly_insight_${user!.id}`, updated[0].text);
+                            } else {
+                              localStorage.removeItem(`bloom_weekly_insight_${user!.id}`);
+                            }
                           }
-                        }
-                      }}
-                      className="text-stone-400 hover:text-red-500 text-[10px] font-bold"
-                      title="Hapus analisis ini"
-                    >
-                      Hapus
-                    </button>
+                        }}
+                        className="text-stone-400 hover:text-red-500 text-[10px] font-bold"
+                        title="Hapus analisis ini"
+                      >
+                        Hapus
+                      </button>
+                    </div>
                   </div>
                   <p className="whitespace-pre-wrap select-text selection:bg-primary-soft">{item.text}</p>
                 </div>

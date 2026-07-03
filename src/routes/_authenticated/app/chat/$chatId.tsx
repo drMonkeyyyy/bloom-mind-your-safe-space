@@ -10,6 +10,7 @@ import { sendChatMessage, generateJournalFromChat } from "@/lib/chat.functions";
 import { COMPANIONS, type CompanionKey } from "@/lib/companions";
 import { toast } from "sonner";
 import { PaywallCard } from "@/components/app/PaywallCard";
+import { exportChatPDF } from "@/lib/export-pdf";
 
 const search = z.object({
   companion: z.enum(["ibu","ayah","kakak_perempuan","kakak_laki","sahabat","partner","coach"]).optional(),
@@ -123,20 +124,28 @@ function ChatRoom() {
           </div>
         </div>
         {!isNew && (
-          <button 
-            disabled={generatingJournal} 
-            onClick={makeJournal} 
-            className="rounded-full border border-border px-3 py-1.5 text-xs hover:bg-cream-deep disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5"
-          >
-            {generatingJournal ? (
-              <>
-                <span className="h-1.5 w-1.5 animate-ping rounded-full bg-primary" />
-                Memproses Jurnal...
-              </>
-            ) : (
-              "📓 Jadikan Journal"
-            )}
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => exportChatPDF(comp?.name ?? "Pendamping", comp?.emoji ?? "🌿", messages ?? [])}
+              className="rounded-full border border-border px-3 py-1.5 text-xs hover:bg-cream-deep flex items-center gap-1.5 transition-all duration-200 active:scale-95 shadow-sm"
+            >
+              📄 Simpan PDF
+            </button>
+            <button 
+              disabled={generatingJournal} 
+              onClick={makeJournal} 
+              className="rounded-full border border-border px-3 py-1.5 text-xs hover:bg-cream-deep disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5 transition-all duration-200 active:scale-95 shadow-sm"
+            >
+              {generatingJournal ? (
+                <>
+                  <span className="h-1.5 w-1.5 animate-ping rounded-full bg-primary" />
+                  Memproses Jurnal...
+                </>
+              ) : (
+                "📓 Jadikan Journal"
+              )}
+            </button>
+          </div>
         )}
       </div>
 

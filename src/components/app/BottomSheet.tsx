@@ -122,7 +122,7 @@ export function ModalDialog({ open, onClose, title, children, className = "" }: 
         style={{ animation: "fade-in-up 0.2s ease-out both" }}
       />
       <div
-        className={`relative z-10 w-full max-w-lg rounded-3xl bg-card p-6 shadow-elevated ring-1 ring-border ${className}`}
+        className={`relative z-10 w-full max-w-lg max-h-[85vh] overflow-y-auto rounded-3xl bg-card p-6 shadow-elevated ring-1 ring-border ${className}`}
         style={{ animation: "scale-in 0.3s cubic-bezier(0.16, 1, 0.3, 1) both" }}
       >
         {title && (
