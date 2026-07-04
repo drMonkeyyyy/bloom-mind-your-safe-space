@@ -74,7 +74,7 @@ export function Footer() {
         <div className="mt-12 flex flex-col items-center justify-between gap-3 border-t border-border pt-6 text-xs text-muted-foreground sm:flex-row">
           <p>© {new Date().getFullYear()} JN-CALM. Dibuat dengan 🤍 di Indonesia.</p>
           <p className="max-w-sm text-center sm:text-right">
-            JN-CALM bukan pengganti bantuan profesional kesehatan mental. Jika dalam kondisi krisis/darurat, hubungi profesional kesehatan terdekat.
+            JN-CALM hadir sebagai media refleksi diri dan bukan merupakan layanan medis profesional kesehatan mental. Jika dalam kondisi krisis/darurat, hubungi profesional kesehatan terdekat.
           </p>
         </div>
       </div>
