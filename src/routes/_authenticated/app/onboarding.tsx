@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { COMPANIONS, COMM_STYLES, GOAL_OPTIONS, type CompanionKey } from "@/lib/companions";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
+import { useProfile } from "@/hooks/use-profile";
 
 export const Route = createFileRoute("/_authenticated/app/onboarding")({
   component: Onboarding,
@@ -24,6 +25,8 @@ const GOAL_EMOJIS: Record<string, string> = {
 
 function Onboarding() {
   const { user } = useAuth();
+  const { data: profile } = useProfile(user?.id);
+  const isPremium = profile?.plan === "premium";
   const navigate = useNavigate();
   const qc = useQueryClient();
   const [step, setStep] = useState(0);
@@ -177,14 +180,21 @@ function Onboarding() {
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
             {COMPANIONS.map((c) => {
               const sel = companion === c.key;
+              const isLocked = c.premium && !isPremium;
               return (
                 <button
                   key={c.key}
-                  onClick={() => setCompanion(c.key)}
+                  onClick={() => {
+                    if (isLocked) {
+                      toast.error("Pendamping PRO hanya tersedia untuk anggota Premium. Upgrade sekarang untuk memilih! 🌟");
+                      return;
+                    }
+                    setCompanion(c.key);
+                  }}
                   aria-pressed={sel}
                   className={`relative flex flex-col items-center gap-2 rounded-2xl border-2 p-4 text-center transition-all duration-200 ${
                     sel ? "border-primary bg-primary-soft shadow-soft scale-105" : "border-border bg-card hover:border-primary/30"
-                  }`}
+                  } ${isLocked ? "opacity-60 grayscale-[30%] cursor-not-allowed hover:border-border" : ""}`}
                 >
                   {c.premium && (
                     <span className="absolute -right-1 -top-1 rounded-full bg-amber-400 px-1.5 py-0.5 text-[9px] font-bold text-white">PRO</span>

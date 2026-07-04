@@ -275,7 +275,7 @@ function ChatRoom() {
       <div className="border-t border-border pt-3">
         <div className="mb-2 flex gap-2">
           <button onClick={()=>submit(undefined, "Aku sedang cemas/panik. Tolong bantu aku menenangkan diri.")} className="rounded-full border border-accent/40 bg-accent-soft px-3 py-1.5 text-xs">🚨 Aku panik/cemas</button>
-          {showLimitWarning && <span className="ml-auto text-[10px] text-muted-foreground self-center">Free: 10 balasan/hari</span>}
+          {showLimitWarning && <span className="ml-auto text-[10px] text-muted-foreground self-center">Free: 3 balasan/hari</span>}
         </div>
         <form onSubmit={submit} className="flex gap-2">
           <textarea value={input} onChange={(e)=>setInput(e.target.value)} rows={2} placeholder="Tulis perasaanmu…"

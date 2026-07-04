@@ -20,7 +20,7 @@ const FAQ = [
   { q: "Apakah data saya aman?", a: "Ya. Semua data dienkripsi dan tidak pernah dibagikan ke pihak ketiga. Privasi kamu adalah prioritas kami." },
   { q: "Apakah ada kontrak jangka panjang?", a: "Tidak. Kamu bisa berlangganan bulan demi bulan dan berhenti kapan saja tanpa penalti." },
   { q: "Bagaimana cara pembayaran?", a: "Pembayaran dapat dilakukan secara instan & otomatis menggunakan Kartu Kredit, E-Wallet (GoPay, OVO, ShopeePay, Dana), QRIS, atau Virtual Account melalui payment gateway Mayar.id." },
-  { q: "Apakah JN-CALM sama dengan layanan psikolog profesional?", a: "Tidak. JN-CALM dirancang sebagai alat bantu refleksi diri, jurnal interaktif, dan teman curhat harian untuk membantu mengelola emosi ringan. Untuk diagnosa medis atau terapi klinis, kami menyarankan konsultasi dengan psikolog atau psikiater berlisensi." },
+  { q: "Bagaimana JN-CALM mendampingi keseharian saya?", a: "JN-CALM dirancang sebagai ruang aman interaktif untuk membantumu meluangkan waktu sejenak, merefleksikan emosi harian, melacak kebiasaan baik, dan mendapatkan tanggapan hangat saat ingin curhat. Ini adalah teman harian yang sangat baik untuk melatih kesadaran diri (self-awareness) dan menjaga kesehatan mentalmu. Untuk penanganan medis atau terapi klinis mendalam, kamu juga tetap disarankan berkonsultasi dengan profesional berlisensi." },
 ];
 
 function FAQItem({ q, a }: { q: string; a: string }) {

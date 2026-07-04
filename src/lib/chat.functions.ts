@@ -44,7 +44,7 @@ Tolong, dalam beberapa menit ke depan:
 2. Hubungi layanan darurat: **119 ext. 8** (Kemenkes Sehat Jiwa) atau **112** (darurat umum).
 3. Datang ke IGD rumah sakit terdekat.
 
-JN-CALM bukan pengganti psikolog atau layanan darurat. Aku akan tetap di sini, tapi aku butuh kamu untuk menghubungi bantuan profesional sekarang juga. Apa kamu bisa lakukan satu langkah dari atas?`;
+JN-CALM hadir sebagai media refleksi diri dan bukan merupakan layanan darurat medis. Aku akan tetap di sini, tapi aku butuh kamu untuk menghubungi bantuan profesional sekarang juga. Apa kamu bisa lakukan satu langkah dari atas?`;
 
 const SendInput = z.object({
   chatId: z.string().uuid().nullable(),
