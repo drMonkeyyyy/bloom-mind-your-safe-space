@@ -14,9 +14,9 @@ import { Pricing } from "@/components/landing/Pricing";
 import { FinalCTA } from "@/components/landing/FinalCTA";
 import { Footer } from "@/components/landing/Footer";
 
-const TITLE = "JN-CALM — Pendamping AI untuk Tumbuh & Memahami Diri";
+const TITLE = "JN-CALM — Ruang Curhat & Refleksi Diri yang Aman";
 const DESC =
-  "JN-CALM adalah pendamping AI untuk overthinking, stres, burnout, dan emotional eating. Tempat aman untuk curhat, bertumbuh, dan memahami diri.";
+  "JN-CALM adalah ruang aman interaktif untuk membantumu mengatasi overthinking, stres, burnout, dan emotional eating. Tempat aman untuk curhat, bertumbuh, dan memahami diri.";
 
 export const Route = createFileRoute("/")({
   head: () => ({

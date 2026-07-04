@@ -2,7 +2,7 @@ const tools = [
   { title: "Breathing Exercise", desc: "Latihan napas 4-7-8.", emoji: "🌬️" },
   { title: "Grounding Exercise", desc: "Kembalikan fokus ke saat ini.", emoji: "🌍" },
   { title: "Self-Calming Guide", desc: "Panduan menenangkan diri.", emoji: "🤍" },
-  { title: "Quick Emotional Support", desc: "Curhat instan ke pendamping.", emoji: "💬" },
+  { title: "Panic Button (🚨)", desc: "Meredakan kecemasan & panik instan.", emoji: "🚨" },
 ];
 
 export function EmergencyMode() {

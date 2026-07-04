@@ -14,7 +14,7 @@ export function Companions() {
       <div className="mx-auto max-w-7xl px-5 sm:px-8">
         <div data-reveal className="mx-auto max-w-2xl text-center">
           <p className="text-sm font-medium uppercase tracking-[0.2em] text-primary">
-            AI Companion
+            Pilihan Pendamping
           </p>
           <h2 className="mt-3 font-display text-4xl font-semibold leading-tight text-foreground sm:text-5xl">
             Pilih Pendamping yang Paling{" "}

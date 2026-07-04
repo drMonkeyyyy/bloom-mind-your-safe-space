@@ -1,6 +1,6 @@
 const features = [
   {
-    title: "AI Companion",
+    title: "Teman Curhat",
     desc: "Curhat kapan saja tanpa takut dihakimi.",
     icon: (
       <path d="M7 8h10M7 12h6m-9 8 4-4h10a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v14Z" />
