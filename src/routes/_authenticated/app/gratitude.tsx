@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { useAuth } from "@/hooks/use-auth";
+import { useProfile } from "@/hooks/use-profile";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -380,7 +381,7 @@ function Page() {
                       const config = jarOrbsConfig[idx % jarOrbsConfig.length];
                       const scatterY = idx >= jarOrbsConfig.length ? `${parseFloat(config.bottom) + Math.sin(idx) * 8}%` : config.bottom;
                       const scatterX = idx >= jarOrbsConfig.length ? `${parseFloat(config.left) + Math.cos(idx) * 8}%` : config.left;
-                      const displayWord = e.best_moment.split(" ")[0];
+                      const displayWord = (e.best_moment || "").split(" ")[0];
 
                       return (
                         <button
@@ -392,7 +393,7 @@ function Page() {
                             bottom: scatterY,
                             animationDelay: `${idx * 0.3}s`,
                           }}
-                          title={e.best_moment}
+                          title={e.best_moment || undefined}
                         >
                           <span className="font-black tracking-tight line-clamp-2 px-1 text-center font-display leading-[1.1] max-w-[70px] uppercase text-[10px] drop-shadow-sm">
                             {displayWord}
