@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/use-auth";
+import { useProfile } from "@/hooks/use-profile";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -71,6 +72,8 @@ function AnimatedProgressBar({ pct, allDone }: { pct: number; allDone: boolean }
 
 function HabitPage() {
   const { user } = useAuth();
+  const { data: profile } = useProfile(user?.id);
+  const isPremium = profile?.plan === "premium";
   const qc = useQueryClient();
   const [newName, setNewName] = useState("");
   const [newIcon, setNewIcon] = useState("✨");
@@ -97,6 +100,10 @@ function HabitPage() {
 
   const add = async (name: string, icon = "✨") => {
     if (!user || !name.trim()) return;
+    if (!isPremium && habits && habits.length >= 1) {
+      toast.error("Batas Gratis Tercapai! Paket gratis hanya dapat melacak 1 habit aktif. Upgrade ke Premium untuk tak terbatas.");
+      return;
+    }
     const { error } = await supabase.from("habits").insert({ user_id: user.id, name, icon });
     if (error) toast.error(error.message);
     else {

@@ -1,16 +1,16 @@
 const freeTier = [
-  "5 sesi chat AI / hari",
-  "Mood tracker harian",
-  "Journal manual",
-  "Habit tracker (5 habit)",
-  "Gratitude journal",
+  "3 sesi chat AI / hari (Sahabat saja)",
+  "Mood tracker harian (Tanpa Grafik)",
+  "Jurnal manual (Maks 2 entri)",
+  "Habit tracker (Maks 1 Habit)",
+  "Gratitude journal (Maks 2 entri)",
 ];
 
 const premiumFeatures = [
-  "Chat AI tanpa batas",
-  "Semua 7 AI Companion",
+  "Chat AI tanpa batas & semua Companion",
+  "Jurnal & Gratitude tanpa batas",
+  "Growth Dashboard & Grafik Lengkap",
   "Weekly AI Insight personal",
-  "Growth Dashboard lengkap",
   "Emotional Eating Analysis",
   "Riwayat penuh tanpa batas",
   "Habit tracker tanpa batas",
@@ -56,7 +56,7 @@ export function Pricing() {
             <div>
               <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Gratis</p>
               <div className="mt-3 flex items-baseline gap-2">
-                <span className="font-display text-4xl font-bold text-foreground">Rp0</span>
+                <span className="font-sans text-4xl font-bold text-foreground">Rp0</span>
                 <span className="text-muted-foreground">/bulan</span>
               </div>
               <p className="mt-2 text-sm text-muted-foreground">Mulai tanpa perlu kartu kredit.</p>
@@ -94,7 +94,7 @@ export function Pricing() {
                   </span>
                 </div>
                 <div className="mt-3 flex items-baseline gap-2">
-                  <span className="font-display text-4xl font-bold text-foreground">Rp49.000</span>
+                  <span className="font-sans text-4xl font-bold text-foreground">Rp49.000</span>
                   <span className="text-muted-foreground">/bulan</span>
                 </div>
                 <p className="mt-2 text-sm text-muted-foreground">Tanpa kontrak · Bisa berhenti kapan saja.</p>

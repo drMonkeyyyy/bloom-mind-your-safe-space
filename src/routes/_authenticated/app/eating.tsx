@@ -3,6 +3,9 @@ import { useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { analyzeEmotionalEating } from "@/lib/chat.functions";
 import { toast } from "sonner";
+import { useProfile } from "@/hooks/use-profile";
+import { useAuth } from "@/hooks/use-auth";
+import { PaywallCard } from "@/components/app/PaywallCard";
 
 const HUNGER = [
   { key: "lapar_fisik" as const, label: "Lapar Fisik", icon: "🍽️", desc: "Perut kosong, butuh energi" },
@@ -17,6 +20,9 @@ export const Route = createFileRoute("/_authenticated/app/eating")({
 });
 
 function Page() {
+  const { user } = useAuth();
+  const { data: profile } = useProfile(user?.id);
+  const isPremium = profile?.plan === "premium";
   const analyze = useServerFn(analyzeEmotionalEating);
   const [hunger, setHunger] = useState<(typeof HUNGER)[number]["key"] | null>(null);
   const [emotion, setEmotion] = useState("");
@@ -24,6 +30,34 @@ function Page() {
   const [trigger, setTrigger] = useState("");
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<{ insight: string; action: string } | null>(null);
+
+  if (!isPremium) {
+    return (
+      <div className="space-y-6">
+        {/* Coral gradient header */}
+        <div
+          className="relative overflow-hidden rounded-3xl px-6 pt-6 pb-5"
+          style={{
+            background: "linear-gradient(135deg, oklch(0.977 0.008 85) 0%, oklch(0.96 0.04 25) 40%, oklch(0.97 0.03 40) 100%)",
+            backgroundSize: "300% 300%",
+            animation: "gradient-shift 13s ease-in-out infinite",
+          }}
+        >
+          <div
+            className="absolute -right-6 -top-6 h-36 w-36 rounded-full pointer-events-none"
+            style={{ background: "oklch(0.77 0.085 40 / 0.18)", filter: "blur(35px)", animation: "blob-drift 18s ease-in-out infinite" }}
+          />
+          <div className="relative">
+            <h1 className="font-display text-3xl font-semibold">Emotional Eating</h1>
+            <p className="mt-1 text-sm text-muted-foreground italic">
+              "Tidak semua rasa lapar berasal dari perut."
+            </p>
+          </div>
+        </div>
+        <PaywallCard desc="Gunakan asisten AI khusus untuk menganalisis pemicu emotional/stress eating kamu dan dapatkan coping mechanism yang sehat." />
+      </div>
+    );
+  }
 
   const submit = async () => {
     setLoading(true); setResult(null);

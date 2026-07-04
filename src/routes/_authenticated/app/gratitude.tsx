@@ -47,6 +47,8 @@ const jarOrbsConfig = [
 function Page() {
 
   const { user } = useAuth();
+  const { data: profile } = useProfile(user?.id);
+  const isPremium = profile?.plan === "premium";
   const qc = useQueryClient();
   const [g, setG] = useState({ gratitude1: "", gratitude2: "", gratitude3: "", best_moment: "", lesson: "" });
   const [saving, setSaving] = useState(false);
@@ -146,6 +148,10 @@ function Page() {
     if (!user) return;
     if (!g.gratitude1 && !g.gratitude2 && !g.gratitude3) {
       toast.error("Isi minimal satu hal yang kamu syukuri.");
+      return;
+    }
+    if (!isPremium && list && list.length >= 2) {
+      toast.error("Batas Gratis Tercapai! Paket gratis hanya dapat membuat maksimal 2 entri gratitude. Upgrade ke Premium untuk menulis sepuasnya.");
       return;
     }
     setSaving(true);

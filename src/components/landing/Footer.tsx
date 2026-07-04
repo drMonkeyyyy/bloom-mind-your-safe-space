@@ -7,7 +7,7 @@ const menu = [
 const legal = [
   { label: "Kebijakan Privasi", href: "#" },
   { label: "Syarat Layanan", href: "#" },
-  { label: "Hubungi Kami", href: "mailto:halo@jncalm.my.id" },
+  { label: "Hubungi Kami", href: "mailto:noreply@jncalm.my.id" },
 ];
 
 export function Footer() {
@@ -60,15 +60,13 @@ export function Footer() {
             </ul>
           </div>
 
-          {/* Crisis line */}
+          {/* Help line */}
           <div>
             <p className="text-xs font-bold uppercase tracking-[0.15em] text-foreground">Butuh Bantuan?</p>
-            <div className="mt-4 rounded-2xl bg-rose-50 p-4 ring-1 ring-rose-100">
-              <p className="text-sm font-semibold text-rose-700">📞 Into The Light</p>
-              <p className="mt-1 text-sm font-bold text-rose-700">119 ext. 8</p>
-              <p className="mt-1 text-xs text-rose-600/80">Layanan kesehatan jiwa 24 jam</p>
-            </div>
-            <p className="mt-3 text-xs text-muted-foreground">halo@jncalm.my.id</p>
+            <p className="mt-4 text-sm text-stone-700">
+              Silakan hubungi kami melalui:
+            </p>
+            <p className="mt-2 text-xs font-semibold text-muted-foreground">noreply@jncalm.my.id</p>
           </div>
         </div>
 
@@ -76,7 +74,7 @@ export function Footer() {
         <div className="mt-12 flex flex-col items-center justify-between gap-3 border-t border-border pt-6 text-xs text-muted-foreground sm:flex-row">
           <p>© {new Date().getFullYear()} JN-CALM. Dibuat dengan 🤍 di Indonesia.</p>
           <p className="max-w-sm text-center sm:text-right">
-            JN-CALM bukan pengganti bantuan profesional kesehatan mental. Jika dalam krisis, hubungi 119 ext. 8.
+            JN-CALM bukan pengganti bantuan profesional kesehatan mental. Jika dalam kondisi krisis/darurat, hubungi profesional kesehatan terdekat.
           </p>
         </div>
       </div>

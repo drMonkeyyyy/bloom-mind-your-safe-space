@@ -66,7 +66,7 @@ export const sendChatMessage = createServerFn({ method: "POST" })
     ]);
 
     const plan = profile?.plan ?? "free";
-    const limit = settings?.free_chat_limit ?? 10;
+    const limit = plan === "free" ? 3 : (settings?.free_chat_limit ?? 10);
 
     // Premium gate for custom companions
     if (data.customCompanionId && plan !== "premium") {

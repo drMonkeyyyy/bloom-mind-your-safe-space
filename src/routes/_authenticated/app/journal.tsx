@@ -225,6 +225,8 @@ function JournalPage() {
     setEditId(null);
   };
 
+  const isPremium = profile?.plan === "premium";
+
   const save = async () => {
     if (!user) return;
     if (!form.summary.trim()) {
@@ -233,6 +235,10 @@ function JournalPage() {
     }
     if (!form.main_emotion) {
       toast.error("Harap pilih mood perasaan Anda hari ini!");
+      return;
+    }
+    if (!isPremium && !editId && items && items.length >= 2) {
+      toast.error("Batas Gratis Tercapai! Paket gratis hanya dapat menulis maksimal 2 entri diary. Upgrade ke Premium untuk menulis sepuasnya.");
       return;
     }
 
