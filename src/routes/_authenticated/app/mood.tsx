@@ -71,10 +71,19 @@ function MoodSlider({ label, value, onChange, color }: SliderProps) {
   );
 }
 
+const MONTH_NAMES = [
+  "Januari", "Februari", "Maret", "April", "Mei", "Juni",
+  "Juli", "Agustus", "September", "Oktober", "November", "Desember"
+];
+const DAYS_OF_WEEK = ["Min", "Sen", "Sel", "Rab", "Kam", "Jum", "Sab"];
+
 function MoodPage() {
   const { pre } = useSearch({ from: "/_authenticated/app/mood" });
   const { user } = useAuth();
   const qc = useQueryClient();
+  const [viewMode, setViewMode] = useState<"list" | "calendar">("list");
+  const [currentMonth, setCurrentMonth] = useState(new Date().getMonth());
+  const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
   const [mood, setMood] = useState<string>(pre ?? "tenang");
   const [moodScore, setMoodScore] = useState(7);
   const [stress, setStress] = useState(4);
@@ -171,7 +180,7 @@ function MoodPage() {
     queryKey: ["mood-list", user?.id],
     enabled: !!user,
     queryFn: async () => {
-      const { data } = await supabase.from("mood_checkins").select("*").eq("user_id", user!.id).order("created_at", { ascending: false }).limit(14);
+      const { data } = await supabase.from("mood_checkins").select("*").eq("user_id", user!.id).order("created_at", { ascending: false }).limit(60);
       return data ?? [];
     },
   });
@@ -204,6 +213,35 @@ function MoodPage() {
     if (data) {
       setSelectedCheckIn(data);
     }
+  };
+
+  const prevMonth = () => {
+    if (currentMonth === 0) {
+      setCurrentMonth(11);
+      setCurrentYear(y => y - 1);
+    } else {
+      setCurrentMonth(m => m - 1);
+    }
+  };
+
+  const nextMonth = () => {
+    if (currentMonth === 11) {
+      setCurrentMonth(0);
+      setCurrentYear(y => y + 1);
+    } else {
+      setCurrentMonth(m => m + 1);
+    }
+  };
+
+  const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+  const startDayOfWeek = new Date(currentYear, currentMonth, 1).getDay();
+
+  const getCheckinsForDay = (day: number) => {
+    if (!list) return [];
+    return list.filter((m) => {
+      const d = new Date(m.created_at);
+      return d.getDate() === day && d.getMonth() === currentMonth && d.getFullYear() === currentYear;
+    });
   };
 
   const chartData = (list ?? []).slice(0, 14).reverse().map((m) => ({ value: m.mood_score, date: m.date }));
@@ -383,80 +421,191 @@ function MoodPage() {
           </div>
         ) : null}
 
-        <div className="mb-4 flex items-center justify-between">
-          <h2 className="font-display text-xl font-semibold">Riwayat 14 Hari</h2>
-          {chartData.length > 1 && (
+        <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center gap-4">
+            <h2 className="font-display text-xl font-semibold">
+              {viewMode === "list" ? "Riwayat 14 Hari" : "Kalender Mood"}
+            </h2>
+            <div className="flex rounded-full bg-cream-deep p-0.5 ring-1 ring-border/50 text-xs">
+              <button
+                onClick={() => setViewMode("list")}
+                className={`rounded-full px-3 py-1 font-medium transition-all ${
+                  viewMode === "list"
+                    ? "bg-white text-foreground shadow-sm"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                Daftar
+              </button>
+              <button
+                onClick={() => setViewMode("calendar")}
+                className={`rounded-full px-3 py-1 font-medium transition-all ${
+                  viewMode === "calendar"
+                    ? "bg-white text-foreground shadow-sm"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                Kalender
+              </button>
+            </div>
+          </div>
+          {viewMode === "list" && chartData.length > 1 && (
             <div className="w-28 h-8">
               <MoodSparkline data={chartData} height={32} showDots={false} />
             </div>
           )}
         </div>
 
-        <div className="space-y-2">
-          {list?.length === 0 && (
-            <EmptyState
-              emoji="🌤️"
-              title="Belum ada catatan mood"
-              description="Mulai rekam perasaanmu setiap hari untuk melihat polamu."
-            />
-          )}
-          {list?.map((m, idx) => {
-            const emoji = MOOD_OPTIONS.find(x => x.key === m.mood)?.emoji ?? "🌿";
-            return (
-              <div
-                key={m.id}
-                onClick={() => setSelectedCheckIn(m)}
-                className="flex items-center gap-4 rounded-2xl bg-card p-4 ring-1 ring-border/60 transition-all duration-200 hover:shadow-card hover:-translate-y-0.5 card-lift animate-slide-up cursor-pointer hover:bg-primary-soft/30"
-                style={{ animationDelay: `${idx * 40}ms` }}
+        {viewMode === "calendar" ? (
+          <div className="rounded-3xl bg-card p-5 ring-1 ring-border/60 shadow-card space-y-4">
+            {/* Calendar Header */}
+            <div className="flex items-center justify-between border-b border-border/50 pb-3">
+              <button
+                onClick={prevMonth}
+                className="rounded-full border border-border p-2 hover:bg-cream-deep active:scale-95 transition-all"
               >
-                <div className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-primary-soft/50 text-2xl shadow-sm">
-                  {emoji}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
-                    <p className="text-sm font-semibold capitalize text-foreground">{m.mood}</p>
-                    <span className="rounded-full bg-primary-soft px-2 py-0.5 text-[10px] font-medium">
-                      {m.mood_score}/10
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" className="h-4 w-4">
+                  <path d="m15 18-6-6 6-6" />
+                </svg>
+              </button>
+              <span className="font-display text-base font-bold text-foreground">
+                {MONTH_NAMES[currentMonth]} {currentYear}
+              </span>
+              <button
+                onClick={nextMonth}
+                className="rounded-full border border-border p-2 hover:bg-cream-deep active:scale-95 transition-all"
+              >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" className="h-4 w-4">
+                  <path d="m9 18 6-6-6-6" />
+                </svg>
+              </button>
+            </div>
+
+            {/* Days of Week */}
+            <div className="grid grid-cols-7 gap-1 text-center text-xs font-bold text-muted-foreground">
+              {DAYS_OF_WEEK.map((d) => (
+                <div key={d} className="py-1">{d}</div>
+              ))}
+            </div>
+
+            {/* Calendar Grid */}
+            <div className="grid grid-cols-7 gap-1.5">
+              {/* Empty padding cells */}
+              {Array.from({ length: startDayOfWeek }).map((_, i) => (
+                <div key={`empty-${i}`} className="aspect-square rounded-2xl bg-cream-deep/20" />
+              ))}
+
+              {/* Day cells */}
+              {Array.from({ length: daysInMonth }).map((_, i) => {
+                const dayNum = i + 1;
+                const dayCheckins = getCheckinsForDay(dayNum);
+                const hasCheckin = dayCheckins.length > 0;
+                const latestCheckin = hasCheckin ? dayCheckins[0] : null;
+                const emoji = latestCheckin ? (MOOD_OPTIONS.find(x => x.key === latestCheckin.mood)?.emoji ?? "🌿") : null;
+                const isToday = dayNum === new Date().getDate() && currentMonth === new Date().getMonth() && currentYear === new Date().getFullYear();
+
+                return (
+                  <button
+                    key={`day-${dayNum}`}
+                    disabled={!hasCheckin}
+                    onClick={() => latestCheckin && setSelectedCheckIn(latestCheckin)}
+                    className={`relative flex flex-col items-center justify-between aspect-square rounded-2xl border p-1 text-center transition-all duration-200 ${
+                      hasCheckin
+                        ? "border-primary/20 bg-primary-soft/40 hover:bg-primary-soft hover:shadow-soft hover:scale-105 cursor-pointer"
+                        : "border-transparent bg-cream-deep/40 hover:bg-cream-deep/60"
+                    } ${isToday ? "ring-2 ring-primary ring-offset-2" : ""}`}
+                  >
+                    <span className={`text-[10px] font-bold ${hasCheckin ? "text-primary-foreground/90 bg-primary px-1.5 py-0.5 rounded-full text-[8px]" : "text-muted-foreground"}`}>
+                      {dayNum}
                     </span>
-                  </div>
-                  <p className="mt-0.5 text-[11px] text-muted-foreground">
-                    {new Date(m.created_at).toLocaleString("id-ID", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}
-                    {" · "}Stres {m.stress_score} · Energi {m.energy_score}
-                  </p>
-                  {m.note && (
-                    <p className="mt-1 truncate text-xs text-muted-foreground">{m.note}</p>
-                  )}
-                  {m.triggers && m.triggers.length > 0 && (
-                    <div className="mt-1.5 flex flex-wrap gap-1">
-                      {m.triggers.map((t: string) => (
-                        <span
-                          key={t}
-                          className="rounded-full bg-cream-deep px-2 py-0.5 text-[9px] font-bold text-stone-500 border border-stone-200/40"
-                        >
-                          {t}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                </div>
-                {/* Mini bars */}
-                <div className="hidden shrink-0 items-end gap-0.5 sm:flex" style={{ height: 28 }}>
-                  {[m.mood_score, m.energy_score, 10 - m.stress_score].map((v, i) => (
-                    <div
-                      key={i}
-                      className="w-2 rounded-t-sm transition-all duration-500"
-                      style={{
-                        height: `${Math.max(15, v * 10)}%`,
-                        background: i === 0 ? "var(--color-primary)" : i === 1 ? "oklch(0.70 0.08 200)" : "oklch(0.77 0.085 40)",
-                        opacity: 0.75,
-                      }}
-                    />
-                  ))}
-                </div>
+                    {emoji ? (
+                      <span className="text-xl sm:text-2xl leading-none animate-scale-in mb-1">{emoji}</span>
+                    ) : (
+                      <span className="h-1" />
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+            {/* Caption */}
+            <div className="mt-3 border-t border-border/40 pt-3 flex flex-wrap gap-x-4 gap-y-2 justify-center text-[10px] text-muted-foreground">
+              <div className="flex items-center gap-1.5">
+                <span className="h-2.5 w-2.5 rounded-full bg-primary-soft/60 border border-primary/20" />
+                <span>Hari tercatat</span>
               </div>
-            );
-          })}
-        </div>
+              <div className="flex items-center gap-1.5">
+                <span className="h-2.5 w-2.5 rounded-full ring-1 ring-primary ring-offset-1 bg-cream-deep/40" />
+                <span>Hari ini</span>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="space-y-2">
+            {list?.length === 0 && (
+              <EmptyState
+                emoji="🌤️"
+                title="Belum ada catatan mood"
+                description="Mulai rekam perasaanmu setiap hari untuk melihat polamu."
+              />
+            )}
+            {list?.slice(0, 14).map((m, idx) => {
+              const emoji = MOOD_OPTIONS.find(x => x.key === m.mood)?.emoji ?? "🌿";
+              return (
+                <div
+                  key={m.id}
+                  onClick={() => setSelectedCheckIn(m)}
+                  className="flex items-center gap-4 rounded-2xl bg-card p-4 ring-1 ring-border/60 transition-all duration-200 hover:shadow-card hover:-translate-y-0.5 card-lift animate-slide-up cursor-pointer hover:bg-primary-soft/30"
+                  style={{ animationDelay: `${idx * 40}ms` }}
+                >
+                  <div className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-primary-soft/50 text-2xl shadow-sm">
+                    {emoji}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <p className="text-sm font-semibold capitalize text-foreground">{m.mood}</p>
+                      <span className="rounded-full bg-primary-soft px-2 py-0.5 text-[10px] font-medium">
+                        {m.mood_score}/10
+                      </span>
+                    </div>
+                    <p className="mt-0.5 text-[11px] text-muted-foreground">
+                      {new Date(m.created_at).toLocaleString("id-ID", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}
+                      {" · "}Stres {m.stress_score} · Energi {m.energy_score}
+                    </p>
+                    {m.note && (
+                      <p className="mt-1 truncate text-xs text-muted-foreground">{m.note}</p>
+                    )}
+                    {m.triggers && m.triggers.length > 0 && (
+                      <div className="mt-1.5 flex flex-wrap gap-1">
+                        {m.triggers.map((t: string) => (
+                          <span
+                            key={t}
+                            className="rounded-full bg-cream-deep px-2 py-0.5 text-[9px] font-bold text-stone-500 border border-stone-200/40"
+                          >
+                            {t}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                  {/* Mini bars */}
+                  <div className="hidden shrink-0 items-end gap-0.5 sm:flex" style={{ height: 28 }}>
+                    {[m.mood_score, m.energy_score, 10 - m.stress_score].map((v, i) => (
+                      <div
+                        key={i}
+                        className="w-2 rounded-t-sm transition-all duration-500"
+                        style={{
+                          height: `${Math.max(15, v * 10)}%`,
+                          background: i === 0 ? "var(--color-primary)" : i === 1 ? "oklch(0.70 0.08 200)" : "oklch(0.77 0.085 40)",
+                          opacity: 0.75,
+                        }}
+                      />
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
       </section>
 
       {/* ── DETAIL CHECK-IN DIALOG ───────────────────────────── */}

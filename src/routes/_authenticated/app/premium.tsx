@@ -20,12 +20,13 @@ function makeOrderNumber() {
 }
 
 const FEATURES = [
-  { icon: "💬", label: "Chat AI tanpa batas" },
-  { icon: "🧑‍🤝‍🧑", label: "Semua AI Companion (7 karakter)" },
+  { icon: "💬", label: "Chat AI tanpa batas & semua Companion" },
+  { icon: "📓", label: "Jurnal & Gratitude tanpa batas" },
+  { icon: "📈", label: "Growth Dashboard & Grafik Lengkap" },
   { icon: "📊", label: "Weekly AI Insight personal" },
-  { icon: "📈", label: "Growth Dashboard lengkap" },
   { icon: "🍎", label: "Emotional Eating Analysis" },
   { icon: "📜", label: "Riwayat penuh tanpa batas" },
+  { icon: "✅", label: "Habit tracker tanpa batas" },
 ];
 
 const STATUS_COLORS: Record<string, string> = {
