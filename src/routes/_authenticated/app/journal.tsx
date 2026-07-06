@@ -159,6 +159,7 @@ function JournalPage() {
   const [capsuleOpen, setCapsuleOpen] = useState(false);
   const [newCapsuleText, setNewCapsuleText] = useState("");
   const [newCapsuleTarget, setNewCapsuleTarget] = useState("1month");
+  const [customDate, setCustomDate] = useState("");
   const [viewCapsule, setViewCapsule] = useState<TimeCapsule | null>(null);
 
   useEffect(() => {
@@ -183,6 +184,17 @@ function JournalPage() {
       targetDate.setMonth(targetDate.getMonth() + 3);
     } else if (newCapsuleTarget === "6months") {
       targetDate.setMonth(targetDate.getMonth() + 6);
+    } else if (newCapsuleTarget === "custom") {
+      if (!customDate) {
+        toast.error("Silakan pilih tanggal kustom!");
+        return;
+      }
+      targetDate = new Date(customDate);
+      targetDate.setHours(23, 59, 59, 999);
+      if (targetDate.getTime() <= Date.now()) {
+        toast.error("Tanggal kustom harus di masa depan!");
+        return;
+      }
     }
 
     const newCapsule = {
@@ -196,6 +208,7 @@ function JournalPage() {
     setCapsules(updated);
     localStorage.setItem(`bloom_time_capsules_${user.id}`, JSON.stringify(updated));
     setNewCapsuleText("");
+    setCustomDate("");
     setCapsuleOpen(false);
     toast.success("Kapsul waktu berhasil dikunci! 🔒");
   };
@@ -307,6 +320,23 @@ function JournalPage() {
           background-image: radial-gradient(circle, oklch(0.45 0.05 70 / 0.15) 1px, transparent 1px);
           background-size: 8px 8px;
         }
+        @keyframes float-capsule {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-4px); }
+        }
+        .animate-float-capsule {
+          animation: float-capsule 2.5s infinite ease-in-out;
+        }
+        @keyframes lock-shake {
+          0%, 100% { transform: rotate(0deg); }
+          20% { transform: rotate(-8deg); }
+          40% { transform: rotate(6deg); }
+          60% { transform: rotate(-5deg); }
+          80% { transform: rotate(4deg); }
+        }
+        .hover-lock-shake:hover .lock-icon {
+          animation: lock-shake 0.4s ease-in-out;
+        }
       `}} />
 
       {/* Diary Canvas Binder Cover Header */}
@@ -375,14 +405,16 @@ function JournalPage() {
                       setViewCapsule(cap);
                     }
                   }}
-                  className={`flex shrink-0 items-center gap-2 rounded-2xl px-3.5 py-2 text-left border transition-all duration-250 hover:scale-102 active:scale-95 ${
+                  className={`flex shrink-0 items-center gap-2 rounded-2xl px-3.5 py-2 text-left border transition-all duration-300 shadow-sm ${
                     status.locked
-                      ? "border-border/60 bg-cream-deep/30 text-muted-foreground"
-                      : "border-amber-300/40 bg-amber-50/50 text-foreground animate-glow-pulse shadow-sm"
+                      ? "border-border/60 bg-cream-deep/35 text-muted-foreground hover-lock-shake hover:scale-[1.02] hover:bg-cream-deep/60 active:scale-95"
+                      : "border-amber-300/40 bg-amber-50/70 text-foreground animate-glow-pulse animate-float-capsule hover:scale-105 active:scale-95 cursor-pointer"
                   }`}
                 >
-                  <span className="text-base">{status.locked ? "🔒" : "✉️"}</span>
-                  <div className="text-[10px] leading-tight">
+                  <span className={`text-base select-none ${status.locked ? "lock-icon" : ""}`}>
+                    {status.locked ? "🔒" : "✉️"}
+                  </span>
+                  <div className="text-[10px] leading-tight select-none">
                     <p className="font-bold">{status.locked ? "Kapsul Terkunci" : "Siap Dibuka!"}</p>
                     <p className="text-[9px] opacity-75">{status.label}</p>
                   </div>
@@ -702,8 +734,25 @@ function JournalPage() {
               <option value="1month">1 Bulan Ke Depan</option>
               <option value="3months">3 Bulan Ke Depan</option>
               <option value="6months">6 Bulan Ke Depan</option>
+              <option value="custom">Pilih Tanggal Bebas... 📅</option>
             </select>
           </div>
+
+          {newCapsuleTarget === "custom" && (
+            <div className="animate-fade-in">
+              <label className="mb-1.5 block text-xs font-bold" htmlFor="capsule-custom-date">
+                Tentukan Tanggal Buka Kapsul
+              </label>
+              <input
+                id="capsule-custom-date"
+                type="date"
+                value={customDate}
+                min={new Date(Date.now() + 86400000).toISOString().slice(0, 10)}
+                onChange={(e) => setCustomDate(e.target.value)}
+                className="w-full rounded-2xl border border-stone-200 bg-background px-4 py-3 text-xs focus:ring-1 focus:ring-amber-300 transition-all font-semibold"
+              />
+            </div>
+          )}
 
           <div className="flex gap-2 pt-2">
             <button
