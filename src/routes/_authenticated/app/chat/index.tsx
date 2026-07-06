@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { COMPANIONS, COMM_STYLES } from "@/lib/companions";
 import { useProfile } from "@/hooks/use-profile";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { ModalDialog } from "@/components/app/BottomSheet";
 import { useServerFn } from "@tanstack/react-start";
@@ -19,6 +19,115 @@ function ChatList() {
   const { data: profile } = useProfile(user?.id);
   const navigate = useNavigate();
   const initBuckets = useServerFn(initStorageBuckets);
+
+  // Overrides state for default companions (loaded from localStorage)
+  const [defaultCustoms, setDefaultCustoms] = useState<Record<string, { avatar_url?: string | null; emoji?: string }>>({});
+  const [editDefaultOpen, setEditDefaultOpen] = useState(false);
+  const [editingComp, setEditingComp] = useState<any>(null);
+  const [editEmoji, setEditEmoji] = useState("🤝");
+  const [editAvatarFile, setEditAvatarFile] = useState<File | null>(null);
+  const [editAvatarPreview, setEditAvatarPreview] = useState<string | null>(null);
+  const [updating, setUpdating] = useState(false);
+
+  const loadDefaultCustoms = () => {
+    const customs: Record<string, { avatar_url?: string | null; emoji?: string }> = {};
+    COMPANIONS.forEach(c => {
+      const avatar = localStorage.getItem(`custom_avatar_default_${c.key}`);
+      const emoji = localStorage.getItem(`custom_emoji_default_${c.key}`);
+      if (avatar || emoji) {
+        customs[c.key] = {
+          avatar_url: avatar || null,
+          emoji: emoji || undefined
+        };
+      }
+    });
+    setDefaultCustoms(customs);
+  };
+
+  useEffect(() => {
+    loadDefaultCustoms();
+  }, []);
+
+  const handleEditDefaultClick = (e: React.MouseEvent, c: any) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    if (profile?.plan !== "premium") {
+      toast.error("Fitur kustomisasi Pendamping bawaan hanya tersedia untuk pengguna Premium! ✨");
+      navigate({ to: "/app/premium" });
+      return;
+    }
+
+    const currentCustom = defaultCustoms[c.key];
+    setEditingComp(c);
+    setEditEmoji(currentCustom?.emoji || c.emoji);
+    setEditAvatarFile(null);
+    setEditAvatarPreview(currentCustom?.avatar_url || null);
+    setEditDefaultOpen(true);
+  };
+
+  const handleFileChangeEdit = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 2 * 1024 * 1024) {
+        toast.error("Ukuran file maksimal 2MB");
+        return;
+      }
+      setEditAvatarFile(file);
+      setEditAvatarPreview(URL.createObjectURL(file));
+    }
+  };
+
+  const handleSaveDefaultCompanion = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingComp) return;
+    setUpdating(true);
+    try {
+      let publicUrl = editAvatarPreview;
+      if (editAvatarFile) {
+        await initBuckets();
+        const fileExt = editAvatarFile.name.split(".").pop();
+        const fileName = `${user!.id}/default_${editingComp.key}_${Date.now()}.${fileExt}`;
+        const { data: uploadData, error: uploadError } = await supabase.storage
+          .from("companion-avatars")
+          .upload(fileName, editAvatarFile);
+
+        if (uploadError) {
+          throw new Error("Gagal meng-upload foto: " + uploadError.message);
+        }
+
+        const { data: urlData } = supabase.storage
+          .from("companion-avatars")
+          .getPublicUrl(fileName);
+        publicUrl = urlData.publicUrl;
+      }
+
+      if (publicUrl) {
+        localStorage.setItem(`custom_avatar_default_${editingComp.key}`, publicUrl);
+        localStorage.removeItem(`custom_emoji_default_${editingComp.key}`);
+      } else {
+        localStorage.setItem(`custom_emoji_default_${editingComp.key}`, editEmoji);
+        localStorage.removeItem(`custom_avatar_default_${editingComp.key}`);
+      }
+
+      toast.success(`Profil ${editingComp.name} berhasil diperbarui! 🌿`);
+      setEditDefaultOpen(false);
+      loadDefaultCustoms();
+    } catch (err: any) {
+      toast.error(err.message || "Gagal memperbarui pendamping");
+    } finally {
+      setUpdating(false);
+    }
+  };
+
+  const handleResetDefaultCompanion = () => {
+    if (!editingComp) return;
+    localStorage.removeItem(`custom_avatar_default_${editingComp.key}`);
+    localStorage.removeItem(`custom_emoji_default_${editingComp.key}`);
+    toast.success(`Profil ${editingComp.name} dikembalikan ke bawaan.`);
+    setEditDefaultOpen(false);
+    loadDefaultCustoms();
+  };
 
   // Load custom companions list
   const { data: customCompanions, refetch: refetchCustoms } = useQuery({
@@ -215,14 +324,36 @@ function ChatList() {
         {/* Standard Companions */}
         {COMPANIONS.map((c) => {
           const locked = c.premium && profile?.plan !== "premium";
+          const custom = defaultCustoms[c.key];
+          const displayEmoji = custom?.emoji || c.emoji;
+          const displayAvatar = custom?.avatar_url;
           return (
-            <button key={c.key} disabled={locked}
-              onClick={() => navigate({ to: "/app/chat/$chatId", params: { chatId: "new" }, search: { companion: c.key } })}
-              className={`rounded-3xl border bg-card p-4 text-left transition ${locked ? "opacity-50" : "hover:-translate-y-0.5 border-border"}`}>
-              <div className="text-3xl">{c.emoji}</div>
-              <div className="mt-2 font-semibold text-sm">{c.name}</div>
-              <div className="text-[10px] text-muted-foreground">{locked ? "🔒 Premium" : c.tone}</div>
-            </button>
+            <div key={c.key} className="relative group">
+              <button disabled={locked}
+                onClick={() => navigate({ to: "/app/chat/$chatId", params: { chatId: "new" }, search: { companion: c.key } })}
+                className={`w-full h-full rounded-3xl border bg-card p-4 text-left transition ${locked ? "opacity-50" : "hover:-translate-y-0.5 border-border"} flex flex-col justify-between min-h-[110px]`}>
+                <div>
+                  {displayAvatar ? (
+                    <img src={displayAvatar} alt={c.name} className="w-10 h-10 rounded-full object-cover shrink-0" />
+                  ) : (
+                    <div className="text-3xl">{displayEmoji}</div>
+                  )}
+                  <div className="mt-2 font-semibold text-sm">{c.name}</div>
+                </div>
+                <div className="text-[10px] text-muted-foreground">{locked ? "🔒 Premium" : c.tone}</div>
+              </button>
+              {!locked && (
+                <button
+                  onClick={(e) => handleEditDefaultClick(e, c)}
+                  className="absolute right-3 top-3 p-1.5 text-muted-foreground hover:text-primary rounded-full bg-cream-deep hover:bg-primary-soft/30 transition-all opacity-70 sm:opacity-0 sm:group-hover:opacity-100 shadow-sm"
+                  title="Ganti Foto/Emoji"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-3.5 h-3.5">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.83 21.75a.75 2.75 0 0 1-.343.203l-3.85 1.15a.75 2.75 0 0 1-.921-.92l1.15-3.85a.75 2.75 0 0 1 .203-.343L16.862 4.487Zm0 0L19.5 7.125" />
+                  </svg>
+                </button>
+              )}
+            </div>
           );
         })}
 
@@ -450,6 +581,114 @@ function ChatList() {
           </div>
         </form>
       </ModalDialog>
+
+      {/* ── EDIT DEFAULT COMPANION DIALOG ──────────────────────────── */}
+      {editingComp && (
+        <ModalDialog
+          open={editDefaultOpen}
+          onClose={() => {
+            if (!updating) setEditDefaultOpen(false);
+          }}
+          title={`✏️ Kustomisasi ${editingComp.name}`}
+        >
+          <form onSubmit={handleSaveDefaultCompanion} className="space-y-4">
+            <p className="text-xs text-muted-foreground leading-normal">
+              Ubah foto profil atau emoji untuk pendamping bawaan **{editingComp.name}** agar terasa lebih personal sesuai keinginan Anda.
+            </p>
+
+            <div className="space-y-2">
+              <label className="text-xs font-semibold text-foreground">Pilih Avatar (Foto atau Emoji)</label>
+              
+              <div className="flex items-center gap-4">
+                <div className="relative grid h-16 w-16 place-items-center rounded-full bg-cream-deep border border-border text-3xl overflow-hidden">
+                  {editAvatarPreview ? (
+                    <img src={editAvatarPreview} alt="Preview" className="h-full w-full object-cover" />
+                  ) : (
+                    <span>{editEmoji}</span>
+                  )}
+                </div>
+                
+                <div className="flex-1">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileChangeEdit}
+                    className="hidden"
+                    id="edit-default-avatar-input"
+                  />
+                  <label
+                    htmlFor="edit-default-avatar-input"
+                    className="inline-block rounded-full bg-primary-soft/80 hover:bg-primary-soft px-4 py-2 text-xs font-semibold text-primary cursor-pointer transition-all active:scale-95 border border-primary/20"
+                  >
+                    Upload Foto Baru 📷
+                  </label>
+                  {editAvatarPreview && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setEditAvatarFile(null);
+                        setEditAvatarPreview(null);
+                      }}
+                      className="ml-2 text-xs text-destructive hover:underline"
+                    >
+                      Hapus
+                    </button>
+                  )}
+                  <p className="mt-1 text-[10px] text-muted-foreground">Maksimal 2MB. Format JPG, PNG.</p>
+                </div>
+              </div>
+
+              {!editAvatarPreview && (
+                <div className="space-y-1 pt-1">
+                  <span className="text-[10px] text-muted-foreground font-semibold">Atau pilih emoji:</span>
+                  <div className="flex flex-wrap gap-1.5">
+                    {["🤝", "👩", "👨", "👩‍🦰", "👨‍🦱", "❤️", "🎯", "🤗", "🌸", "🌿", "🧘", "🌻", "🎨", "🧸", "💡", "🧠"].map((em) => (
+                      <button
+                        key={em}
+                        type="button"
+                        onClick={() => setEditEmoji(em)}
+                        className={`h-8 w-8 text-xl rounded-full flex items-center justify-center border transition-all ${
+                          editEmoji === em && !editAvatarPreview ? "border-primary bg-primary-soft/40 scale-110" : "border-border bg-card hover:bg-cream-deep"
+                        }`}
+                      >
+                        {em}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="flex flex-col gap-2 pt-4 border-t border-border/40">
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  disabled={updating}
+                  onClick={() => setEditDefaultOpen(false)}
+                  className="flex-1 rounded-full border border-stone-200 bg-stone-50 hover:bg-stone-100 py-3 text-xs font-bold text-stone-600 transition-all active:scale-95 disabled:opacity-50"
+                >
+                  Batal
+                </button>
+                <button
+                  type="submit"
+                  disabled={updating}
+                  className="flex-1 rounded-full bg-primary py-3 text-xs font-bold text-white transition-all active:scale-95 shadow-soft disabled:opacity-50 flex items-center justify-center gap-1.5"
+                >
+                  {updating ? "Menyimpan..." : "Simpan Perubahan"}
+                </button>
+              </div>
+              <button
+                type="button"
+                disabled={updating}
+                onClick={handleResetDefaultCompanion}
+                className="w-full rounded-full border border-dashed border-destructive/30 hover:bg-destructive/5 py-2.5 text-xs font-bold text-destructive transition-all"
+              >
+                Reset ke Profil Bawaan
+              </button>
+            </div>
+          </form>
+        </ModalDialog>
+      )}
     </div>
   );
 }

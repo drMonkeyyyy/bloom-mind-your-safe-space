@@ -136,7 +136,7 @@ function ChatRoom() {
 
   useEffect(() => { scrollRef.current?.scrollTo({ top: 999999, behavior: "smooth" }); }, [messages, sending]);
 
-  const comp = (chat?.custom_companion_id || customCompanionIdParam
+  const rawComp = chat?.custom_companion_id || customCompanionIdParam
     ? customCompanion
       ? {
           name: customCompanion.name,
@@ -145,12 +145,26 @@ function ChatRoom() {
           avatar_url: customCompanion.avatar_url,
         }
       : null
-    : COMPANIONS.find((c) => c.key === activeCompanion)) as {
-      name: string;
-      emoji: string;
-      tone: string;
-      avatar_url?: string | null;
-    } | null;
+    : COMPANIONS.find((c) => c.key === activeCompanion);
+
+  const comp = (() => {
+    if (!rawComp) return null;
+    if (!chat?.custom_companion_id && !customCompanionIdParam && activeCompanion) {
+      const customAvatar = localStorage.getItem(`custom_avatar_default_${activeCompanion}`);
+      const customEmoji = localStorage.getItem(`custom_emoji_default_${activeCompanion}`);
+      return {
+        ...rawComp,
+        avatar_url: customAvatar || null,
+        emoji: customAvatar ? "" : (customEmoji || rawComp.emoji),
+      };
+    }
+    return rawComp;
+  })() as {
+    name: string;
+    emoji: string;
+    tone: string;
+    avatar_url?: string | null;
+  } | null;
 
   const submit = async (e?: React.FormEvent, override?: string) => {
     e?.preventDefault();

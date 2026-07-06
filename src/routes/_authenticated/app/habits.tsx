@@ -67,20 +67,30 @@ function ConfettiBurst({ active }: { active: boolean }) {
   if (!active) return null;
   const pieces = ["🌿", "✨", "🌸", "💚", "⭐", "🌱"];
   return (
-    <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-2xl" aria-hidden="true">
-      {pieces.map((piece, i) => (
-        <span
-          key={i}
-          className="absolute text-base"
-          style={{
-            left: `${15 + i * 14}%`,
-            top: "50%",
-            animation: `confetti-burst 0.8s ease-out ${i * 60}ms both`,
-          }}
-        >
-          {piece}
-        </span>
-      ))}
+    <div className="absolute inset-0 pointer-events-none overflow-visible z-30" aria-hidden="true">
+      {pieces.map((piece, i) => {
+        // Distribute pieces left-to-right (-45px to +45px) and upwards (-60px to -90px)
+        const xOffset = (i - 2.5) * 18;
+        const yOffset = -60 - (i % 2) * 20;
+        return (
+          <span
+            key={i}
+            className="absolute text-base select-none"
+            style={{
+              left: `${20 + i * 12}%`,
+              top: "50%",
+              // Pass values to CSS animation using custom variables
+              // @ts-ignore
+              "--x": `${xOffset}px`,
+              // @ts-ignore
+              "--y": `${yOffset}px`,
+              animation: `confetti-burst 0.9s cubic-bezier(0.25, 1, 0.5, 1) ${i * 45}ms both`,
+            }}
+          >
+            {piece}
+          </span>
+        );
+      })}
     </div>
   );
 }
@@ -129,7 +139,7 @@ function HabitRow({
   const { ripples, trigger } = useRipple();
   return (
     <div
-      className={`group relative flex items-center gap-5 overflow-hidden rounded-[1.25rem] p-4 transition-all duration-500 ease-out animate-slide-up ${
+      className={`group relative flex items-center gap-5 overflow-visible rounded-[1.25rem] p-4 transition-all duration-500 ease-out animate-slide-up ${
         isDone
           ? "bg-gradient-to-r from-primary/10 via-primary/5 to-transparent border border-primary/20 shadow-sm"
           : "bg-card border border-border/40 hover:border-border/80 hover:shadow-md hover:-translate-y-0.5"
