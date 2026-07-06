@@ -407,8 +407,8 @@ function AuthPage() {
 
             <p className="mt-6 text-center text-xs text-muted-foreground">
               Dengan mendaftar, kamu menyetujui{" "}
-              <a href="#" className="underline">Syarat Layanan</a> dan{" "}
-              <a href="#" className="underline">Kebijakan Privasi</a> JN-CALM.
+              <Link to="/terms" className="underline hover:text-primary">Syarat Layanan</Link> dan{" "}
+              <Link to="/privacy" className="underline hover:text-primary">Kebijakan Privasi</Link> JN-CALM.
             </p>
           </div>
         </div>

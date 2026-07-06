@@ -1,3 +1,5 @@
+import { Link } from "@tanstack/react-router";
+
 const menu = [
   { label: "Fitur", href: "#fitur" },
   { label: "Cara Kerja", href: "#cara-kerja" },
@@ -5,8 +7,8 @@ const menu = [
 ];
 
 const legal = [
-  { label: "Kebijakan Privasi", href: "#" },
-  { label: "Syarat Layanan", href: "#" },
+  { label: "Kebijakan Privasi", to: "/privacy" },
+  { label: "Syarat Layanan", to: "/terms" },
   { label: "Hubungi Kami", href: "mailto:noreply@jncalm.my.id" },
 ];
 
@@ -52,9 +54,15 @@ export function Footer() {
             <ul className="mt-4 space-y-2.5">
               {legal.map((m) => (
                 <li key={m.label}>
-                  <a href={m.href} className="text-sm text-muted-foreground transition-colors hover:text-foreground">
-                    {m.label}
-                  </a>
+                  {m.to ? (
+                    <Link to={m.to} className="text-sm text-muted-foreground transition-colors hover:text-foreground">
+                      {m.label}
+                    </Link>
+                  ) : (
+                    <a href={m.href} className="text-sm text-muted-foreground transition-colors hover:text-foreground">
+                      {m.label}
+                    </a>
+                  )}
                 </li>
               ))}
             </ul>
