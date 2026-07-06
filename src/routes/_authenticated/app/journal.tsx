@@ -458,12 +458,23 @@ function JournalPage() {
       </div>
 
       {/* ── PLANT NUTRITION TIP ───────────────────────────────────────── */}
-      <div className="rounded-2xl border border-emerald-100 bg-emerald-50/45 px-4 py-3 text-[11px] text-emerald-800 animate-slide-up flex items-start gap-3 shadow-sm">
-        <span className="text-xl select-none mt-0.5">🌱</span>
+      <div className="rounded-2xl border border-emerald-100 bg-emerald-50/45 px-4 py-3 text-[11px] text-emerald-800 animate-slide-up flex items-start gap-3 shadow-sm relative overflow-hidden">
+        <style>{`
+          @keyframes leaf-sway {
+            0%, 100% { transform: rotate(-8deg) scale(1); }
+            50% { transform: rotate(12deg) scale(1.15); }
+          }
+          .anim-sway-leaf {
+            animation: leaf-sway 2.5s ease-in-out infinite;
+            display: inline-block;
+            transform-origin: bottom center;
+          }
+        `}</style>
+        <span className="text-xl select-none mt-0.5 anim-sway-leaf">🌱</span>
         <div className="space-y-0.5">
           <p className="font-semibold text-emerald-950">Nutrisi Tanaman Jiwa:</p>
           <p className="leading-relaxed text-emerald-900/90">
-            Setiap lembar diary yang Anda tulis memberikan <strong className="text-emerald-950 font-bold">+12 Poin Nutrisi</strong> untuk membantu merawat dan menumbuhkan Tanaman Jiwa Anda di <Link to="/app/growth" className="underline font-bold hover:text-emerald-600 transition-colors">Growth Dashboard</Link>!
+            Setiap cerita hari ini adalah nutrisi bagi jiwamu. Tuangkan perasaanmu dalam diary dan saksikan Tanaman Jiwamu tumbuh subur di <Link to="/app/growth" className="underline font-extrabold text-emerald-700 hover:text-emerald-600 transition-colors">Growth Dashboard</Link> (+12 Poin)!
           </p>
         </div>
       </div>

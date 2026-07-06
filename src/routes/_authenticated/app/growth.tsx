@@ -351,18 +351,6 @@ function Page() {
         <p className="mt-1 text-sm text-muted-foreground">30 hari terakhir · Data personalmu</p>
       </div>
 
-      {/* ── INFO GUIDE BANNER ────────────────────────────────────────── */}
-      <div className="rounded-2xl border border-primary/20 bg-primary-soft/30 p-4 text-[11px] leading-relaxed text-stone-700 animate-slide-up flex gap-3.5 items-start">
-        <span className="text-xl select-none mt-0.5">💡</span>
-        <div className="space-y-1">
-          <p className="font-semibold text-primary-dark">Cara Merawat Tanaman Jiwa Anda:</p>
-          <p className="text-muted-foreground text-[11.5px]">
-            Setiap aktivitas positif Anda adalah nutrisi yang menumbuhkan tanaman jiwa ini! 
-            Lakukan <strong className="text-stone-800">Mood Check-In (+8 Poin)</strong> harian, tulis <Link to="/app/journal" className="underline font-bold text-primary hover:text-primary-dark">Jurnal/Diary (+12 Poin)</Link>, dan catat <strong className="text-stone-800">Syukur (+12 Poin)</strong> untuk membantunya tumbuh subur dan mekar penuh.
-          </p>
-        </div>
-      </div>
-
       {/* ── MINDPLANT ────────────────────────────────────────────── */}
       <MindPlant score={growthScore} onClick={() => setPlantModalOpen(true)} />
 
