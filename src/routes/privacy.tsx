@@ -74,6 +74,9 @@ function PrivacyPage() {
               <div className="rounded-2xl border border-emerald-200 bg-emerald-50/50 p-4 text-emerald-900 text-xs">
                 <strong>Prinsip Privasi Jurnal:</strong> Isi jurnal harian, rasa syukur, dan isi percakapan Anda dengan AI bersifat <strong>rahasia dan privat</strong>. Kami berkomitmen untuk <strong>tidak pernah menjual atau membagikan</strong> catatan tulisan emosional Anda kepada pihak ketiga mana pun untuk kepentingan iklan atau pemasaran.
               </div>
+              <p className="text-xs text-muted-foreground mt-2.5 italic">
+                Disclaimer Keamanan: Meskipun kami melakukan segala upaya terbaik menggunakan enkripsi industri untuk melindungi informasi Anda, kami tidak dapat menjamin keamanan mutlak terhadap risiko kebocoran data akibat serangan siber (hacking) atau tindakan ilegal pihak ketiga di luar kendali kami. Anda menggunakan layanan ini dengan memahami dan menerima risiko tersebut.
+              </p>
             </section>
 
             <section className="space-y-3">
