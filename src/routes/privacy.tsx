@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/privacy")({
-  head: () => ({ meta: [{ title: "Kebijakan Privasi · JN-CALM" }] }),
+  head: () => ({ meta: [{ title: "Privacy Policy · JN-CALM" }] }),
   component: PrivacyPage,
 });
 
@@ -22,7 +22,7 @@ function PrivacyPage() {
             search={{ mode: "register" }}
             className="rounded-full bg-accent px-5 py-2 text-xs font-semibold text-accent-foreground shadow-peach transition-all hover:-translate-y-0.5"
           >
-            Daftar Gratis
+            Sign Up Free
           </Link>
         </div>
       </header>
@@ -31,79 +31,79 @@ function PrivacyPage() {
       <main className="flex-1 mx-auto max-w-3xl px-6 py-12">
         <div className="space-y-6">
           <h1 className="font-display text-3xl sm:text-4xl font-bold tracking-tight text-foreground">
-            Kebijakan Privasi
+            Privacy Policy
           </h1>
-          <p className="text-sm text-muted-foreground">Terakhir diperbarui: 6 Juli 2026</p>
+          <p className="text-sm text-muted-foreground">Last updated: July 6, 2026</p>
           <hr className="border-border" />
 
           <div className="prose prose-stone max-w-none space-y-8 text-sm leading-relaxed text-stone-700">
             <p>
-              Privasi Anda sangat penting bagi kami di <strong>JN-CALM</strong> ("Aplikasi"). Kebijakan Privasi ini menjelaskan bagaimana kami mengumpulkan, menggunakan, menyimpan, dan melindungi informasi pribadi Anda ketika Anda menggunakan Aplikasi kami.
+              Your privacy is extremely important to us at <strong>JN-CALM</strong> (the "Application"). This Privacy Policy explains how we collect, use, store, and protect your personal information when you use our Application.
             </p>
             <p>
-              Dengan menggunakan JN-CALM, Anda menyetujui pengumpulan dan penggunaan data sesuai dengan ketentuan di dalam Kebijakan Privasi ini.
+              By using JN-CALM, you consent to the collection and use of information in accordance with this Privacy Policy.
             </p>
 
             <section className="space-y-3">
-              <h2 className="font-display text-lg font-bold text-foreground">1. Informasi yang Kami Kumpulkan</h2>
-              <p>Kami mengumpulkan data Anda untuk memberikan dukungan dan personalisasi layanan terbaik:</p>
-              <ul className="list-disc pl-5 space-y-1">
-                <li><strong>Data Akun</strong>: Alamat email yang Anda masukkan saat melakukan pendaftaran.</li>
-                <li><strong>Data Profil</strong>: Nama panggilan, rentang usia, serta tujuan personal yang Anda tentukan di halaman onboarding.</li>
-                <li><strong>Data Penggunaan</strong>: Catatan jurnal (diary), gratitude logs, kebiasaan (habits), serta pesan percakapan Anda dengan pendamping AI kami (Companion). <span className="text-emerald-700 font-medium bg-emerald-50 px-1.5 py-0.5 rounded text-[11px] inline-block ml-1">🔒 Bersifat privat; pihak admin atau siapa pun tidak memiliki akses untuk membaca obrolan & jurnal Anda.</span></li>
-                <li><strong>Data Transaksi</strong>: Jika Anda berlangganan Premium, data pembayaran diolah secara aman dan terenkripsi oleh mitra gateway pembayaran kami (Mayar) secara langsung. Kami tidak menyimpan informasi detail kartu kredit atau virtual account Anda.</li>
+              <h2 className="font-display text-lg font-bold text-foreground">1. Information We Collect</h2>
+              <p>We collect your data to provide personalized emotional support and tracking features:</p>
+              <ul className="list-disc pl-5 space-y-1.5">
+                <li><strong>Account Data</strong>: The email address you provide when registering an account.</li>
+                <li><strong>Profile Data</strong>: Your nickname, age bracket, and personal well-being goals selected during the onboarding process.</li>
+                <li><strong>Usage Data</strong>: Your diary entries, gratitude logs, habit trackers, and conversations with your AI companion. <span className="text-emerald-700 font-medium bg-emerald-50 px-1.5 py-0.5 rounded text-[11px] inline-block ml-1">🔒 Strictly Private: Your chats & journals are personal; administrators or anyone else do not have access to view them.</span></li>
+                <li><strong>Transaction Data</strong>: If you subscribe to our Premium Plan, payments are securely processed by our official partner (Mayar.id). We do not store your credit card details or virtual account credentials.</li>
               </ul>
             </section>
 
             <section className="space-y-3">
-              <h2 className="font-display text-lg font-bold text-foreground">2. Penggunaan Informasi</h2>
-              <p>Data pribadi Anda digunakan untuk tujuan berikut:</p>
+              <h2 className="font-display text-lg font-bold text-foreground">2. How We Use Information</h2>
+              <p>Your personal information is used for the following purposes:</p>
               <ul className="list-disc pl-5 space-y-1">
-                <li>Menyediakan, memelihara, dan meningkatkan kualitas fitur-fitur di Aplikasi.</li>
-                <li>Mengirimkan respon dari Pendamping AI (Companion) yang dipersonalisasi sesuai gaya obrolan dan preferensi yang Anda pilih.</li>
-                <li>Menampilkan grafik statistik perkembangan diri (mood tracker, growth statistics) pada dasbor Anda.</li>
-                <li>Mengirimkan email verifikasi penting, pemulihan kata sandi, atau pemberitahuan status transaksi.</li>
+                <li>To provide, maintain, and optimize features within the Application.</li>
+                <li>To generate personalized responses from your selected AI companions.</li>
+                <li>To compile and display your personal growth analytics (mood logs, streaks, journaling progress).</li>
+                <li>To send essential emails, such as account verifications, password resets, and transaction alerts.</li>
               </ul>
             </section>
 
             <section className="space-y-3">
-              <h2 className="font-display text-lg font-bold text-foreground">3. Keamanan & Perlindungan Data</h2>
+              <h2 className="font-display text-lg font-bold text-foreground">3. Security & Data Protection</h2>
               <p>
-                Seluruh data percakapan, jurnal, dan informasi pribadi Anda disimpan dengan aman menggunakan infrastruktur database terenkripsi (Supabase) dengan standar keamanan industri. Kami membatasi akses ke data sensitif Anda hanya untuk fungsi-fungsi sistem yang diperlukan untuk menjalankan Aplikasi.
+                All your chats, journals, and personal information are stored securely on encrypted database clusters (Supabase) using industry-standard configurations. Access to sensitive data is strictly restricted to automated backend systems necessary to deliver Application features.
               </p>
               <div className="rounded-2xl border border-emerald-200 bg-emerald-50/50 p-4 text-emerald-900 text-xs">
-                <strong>Prinsip Privasi Jurnal:</strong> Isi jurnal harian, rasa syukur, dan isi percakapan Anda dengan AI bersifat <strong>rahasia dan privat</strong>. Kami berkomitmen untuk <strong>tidak pernah menjual atau membagikan</strong> catatan tulisan emosional Anda kepada pihak ketiga mana pun untuk kepentingan iklan atau pemasaran.
+                <strong>Journal Privacy Principle:</strong> Your daily entries, gratitude logs, and AI conversation history are <strong>confidential and private</strong>. We pledge <strong>never to sell or share</strong> your personal emotional writings with any third-party advertisers or marketing agencies.
               </div>
               <p className="text-xs text-muted-foreground mt-2.5 italic">
-                Disclaimer Keamanan: Meskipun kami melakukan segala upaya terbaik menggunakan enkripsi industri untuk melindungi informasi Anda, kami tidak dapat menjamin keamanan mutlak terhadap risiko kebocoran data akibat serangan siber (hacking) atau tindakan ilegal pihak ketiga di luar kendali kami. Anda menggunakan layanan ini dengan memahami dan menerima risiko tersebut.
+                Security Disclaimer: While we utilize industry-standard encryption to protect your data, no method of transmission or electronic storage is completely secure. We cannot guarantee absolute security against data breaches caused by hacking or unauthorized third-party actions beyond our control. You use this service at your own risk.
               </p>
             </section>
 
             <section className="space-y-3">
-              <h2 className="font-display text-lg font-bold text-foreground">4. Berbagi Data dengan Pihak Ketiga</h2>
+              <h2 className="font-display text-lg font-bold text-foreground">4. Third-Party Services</h2>
               <p>
-                Kami hanya membagikan data Anda dengan penyedia pihak ketiga tepercaya (seperti API Kecerdasan Buatan untuk memproses respon percakapan AI, dan Supabase untuk database cloud) sejauh yang diperlukan untuk menjalankan layanan Aplikasi. Mitra ini berkewajiban menjaga kerahasiaan data Anda dan dilarang menggunakannya untuk tujuan lain.
+                We only share data with trusted third-party providers (such as AI model APIs for processing chat replies, and Supabase for database storage) to the minimum extent necessary to operate the Application. These service providers are legally bound to protect your data confidentiality.
               </p>
             </section>
 
             <section className="space-y-3">
-              <h2 className="font-display text-lg font-bold text-foreground">5. Hak-Hak Anda</h2>
+              <h2 className="font-display text-lg font-bold text-foreground">5. Your Data Rights</h2>
               <p>
-                Anda memiliki kendali penuh atas informasi pribadi Anda di Aplikasi. Anda berhak mengakses data Anda, mengubah profil Anda di dalam Aplikasi, atau meminta penghapusan akun Anda secara permanen beserta seluruh riwayat jurnal Anda dengan menghubungi tim bantuan kami.
+                You retain full control over your personal data. You are entitled to access your records, update your profile within the Application, or request the permanent deletion of your account along with all historical logs by contacting our support team.
               </p>
             </section>
 
             <section className="space-y-3">
-              <h2 className="font-display text-lg font-bold text-foreground">6. Pembaruan Kebijakan Privasi</h2>
+              <h2 className="font-display text-lg font-bold text-foreground">6. Policy Updates</h2>
               <p>
-                Kami mungkin memperbarui Kebijakan Privasi ini dari waktu ke waktu. Setiap perubahan akan diumumkan dengan mengubah tanggal revisi di bagian atas halaman ini. Kami menyarankan Anda untuk membaca halaman ini secara berkala untuk mengetahui pembaruan terbaru.
+                We reserve the right to update this Privacy Policy at any time. Any changes will be indicated by updating the revision date at the top of this page. We encourage you to review this policy periodically to stay informed about how we protect your privacy.
               </p>
             </section>
 
             <section className="space-y-3">
-              <h2 className="font-display text-lg font-bold text-foreground">7. Hubungi Kami</h2>
+              <h2 className="font-display text-lg font-bold text-foreground">7. Contact Us</h2>
               <p>
-                Jika Anda memiliki kekhawatiran atau pertanyaan seputar cara kami menangani privasi dan data pribadi Anda, silakan hubungi kami di <a href="mailto:noreply@jncalm.my.id" className="text-primary underline">noreply@jncalm.my.id</a>.
+                If you have any questions or concerns regarding our handling of your personal data, please contact our support at <a href="mailto:noreply@jncalm.my.id" className="text-primary underline">noreply@jncalm.my.id</a>.
               </p>
             </section>
           </div>
@@ -112,7 +112,7 @@ function PrivacyPage() {
 
       {/* Mini Footer */}
       <footer className="border-t border-border bg-card/25 py-8 text-center text-xs text-muted-foreground">
-        <p>© {new Date().getFullYear()} JN-CALM. Dibuat dengan 🤍 untuk hati yang lelah.</p>
+        <p>© {new Date().getFullYear()} JN-CALM. Made with 🤍 for weary minds.</p>
       </footer>
     </div>
   );
