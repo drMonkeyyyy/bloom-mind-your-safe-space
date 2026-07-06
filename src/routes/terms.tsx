@@ -38,7 +38,7 @@ function TermsPage() {
 
           <div className="prose prose-stone max-w-none space-y-8 text-sm leading-relaxed text-stone-700">
             <p>
-              Selamat datang di **JN-CALM** ("Aplikasi"). Layanan ini disediakan oleh JN-CALM sebagai ruang aman untuk membantu Anda mengelola kesejahteraan emosional, menulis jurnal, melacak kebiasaan, dan bertumbuh secara mandiri.
+              Selamat datang di <strong>JN-CALM</strong> ("Aplikasi"). Layanan ini disediakan oleh JN-CALM sebagai ruang aman untuk membantu Anda mengelola kesejahteraan emosional, menulis jurnal, melacak kebiasaan, dan bertumbuh secara mandiri.
             </p>
             <p>
               Dengan mendaftar, mengakses, atau menggunakan Aplikasi, Anda menyatakan bahwa Anda telah membaca, memahami, dan menyetujui seluruh ketentuan di dalam Syarat Layanan ini. Jika Anda tidak menyetujui ketentuan ini, Anda tidak diperkenankan untuk menggunakan Aplikasi.

@@ -38,7 +38,7 @@ function PrivacyPage() {
 
           <div className="prose prose-stone max-w-none space-y-8 text-sm leading-relaxed text-stone-700">
             <p>
-              Privasi Anda sangat penting bagi kami di **JN-CALM** ("Aplikasi"). Kebijakan Privasi ini menjelaskan bagaimana kami mengumpulkan, menggunakan, menyimpan, dan melindungi informasi pribadi Anda ketika Anda menggunakan Aplikasi kami.
+              Privasi Anda sangat penting bagi kami di <strong>JN-CALM</strong> ("Aplikasi"). Kebijakan Privasi ini menjelaskan bagaimana kami mengumpulkan, menggunakan, menyimpan, dan melindungi informasi pribadi Anda ketika Anda menggunakan Aplikasi kami.
             </p>
             <p>
               Dengan menggunakan JN-CALM, Anda menyetujui pengumpulan dan penggunaan data sesuai dengan ketentuan di dalam Kebijakan Privasi ini.
@@ -48,10 +48,10 @@ function PrivacyPage() {
               <h2 className="font-display text-lg font-bold text-foreground">1. Informasi yang Kami Kumpulkan</h2>
               <p>Kami mengumpulkan data Anda untuk memberikan dukungan dan personalisasi layanan terbaik:</p>
               <ul className="list-disc pl-5 space-y-1">
-                <li>**Data Akun**: Alamat email yang Anda masukkan saat melakukan pendaftaran.</li>
-                <li>**Data Profil**: Nama panggilan, rentang usia, serta tujuan personal yang Anda tentukan di halaman onboarding.</li>
-                <li>**Data Penggunaan**: Catatan jurnal (diary), gratitude logs, kebiasaan (habits), serta pesan percakapan Anda dengan pendamping AI kami (Companion).</li>
-                <li>**Data Transaksi**: Jika Anda berlangganan Premium, data pembayaran diolah secara aman dan terenkripsi oleh mitra gateway pembayaran kami (Mayar) secara langsung. Kami tidak menyimpan informasi detail kartu kredit atau virtual account Anda.</li>
+                <li><strong>Data Akun</strong>: Alamat email yang Anda masukkan saat melakukan pendaftaran.</li>
+                <li><strong>Data Profil</strong>: Nama panggilan, rentang usia, serta tujuan personal yang Anda tentukan di halaman onboarding.</li>
+                <li><strong>Data Penggunaan</strong>: Catatan jurnal (diary), gratitude logs, kebiasaan (habits), serta pesan percakapan Anda dengan pendamping AI kami (Companion).</li>
+                <li><strong>Data Transaksi</strong>: Jika Anda berlangganan Premium, data pembayaran diolah secara aman dan terenkripsi oleh mitra gateway pembayaran kami (Mayar) secara langsung. Kami tidak menyimpan informasi detail kartu kredit atau virtual account Anda.</li>
               </ul>
             </section>
 
