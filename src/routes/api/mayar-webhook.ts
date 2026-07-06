@@ -41,8 +41,24 @@ export const Route = createFileRoute('/api/mayar-webhook')({
           }
 
           const paymentData = payload.data;
-          if (!paymentData || paymentData.status !== true) {
-            console.log('[Mayar Webhook] Payment status is not successful', paymentData?.status);
+          const statusValue = paymentData?.status;
+          
+          // Mayar sends status as a string (e.g. "SUCCESS", "success", "settlement", "paid")
+          // or occasionally as a boolean. We should accept both, and since the event is already
+          // 'payment.received', any truthy status that isn't failed/expired indicates success.
+          const isSuccess = 
+            statusValue === true ||
+            (typeof statusValue === 'string' && [
+              'success',
+              'SUCCESS',
+              'settlement',
+              'paid',
+              'disetujui'
+            ].includes(statusValue)) ||
+            (payload.event === 'payment.received' && statusValue !== false && statusValue !== 'failed' && statusValue !== 'FAILED');
+
+          if (!paymentData || !isSuccess) {
+            console.log('[Mayar Webhook] Payment status is not successful:', statusValue);
             return new Response(JSON.stringify({ ok: true, message: 'Payment status not success' }), {
               status: 200,
               headers: { 'Content-Type': 'application/json' },
