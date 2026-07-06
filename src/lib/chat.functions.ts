@@ -162,14 +162,7 @@ export const sendChatMessage = createServerFn({ method: "POST" })
     const { generateText } = await import("ai");
     const gateway = createGeminiClient(apiKey);
 
-    const sysPrompt = `${companion.system_prompt}
-
-Gaya komunikasi user: ${profile?.communication_style ?? "supportive"}. Nama user: ${profile?.name ?? "teman"}. Selalu gunakan Bahasa Indonesia.
-
-ATURAN STRUKTUR RESPON (Wajib Diikuti):
-1. **Kenapa & Mengapa (Analisis/Edukasi)**: Di bagian awal jawaban, jelaskan secara hangat, rasional, dan singkat mengapa/bagaimana kondisi atau emosi tersebut muncul pada diri user (misal: beban pikiran menumpuk memicu kewalahan mental, stres melepaskan hormon penegang otot, dll.).
-2. **Harus Gimana (Solusi/Tindakan)**: Di bagian akhir jawaban, berikan 1 saran tindakan/coping mechanism konkret, sederhana, dan praktis yang bisa langsung user praktikkan saat ini juga untuk merasa lebih tenang.
-Maksimal panjang seluruh balasan adalah 4-6 kalimat.`;
+    const sysPrompt = `${companion.system_prompt}\n\nGaya komunikasi user: ${profile?.communication_style ?? "supportive"}. Nama user: ${profile?.name ?? "teman"}. Selalu Bahasa Indonesia. Maksimal 4-6 kalimat. Akhiri dengan 1 pertanyaan reflektif singkat (opsional).`;
 
     let reply = "";
     try {
@@ -436,11 +429,12 @@ Aktivitas user dalam 7 hari terakhir:
     try {
       r = await generateText({
         model: gateway("gemini-2.5-flash"),
-        prompt: `Sebagai pendamping ${companionRole} JN-CALM, buat insight mingguan dalam Bahasa Indonesia yang hangat dan tidak menghakimi berdasarkan rangkuman seluruh aktivitas user seminggu terakhir (mood, jurnal, rasa syukur, kebiasaan/habit tracker, dan pola makan emosional).
+        prompt: `Sebagai pendamping ${companionRole} JN-CALM, buat insight mingguan dalam Bahasa Indonesia yang hangat, tulus, dan tidak menghakimi berdasarkan seluruh aktivitas user seminggu terakhir (mood, jurnal, rasa syukur, kebiasaan/habit tracker, dan pola makan emosional).
 
-Format output wajib terbagi menjadi 2 bagian yang jelas dipisahkan baris kosong:
-1. Ringkasan & Refleksi: Tulis tanggapan hangat (3-4 kalimat) mengenai mood dominan minggu ini, trigger paling sering, apresiasi atas kebiasaan positif yang konsisten dilakukan (lihat data habits), dan hal-hal yang disyukuri (lihat data gratitude).
-2. 📋 Solusi Langkah Demi Langkah (Step-by-Step): Tulis 3 langkah tindakan konkret, praktis, dan terukur yang bisa dilakukan user di minggu depan untuk mendukung kesejahteraan mental dan fisik mereka (misal: meningkatkan habit tertentu, menggunakan latihan napas di menu Emergency Calm, melanjutkan syukur, dll.). Gunakan nomor 1, 2, 3 dan emoji yang menarik di awal setiap langkah.
+Format output wajib terbagi menjadi 3 bagian yang jelas dipisahkan baris kosong:
+1. 💡 Kenapa & Mengapa: Berikan penjelasan hangat (3-4 kalimat) mengenai penyebab emosi/mood dominan serta trigger user minggu ini, dihubungkan dengan pola makan emosional dan pencapaian kebiasaan atau rasa syukur mereka.
+2. 📋 Terus Harus Gimana: Tuliskan 3 langkah solusi konkret, praktis, dan terukur yang bisa dilakukan user minggu depan untuk merespons kondisi emosi dan mendukung kesejahteraan mereka. Gunakan nomor 1, 2, 3 dan emoji yang menarik di awal setiap langkah.
+3. 🌱 Harapan & Pesan Pertumbuhan: Tuliskan 1-2 kalimat doa, harapan yang tulus, atau pesan penyemangat agar kondisi user membaik, sukses/berhasil dalam usahanya, dan terus bertumbuh dengan baik di minggu depan.
 
 Data aktivitas user minggu ini:
 ${summary}`,
