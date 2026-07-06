@@ -162,7 +162,14 @@ export const sendChatMessage = createServerFn({ method: "POST" })
     const { generateText } = await import("ai");
     const gateway = createGeminiClient(apiKey);
 
-    const sysPrompt = `${companion.system_prompt}\n\nGaya komunikasi user: ${profile?.communication_style ?? "supportive"}. Nama user: ${profile?.name ?? "teman"}. Selalu Bahasa Indonesia. Maksimal 4-6 kalimat. Akhiri dengan 1 pertanyaan reflektif singkat (opsional).`;
+    const sysPrompt = `${companion.system_prompt}
+
+Gaya komunikasi user: ${profile?.communication_style ?? "supportive"}. Nama user: ${profile?.name ?? "teman"}. Selalu gunakan Bahasa Indonesia.
+
+ATURAN STRUKTUR RESPON (Wajib Diikuti):
+1. **Kenapa & Mengapa (Analisis/Edukasi)**: Di bagian awal jawaban, jelaskan secara hangat, rasional, dan singkat mengapa/bagaimana kondisi atau emosi tersebut muncul pada diri user (misal: beban pikiran menumpuk memicu kewalahan mental, stres melepaskan hormon penegang otot, dll.).
+2. **Harus Gimana (Solusi/Tindakan)**: Di bagian akhir jawaban, berikan 1 saran tindakan/coping mechanism konkret, sederhana, dan praktis yang bisa langsung user praktikkan saat ini juga untuk merasa lebih tenang.
+Maksimal panjang seluruh balasan adalah 4-6 kalimat.`;
 
     let reply = "";
     try {
