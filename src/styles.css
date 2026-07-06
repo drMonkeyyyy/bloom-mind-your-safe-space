@@ -813,3 +813,26 @@
     opacity: 1;
   }
 }
+
+/* ── Morphing Zen Liquid Blob keyframes ──────────────────────────── */
+@keyframes morph-blob {
+  0% {
+    border-radius: 42% 58% 70% 30% / 45% 45% 55% 55%;
+    transform: rotate(0deg);
+  }
+  34% {
+    border-radius: 70% 30% 52% 48% / 60% 40% 60% 40%;
+  }
+  66% {
+    border-radius: 28% 72% 38% 62% / 40% 60% 40% 60%;
+  }
+  100% {
+    border-radius: 42% 58% 70% 30% / 45% 45% 55% 55%;
+    transform: rotate(360deg);
+  }
+}
+
+.animate-zen-blob {
+  animation: morph-blob 12s linear infinite;
+}
+

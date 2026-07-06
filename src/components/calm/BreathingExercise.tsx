@@ -177,24 +177,28 @@ export function BreathingExercise() {
             className="absolute inset-0 flex items-center justify-center"
             style={{ transition: `transform ${phase.duration * 1000}ms cubic-bezier(0.4, 0, 0.2, 1)`, transform: circleTransform }}
           >
+            {/* Morphing Zen Liquid background */}
             <div
-              className="flex flex-col items-center justify-center rounded-full shadow-xl transition-colors duration-700"
+              className="absolute animate-zen-blob shadow-xl transition-colors duration-700"
               style={{
-                width: 110,
-                height: 110,
+                width: 120,
+                height: 120,
                 background: active ? phase.color : "oklch(0.71 0.045 160)",
                 boxShadow: active ? `0 8px 40px -8px ${phase.glow}` : undefined,
               }}
-            >
+            />
+            
+            {/* Stable non-rotating text content */}
+            <div className="relative z-10 flex flex-col items-center justify-center text-white select-none">
               {active ? (
                 <>
-                  <p className="font-display text-4xl font-bold leading-none text-white">
+                  <p className="font-display text-4xl font-bold leading-none">
                     {countdown}
                   </p>
-                  <p className="text-[10px] font-medium text-white/80 mt-0.5">detik</p>
+                  <p className="text-[10px] font-medium opacity-80 mt-0.5">detik</p>
                 </>
               ) : (
-                <p className="font-display text-lg font-semibold text-white">4·4·6</p>
+                <p className="font-display text-lg font-semibold">4·4·6</p>
               )}
             </div>
           </div>
