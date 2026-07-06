@@ -27,21 +27,38 @@ export const Route = createFileRoute("/_authenticated/app/growth")({
   component: Page,
 });
 
-function StatCard({ label, value, suffix = "/10", trend, onClick }: { label: string; value: string | number; suffix?: string; trend?: "up" | "down" | null; onClick?: () => void }) {
+function StatCard({ 
+  label, 
+  value, 
+  suffix = "/10", 
+  icon, 
+  accentClass, 
+  bgClass, 
+  onClick 
+}: { 
+  label: string; 
+  value: string | number; 
+  suffix?: string; 
+  icon: string; 
+  accentClass: string; 
+  bgClass: string; 
+  onClick?: () => void 
+}) {
   return (
     <div 
       onClick={onClick}
-      className="rounded-3xl bg-card p-5 ring-1 ring-border transition-all duration-300 hover:shadow-card hover:-translate-y-0.5 cursor-pointer active:scale-98"
+      className={`rounded-3xl p-5 border transition-all duration-350 hover:shadow-elevated hover:-translate-y-0.5 cursor-pointer active:scale-97 flex items-center justify-between gap-4 ${bgClass} ${accentClass}`}
     >
-      <p className="text-xs font-semibold text-stone-500">{label}</p>
-      <div className="mt-2 flex items-end gap-1.5">
-        <p className="font-display text-3xl font-bold text-foreground">{value}</p>
-        <p className="mb-0.5 text-sm text-muted-foreground">{suffix}</p>
-        {trend && (
-          <span className={`mb-0.5 ml-auto text-xs font-semibold ${trend === "up" ? "text-primary" : "text-destructive"}`}>
-            {trend === "up" ? "↑" : "↓"}
-          </span>
-        )}
+      <div className="min-w-0">
+        <p className="text-[11px] font-bold text-stone-500 uppercase tracking-wider">{label}</p>
+        <div className="mt-2.5 flex items-baseline gap-1">
+          <p className="font-display text-3xl font-extrabold text-foreground">{value}</p>
+          <p className="text-xs font-medium text-muted-foreground">{suffix}</p>
+        </div>
+      </div>
+      
+      <div className="grid h-12 w-12 place-items-center rounded-2xl bg-white shadow-soft text-2xl select-none shrink-0">
+        {icon}
       </div>
     </div>
   );
@@ -74,9 +91,13 @@ function MindPlant({ score, onClick }: { score: number; onClick?: () => void }) 
   return (
     <div 
       onClick={onClick}
-      className="rounded-3xl bg-card p-6 ring-1 ring-border/60 shadow-card flex flex-col items-center text-center space-y-4 animate-scale-in cursor-pointer hover:shadow-elevated hover:-translate-y-0.5 transition-all duration-300 active:scale-98"
+      className="rounded-3xl bg-card p-8 ring-1 ring-border/60 shadow-card flex flex-col items-center text-center space-y-4 animate-scale-in cursor-pointer hover:shadow-elevated hover:-translate-y-0.5 transition-all duration-350 active:scale-98 relative overflow-hidden"
     >
-      <div className="relative w-44 h-48 flex items-center justify-center">
+      {/* Radial glow greenhouse backdrop */}
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_rgba(167,_243,_190,_0.2)_0%,_transparent_75%)] pointer-events-none" />
+
+      <div className="relative w-56 h-60 flex items-center justify-center">
+        {/* Sparkle animations for higher levels */}
         {stage >= 4 && (
           <div className="absolute inset-0 pointer-events-none">
             <span className="absolute text-yellow-400 text-lg animate-sparkle top-4 left-1/4">✨</span>
@@ -84,8 +105,15 @@ function MindPlant({ score, onClick }: { score: number; onClick?: () => void }) 
             <span className="absolute text-yellow-400 text-xs animate-sparkle bottom-1/2 left-8">✨</span>
           </div>
         )}
+
+        {/* Floating leaf particles */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden select-none">
+          <span className="absolute bottom-6 left-12 text-sm opacity-60 animate-float-leaf-1">🍃</span>
+          <span className="absolute bottom-8 right-12 text-xs opacity-60 animate-float-leaf-2">🌿</span>
+          <span className="absolute bottom-4 left-1/2 text-sm opacity-60 animate-float-leaf-3">🌱</span>
+        </div>
         
-        <svg viewBox="0 0 100 120" className="w-full h-full drop-shadow-md">
+        <svg viewBox="0 0 100 120" className="w-full h-full drop-shadow-md select-none">
           {/* Pot */}
           <path d="M35 90 L65 90 L70 115 L30 115 Z" fill="oklch(0.70 0.08 40)" />
           <ellipse cx="50" cy="90" rx="16" ry="4" fill="oklch(0.60 0.08 40)" />
@@ -285,6 +313,9 @@ function Page() {
           <StatCard 
             label="Mood rata-rata" 
             value={avgMood} 
+            icon="📊"
+            bgClass="bg-emerald-50/30 hover:bg-emerald-50/50"
+            accentClass="border-emerald-200/60 hover:border-emerald-300"
             onClick={() => setSelectedStat({
               title: "📊 Mood Rata-Rata",
               desc: `Skor mood rata-rata dihitung dari seluruh check-in mood harian Anda selama 30 hari terakhir. Skor berkisar antara 1 (sangat buruk) hingga 10 (sangat bahagia). Rata-rata Anda saat ini adalah ${avgMood}/10.`
@@ -293,6 +324,9 @@ function Page() {
           <StatCard 
             label="Stres rata-rata" 
             value={avgStress} 
+            icon="💆‍♀️"
+            bgClass="bg-rose-50/30 hover:bg-rose-50/50"
+            accentClass="border-rose-200/60 hover:border-rose-300"
             onClick={() => setSelectedStat({
               title: "💆‍♀️ Stres Rata-Rata",
               desc: `Tingkat stres rata-rata dihitung dari seluruh catatan stres harian Anda selama 30 hari terakhir. Skor berkisar antara 1 (sangat tenang/rileks) hingga 10 (sangat tertekan/stres berat). Rata-rata Anda saat ini adalah ${avgStress}/10.`
@@ -301,6 +335,9 @@ function Page() {
           <StatCard 
             label="Energi rata-rata" 
             value={avgEnergy} 
+            icon="⚡"
+            bgClass="bg-amber-50/30 hover:bg-amber-50/50"
+            accentClass="border-amber-200/60 hover:border-amber-300"
             onClick={() => setSelectedStat({
               title: "⚡ Energi Rata-Rata",
               desc: `Tingkat energi rata-rata dihitung dari seluruh catatan tingkat energi harian Anda selama 30 hari terakhir. Skor berkisar antara 1 (lelah fisik/mental habis) hingga 10 (sangat segar/berenergi tinggi). Rata-rata Anda saat ini adalah ${avgEnergy}/10.`
@@ -371,17 +408,22 @@ function Page() {
       </section>
 
       {/* ── WEEKLY AI INSIGHT ────────────────────────────────────── */}
-      <section className="rounded-3xl p-6 border border-primary/10 relative overflow-hidden bg-gradient-to-br from-primary-soft/40 to-cream-deep/30 shadow-soft">
-        <div className="flex items-center justify-between">
+      <section className="rounded-3xl p-6 border border-purple-200/50 relative overflow-hidden bg-gradient-to-br from-indigo-50/50 via-purple-50/45 to-pink-50/35 shadow-soft">
+        <div className="flex items-center justify-between gap-3 flex-wrap">
           <div>
-            <p className="font-display text-lg font-semibold">Weekly AI Insight</p>
-            <p className="mt-0.5 text-xs text-muted-foreground">Analisis personal berdasarkan datamu</p>
+            <div className="flex items-center gap-2">
+              <span className="rounded-full bg-purple-100/80 border border-purple-200 px-2 py-0.5 text-[9px] font-bold text-purple-700 select-none animate-pulse">
+                ✨ AI Premium
+              </span>
+            </div>
+            <p className="font-display text-lg font-bold text-foreground mt-1">Weekly AI Insight</p>
+            <p className="text-xs text-muted-foreground">Analisis perkembangan diri personal berdasarkan datamu</p>
           </div>
           <div className="flex items-center gap-2">
             {insightHistory.length > 0 && (
               <button
                 onClick={() => setHistoryModalOpen(true)}
-                className="rounded-full border border-primary/20 bg-white/80 hover:bg-white px-3.5 py-2 text-xs font-bold text-primary transition-all duration-200 active:scale-95 shadow-sm"
+                className="rounded-full border border-purple-200/40 bg-white/90 hover:bg-white px-3.5 py-2 text-xs font-bold text-purple-700 transition-all duration-200 active:scale-95 shadow-sm"
               >
                 🕒 Riwayat
               </button>
@@ -389,7 +431,7 @@ function Page() {
             <button
               onClick={generate}
               disabled={insightLoading}
-              className="rounded-full bg-foreground px-4 py-2 text-xs font-semibold text-cream transition-all hover:-translate-y-0.5 disabled:opacity-60"
+              className="rounded-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 px-5 py-2.5 text-xs font-bold text-white transition-all hover:-translate-y-0.5 hover:shadow-md disabled:opacity-60"
             >
               {insightLoading ? "Memuat…" : "Generate"}
             </button>

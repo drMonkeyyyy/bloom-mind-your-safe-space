@@ -836,3 +836,22 @@
   animation: morph-blob 12s linear infinite;
 }
 
+/* ── Floating leaf particles animation for terrarium ── */
+@keyframes float-leaf {
+  0% { transform: translateY(0px) rotate(0deg); opacity: 0; }
+  10% { opacity: 0.65; }
+  90% { opacity: 0.65; }
+  100% { transform: translateY(-85px) rotate(40deg); opacity: 0; }
+}
+.animate-float-leaf-1 {
+  animation: float-leaf 7s infinite linear;
+}
+.animate-float-leaf-2 {
+  animation: float-leaf 10s infinite linear;
+  animation-delay: 2s;
+}
+.animate-float-leaf-3 {
+  animation: float-leaf 8s infinite linear;
+  animation-delay: 4.5s;
+}
+
