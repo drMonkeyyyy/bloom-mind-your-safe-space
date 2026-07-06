@@ -133,6 +133,93 @@ function groupByMonth(items: any[]) {
   return groups;
 }
 
+function CozyDiaryBook() {
+  return (
+    <div className="relative mb-5 w-28 h-28 flex items-center justify-center">
+      {/* Self-contained styling for particle floats */}
+      <style>{`
+        @keyframes float-diary-1 {
+          0% { transform: translate(0, 10px) rotate(0deg) scale(0.6); opacity: 0; }
+          15% { opacity: 0.8; }
+          85% { opacity: 0.8; }
+          100% { transform: translate(-25px, -65px) rotate(-15deg) scale(1.1); opacity: 0; }
+        }
+        @keyframes float-diary-2 {
+          0% { transform: translate(0, 10px) rotate(0deg) scale(0.5); opacity: 0; }
+          20% { opacity: 0.8; }
+          80% { opacity: 0.8; }
+          100% { transform: translate(25px, -75px) rotate(20deg) scale(1); opacity: 0; }
+        }
+        @keyframes float-diary-3 {
+          0% { transform: translate(0, 10px) rotate(0deg) scale(0.6); opacity: 0; }
+          10% { opacity: 0.9; }
+          90% { opacity: 0.9; }
+          100% { transform: translate(-10px, -55px) rotate(10deg) scale(1.1); opacity: 0; }
+        }
+        .anim-diary-p1 { animation: float-diary-1 6s ease-in-out infinite; }
+        .anim-diary-p2 { animation: float-diary-2 8s ease-in-out infinite; animation-delay: 2s; }
+        .anim-diary-p3 { animation: float-diary-3 7s ease-in-out infinite; animation-delay: 3.8s; }
+        .anim-diary-p4 { animation: float-diary-1 9s ease-in-out infinite; animation-delay: 1s; }
+        .anim-diary-p5 { animation: float-diary-2 7.5s ease-in-out infinite; animation-delay: 4.8s; }
+      `}</style>
+
+      {/* Floating particles from book */}
+      <div className="absolute inset-0 pointer-events-none overflow-visible select-none z-0">
+        <span className="absolute bottom-12 left-8 text-xs anim-diary-p1 opacity-0">✨</span>
+        <span className="absolute bottom-14 right-8 text-sm anim-diary-p2 opacity-0">🍃</span>
+        <span className="absolute bottom-10 left-12 text-sm anim-diary-p3 opacity-0">✍️</span>
+        <span className="absolute bottom-12 right-12 text-xs anim-diary-p4 opacity-0">🌸</span>
+        <span className="absolute bottom-8 left-1/2 text-xs anim-diary-p5 opacity-0">✨</span>
+      </div>
+
+      {/* Book cover / glow effect background */}
+      <div className="absolute w-20 h-20 bg-[radial-gradient(circle_at_center,_rgba(251,191,36,0.15)_0%,_transparent_70%)] pointer-events-none z-0" />
+
+      {/* Open diary SVG */}
+      <svg viewBox="0 0 120 100" className="w-24 h-24 drop-shadow-md select-none relative z-10 transition-transform duration-500 hover:scale-110">
+        {/* Book Cover Background (3D thickness shadow) */}
+        <path d="M 8 23 C 25 15, 56 25, 60 27 C 64 25, 95 15, 112 23 L 112 88 C 95 80, 64 90, 60 88 C 56 90, 25 80, 8 88 Z" fill="oklch(0.35 0.045 40)" />
+        {/* Main Cover */}
+        <path d="M 10 20 C 25 12, 56 22, 60 24 C 64 22, 95 12, 110 20 L 110 85 C 95 77, 64 87, 60 85 C 56 87, 25 77, 10 85 Z" fill="oklch(0.48 0.07 45)" />
+        
+        {/* Left Page Pages Thickness */}
+        <path d="M 14 18 C 28 12, 55 20, 58 22 L 58 81 C 55 79, 28 71, 14 77 Z" fill="oklch(0.92 0.015 80)" />
+        {/* Left Main Page */}
+        <path d="M 16 16 C 29 10, 56 18, 58 20 L 58 79 C 56 77, 29 69, 16 75 Z" fill="oklch(0.98 0.01 95)" />
+        
+        {/* Right Page Pages Thickness */}
+        <path d="M 106 18 C 92 12, 65 20, 62 22 L 62 81 C 65 79, 92 71, 106 77 Z" fill="oklch(0.92 0.015 80)" />
+        {/* Right Main Page */}
+        <path d="M 104 16 C 91 10, 64 18, 62 20 L 62 79 C 64 77, 91 69, 104 75 Z" fill="oklch(0.98 0.01 95)" />
+        
+        {/* Ribbon Bookmark (Gold) */}
+        <path d="M 59 21 L 62 21 L 62 90 L 59 90 Z" fill="oklch(0.78 0.13 70)" />
+        <path d="M 59 90 L 60.5 87 L 62 90 Z" fill="oklch(0.68 0.13 70)" />
+
+        {/* Lined Journal Lines */}
+        {/* Left Page Lines */}
+        <line x1="22" y1="30" x2="52" y2="34" stroke="oklch(0.85 0.015 90)" strokeWidth="0.8" />
+        <line x1="22" y1="38" x2="52" y2="42" stroke="oklch(0.85 0.015 90)" strokeWidth="0.8" />
+        <line x1="22" y1="46" x2="52" y2="50" stroke="oklch(0.85 0.015 90)" strokeWidth="0.8" />
+        <line x1="22" y1="54" x2="52" y2="58" stroke="oklch(0.85 0.015 90)" strokeWidth="0.8" />
+        <line x1="22" y1="62" x2="52" y2="66" stroke="oklch(0.85 0.015 90)" strokeWidth="0.8" />
+
+        {/* Right Page Lines */}
+        <line x1="68" y1="34" x2="98" y2="30" stroke="oklch(0.85 0.015 90)" strokeWidth="0.8" />
+        <line x1="68" y1="42" x2="98" y2="38" stroke="oklch(0.85 0.015 90)" strokeWidth="0.8" />
+        <line x1="68" y1="50" x2="98" y2="46" stroke="oklch(0.85 0.015 90)" strokeWidth="0.8" />
+        <line x1="68" y1="58" x2="98" y2="54" stroke="oklch(0.85 0.015 90)" strokeWidth="0.8" />
+        <line x1="68" y1="66" x2="98" y2="62" stroke="oklch(0.85 0.015 90)" strokeWidth="0.8" />
+
+        {/* Botanical Vine Detail on Right Page */}
+        <path d="M 98 62 Q 95 68 90 70" fill="none" stroke="oklch(0.71 0.045 160)" strokeWidth="1.2" strokeLinecap="round" />
+        <path d="M 95 68 Q 93 69 92 68 Z" fill="oklch(0.71 0.045 160)" />
+        <path d="M 92 70 Q 90 71 89 70 Z" fill="oklch(0.80 0.05 165)" />
+      </svg>
+    </div>
+  );
+}
+
 function JournalPage() {
   const { user } = useAuth();
   const qc = useQueryClient();
@@ -428,7 +515,7 @@ function JournalPage() {
       {/* Diary history list */}
       {items?.length === 0 ? (
         <EmptyState
-          emoji="✍️"
+          icon={<CozyDiaryBook />}
           title="Buku Diary Masih Kosong"
           description="Mulailah mengukir cerita hari ini. Setiap momen adalah lembaran berharga."
           action={{ label: "Tulis Lembaran Pertama", onClick: () => { reset(); setSheetOpen(true); } }}
