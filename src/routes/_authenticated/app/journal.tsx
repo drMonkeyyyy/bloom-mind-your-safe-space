@@ -477,8 +477,8 @@ function JournalPage() {
         <div className="absolute right-6 -top-6 h-36 w-36 rounded-full pointer-events-none bg-white/5 blur-3xl animate-pulse" />
 
         <div className="relative pl-6 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <CozyDiaryBook size="sm" />
+          <div className="flex items-center gap-3">
+            <span className="text-3xl animate-diary-bounce select-none">📓</span>
             <div>
               <h1 className="font-display text-2xl font-bold text-white tracking-wide">My Personal Diary</h1>
               <p className="mt-1 text-xs text-stone-300 font-medium">Buku harian rahasiamu, aman & menenangkan.</p>
@@ -498,157 +498,200 @@ function JournalPage() {
 
 
 
-      {/* ── TIME CAPSULE WIDGET ─────────────────────────────────── */}
-      <div className="rounded-3xl bg-card p-5 ring-1 ring-border/60 shadow-card space-y-4 relative overflow-hidden">
-        <div className="absolute -right-4 -bottom-4 text-6xl opacity-5 select-none pointer-events-none">💌</div>
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <span className="text-2xl shrink-0 select-none">✉️</span>
-            <div>
-              <h2 className="font-display text-sm font-bold text-foreground">Kapsul Waktu Diri Sendiri</h2>
-              <p className="text-[10px] text-muted-foreground">Kunci surat harapan Anda untuk dibuka di masa depan.</p>
+      {/* ── COZY WRITING STATION TWO-COLUMN GRID ────────────────────────── */}
+      <div className="grid gap-6 lg:grid-cols-12 items-start">
+        {/* Left Side: Permanent Cozy Reflection Desk Panel */}
+        <div className="lg:col-span-5 space-y-6">
+          {/* Beautiful cozy writing desk card containing the big CozyDiaryBook */}
+          <div className="rounded-[2.5rem] bg-card p-7 ring-1 ring-border/60 shadow-card flex flex-col items-center text-center space-y-5 relative overflow-hidden border border-amber-950/5">
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_rgba(251,191,36,0.06)_0%,_transparent_75%)] pointer-events-none" />
+            
+            {/* The big gorgeous animated book */}
+            <CozyDiaryBook size="md" />
+
+            <div className="space-y-2">
+              <h3 className="font-display text-lg font-bold text-foreground">Ruang Refleksi Diri</h3>
+              <p className="text-xs text-muted-foreground leading-relaxed max-w-xs">
+                Setiap tulisan adalah langkah kecil untuk memahami diri sendiri. Tuangkan perasaanmu hari ini untuk ketenangan pikiran.
+              </p>
             </div>
-          </div>
-          <button
-            onClick={() => setCapsuleOpen(true)}
-            className="rounded-full bg-amber-50 hover:bg-amber-100/80 border border-amber-200 text-amber-900 px-3.5 py-1.5 text-xs font-bold transition-all duration-200 hover:shadow-sm active:scale-95"
-          >
-            🔒 Kirim Surat
-          </button>
-        </div>
 
-        {capsules.length === 0 ? (
-          <p className="text-[10px] text-muted-foreground/80 italic pl-1">Belum ada kapsul waktu yang Anda kunci.</p>
-        ) : (
-          <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
-            {capsules.map((cap) => {
-              const status = getCapsuleStatus(cap.unlockDate);
-              return (
-                <button
-                  key={cap.id}
-                  onClick={() => {
-                    if (status.locked) {
-                      toast.info(`Sabar ya, surat rahasia ini baru bisa dibuka ${status.label} 🤫`);
-                    } else {
-                      setViewCapsule(cap);
-                    }
-                  }}
-                  className={`flex shrink-0 items-center gap-2 rounded-2xl px-3.5 py-2 text-left border transition-all duration-300 shadow-sm ${
-                    status.locked
-                      ? "border-border/60 bg-cream-deep/35 text-muted-foreground hover-lock-shake hover:scale-[1.02] hover:bg-cream-deep/60 active:scale-95"
-                      : "border-amber-300/40 bg-amber-50/70 text-foreground animate-glow-pulse animate-float-capsule hover:scale-105 active:scale-95 cursor-pointer"
-                  }`}
-                >
-                  <span className={`text-base select-none ${status.locked ? "lock-icon" : ""}`}>
-                    {status.locked ? "🔒" : "✉️"}
-                  </span>
-                  <div className="text-[10px] leading-tight select-none">
-                    <p className="font-bold">{status.locked ? "Kapsul Terkunci" : "Siap Dibuka!"}</p>
-                    <p className="text-[9px] opacity-75">{status.label}</p>
-                  </div>
-                </button>
-              );
-            })}
-          </div>
-        )}
-      </div>
-
-      {/* Diary history list */}
-      {items?.length === 0 ? (
-        <EmptyState
-          icon={<CozyDiaryBook />}
-          title="Buku Diary Masih Kosong"
-          description="Mulailah mengukir cerita hari ini. Setiap momen adalah lembaran berharga."
-          action={{ label: "Tulis Lembaran Pertama", onClick: () => { reset(); setSheetOpen(true); } }}
-        />
-      ) : (
-        <div className="space-y-6">
-          {Object.entries(groups).map(([month, entries]) => (
-            <div key={month} className="space-y-3">
-              <div className="mb-2.5 flex items-center gap-3">
-                <div className="h-px flex-1 bg-border/60" />
-                <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-muted-foreground/60">{month}</p>
-                <div className="h-px flex-1 bg-border/60" />
+            {/* Stats summary inside desk card */}
+            <div className="w-full grid grid-cols-2 gap-3 pt-4 border-t border-border/50 text-left">
+              <div className="p-3 rounded-2xl bg-muted/40 border border-border/20">
+                <p className="text-[9px] uppercase tracking-wider text-muted-foreground font-bold">Total Cerita</p>
+                <p className="text-lg font-bold text-foreground mt-0.5">{items?.length || 0} Lembar</p>
               </div>
-              <div className="space-y-4">
-                {entries.map((j, idx) => {
-                  const themeKey = getThemeByEmotion(j.main_emotion);
-                  const theme = THEME_STYLES[themeKey] || THEME_STYLES.default;
+              <div className="p-3 rounded-2xl bg-muted/40 border border-border/20">
+                <p className="text-[9px] uppercase tracking-wider text-muted-foreground font-bold">Kapsul Waktu</p>
+                <p className="text-lg font-bold text-foreground mt-0.5">{capsules?.length || 0} Surat</p>
+              </div>
+            </div>
 
+            <button
+              onClick={() => { reset(); setSheetOpen(true); }}
+              className="w-full bg-primary text-primary-foreground hover:bg-primary-dark rounded-2xl py-3.5 text-xs font-bold transition-all duration-200 active:scale-98 shadow-sm flex items-center justify-center gap-1.5"
+            >
+              ✍️ Tulis Lembar Baru
+            </button>
+          </div>
+
+          {/* Time Capsule Widget permanently visible here on the left side under the reflection card */}
+          <div className="rounded-3xl bg-card p-5 ring-1 ring-border/60 shadow-card space-y-4 relative overflow-hidden">
+            <div className="absolute -right-4 -bottom-4 text-6xl opacity-5 select-none pointer-events-none">💌</div>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2.5">
+                <span className="text-2xl shrink-0 select-none">✉️</span>
+                <div>
+                  <h2 className="font-display text-sm font-bold text-foreground">Kapsul Waktu</h2>
+                  <p className="text-[10px] text-muted-foreground">Kunci surat harapan Anda untuk dibuka di masa depan.</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setCapsuleOpen(true)}
+                className="rounded-full bg-amber-50 hover:bg-amber-100/80 border border-amber-200 text-amber-900 px-3.5 py-1.5 text-xs font-bold transition-all duration-200 hover:shadow-sm active:scale-95 whitespace-nowrap"
+              >
+                🔒 Kirim Surat
+              </button>
+            </div>
+
+            {capsules.length === 0 ? (
+              <p className="text-[10px] text-muted-foreground/80 italic pl-1">Belum ada kapsul waktu yang Anda kunci.</p>
+            ) : (
+              <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
+                {capsules.map((cap) => {
+                  const status = getCapsuleStatus(cap.unlockDate);
                   return (
-                    <div
-                      key={j.id}
-                      className={`rounded-[2rem] p-5 border transition-all duration-250 hover:shadow-elevated hover:-translate-y-0.5 animate-slide-up ${theme.border}`}
-                      style={{
-                        background: theme.bg,
-                        animationDelay: `${idx * 40}ms`,
-                        ... (themeKey !== "default" ? { borderLeft: `5px solid ${theme.border.includes("orange") ? "oklch(0.75 0.13 70)" : theme.border.includes("emerald") ? "oklch(0.7 0.12 140)" : theme.border.includes("sky") ? "oklch(0.68 0.1 220)" : theme.border.includes("purple") ? "oklch(0.68 0.1 280)" : theme.border.includes("rose") ? "oklch(0.68 0.14 15)" : "oklch(0.6 0.02 90)"}` } : {})
+                    <button
+                      key={cap.id}
+                      onClick={() => {
+                        if (status.locked) {
+                          toast.info(`Sabar ya, surat rahasia ini baru bisa dibuka ${status.label} 🤫`);
+                        } else {
+                          setViewCapsule(cap);
+                        }
                       }}
+                      className={`flex shrink-0 items-center gap-2 rounded-2xl px-3.5 py-2 text-left border transition-all duration-300 shadow-sm ${
+                        status.locked
+                          ? "border-border/60 bg-cream-deep/35 text-muted-foreground hover-lock-shake hover:scale-[1.02] hover:bg-cream-deep/60 active:scale-95"
+                          : "border-amber-300/40 bg-amber-50/70 text-foreground animate-glow-pulse animate-float-capsule hover:scale-105 active:scale-95 cursor-pointer"
+                      }`}
                     >
-                      {/* Top Header info */}
-                      <div className="flex items-start justify-between gap-3">
-                        <div
-                          className="min-w-0 flex-1 text-left cursor-pointer"
-                          onClick={() => setSelectedJournal(j)}
-                        >
-                          <div className="flex items-center gap-2 flex-wrap">
-                            <span className={`text-xs font-extrabold ${theme.text}`}>
-                              {new Date(j.created_at).toLocaleDateString("id-ID", { weekday: "long", day: "numeric", month: "long" })}
-                            </span>
-                            {j.main_emotion && (
-                              <span className={`rounded-full px-2.5 py-0.5 text-[9px] font-bold ${theme.tagBg} shadow-sm border border-black/5`}>
-                                {j.main_emotion}
-                              </span>
-                            )}
-                            <span className={`rounded-full px-2 py-0.5 text-[8.5px] font-bold bg-white/80 border border-stone-200/50 text-stone-500`}>
-                              {j.source === "from_chat" ? (COMPANION_LABELS[j.companion_key || "sahabat"] || "🤗 Sahabat") : "✍️ Manual"}
-                            </span>
-                          </div>
-
-                          {/* Preview / Lined summary */}
-                          {j.summary && (
-                            <div className="mt-3">
-                              <p className="text-xs font-semibold leading-relaxed text-stone-600 line-clamp-2 pl-1">
-                                {j.summary}
-                              </p>
-                            </div>
-                          )}
-                        </div>
-
-                        <div className="flex shrink-0 flex-col gap-1.5 pl-2">
-                          <button
-                            onClick={() => edit(j)}
-                            className="rounded-full border border-stone-300 bg-white/95 px-3 py-1.5 text-[10px] font-bold text-stone-700 shadow-sm transition-all duration-200 hover:bg-stone-50 hover:scale-105 active:scale-95"
-                          >
-                            Edit
-                          </button>
-                          <button
-                            onClick={() => setDeleteConfirm(j.id)}
-                            className="rounded-full border border-destructive/20 bg-white/95 px-3 py-1.5 text-[10px] font-bold text-destructive shadow-sm transition-all duration-200 hover:bg-destructive/5 active:scale-95"
-                          >
-                            Hapus
-                          </button>
-                        </div>
+                      <span className={`text-base select-none ${status.locked ? "lock-icon" : ""}`}>
+                        {status.locked ? "🔒" : "✉️"}
+                      </span>
+                      <div className="text-[10px] leading-tight select-none">
+                        <p className="font-bold">{status.locked ? "Kapsul Terkunci" : "Siap Dibuka!"}</p>
+                        <p className="text-[9px] opacity-75">{status.label}</p>
                       </div>
-
-                      {/* Display Stickers / Activities */}
-                      {j.main_trigger && (
-                        <div className="mt-3.5 flex flex-wrap gap-1.5 pl-1">
-                          {j.main_trigger.split(", ").map((stick: string, sIdx: number) => (
-                            <span key={sIdx} className="inline-flex items-center gap-1 rounded-xl bg-white/90 border border-stone-200/50 px-2 py-0.5 text-[10px] font-bold text-stone-700 shadow-sm">
-                              {stick}
-                            </span>
-                          ))}
-                        </div>
-                      )}
-                    </div>
+                    </button>
                   );
                 })}
               </div>
-            </div>
-          ))}
+            )}
+          </div>
         </div>
-      )}
+
+        {/* Right Side: Diary Logs or Encouragement State */}
+        <div className="lg:col-span-7 space-y-6">
+          {items?.length === 0 ? (
+            <div className="rounded-[2.5rem] bg-card p-10 ring-1 ring-border/60 shadow-card flex flex-col items-center text-center justify-center min-h-[400px] border border-dashed border-border/80">
+              <span className="text-4xl select-none mb-3.5">🌸</span>
+              <p className="text-sm font-bold text-foreground">Buku Diary Masih Kosong</p>
+              <p className="text-xs text-muted-foreground leading-relaxed mt-1.5 max-w-xs">
+                Mulai ukir cerita pertamamu hari ini. Setiap perasaan, keluh kesah, atau momen bahagia layak disimpan dalam tempat yang aman.
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-6">
+              {Object.entries(groups).map(([month, entries]) => (
+                <div key={month} className="space-y-3">
+                  <div className="mb-2.5 flex items-center gap-3">
+                    <div className="h-px flex-1 bg-border/60" />
+                    <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-muted-foreground/60">{month}</p>
+                    <div className="h-px flex-1 bg-border/60" />
+                  </div>
+                  <div className="space-y-4">
+                    {entries.map((j, idx) => {
+                      const themeKey = getThemeByEmotion(j.main_emotion);
+                      const theme = THEME_STYLES[themeKey] || THEME_STYLES.default;
+
+                      return (
+                        <div
+                          key={j.id}
+                          className={`rounded-[2rem] p-5 border transition-all duration-250 hover:shadow-elevated hover:-translate-y-0.5 animate-slide-up ${theme.border}`}
+                          style={{
+                            background: theme.bg,
+                            animationDelay: `${idx * 40}ms`,
+                            ... (themeKey !== "default" ? { borderLeft: `5px solid ${theme.border.includes("orange") ? "oklch(0.75 0.13 70)" : theme.border.includes("emerald") ? "oklch(0.7 0.12 140)" : theme.border.includes("sky") ? "oklch(0.68 0.1 220)" : theme.border.includes("purple") ? "oklch(0.68 0.1 280)" : theme.border.includes("rose") ? "oklch(0.68 0.14 15)" : "oklch(0.6 0.02 90)"}` } : {})
+                          }}
+                        >
+                          {/* Top Header info */}
+                          <div className="flex items-start justify-between gap-3">
+                            <div
+                              className="min-w-0 flex-1 text-left cursor-pointer"
+                              onClick={() => setSelectedJournal(j)}
+                            >
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <span className={`text-xs font-extrabold ${theme.text}`}>
+                                  {new Date(j.created_at).toLocaleDateString("id-ID", { weekday: "long", day: "numeric", month: "long" })}
+                                </span>
+                                {j.main_emotion && (
+                                  <span className={`rounded-full px-2.5 py-0.5 text-[9px] font-bold ${theme.tagBg} shadow-sm border border-black/5`}>
+                                    {j.main_emotion}
+                                  </span>
+                                )}
+                                <span className={`rounded-full px-2 py-0.5 text-[8.5px] font-bold bg-white/80 border border-stone-200/50 text-stone-500`}>
+                                  {j.source === "from_chat" ? (COMPANION_LABELS[j.companion_key || "sahabat"] || "🤗 Sahabat") : "✍️ Manual"}
+                                </span>
+                              </div>
+
+                              {/* Preview / Lined summary */}
+                              {j.summary && (
+                                <div className="mt-3">
+                                  <p className="text-xs font-semibold leading-relaxed text-stone-600 line-clamp-2 pl-1">
+                                    {j.summary}
+                                  </p>
+                                </div>
+                              )}
+                            </div>
+
+                            <div className="flex shrink-0 flex-col gap-1.5 pl-2">
+                              <button
+                                onClick={() => edit(j)}
+                                className="rounded-full border border-stone-300 bg-white/95 px-3 py-1.5 text-[10px] font-bold text-stone-700 shadow-sm transition-all duration-200 hover:bg-stone-50 hover:scale-105 active:scale-95"
+                              >
+                                Edit
+                              </button>
+                              <button
+                                onClick={() => setDeleteConfirm(j.id)}
+                                className="rounded-full border border-destructive/20 bg-white/95 px-3 py-1.5 text-[10px] font-bold text-destructive shadow-sm transition-all duration-200 hover:bg-destructive/5 active:scale-95"
+                              >
+                                Hapus
+                              </button>
+                            </div>
+                          </div>
+
+                          {/* Display Stickers / Activities */}
+                          {j.main_trigger && (
+                            <div className="mt-3.5 flex flex-wrap gap-1.5 pl-1">
+                              {j.main_trigger.split(", ").map((stick: string, sIdx: number) => (
+                                <span key={sIdx} className="inline-flex items-center gap-1 rounded-xl bg-white/90 border border-stone-200/50 px-2 py-0.5 text-[10px] font-bold text-stone-700 shadow-sm">
+                                  {stick}
+                                </span>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
 
       {/* ── WRITE DIARY DIALOG SHEET ───────────────────────────── */}
       <BottomSheet
