@@ -183,6 +183,8 @@ export function BreathingExercise() {
               style={{
                 width: 120,
                 height: 120,
+                left: "calc(50% - 60px)",
+                top: "calc(50% - 60px)",
                 background: active ? phase.color : "oklch(0.71 0.045 160)",
                 boxShadow: active ? `0 8px 40px -8px ${phase.glow}` : undefined,
               }}
