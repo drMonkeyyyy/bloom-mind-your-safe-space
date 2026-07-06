@@ -133,28 +133,29 @@ function groupByMonth(items: any[]) {
   return groups;
 }
 
-function CozyDiaryBook() {
+function CozyDiaryBook({ size = "md" }: { size?: "sm" | "md" }) {
+  const isSm = size === "sm";
   return (
-    <div className="relative mb-5 w-28 h-28 flex items-center justify-center">
+    <div className={`relative flex items-center justify-center ${isSm ? "w-16 h-16 shrink-0" : "w-28 h-28 mb-5"}`}>
       {/* Self-contained styling for particle floats */}
       <style>{`
         @keyframes float-diary-1 {
           0% { transform: translate(0, 10px) rotate(0deg) scale(0.6); opacity: 0; }
           15% { opacity: 0.8; }
           85% { opacity: 0.8; }
-          100% { transform: translate(-25px, -65px) rotate(-15deg) scale(1.1); opacity: 0; }
+          100% { transform: translate(-20px, -55px) rotate(-15deg) scale(1.1); opacity: 0; }
         }
         @keyframes float-diary-2 {
           0% { transform: translate(0, 10px) rotate(0deg) scale(0.5); opacity: 0; }
           20% { opacity: 0.8; }
           80% { opacity: 0.8; }
-          100% { transform: translate(25px, -75px) rotate(20deg) scale(1); opacity: 0; }
+          100% { transform: translate(20px, -65px) rotate(20deg) scale(1); opacity: 0; }
         }
         @keyframes float-diary-3 {
           0% { transform: translate(0, 10px) rotate(0deg) scale(0.6); opacity: 0; }
           10% { opacity: 0.9; }
           90% { opacity: 0.9; }
-          100% { transform: translate(-10px, -55px) rotate(10deg) scale(1.1); opacity: 0; }
+          100% { transform: translate(-8px, -45px) rotate(10deg) scale(1.1); opacity: 0; }
         }
         .anim-diary-p1 { animation: float-diary-1 6s ease-in-out infinite; }
         .anim-diary-p2 { animation: float-diary-2 8s ease-in-out infinite; animation-delay: 2s; }
@@ -165,18 +166,18 @@ function CozyDiaryBook() {
 
       {/* Floating particles from book */}
       <div className="absolute inset-0 pointer-events-none overflow-visible select-none z-0">
-        <span className="absolute bottom-12 left-8 text-xs anim-diary-p1 opacity-0">✨</span>
-        <span className="absolute bottom-14 right-8 text-sm anim-diary-p2 opacity-0">🍃</span>
-        <span className="absolute bottom-10 left-12 text-sm anim-diary-p3 opacity-0">✍️</span>
-        <span className="absolute bottom-12 right-12 text-xs anim-diary-p4 opacity-0">🌸</span>
-        <span className="absolute bottom-8 left-1/2 text-xs anim-diary-p5 opacity-0">✨</span>
+        <span className={`absolute ${isSm ? "bottom-6 left-4 text-[9px]" : "bottom-12 left-8 text-xs"} anim-diary-p1 opacity-0`}>✨</span>
+        <span className={`absolute ${isSm ? "bottom-7 right-4 text-[10px]" : "bottom-14 right-8 text-sm"} anim-diary-p2 opacity-0`}>🍃</span>
+        <span className={`absolute ${isSm ? "bottom-5 left-6 text-[10px]" : "bottom-10 left-12 text-sm"} anim-diary-p3 opacity-0`}>✍️</span>
+        <span className={`absolute ${isSm ? "bottom-6 right-6 text-[9px]" : "bottom-12 right-12 text-xs"} anim-diary-p4 opacity-0`}>🌸</span>
+        <span className={`absolute ${isSm ? "bottom-4 left-1/2 text-[9px]" : "bottom-8 left-1/2 text-xs"} anim-diary-p5 opacity-0`}>✨</span>
       </div>
 
       {/* Book cover / glow effect background */}
-      <div className="absolute w-20 h-20 bg-[radial-gradient(circle_at_center,_rgba(251,191,36,0.15)_0%,_transparent_70%)] pointer-events-none z-0" />
+      <div className={`absolute bg-[radial-gradient(circle_at_center,_rgba(251,191,36,0.2)_0%,_transparent_75%)] pointer-events-none z-0 ${isSm ? "w-12 h-12" : "w-20 h-20"}`} />
 
       {/* Open diary SVG */}
-      <svg viewBox="0 0 120 100" className="w-24 h-24 drop-shadow-md select-none relative z-10 transition-transform duration-500 hover:scale-110">
+      <svg viewBox="0 0 120 100" className={`${isSm ? "w-14 h-14" : "w-24 h-24"} drop-shadow-md select-none relative z-10 transition-transform duration-500 hover:scale-110`}>
         {/* Book Cover Background (3D thickness shadow) */}
         <path d="M 8 23 C 25 15, 56 25, 60 27 C 64 25, 95 15, 112 23 L 112 88 C 95 80, 64 90, 60 88 C 56 90, 25 80, 8 88 Z" fill="oklch(0.35 0.045 40)" />
         {/* Main Cover */}
@@ -438,12 +439,12 @@ function JournalPage() {
         <div className="absolute right-6 -top-6 h-36 w-36 rounded-full pointer-events-none bg-white/5 blur-3xl animate-pulse" />
 
         <div className="relative pl-6 flex items-center justify-between">
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="text-3xl animate-diary-bounce select-none">📓</span>
+          <div className="flex items-center gap-4">
+            <CozyDiaryBook size="sm" />
+            <div>
               <h1 className="font-display text-2xl font-bold text-white tracking-wide">My Personal Diary</h1>
+              <p className="mt-1 text-xs text-stone-300 font-medium">Buku harian rahasiamu, aman & menenangkan.</p>
             </div>
-            <p className="mt-1 text-xs text-stone-300 font-medium">Buku harian rahasiamu, aman & menenangkan.</p>
           </div>
           <button
             onClick={() => { reset(); setSheetOpen(true); }}
@@ -457,27 +458,7 @@ function JournalPage() {
         </div>
       </div>
 
-      {/* ── PLANT NUTRITION TIP ───────────────────────────────────────── */}
-      <div className="rounded-2xl border border-emerald-100 bg-emerald-50/45 px-4 py-3 text-[11px] text-emerald-800 animate-slide-up flex items-start gap-3 shadow-sm relative overflow-hidden">
-        <style>{`
-          @keyframes leaf-sway {
-            0%, 100% { transform: rotate(-8deg) scale(1); }
-            50% { transform: rotate(12deg) scale(1.15); }
-          }
-          .anim-sway-leaf {
-            animation: leaf-sway 2.5s ease-in-out infinite;
-            display: inline-block;
-            transform-origin: bottom center;
-          }
-        `}</style>
-        <span className="text-xl select-none mt-0.5 anim-sway-leaf">🌱</span>
-        <div className="space-y-0.5">
-          <p className="font-semibold text-emerald-950">Nutrisi Tanaman Jiwa:</p>
-          <p className="leading-relaxed text-emerald-900/90">
-            Setiap cerita hari ini adalah nutrisi bagi jiwamu. Tuangkan perasaanmu dalam diary dan saksikan Tanaman Jiwamu tumbuh subur di <Link to="/app/growth" className="underline font-extrabold text-emerald-700 hover:text-emerald-600 transition-colors">Growth Dashboard</Link> (+12 Poin)!
-          </p>
-        </div>
-      </div>
+
 
       {/* ── TIME CAPSULE WIDGET ─────────────────────────────────── */}
       <div className="rounded-3xl bg-card p-5 ring-1 ring-border/60 shadow-card space-y-4 relative overflow-hidden">
