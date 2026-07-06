@@ -50,7 +50,7 @@ function PrivacyPage() {
               <ul className="list-disc pl-5 space-y-1.5">
                 <li><strong>Account Data</strong>: The email address you provide when registering an account.</li>
                 <li><strong>Profile Data</strong>: Your nickname, age bracket, and personal well-being goals selected during the onboarding process.</li>
-                <li><strong>Usage Data</strong>: Your diary entries, gratitude logs, habit trackers, and conversations with your AI companion. <span className="text-emerald-700 font-medium bg-emerald-50 px-1.5 py-0.5 rounded text-[11px] inline-block ml-1">🔒 Strictly Private: Your chats & journals are personal; administrators or anyone else do not have access to view them.</span></li>
+                <li><strong>Usage Data</strong>: Your diary entries, gratitude logs, habit trackers, and conversations with your AI companion. <span className="text-emerald-700 font-medium bg-emerald-50 px-1.5 py-0.5 rounded text-[11px] inline-block ml-1">🔒 Strictly Private: Your chats {"&"} journals are personal; administrators or anyone else do not have access to view them.</span></li>
                 <li><strong>Transaction Data</strong>: If you subscribe to our Premium Plan, payments are securely processed by our official partner (Mayar.id). We do not store your credit card details or virtual account credentials.</li>
               </ul>
             </section>
@@ -67,7 +67,7 @@ function PrivacyPage() {
             </section>
 
             <section className="space-y-3">
-              <h2 className="font-display text-lg font-bold text-foreground">3. Security & Data Protection</h2>
+              <h2 className="font-display text-lg font-bold text-foreground">3. Security {"&"} Data Protection</h2>
               <p>
                 All your chats, journals, and personal information are stored securely on encrypted database clusters (Supabase) using industry-standard configurations. Access to sensitive data is strictly restricted to automated backend systems necessary to deliver Application features.
               </p>

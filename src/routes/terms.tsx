@@ -47,7 +47,7 @@ function TermsPage() {
             <section className="space-y-3">
               <h2 className="font-display text-lg font-bold text-foreground">1. Service Limitations (IMPORTANT)</h2>
               <div className="rounded-2xl border border-amber-200 bg-amber-50/50 p-4 text-amber-900 text-xs">
-                <strong>Mental Health & Crisis Disclaimer:</strong> JN-CALM is an AI-powered self-reflection application. JN-CALM <strong>is not a professional mental health service, psychotherapy, or medical service provider</strong>. Our AI companions are designed for self-reflection and light conversational support, and are not a replacement for clinical diagnosis, medical treatment, or therapy by licensed psychologists or psychiatrists.
+                <strong>Mental Health {"&"} Crisis Disclaimer:</strong> JN-CALM is an AI-powered self-reflection application. JN-CALM <strong>is not a professional mental health service, psychotherapy, or medical service provider</strong>. Our AI companions are designed for self-reflection and light conversational support, and are not a replacement for clinical diagnosis, medical treatment, or therapy by licensed psychologists or psychiatrists.
               </div>
               <p>
                 If you are experiencing a severe emotional crisis, thoughts of self-harm, or any other psychiatric/medical emergency, please seek immediate help from a licensed professional or contact your local emergency services/crisis hotline.
@@ -86,7 +86,7 @@ function TermsPage() {
             </section>
 
             <section className="space-y-3">
-              <h2 className="font-display text-lg font-bold text-foreground">6. Limitation of Liability & Security Risks</h2>
+              <h2 className="font-display text-lg font-bold text-foreground">6. Limitation of Liability {"&"} Security Risks</h2>
               <p>
                 We are committed to protecting your data using industry-standard encryption methods. However, you acknowledge that no method of transmission over the Internet or method of electronic storage is 100% secure and free from hacking risks.
               </p>
