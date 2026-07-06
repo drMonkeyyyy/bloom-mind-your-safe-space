@@ -23,6 +23,57 @@ const TRIGGER_EMOJIS: Record<string, string> = {
   "Lainnya": "🌿"
 };
 
+function parseMarkdown(text: string) {
+  if (!text) return null;
+  const lines = text.split("\n");
+  return lines.map((line, idx) => {
+    const trimmed = line.trim();
+    if (trimmed === "---" || trimmed === "***") {
+      return <hr key={idx} className="my-3 border-t border-purple-200/50" />;
+    }
+
+    const parts = line.split("**");
+    const formatted = parts.map((part, pIdx) => {
+      if (pIdx % 2 === 1) {
+        return <strong key={pIdx} className="font-bold text-stone-900">{part}</strong>;
+      }
+      return part;
+    });
+
+    if (line.startsWith("### ")) {
+      return (
+        <h4 key={idx} className="font-display text-sm font-bold text-purple-900 mt-3 mb-1">
+          {formatted.map((part) => {
+            if (typeof part === "string" && part.startsWith("### ")) {
+              return part.slice(4);
+            }
+            return part;
+          })}
+        </h4>
+      );
+    }
+
+    if (line.startsWith("## ")) {
+      return (
+        <h3 key={idx} className="font-display text-base font-bold text-purple-900 mt-4 mb-2">
+          {formatted.map((part) => {
+            if (typeof part === "string" && part.startsWith("## ")) {
+              return part.slice(3);
+            }
+            return part;
+          })}
+        </h3>
+      );
+    }
+
+    return (
+      <p key={idx} className={trimmed === "" ? "h-2" : "text-sm text-stone-700 leading-relaxed"}>
+        {formatted}
+      </p>
+    );
+  });
+}
+
 export const Route = createFileRoute("/_authenticated/app/growth")({
   component: Page,
 });
@@ -447,10 +498,10 @@ function Page() {
         )}
 
         {insight && !insightLoading && (
-          <div className="mt-4 animate-slide-up rounded-2xl bg-white/80 border border-primary/10 p-5 shadow-sm relative overflow-hidden text-sm leading-relaxed text-stone-700 whitespace-pre-wrap select-text selection:bg-primary-soft">
+          <div className="mt-4 animate-slide-up rounded-2xl bg-white/80 border border-primary/10 p-5 shadow-sm relative overflow-hidden select-text selection:bg-primary-soft">
             <div className="absolute left-3 top-0 bottom-0 w-[1px] bg-primary/30" />
-            <div className="pl-4">
-              {insight}
+            <div className="pl-4 space-y-2">
+              {parseMarkdown(insight)}
             </div>
           </div>
         )}

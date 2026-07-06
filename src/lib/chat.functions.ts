@@ -368,12 +368,25 @@ export const getWeeklyInsight = createServerFn({ method: "POST" })
   .handler(async ({ context }) => {
     const { supabase, userId } = context;
     const since = new Date(Date.now() - 7 * 86400000).toISOString().slice(0, 10);
-    const [{ data: moods }, { data: eating }, { data: chat }] = await Promise.all([
+    const [
+      { data: moods },
+      { data: eating },
+      { data: chat },
+      { data: journals },
+      { data: gratitude },
+      { data: habits }
+    ] = await Promise.all([
       supabase.from("mood_checkins").select("mood, mood_score, stress_score, energy_score, triggers, date")
         .eq("user_id", userId).gte("date", since).order("date"),
       supabase.from("emotional_eating_logs").select("hunger_type, emotion, trigger, date")
         .eq("user_id", userId).gte("date", since),
       supabase.from("chats").select("companion_key").eq("user_id", userId).order("updated_at", { ascending: false }).limit(1).maybeSingle(),
+      supabase.from("journals").select("main_emotion, main_trigger, summary, lesson, date")
+        .eq("user_id", userId).gte("date", since),
+      supabase.from("gratitude_entries").select("gratitude1, gratitude2, gratitude3, date")
+        .eq("user_id", userId).gte("date", since),
+      supabase.from("habit_logs").select("completed, date, habits(name)")
+        .eq("user_id", userId).gte("date", since),
     ]);
 
     if (!moods || moods.length === 0) {
@@ -389,16 +402,28 @@ export const getWeeklyInsight = createServerFn({ method: "POST" })
     const { generateText } = await import("ai");
     const gateway = createGeminiClient(apiKey);
 
-    const summary = `Mood check-in minggu ini: ${JSON.stringify(moods)}. Emotional eating: ${JSON.stringify(eating ?? [])}.`;
+    const habitsCount = habits?.filter(h => h.completed).length ?? 0;
+    const habitsList = habits?.filter(h => h.completed).map(h => (h.habits as any)?.name).filter(Boolean) ?? [];
+    const uniqueHabits = Array.from(new Set(habitsList));
+
+    const summary = `
+Aktivitas user dalam 7 hari terakhir:
+1. Mood harian: ${JSON.stringify(moods || [])}
+2. Pola makan emosional (emotional eating): ${JSON.stringify(eating || [])}
+3. Jurnal refleksi pribadi: ${JSON.stringify(journals || [])}
+4. Catatan syukur (gratitude): ${JSON.stringify(gratitude || [])}
+5. Kebiasaan (habits) yang berhasil diselesaikan: ${habitsCount} kali (Habit yang diselesaikan: ${uniqueHabits.join(", ") || "tidak ada"})
+`;
+
     let r;
     try {
       r = await generateText({
         model: gateway("gemini-2.5-flash"),
-        prompt: `Sebagai pendamping ${companionRole} JN-CALM, buat insight mingguan dalam Bahasa Indonesia yang hangat dan tidak menghakimi berdasarkan data mingguan user.
+        prompt: `Sebagai pendamping ${companionRole} JN-CALM, buat insight mingguan dalam Bahasa Indonesia yang hangat dan tidak menghakimi berdasarkan rangkuman seluruh aktivitas user seminggu terakhir (mood, jurnal, rasa syukur, kebiasaan/habit tracker, dan pola makan emosional).
 
 Format output wajib terbagi menjadi 2 bagian yang jelas dipisahkan baris kosong:
-1. Ringkasan & Refleksi: Tulis tanggapan hangat (3-4 kalimat) mengenai mood dominan minggu ini, trigger paling sering, dan satu hal positif/apresiasi atas kemajuan mereka.
-2. 📋 Solusi Langkah Demi Langkah (Step-by-Step): Tulis 3 langkah tindakan konkret, praktis, dan terukur yang bisa dilakukan user di minggu depan untuk merespons kondisi emosional mereka (misal: menggunakan latihan napas di menu Emergency Calm, menulis satu hal di Gratitude Journal, melakukan grounding, atau berbicara dengan companion). Gunakan nomor 1, 2, 3 dan emoji yang menarik di awal setiap langkah.
+1. Ringkasan & Refleksi: Tulis tanggapan hangat (3-4 kalimat) mengenai mood dominan minggu ini, trigger paling sering, apresiasi atas kebiasaan positif yang konsisten dilakukan (lihat data habits), dan hal-hal yang disyukuri (lihat data gratitude).
+2. 📋 Solusi Langkah Demi Langkah (Step-by-Step): Tulis 3 langkah tindakan konkret, praktis, dan terukur yang bisa dilakukan user di minggu depan untuk mendukung kesejahteraan mental dan fisik mereka (misal: meningkatkan habit tertentu, menggunakan latihan napas di menu Emergency Calm, melanjutkan syukur, dll.). Gunakan nomor 1, 2, 3 dan emoji yang menarik di awal setiap langkah.
 
 Data aktivitas user minggu ini:
 ${summary}`,
