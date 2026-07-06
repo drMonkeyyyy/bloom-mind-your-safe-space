@@ -136,7 +136,7 @@ function groupByMonth(items: any[]) {
 function CozyDiaryBook({ size = "md" }: { size?: "sm" | "md" }) {
   const isSm = size === "sm";
   return (
-    <div className={`relative flex items-center justify-center ${isSm ? "w-16 h-16 shrink-0" : "w-28 h-28 mb-5"}`}>
+    <div className={`relative flex items-center justify-center ${isSm ? "w-20 h-20 shrink-0" : "w-28 h-28 mb-5"}`}>
       {/* Self-contained styling for particle floats */}
       <style>{`
         @keyframes float-diary-1 {
@@ -166,18 +166,18 @@ function CozyDiaryBook({ size = "md" }: { size?: "sm" | "md" }) {
 
       {/* Floating particles from book */}
       <div className="absolute inset-0 pointer-events-none overflow-visible select-none z-0">
-        <span className={`absolute ${isSm ? "bottom-6 left-4 text-[9px]" : "bottom-12 left-8 text-xs"} anim-diary-p1 opacity-0`}>✨</span>
-        <span className={`absolute ${isSm ? "bottom-7 right-4 text-[10px]" : "bottom-14 right-8 text-sm"} anim-diary-p2 opacity-0`}>🍃</span>
-        <span className={`absolute ${isSm ? "bottom-5 left-6 text-[10px]" : "bottom-10 left-12 text-sm"} anim-diary-p3 opacity-0`}>✍️</span>
-        <span className={`absolute ${isSm ? "bottom-6 right-6 text-[9px]" : "bottom-12 right-12 text-xs"} anim-diary-p4 opacity-0`}>🌸</span>
-        <span className={`absolute ${isSm ? "bottom-4 left-1/2 text-[9px]" : "bottom-8 left-1/2 text-xs"} anim-diary-p5 opacity-0`}>✨</span>
+        <span className={`absolute ${isSm ? "bottom-8 left-6 text-[10px]" : "bottom-12 left-8 text-xs"} anim-diary-p1 opacity-0`}>✨</span>
+        <span className={`absolute ${isSm ? "bottom-9 right-6 text-[11px]" : "bottom-14 right-8 text-sm"} anim-diary-p2 opacity-0`}>🍃</span>
+        <span className={`absolute ${isSm ? "bottom-7 left-8 text-[11px]" : "bottom-10 left-12 text-sm"} anim-diary-p3 opacity-0`}>✍️</span>
+        <span className={`absolute ${isSm ? "bottom-8 right-8 text-[10px]" : "bottom-12 right-12 text-xs"} anim-diary-p4 opacity-0`}>🌸</span>
+        <span className={`absolute ${isSm ? "bottom-6 left-1/2 text-[10px]" : "bottom-8 left-1/2 text-xs"} anim-diary-p5 opacity-0`}>✨</span>
       </div>
 
       {/* Book cover / glow effect background */}
-      <div className={`absolute bg-[radial-gradient(circle_at_center,_rgba(251,191,36,0.2)_0%,_transparent_75%)] pointer-events-none z-0 ${isSm ? "w-12 h-12" : "w-20 h-20"}`} />
+      <div className={`absolute bg-[radial-gradient(circle_at_center,_rgba(251,191,36,0.2)_0%,_transparent_75%)] pointer-events-none z-0 ${isSm ? "w-16 h-16" : "w-20 h-20"}`} />
 
       {/* Open diary SVG */}
-      <svg viewBox="0 0 120 100" className={`${isSm ? "w-14 h-14" : "w-24 h-24"} drop-shadow-md select-none relative z-10 transition-transform duration-500 hover:scale-110`}>
+      <svg viewBox="0 0 120 100" className={`${isSm ? "w-18 h-18" : "w-24 h-24"} drop-shadow-md select-none relative z-10 transition-transform duration-500 hover:scale-110`}>
         {/* Book Cover Background (3D thickness shadow) */}
         <path d="M 8 23 C 25 15, 56 25, 60 27 C 64 25, 95 15, 112 23 L 112 88 C 95 80, 64 90, 60 88 C 56 90, 25 80, 8 88 Z" fill="oklch(0.35 0.045 40)" />
         {/* Main Cover */}
