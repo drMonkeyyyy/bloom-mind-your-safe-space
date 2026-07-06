@@ -394,7 +394,14 @@ export const getWeeklyInsight = createServerFn({ method: "POST" })
     try {
       r = await generateText({
         model: gateway("gemini-2.5-flash"),
-        prompt: `Sebagai pendamping ${companionRole} JN-CALM, buat insight mingguan singkat (maks 5 kalimat) dalam Bahasa Indonesia yang hangat dan tidak menghakimi. Sebutkan: mood dominan, trigger paling sering, satu hal positif, dan satu fokus untuk minggu depan. Data: ${summary}`,
+        prompt: `Sebagai pendamping ${companionRole} JN-CALM, buat insight mingguan dalam Bahasa Indonesia yang hangat dan tidak menghakimi berdasarkan data mingguan user.
+
+Format output wajib terbagi menjadi 2 bagian yang jelas dipisahkan baris kosong:
+1. Ringkasan & Refleksi: Tulis tanggapan hangat (3-4 kalimat) mengenai mood dominan minggu ini, trigger paling sering, dan satu hal positif/apresiasi atas kemajuan mereka.
+2. 📋 Solusi Langkah Demi Langkah (Step-by-Step): Tulis 3 langkah tindakan konkret, praktis, dan terukur yang bisa dilakukan user di minggu depan untuk merespons kondisi emosional mereka (misal: menggunakan latihan napas di menu Emergency Calm, menulis satu hal di Gratitude Journal, melakukan grounding, atau berbicara dengan companion). Gunakan nomor 1, 2, 3 dan emoji yang menarik di awal setiap langkah.
+
+Data aktivitas user minggu ini:
+${summary}`,
       });
     } catch (e) {
       handleAiError(e);
