@@ -50,7 +50,7 @@ function StatCard({ label, value, suffix = "/10", trend, onClick }: { label: str
 /* ── MindPlant SVG Plant Renderer ───────────────────────────────── */
 function MindPlant({ score, onClick }: { score: number; onClick?: () => void }) {
   let stage = 1;
-  let label = "Tunas Baru (Sprout)";
+  let label = "Tunas Baru";
   let desc = "Tanaman jiwamu baru saja bertunas. Teruskan langkah kecilmu merawat diri! 🌱";
   
   if (score > 200) {
