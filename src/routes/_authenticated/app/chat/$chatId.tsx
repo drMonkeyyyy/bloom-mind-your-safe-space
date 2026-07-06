@@ -314,40 +314,9 @@ function ChatRoom() {
       </div>
 
       <div className="border-t border-border pt-3">
-        <div className="mb-2.5 flex items-center justify-between gap-3">
-          <div className="flex gap-2 overflow-x-auto pb-1.5 scrollbar-thin select-none max-w-full">
-            <button 
-              onClick={() => submit(undefined, "Aku sedang cemas/panik. Tolong bantu aku menenangkan diri.")} 
-              className="rounded-full border border-red-200/50 bg-red-50/70 hover:bg-red-50 text-red-700 px-3.5 py-1.5 text-xs font-semibold shrink-0 transition-all duration-200 active:scale-95 shadow-sm cursor-pointer"
-            >
-              🚨 Aku panik/cemas
-            </button>
-            <button 
-              onClick={() => submit(undefined, "Terima kasih banyak atas sarannya yang menenangkan. 🤍")} 
-              className="rounded-full border border-primary/20 bg-primary-soft/40 hover:bg-primary-soft text-foreground px-3.5 py-1.5 text-xs font-medium shrink-0 transition-all duration-200 active:scale-95 shadow-sm cursor-pointer"
-            >
-              🤍 Terima kasih sarannya!
-            </button>
-            <button 
-              onClick={() => submit(undefined, "Aku lagi banyak pikiran hari ini dan butuh didengar sebentar...")} 
-              className="rounded-full border border-amber-200/40 bg-amber-50/40 hover:bg-amber-50 text-stone-700 px-3.5 py-1.5 text-xs font-medium shrink-0 transition-all duration-200 active:scale-95 shadow-sm cursor-pointer"
-            >
-              💭 Lagi banyak pikiran
-            </button>
-            <button 
-              onClick={() => submit(undefined, "Bantu aku melihat sisi positif dari situasi yang kuhadapi sekarang.")} 
-              className="rounded-full border border-emerald-200/40 bg-emerald-50/40 hover:bg-emerald-50 text-stone-700 px-3.5 py-1.5 text-xs font-medium shrink-0 transition-all duration-200 active:scale-95 shadow-sm cursor-pointer"
-            >
-              ✨ Sisi baik situasi ini?
-            </button>
-            <button 
-              onClick={() => submit(undefined, "Aku rasa aku mau coba latihan napas tenang dulu sekarang.")} 
-              className="rounded-full border border-blue-200/40 bg-blue-50/40 hover:bg-blue-50 text-stone-700 px-3.5 py-1.5 text-xs font-medium shrink-0 transition-all duration-200 active:scale-95 shadow-sm cursor-pointer"
-            >
-              🧘 Mau coba latihan napas
-            </button>
-          </div>
-          {showLimitWarning && <span className="ml-auto text-[10px] text-muted-foreground self-center shrink-0">Free: 3/hari</span>}
+        <div className="mb-2 flex gap-2">
+          <button onClick={()=>submit(undefined, "Aku sedang cemas/panik. Tolong bantu aku menenangkan diri.")} className="rounded-full border border-red-200/50 bg-red-50/70 hover:bg-red-50 text-red-700 px-3 py-1.5 text-xs font-semibold shadow-sm transition-all duration-200 active:scale-95 cursor-pointer">🚨 Aku panik/cemas</button>
+          {showLimitWarning && <span className="ml-auto text-[10px] text-muted-foreground self-center">Free: 3 balasan/hari</span>}
         </div>
         <form onSubmit={submit} className="flex gap-2">
           <textarea value={input} onChange={(e)=>setInput(e.target.value)} rows={2} placeholder="Tulis perasaanmu…"
