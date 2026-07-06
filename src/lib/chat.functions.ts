@@ -219,23 +219,41 @@ export const analyzeEmotionalEating = createServerFn({ method: "POST" })
     const { generateText } = await import("ai");
     const gateway = createGeminiClient(apiKey);
 
-    const prompt = `User JN-CALM sedang refleksi emotional eating.
-Emosi: ${data.emotion || "-"}
-Makanan yang dicraving: ${data.cravingFood || "-"}
-Trigger: ${data.trigger || "-"}
-Jenis lapar yang user pilih: ${data.hungerType ?? "belum dipilih"}
+    const prompt = `User JN-CALM sedang melakukan refleksi emotional eating.
+Detail Input:
+- Emosi yang dirasakan: ${data.emotion || "-"}
+- Makanan yang dicraving: ${data.cravingFood || "-"}
+- Situasi pemicu (trigger): ${data.trigger || "-"}
+- Jenis lapar yang dirasakan: ${data.hungerType ?? "belum dipilih"}
 
-Tugasmu: berikan respons hangat dan tidak menghakimi dalam Bahasa Indonesia, maksimal 4 kalimat. Tutup dengan 1 saran kecil yang konkret (contoh: jeda 5 menit + napas, minum air, journaling singkat, mindful eating). JANGAN beri diagnosis medis atau resep obat.`;
+Tugasmu:
+1. Berikan "insight": Analisis hangat, empatik, tidak menghakimi, dan mendalam dalam Bahasa Indonesia (maksimal 4 kalimat) mengenai pemicu emosional mereka dan kaitannya dengan makanan yang mereka inginkan. JANGAN memberikan diagnosis medis atau resep obat.
+2. Berikan "action": Rekomendasi 2-3 langkah coping mechanism konkret jangka pendek (misalnya: jalan kaki 2 menit, minum air hangat, journaling emosi, mendengarkan musik penenang, latihan napas 4-4-6). Formatnya HARUS berupa petunjuk praktis singkat yang dipisahkan dengan tanda "·" (contoh: Tarik napas dalam · Jalan kaki 2 menit · Tulis emosimu).`;
 
     let insight = "";
-    try {
-      const r = await generateText({ model: gateway("gemini-2.5-flash-lite"), prompt });
-      insight = r.text?.trim() ?? "";
-    } catch {
-      insight = "Tarik napas dulu 5 menit. Tanyakan: apa yang sebenarnya kamu butuhkan saat ini? Mungkin bukan makanan, tapi rasa nyaman.";
-    }
+    let action = "Jeda 5 menit · Minum air hangat · Tarik napas dalam · Tulis emosimu di jurnal";
 
-    const action = "Jeda 5 menit · minum segelas air · tarik napas dalam · tanyakan kebutuhanmu yang sebenarnya.";
+    try {
+      const { generateObject } = await import("ai");
+      const r = await generateObject({
+        model: gateway("gemini-2.5-flash-lite"),
+        schema: z.object({
+          insight: z.string().describe("Insight hangat, empatik, tidak menghakimi dalam Bahasa Indonesia (maksimal 4 kalimat)."),
+          action: z.string().describe("Coping mechanism konkret jangka pendek dipisahkan dengan tanda '·' (misal: Jeda 5 menit · Minum air hangat · Tarik napas dalam).")
+        }),
+        prompt
+      });
+      insight = r.object.insight?.trim() || "";
+      action = r.object.action?.trim() || action;
+    } catch {
+      try {
+        const { generateText } = await import("ai");
+        const rText = await generateText({ model: gateway("gemini-2.5-flash-lite"), prompt });
+        insight = rText.text?.trim() ?? "Tarik napas dulu 5 menit. Tanyakan: apa yang sebenarnya kamu butuhkan saat ini? Mungkin bukan makanan, tapi rasa nyaman.";
+      } catch {
+        insight = "Tarik napas dulu 5 menit. Tanyakan: apa yang sebenarnya kamu butuhkan saat ini? Mungkin bukan makanan, tapi rasa nyaman.";
+      }
+    }
 
     await supabase.from("emotional_eating_logs").insert({
       user_id: userId,
