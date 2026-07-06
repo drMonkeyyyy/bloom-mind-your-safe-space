@@ -137,47 +137,84 @@ function CozyDiaryBook({ size = "md" }: { size?: "sm" | "md" }) {
   const isSm = size === "sm";
   return (
     <div className={`relative flex items-center justify-center ${isSm ? "w-20 h-20 shrink-0" : "w-28 h-28 mb-5"}`}>
-      {/* Self-contained styling for particle floats */}
+      {/* Self-contained styling for particle floats with size-specific keyframes to prevent collision */}
       <style>{`
-        @keyframes float-diary-1 {
+        @keyframes float-diary-md-1 {
           0% { transform: translate(0, 10px) rotate(0deg) scale(0.6); opacity: 0; }
           15% { opacity: 0.8; }
           85% { opacity: 0.8; }
           100% { transform: translate(-20px, -55px) rotate(-15deg) scale(1.1); opacity: 0; }
         }
-        @keyframes float-diary-2 {
+        @keyframes float-diary-md-2 {
           0% { transform: translate(0, 10px) rotate(0deg) scale(0.5); opacity: 0; }
           20% { opacity: 0.8; }
           80% { opacity: 0.8; }
           100% { transform: translate(20px, -65px) rotate(20deg) scale(1); opacity: 0; }
         }
-        @keyframes float-diary-3 {
+        @keyframes float-diary-md-3 {
           0% { transform: translate(0, 10px) rotate(0deg) scale(0.6); opacity: 0; }
           10% { opacity: 0.9; }
           90% { opacity: 0.9; }
           100% { transform: translate(-8px, -45px) rotate(10deg) scale(1.1); opacity: 0; }
         }
-        .anim-diary-p1 { animation: float-diary-1 6s ease-in-out infinite; }
-        .anim-diary-p2 { animation: float-diary-2 8s ease-in-out infinite; animation-delay: 2s; }
-        .anim-diary-p3 { animation: float-diary-3 7s ease-in-out infinite; animation-delay: 3.8s; }
-        .anim-diary-p4 { animation: float-diary-1 9s ease-in-out infinite; animation-delay: 1s; }
-        .anim-diary-p5 { animation: float-diary-2 7.5s ease-in-out infinite; animation-delay: 4.8s; }
+        
+        @keyframes float-diary-sm-1 {
+          0% { transform: translate(0, 4px) rotate(0deg) scale(0.5); opacity: 0; }
+          15% { opacity: 0.85; }
+          80% { opacity: 0.85; }
+          100% { transform: translate(-10px, -24px) rotate(-10deg) scale(0.9); opacity: 0; }
+        }
+        @keyframes float-diary-sm-2 {
+          0% { transform: translate(0, 4px) rotate(0deg) scale(0.4); opacity: 0; }
+          20% { opacity: 0.85; }
+          75% { opacity: 0.85; }
+          100% { transform: translate(10px, -28px) rotate(15deg) scale(0.8); opacity: 0; }
+        }
+        @keyframes float-diary-sm-3 {
+          0% { transform: translate(0, 4px) rotate(0deg) scale(0.5); opacity: 0; }
+          10% { opacity: 0.9; }
+          70% { opacity: 0.9; }
+          100% { transform: translate(-4px, -20px) rotate(5deg) scale(0.9); opacity: 0; }
+        }
+
+        @keyframes book-sway-gentle {
+          0%, 100% { transform: translateY(0px) rotate(0deg); }
+          50% { transform: translateY(-3px) rotate(1.5deg); }
+        }
+        
+        .anim-diary-md-p1 { animation: float-diary-md-1 6s ease-in-out infinite; }
+        .anim-diary-md-p2 { animation: float-diary-md-2 8s ease-in-out infinite; animation-delay: 2s; }
+        .anim-diary-md-p3 { animation: float-diary-md-3 7s ease-in-out infinite; animation-delay: 3.8s; }
+        .anim-diary-md-p4 { animation: float-diary-md-1 9s ease-in-out infinite; animation-delay: 1s; }
+        .anim-diary-md-p5 { animation: float-diary-md-2 7.5s ease-in-out infinite; animation-delay: 4.8s; }
+
+        .anim-diary-sm-p1 { animation: float-diary-sm-1 5s ease-in-out infinite; }
+        .anim-diary-sm-p2 { animation: float-diary-sm-2 6.5s ease-in-out infinite; animation-delay: 1.5s; }
+        .anim-diary-sm-p3 { animation: float-diary-sm-3 5.5s ease-in-out infinite; animation-delay: 2.8s; }
+        .anim-diary-sm-p4 { animation: float-diary-sm-1 7.5s ease-in-out infinite; animation-delay: 0.8s; }
+        .anim-diary-sm-p5 { animation: float-diary-sm-2 6s ease-in-out infinite; animation-delay: 3.5s; }
+
+        .anim-book-sway {
+          animation: book-sway-gentle 4.5s ease-in-out infinite;
+          display: inline-block;
+          transform-origin: center center;
+        }
       `}</style>
 
       {/* Floating particles from book */}
       <div className="absolute inset-0 pointer-events-none overflow-visible select-none z-0">
-        <span className={`absolute ${isSm ? "bottom-8 left-6 text-[10px]" : "bottom-12 left-8 text-xs"} anim-diary-p1 opacity-0`}>✨</span>
-        <span className={`absolute ${isSm ? "bottom-9 right-6 text-[11px]" : "bottom-14 right-8 text-sm"} anim-diary-p2 opacity-0`}>🍃</span>
-        <span className={`absolute ${isSm ? "bottom-7 left-8 text-[11px]" : "bottom-10 left-12 text-sm"} anim-diary-p3 opacity-0`}>✍️</span>
-        <span className={`absolute ${isSm ? "bottom-8 right-8 text-[10px]" : "bottom-12 right-12 text-xs"} anim-diary-p4 opacity-0`}>🌸</span>
-        <span className={`absolute ${isSm ? "bottom-6 left-1/2 text-[10px]" : "bottom-8 left-1/2 text-xs"} anim-diary-p5 opacity-0`}>✨</span>
+        <span className={`absolute ${isSm ? "bottom-10 left-6 text-[10px] anim-diary-sm-p1" : "bottom-12 left-8 text-xs anim-diary-md-p1"} opacity-0`}>✨</span>
+        <span className={`absolute ${isSm ? "bottom-11 right-6 text-[11px] anim-diary-sm-p2" : "bottom-14 right-8 text-sm anim-diary-md-p2"} opacity-0`}>🍃</span>
+        <span className={`absolute ${isSm ? "bottom-9 left-8 text-[11px] anim-diary-sm-p3" : "bottom-10 left-12 text-sm anim-diary-md-p3"} opacity-0`}>✍️</span>
+        <span className={`absolute ${isSm ? "bottom-10 right-8 text-[10px] anim-diary-sm-p4" : "bottom-12 right-12 text-xs anim-diary-md-p4"} opacity-0`}>🌸</span>
+        <span className={`absolute ${isSm ? "bottom-8 left-1/2 text-[10px] anim-diary-sm-p5" : "bottom-8 left-1/2 text-xs anim-diary-md-p5"} opacity-0`}>✨</span>
       </div>
 
       {/* Book cover / glow effect background */}
-      <div className={`absolute bg-[radial-gradient(circle_at_center,_rgba(251,191,36,0.2)_0%,_transparent_75%)] pointer-events-none z-0 ${isSm ? "w-16 h-16" : "w-20 h-20"}`} />
+      <div className={`absolute bg-[radial-gradient(circle_at_center,_rgba(251,191,36,0.25)_0%,_transparent_75%)] pointer-events-none z-0 ${isSm ? "w-16 h-16" : "w-20 h-20"}`} />
 
       {/* Open diary SVG */}
-      <svg viewBox="0 0 120 100" className={`${isSm ? "w-18 h-18" : "w-24 h-24"} drop-shadow-md select-none relative z-10 transition-transform duration-500 hover:scale-110`}>
+      <svg viewBox="0 0 120 100" className={`${isSm ? "w-18 h-18" : "w-24 h-24"} drop-shadow-md select-none relative z-10 transition-transform duration-500 hover:scale-110 anim-book-sway`}>
         {/* Book Cover Background (3D thickness shadow) */}
         <path d="M 8 23 C 25 15, 56 25, 60 27 C 64 25, 95 15, 112 23 L 112 88 C 95 80, 64 90, 60 88 C 56 90, 25 80, 8 88 Z" fill="oklch(0.35 0.045 40)" />
         {/* Main Cover */}
@@ -220,6 +257,7 @@ function CozyDiaryBook({ size = "md" }: { size?: "sm" | "md" }) {
     </div>
   );
 }
+
 
 function JournalPage() {
   const { user } = useAuth();
