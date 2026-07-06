@@ -385,8 +385,8 @@ export const getWeeklyInsight = createServerFn({ method: "POST" })
         .eq("user_id", userId).gte("date", since),
       supabase.from("gratitude_entries").select("gratitude1, gratitude2, gratitude3, date")
         .eq("user_id", userId).gte("date", since),
-      supabase.from("habit_logs").select("completed, date, habits(name)")
-        .eq("user_id", userId).gte("date", since),
+      supabase.from("habit_logs").select("completed, date, habits!inner(name, is_active)")
+        .eq("user_id", userId).eq("habits.is_active", true).gte("date", since),
     ]);
 
     if (!moods || moods.length === 0) {
@@ -402,9 +402,19 @@ export const getWeeklyInsight = createServerFn({ method: "POST" })
     const { generateText } = await import("ai");
     const gateway = createGeminiClient(apiKey);
 
-    const habitsCount = habits?.filter(h => h.completed).length ?? 0;
-    const habitsList = habits?.filter(h => h.completed).map(h => (h.habits as any)?.name).filter(Boolean) ?? [];
-    const uniqueHabits = Array.from(new Set(habitsList));
+    const habitStats: Record<string, number> = {};
+    habits?.forEach((h) => {
+      if (h.completed) {
+        const name = (h.habits as any)?.name;
+        if (name) {
+          habitStats[name] = (habitStats[name] ?? 0) + 1;
+        }
+      }
+    });
+
+    const habitDetails = Object.entries(habitStats)
+      .map(([name, count]) => `${name} (${count}x)`)
+      .join(", ");
 
     const summary = `
 Aktivitas user dalam 7 hari terakhir:
@@ -412,7 +422,7 @@ Aktivitas user dalam 7 hari terakhir:
 2. Pola makan emosional (emotional eating): ${JSON.stringify(eating || [])}
 3. Jurnal refleksi pribadi: ${JSON.stringify(journals || [])}
 4. Catatan syukur (gratitude): ${JSON.stringify(gratitude || [])}
-5. Kebiasaan (habits) yang berhasil diselesaikan: ${habitsCount} kali (Habit yang diselesaikan: ${uniqueHabits.join(", ") || "tidak ada"})
+5. Kebiasaan (habits) yang berhasil diselesaikan minggu ini: ${habitDetails || "tidak ada"}
 `;
 
     let r;
