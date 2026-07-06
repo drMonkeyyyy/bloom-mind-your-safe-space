@@ -50,7 +50,7 @@ function PrivacyPage() {
               <ul className="list-disc pl-5 space-y-1">
                 <li><strong>Data Akun</strong>: Alamat email yang Anda masukkan saat melakukan pendaftaran.</li>
                 <li><strong>Data Profil</strong>: Nama panggilan, rentang usia, serta tujuan personal yang Anda tentukan di halaman onboarding.</li>
-                <li><strong>Data Penggunaan</strong>: Catatan jurnal (diary), gratitude logs, kebiasaan (habits), serta pesan percakapan Anda dengan pendamping AI kami (Companion).</li>
+                <li><strong>Data Penggunaan</strong>: Catatan jurnal (diary), gratitude logs, kebiasaan (habits), serta pesan percakapan Anda dengan pendamping AI kami (Companion). <span className="text-emerald-700 font-medium bg-emerald-50 px-1.5 py-0.5 rounded text-[11px] inline-block ml-1">🔒 Bersifat privat; pihak admin atau siapa pun tidak memiliki akses untuk membaca obrolan & jurnal Anda.</span></li>
                 <li><strong>Data Transaksi</strong>: Jika Anda berlangganan Premium, data pembayaran diolah secara aman dan terenkripsi oleh mitra gateway pembayaran kami (Mayar) secara langsung. Kami tidak menyimpan informasi detail kartu kredit atau virtual account Anda.</li>
               </ul>
             </section>
