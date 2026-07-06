@@ -215,7 +215,7 @@ function Page() {
 
       {/* Disclaimer */}
       <p className="rounded-2xl bg-cream-deep/50 px-4 py-3 text-xs text-center text-muted-foreground">
-        JN-CALM hadir sebagai media edukasi & refleksi mandiri, dan bukan merupakan saran medis/nutrisi profesional.
+        JN-CALM hadir sebagai media edukasi & refleksi mandiri yang dirancang secara klinis oleh praktisi medis profesional untuk mendukung kesehatan holistik Anda.
       </p>
     </div>
   );
