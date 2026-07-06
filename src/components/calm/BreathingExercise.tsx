@@ -120,6 +120,7 @@ export function BreathingExercise() {
             width={240}
             height={240}
             className="absolute inset-0"
+            style={{ transform: "rotate(-90deg)" }}
             aria-hidden="true"
           >
             {/* Glow filter */}
@@ -150,7 +151,6 @@ export function BreathingExercise() {
               strokeLinecap="round"
               strokeDasharray={CIRCUMFERENCE}
               strokeDashoffset={active ? strokeDashoffset : CIRCUMFERENCE}
-              transform="rotate(-90 120 120)"
               filter="url(#breath-glow)"
               style={{
                 transition: active ? "stroke-dashoffset 1s linear, stroke 0.8s ease" : "none",
@@ -177,16 +177,20 @@ export function BreathingExercise() {
             className="absolute inset-0 flex items-center justify-center"
             style={{ transition: `transform ${phase.duration * 1000}ms cubic-bezier(0.4, 0, 0.2, 1)`, transform: circleTransform }}
           >
-            {/* Morphing Zen Liquid background */}
+            {/* Clean Symmetrical Breathing Orb */}
             <div
-              className="absolute animate-zen-blob shadow-xl transition-colors duration-700"
+              className="absolute shadow-xl transition-all duration-700"
               style={{
                 width: 120,
                 height: 120,
                 left: "calc(50% - 60px)",
                 top: "calc(50% - 60px)",
+                borderRadius: "50%",
                 background: active ? phase.color : "oklch(0.71 0.045 160)",
-                boxShadow: active ? `0 8px 40px -8px ${phase.glow}` : undefined,
+                boxShadow: active 
+                  ? `0 12px 35px -8px ${phase.glow}, inset 0 -6px 16px rgba(0,0,0,0.15), inset 0 4px 12px rgba(255,255,255,0.3)` 
+                  : "0 8px 24px -8px rgba(0,0,0,0.1), inset 0 -6px 16px rgba(0,0,0,0.05)",
+                border: "1.5px solid rgba(255, 255, 255, 0.45)",
               }}
             />
             
