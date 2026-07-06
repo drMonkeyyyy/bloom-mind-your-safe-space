@@ -129,7 +129,7 @@ export const sendChatMessage = createServerFn({ method: "POST" })
     if (!chatId) {
       const { data: chat, error } = await supabase.from("chats").insert({
         user_id: userId,
-        companion_key: data.companionKey ?? null,
+        companion_key: data.companionKey ?? undefined,
         custom_companion_id: data.customCompanionId ?? null,
         title: data.content.slice(0, 60),
       }).select("id").single();
@@ -328,15 +328,14 @@ JSON:`;
     const { data: journal, error: insertError } = await supabase.from("journals").insert({
       user_id: userId,
       source: "from_chat",
-      companion_key: companionKey ?? null,
-      custom_companion_id: chat?.custom_companion_id ?? null,
+      companion_key: companionKey ?? undefined,
       summary: parsed.summary ?? null,
       main_emotion: parsed.main_emotion ?? null,
       main_trigger: parsed.main_trigger ?? null,
       lesson: parsed.lesson ?? null,
       gratitude: parsed.gratitude ?? null,
       tomorrow_focus: parsed.tomorrow_focus ?? null,
-    }).select("id").single();
+    } as any).select("id").single();
 
     if (insertError) {
       console.error("Gagal menyimpan journal:", insertError);
@@ -392,11 +391,11 @@ export const initStorageBuckets = createServerFn({ method: "POST" })
       const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
       const { data: buckets } = await supabaseAdmin.storage.listBuckets();
       
-      if (!buckets?.some(b => b.id === 'companion-avatars')) {
+      if (!buckets?.some((b: any) => b.id === 'companion-avatars')) {
         await supabaseAdmin.storage.createBucket('companion-avatars', { public: true });
       }
       
-      if (!buckets?.some(b => b.id === 'profile-avatars')) {
+      if (!buckets?.some((b: any) => b.id === 'profile-avatars')) {
         await supabaseAdmin.storage.createBucket('profile-avatars', { public: true });
       }
       

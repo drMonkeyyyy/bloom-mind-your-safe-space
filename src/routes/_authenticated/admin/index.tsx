@@ -12,6 +12,15 @@ function AdminDashboard() {
   const { data: stats } = useQuery({
     queryKey: ["admin-stats"],
     queryFn: async () => {
+      const fetchDbSize = async () => {
+        try {
+          const res = await supabase.rpc("get_database_size" as any);
+          return res;
+        } catch {
+          return { data: 0, error: null };
+        }
+      };
+
       const [users, premium, pendingOrders, todayChats, todayMoods, totalRev, dbSizeRes] = await Promise.all([
         supabase.from("profiles").select("id", { count: "exact", head: true }),
         supabase.from("profiles").select("id", { count: "exact", head: true }).eq("plan","premium"),
@@ -19,9 +28,9 @@ function AdminDashboard() {
         supabase.from("messages").select("id", { count: "exact", head: true }).eq("role","user").gte("created_at", today),
         supabase.from("mood_checkins").select("id", { count: "exact", head: true }).eq("date", today),
         supabase.from("orders").select("amount").eq("payment_status","disetujui"),
-        supabase.rpc("get_database_size").then(res => res).catch(() => ({ data: 0, error: null }))
+        fetchDbSize()
       ]);
-      const revenue = (totalRev.data ?? []).reduce((a,b)=>a+(b.amount??0),0);
+      const revenue = (totalRev.data ?? []).reduce((a: number, b: any) => a + (b.amount ?? 0), 0);
       const dbSize = dbSizeRes && 'data' in dbSizeRes ? Number(dbSizeRes.data || 0) : 0;
       
       return {

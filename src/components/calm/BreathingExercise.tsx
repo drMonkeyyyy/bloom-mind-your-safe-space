@@ -1,26 +1,56 @@
 import { useState, useEffect, useRef } from "react";
 
+/* Inhale 4s → Hold 4s → Exhale 6s per saran user */
 const PHASES = [
-  { label: "Tarik Napas", duration: 4, color: "oklch(0.71 0.045 160)" },
-  { label: "Tahan", duration: 7, color: "oklch(0.65 0.06 230)" },
-  { label: "Buang Napas", duration: 8, color: "oklch(0.77 0.085 40)" },
+  {
+    label: "Tarik Napas",
+    sub: "Hirup perlahan lewat hidung",
+    duration: 4,
+    scale: 1.18,
+    color: "oklch(0.71 0.045 160)",
+    glow: "oklch(0.71 0.045 160 / 0.35)",
+    trackColor: "#6E8C7150",
+  },
+  {
+    label: "Tahan",
+    sub: "Tahan dengan tenang",
+    duration: 4,
+    scale: 1.18,
+    color: "oklch(0.65 0.06 230)",
+    glow: "oklch(0.65 0.06 230 / 0.30)",
+    trackColor: "#6093C550",
+  },
+  {
+    label: "Buang Napas",
+    sub: "Hembuskan perlahan lewat mulut",
+    duration: 6,
+    scale: 0.88,
+    color: "oklch(0.77 0.085 40)",
+    glow: "oklch(0.77 0.085 40 / 0.30)",
+    trackColor: "#C5936050",
+  },
 ];
+
+const TOTAL_CYCLES = 4;
+const CIRCLE_R = 88; // SVG circle radius
+const CIRCUMFERENCE = 2 * Math.PI * CIRCLE_R;
 
 export function BreathingExercise() {
   const [active, setActive] = useState(false);
   const [phaseIdx, setPhaseIdx] = useState(0);
   const [countdown, setCountdown] = useState(PHASES[0].duration);
   const [cycle, setCycle] = useState(0);
+  const [justFinished, setJustFinished] = useState(false);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const phase = PHASES[phaseIdx];
-  const totalCycles = 4;
 
   const start = () => {
     setActive(true);
     setPhaseIdx(0);
     setCountdown(PHASES[0].duration);
     setCycle(0);
+    setJustFinished(false);
   };
 
   const stop = () => {
@@ -39,9 +69,10 @@ export function BreathingExercise() {
           const nextIdx = (phaseIdx + 1) % PHASES.length;
           if (nextIdx === 0) {
             const nextCycle = cycle + 1;
-            if (nextCycle >= totalCycles) {
+            if (nextCycle >= TOTAL_CYCLES) {
               setActive(false);
               setCycle(0);
+              setJustFinished(true);
               return PHASES[0].duration;
             }
             setCycle(nextCycle);
@@ -55,7 +86,14 @@ export function BreathingExercise() {
     return () => { if (timerRef.current) clearInterval(timerRef.current); };
   }, [active, phaseIdx, cycle]);
 
-  const breatheScale = phaseIdx === 0 ? "scale-110" : phaseIdx === 1 ? "scale-110" : "scale-90";
+  /* SVG arc progress: moves from full stroke (empty) → 0 (full) as countdown ticks */
+  const progressRatio = countdown / phase.duration;
+  const strokeDashoffset = CIRCUMFERENCE * progressRatio;
+
+  /* Circle scale transition based on phase */
+  const circleTransform = active
+    ? `scale(${phase.scale})`
+    : "scale(1)";
 
   return (
     <section
@@ -65,80 +103,138 @@ export function BreathingExercise() {
       }}
     >
       <div className="p-8 text-center">
-        <p className="text-sm font-semibold mb-6" style={{ color: "oklch(0.50 0.06 230)" }}>Teknik Napas 4-7-8</p>
+        <p className="text-sm font-semibold mb-2" style={{ color: "oklch(0.50 0.06 230)" }}>
+          Napas 4-4-6
+        </p>
+        <p className="text-xs text-muted-foreground mb-6">
+          Tarik 4 detik · Tahan 4 · Buang 6
+        </p>
 
-        {/* Outer glow rings */}
-        <div className="relative mx-auto w-64 h-64 grid place-items-center">
-          {/* Outermost ambient ring */}
-          <div
-            className={`absolute inset-0 rounded-full transition-all ease-in-out ${breatheScale}`}
-            style={{
-              background: `${phase.color}10`,
-              transitionDuration: `${phase.duration * 1000}ms`,
-              boxShadow: active ? `0 0 60px 20px ${phase.color}18` : "none",
-            }}
-          />
-          {/* Middle ring */}
-          <div
-            className={`absolute inset-6 rounded-full transition-all ease-in-out ${breatheScale}`}
-            style={{
-              background: `${phase.color}18`,
-              transitionDuration: `${phase.duration * 1000}ms`,
-            }}
-          />
-          {/* Inner ring */}
-          <div
-            className={`absolute inset-14 rounded-full transition-all ease-in-out ${breatheScale}`}
-            style={{
-              background: `${phase.color}28`,
-              transitionDuration: `${phase.duration * 1000}ms`,
-            }}
-          />
-          {/* Core circle */}
-          <div
-            className="relative grid h-24 w-24 place-items-center rounded-full text-white shadow-xl transition-all duration-500"
-            style={{
-              background: phase.color,
-              boxShadow: `0 8px 32px -8px ${phase.color}80`,
-            }}
+        {/* SVG breathing circle */}
+        <div
+          className="relative mx-auto"
+          style={{ width: 240, height: 240 }}
+        >
+          <svg
+            viewBox="0 0 240 240"
+            width={240}
+            height={240}
+            className="absolute inset-0"
+            aria-hidden="true"
           >
-            {active ? (
-              <>
-                <p className="font-display text-3xl font-bold leading-none">{countdown}</p>
-                <p className="text-[10px] font-medium opacity-90">detik</p>
-              </>
-            ) : (
-              <p className="font-display text-lg font-semibold">4·7·8</p>
+            {/* Glow filter */}
+            <defs>
+              <filter id="breath-glow" x="-50%" y="-50%" width="200%" height="200%">
+                <feGaussianBlur stdDeviation="8" result="blur" />
+                <feMerge>
+                  <feMergeNode in="blur" />
+                  <feMergeNode in="SourceGraphic" />
+                </feMerge>
+              </filter>
+            </defs>
+
+            {/* Track ring */}
+            <circle
+              cx="120" cy="120" r={CIRCLE_R}
+              fill="none"
+              stroke={phase.trackColor}
+              strokeWidth="10"
+            />
+
+            {/* Progress arc — animates countdown */}
+            <circle
+              cx="120" cy="120" r={CIRCLE_R}
+              fill="none"
+              stroke={phase.color}
+              strokeWidth="10"
+              strokeLinecap="round"
+              strokeDasharray={CIRCUMFERENCE}
+              strokeDashoffset={active ? strokeDashoffset : CIRCUMFERENCE}
+              transform="rotate(-90 120 120)"
+              filter="url(#breath-glow)"
+              style={{
+                transition: active ? "stroke-dashoffset 1s linear, stroke 0.8s ease" : "none",
+              }}
+            />
+
+            {/* Ambient outer glow ring — pulses with phase */}
+            {active && (
+              <circle
+                cx="120" cy="120" r="105"
+                fill="none"
+                stroke={phase.glow}
+                strokeWidth="24"
+                style={{
+                  filter: `blur(14px)`,
+                  transition: `r ${phase.duration * 1000}ms ease-in-out, stroke ${800}ms ease`,
+                }}
+              />
             )}
+          </svg>
+
+          {/* Centre circle — scales with breathing */}
+          <div
+            className="absolute inset-0 flex items-center justify-center"
+            style={{ transition: `transform ${phase.duration * 1000}ms cubic-bezier(0.4, 0, 0.2, 1)`, transform: circleTransform }}
+          >
+            <div
+              className="flex flex-col items-center justify-center rounded-full shadow-xl transition-colors duration-700"
+              style={{
+                width: 110,
+                height: 110,
+                background: active ? phase.color : "oklch(0.71 0.045 160)",
+                boxShadow: active ? `0 8px 40px -8px ${phase.glow}` : undefined,
+              }}
+            >
+              {active ? (
+                <>
+                  <p className="font-display text-4xl font-bold leading-none text-white">
+                    {countdown}
+                  </p>
+                  <p className="text-[10px] font-medium text-white/80 mt-0.5">detik</p>
+                </>
+              ) : (
+                <p className="font-display text-lg font-semibold text-white">4·4·6</p>
+              )}
+            </div>
           </div>
         </div>
 
-        {/* Phase label */}
-        <div className="mt-6 h-10">
+        {/* Phase label — changes automatically */}
+        <div className="mt-5 h-12 flex flex-col items-center justify-center">
           {active && (
-            <div className="animate-slide-up">
-              <p className="font-display text-xl font-semibold text-foreground">{phase.label}</p>
-              <p className="text-xs text-muted-foreground">{phase.duration} detik</p>
+            <div key={phaseIdx} className="animate-slide-up text-center">
+              <p className="font-display text-xl font-bold text-foreground" style={{ color: phase.color }}>
+                {phase.label}
+              </p>
+              <p className="text-xs text-muted-foreground mt-0.5">{phase.sub}</p>
             </div>
           )}
-          {!active && (
-            <p className="text-sm text-muted-foreground">Tarik napas 4 detik · Tahan 7 · Buang 8</p>
+          {!active && !justFinished && (
+            <p className="text-sm text-muted-foreground">Ikuti ritme lingkaran — tarik, tahan, buang</p>
+          )}
+          {justFinished && (
+            <div className="animate-slide-up text-center">
+              <p className="font-display text-base font-bold text-emerald-700">Latihan selesai! 🌿</p>
+              <p className="text-xs text-muted-foreground">Bagaimana perasaanmu sekarang?</p>
+            </div>
           )}
         </div>
 
-        {/* Cycle dots */}
+        {/* Cycle progress dots */}
         {active && (
           <div className="mt-4 flex justify-center gap-2">
-            {Array.from({ length: totalCycles }).map((_, i) => (
+            {Array.from({ length: TOTAL_CYCLES }).map((_, i) => (
               <div
                 key={i}
                 className="h-2 w-7 rounded-full transition-all duration-500"
                 style={{
-                  background: i < cycle
-                    ? "var(--color-primary)"
-                    : i === cycle
-                    ? "color-mix(in oklab, var(--color-primary) 50%, transparent)"
-                    : "var(--color-border)",
+                  background:
+                    i < cycle
+                      ? "var(--color-primary)"
+                      : i === cycle
+                      ? "color-mix(in oklab, var(--color-primary) 50%, transparent)"
+                      : "var(--color-border)",
                 }}
               />
             ))}
@@ -152,7 +248,7 @@ export function BreathingExercise() {
               onClick={start}
               className="rounded-full bg-primary px-8 py-3 text-sm font-semibold text-primary-foreground shadow-soft transition-all duration-250 hover:-translate-y-0.5 hover:shadow-glow-sage active:scale-95"
             >
-              Mulai Latihan
+              {justFinished ? "Ulangi Latihan" : "Mulai Latihan"}
             </button>
           ) : (
             <button

@@ -25,15 +25,24 @@ function Page() {
       if (filter !== "all") qb = qb.eq("plan", filter);
       if (q) qb = qb.or(`email.ilike.%${q}%,name.ilike.%${q}%`);
       
+      const fetchStats = async () => {
+        try {
+          const res = await supabase.from("user_message_stats" as any).select("*");
+          return res;
+        } catch {
+          return { data: [] };
+        }
+      };
+
       const [profilesRes, statsRes] = await Promise.all([
         qb,
-        supabase.from("user_message_stats" as any).select("*").then(res => res).catch(() => ({ data: [] }))
+        fetchStats()
       ]);
 
       const profiles = profilesRes.data ?? [];
       const statsMap = new Map((statsRes.data ?? []).map((s: any) => [s.user_id, s.total_replies]));
 
-      return profiles.map(p => ({
+      return profiles.map((p: any) => ({
         ...p,
         total_replies: statsMap.get(p.id) ?? 0
       }));
@@ -65,7 +74,7 @@ function Page() {
       </div>
 
       <div className="space-y-2">
-        {users?.map((u)=>(
+        {users?.map((u: any)=>(
           <div key={u.id} className="rounded-2xl bg-card p-4 ring-1 ring-border">
             <div className="flex items-center justify-between gap-3">
               <div className="min-w-0">

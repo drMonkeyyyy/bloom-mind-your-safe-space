@@ -801,3 +801,15 @@
     }
   }
 }
+
+/* ── Wave-dot typing indicator keyframe ─────────────────────────── */
+@keyframes wave-dot {
+  0%, 60%, 100% {
+    transform: translateY(0);
+    opacity: 0.5;
+  }
+  30% {
+    transform: translateY(-6px);
+    opacity: 1;
+  }
+}

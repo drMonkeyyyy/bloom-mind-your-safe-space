@@ -169,16 +169,12 @@ export function BloomGarden({ userId }: { userId?: string }) {
 
   // Determine stage of plant
   const progress = garden.progress;
-  let plantEmoji = "🌱";
   let plantStage = "Benih";
   if (progress >= 100) {
-    plantEmoji = "🌺";
     plantStage = "Mekar Sempurna!";
   } else if (progress >= 60) {
-    plantEmoji = "🌸";
     plantStage = "Kuncup Bunga";
   } else if (progress >= 30) {
-    plantEmoji = "🌿";
     plantStage = "Tunas Muda";
   }
 
@@ -205,15 +201,128 @@ export function BloomGarden({ userId }: { userId?: string }) {
     }, 4000);
   };
 
+  /* Render growing plant SVG dynamically based on progress */
+  const renderPlantSVG = () => {
+    // stem path length is roughly 50px (from y=50 to y=15)
+    // progress maps to stem length
+    const stemOffset = Math.max(0, 50 - (progress / 100) * 50);
+
+    const showLeaf1 = progress >= 30;
+    const showLeaf2 = progress >= 60;
+    const isBlooming = progress >= 100;
+
+    return (
+      <svg
+        viewBox="0 0 60 60"
+        width="100%"
+        height="100%"
+        className="overflow-visible"
+      >
+        <defs>
+          <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+            <feDropShadow dx="0" dy="1.5" stdDeviation="1" floodOpacity="0.08" />
+          </filter>
+        </defs>
+
+        {/* Small Brown Soil / Seed Pot */}
+        <path
+          d="M 18,48 L 42,48 L 38,55 L 22,55 Z"
+          fill="oklch(0.48 0.05 45)"
+          className="transition-colors duration-500"
+        />
+        <rect
+          x="16"
+          y="45"
+          width="28"
+          height="3"
+          rx="1"
+          fill="oklch(0.42 0.05 45)"
+        />
+
+        {/* Growing Stem */}
+        <path
+          d="M 30,45 Q 28,30 30,15"
+          fill="none"
+          stroke="oklch(0.71 0.045 160)"
+          strokeWidth="3.5"
+          strokeLinecap="round"
+          strokeDasharray="50"
+          strokeDashoffset={stemOffset}
+          style={{ transition: "stroke-dashoffset 1.5s cubic-bezier(0.22, 1, 0.36, 1)" }}
+        />
+
+        {/* Left Leaf (appears at >= 30% progress) */}
+        <g
+          className="transition-all duration-700 origin-[29px_34px]"
+          style={{
+            transform: showLeaf1 ? "scale(1)" : "scale(0)",
+            opacity: showLeaf1 ? 1 : 0,
+          }}
+        >
+          <path
+            d="M 29,34 C 18,34 16,24 28,28 C 29,28 29,32 29,34 Z"
+            fill="oklch(0.76 0.05 165)"
+          />
+        </g>
+
+        {/* Right Leaf (appears at >= 60% progress) */}
+        <g
+          className="transition-all duration-700 origin-[31px_26px]"
+          style={{
+            transform: showLeaf2 ? "scale(1)" : "scale(0)",
+            opacity: showLeaf2 ? 1 : 0,
+          }}
+        >
+          <path
+            d="M 31,26 C 42,26 44,18 32,21 C 31,21 31,24 31,26 Z"
+            fill="oklch(0.76 0.05 165)"
+          />
+        </g>
+
+        {/* Bud or Blooming Flower at the top */}
+        {progress >= 30 && (
+          <g
+            className="transition-all duration-1000 origin-[30px_15px] cursor-pointer"
+            style={{
+              transform: isBlooming ? "scale(1.2)" : progress >= 60 ? "scale(0.85)" : "scale(0.4)",
+              opacity: progress >= 60 ? 1 : 0.6,
+            }}
+            filter="url(#shadow)"
+          >
+            {/* If blooming fully, draw petals. Otherwise, draw a closed coral bud. */}
+            {isBlooming ? (
+              <>
+                {/* Center Core */}
+                <circle cx="30" cy="15" r="4.5" fill="oklch(0.85 0.12 85)" />
+                {/* 5 Petals */}
+                <circle cx="30" cy="9" r="4" fill="oklch(0.80 0.10 40)" />
+                <circle cx="35" cy="12.5" r="4" fill="oklch(0.80 0.10 40)" />
+                <circle cx="33" cy="18.5" r="4" fill="oklch(0.80 0.10 40)" />
+                <circle cx="27" cy="18.5" r="4" fill="oklch(0.80 0.10 40)" />
+                <circle cx="25" cy="12.5" r="4" fill="oklch(0.80 0.10 40)" />
+              </>
+            ) : (
+              // Bud
+              <path
+                d="M 30,10 C 26,11 26,19 30,19 C 34,19 34,11 30,10 Z"
+                fill="oklch(0.80 0.08 40)"
+              />
+            )}
+          </g>
+        )}
+      </svg>
+    );
+  };
+
   return (
     <div className="mx-3 my-2 p-3 bg-gradient-to-br from-emerald-50/80 to-teal-50/50 rounded-2xl border border-emerald-100/60 shadow-[0_4px_12px_rgba(16,185,129,0.04)] flex flex-col gap-3 relative overflow-hidden group">
       <style dangerouslySetInnerHTML={{ __html: `
         @keyframes plant-wobble {
           0%, 100% { transform: rotate(0deg) scale(1); }
-          50% { transform: rotate(3deg) scale(1.03); }
+          50% { transform: rotate(2deg) scale(1.02); }
         }
         .animate-plant-wobble {
-          animation: plant-wobble 2.5s infinite ease-in-out;
+          animation: plant-wobble 3s infinite ease-in-out;
         }
         @keyframes bloom-burst {
           0% { transform: scale(0) rotate(0deg); opacity: 0; }
@@ -243,10 +352,10 @@ export function BloomGarden({ userId }: { userId?: string }) {
       </div>
 
       <div className="flex items-center gap-3">
-        {/* Plant Visual */}
-        <div className="relative shrink-0 w-11 h-11 bg-white/40 rounded-xl border border-emerald-100/40 flex items-center justify-center select-none shadow-inner">
-          <div className="text-2xl animate-plant-wobble">
-            {plantEmoji}
+        {/* Plant SVG Container */}
+        <div className="relative shrink-0 w-12 h-12 bg-white/50 rounded-xl border border-emerald-100/40 flex items-center justify-center select-none shadow-inner p-1">
+          <div className="w-full h-full animate-plant-wobble">
+            {renderPlantSVG()}
           </div>
         </div>
 

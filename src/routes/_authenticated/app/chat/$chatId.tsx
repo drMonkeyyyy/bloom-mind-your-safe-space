@@ -58,6 +58,7 @@ function ChatRoom() {
     enabled: !!(chat?.custom_companion_id || customCompanionIdParam),
     queryFn: async () => {
       const id = chat?.custom_companion_id || customCompanionIdParam;
+      if (!id) return null;
       const { data } = await supabase.from("custom_companions").select("*").eq("id", id).maybeSingle();
       return data;
     },
@@ -135,7 +136,7 @@ function ChatRoom() {
 
   useEffect(() => { scrollRef.current?.scrollTo({ top: 999999, behavior: "smooth" }); }, [messages, sending]);
 
-  const comp = chat?.custom_companion_id || customCompanionIdParam
+  const comp = (chat?.custom_companion_id || customCompanionIdParam
     ? customCompanion
       ? {
           name: customCompanion.name,
@@ -144,7 +145,12 @@ function ChatRoom() {
           avatar_url: customCompanion.avatar_url,
         }
       : null
-    : COMPANIONS.find((c) => c.key === activeCompanion);
+    : COMPANIONS.find((c) => c.key === activeCompanion)) as {
+      name: string;
+      emoji: string;
+      tone: string;
+      avatar_url?: string | null;
+    } | null;
 
   const submit = async (e?: React.FormEvent, override?: string) => {
     e?.preventDefault();
@@ -263,9 +269,30 @@ function ChatRoom() {
           </div>
         ))}
         {sending && (
-          <div className="flex justify-start">
-            <div className="rounded-2xl bg-card px-4 py-2.5 text-sm ring-1 ring-border">
-              <span className="inline-flex gap-1"><span className="h-1.5 w-1.5 animate-pulse rounded-full bg-primary" /><span className="h-1.5 w-1.5 animate-pulse rounded-full bg-primary [animation-delay:0.2s]" /><span className="h-1.5 w-1.5 animate-pulse rounded-full bg-primary [animation-delay:0.4s]" /></span>
+          <div className="flex justify-start items-end gap-2">
+            {/* Companion avatar */}
+            <div className="shrink-0 mb-0.5">
+              {comp?.avatar_url ? (
+                <img src={comp.avatar_url} alt={comp.name} className="w-7 h-7 rounded-full object-cover ring-1 ring-border" />
+              ) : (
+                <div className="w-7 h-7 rounded-full bg-primary-soft/70 flex items-center justify-center text-base ring-1 ring-border/50">
+                  {comp?.emoji ?? "🌿"}
+                </div>
+              )}
+            </div>
+            {/* Wave typing bubble */}
+            <div className="rounded-2xl rounded-bl-sm bg-card px-4 py-3 ring-1 ring-border shadow-card">
+              <span className="inline-flex items-center gap-1.5" aria-label="AI sedang mengetik">
+                {[0, 150, 300].map((delay) => (
+                  <span
+                    key={delay}
+                    className="h-2 w-2 rounded-full bg-primary/60"
+                    style={{
+                      animation: `wave-dot 1.1s ease-in-out ${delay}ms infinite`,
+                    }}
+                  />
+                ))}
+              </span>
             </div>
           </div>
         )}

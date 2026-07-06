@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { useProfile } from "@/hooks/use-profile";
 import { supabase } from "@/integrations/supabase/client";
@@ -22,7 +22,47 @@ export const Route = createFileRoute("/_authenticated/app/habits")({
   component: HabitPage,
 });
 
-/* ── Confetti burst component ──────────────────────────────────── */
+/* ── Ripple + Confetti burst component ────────────────────────── */
+type RippleItem = { id: number; x: number; y: number };
+
+function useRipple() {
+  const [ripples, setRipples] = useState<RippleItem[]>([]);
+  const trigger = (e: React.MouseEvent<HTMLButtonElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const id = Date.now();
+    setRipples((prev) => [...prev, { id, x, y }]);
+    setTimeout(() => setRipples((prev) => prev.filter((r) => r.id !== id)), 700);
+  };
+  return { ripples, trigger };
+}
+
+function RippleContainer({ ripples, color = "oklch(0.71 0.045 160 / 0.35)" }: { ripples: RippleItem[]; color?: string }) {
+  return (
+    <>
+      {ripples.map((r) => (
+        <span
+          key={r.id}
+          aria-hidden="true"
+          style={{
+            position: "absolute",
+            left: r.x,
+            top: r.y,
+            width: 10,
+            height: 10,
+            borderRadius: "50%",
+            background: color,
+            transform: "translate(-50%, -50%) scale(0)",
+            animation: "ripple-out 0.65s cubic-bezier(0.22, 1, 0.36, 1) forwards",
+            pointerEvents: "none",
+          }}
+        />
+      ))}
+    </>
+  );
+}
+
 function ConfettiBurst({ active }: { active: boolean }) {
   if (!active) return null;
   const pieces = ["🌿", "✨", "🌸", "💚", "⭐", "🌱"];
@@ -66,6 +106,85 @@ function AnimatedProgressBar({ pct, allDone }: { pct: number; allDone: boolean }
           boxShadow: allDone ? "0 0 12px var(--color-primary)" : "none",
         }}
       />
+    </div>
+  );
+}
+
+/* ── HabitRow — owns its own ripple state ─────────────────────── */
+function HabitRow({
+  h,
+  idx,
+  isDone,
+  popping,
+  onToggle,
+  onRemove,
+}: {
+  h: { id: string; name: string; icon: string | null };
+  idx: number;
+  isDone: boolean;
+  popping: boolean;
+  onToggle: (id: string) => void;
+  onRemove: (id: string) => void;
+}) {
+  const { ripples, trigger } = useRipple();
+  return (
+    <div
+      className={`group relative flex items-center gap-5 overflow-hidden rounded-[1.25rem] p-4 transition-all duration-500 ease-out animate-slide-up ${
+        isDone
+          ? "bg-gradient-to-r from-primary/10 via-primary/5 to-transparent border border-primary/20 shadow-sm"
+          : "bg-card border border-border/40 hover:border-border/80 hover:shadow-md hover:-translate-y-0.5"
+      }`}
+      style={{ animationDelay: `${idx * 40}ms` }}
+    >
+      {/* Confetti burst on completion */}
+      <ConfettiBurst active={popping} />
+
+      {/* Checkbox with ripple + premium feel */}
+      <button
+        onClick={(e) => { trigger(e); onToggle(h.id); }}
+        className={`relative overflow-hidden grid h-11 w-11 shrink-0 place-items-center rounded-2xl border-2 transition-all duration-400 ${
+          isDone
+            ? "border-primary bg-primary text-primary-foreground shadow-lg shadow-primary/30 scale-100"
+            : "border-border/60 bg-background/50 hover:border-primary/60 hover:bg-primary/5 scale-100 hover:scale-105 active:scale-90"
+        } ${popping ? "animate-bounce-check" : ""}`}
+        aria-label={isDone ? `Tandai ${h.name} sebagai belum selesai` : `Selesaikan ${h.name}`}
+        aria-pressed={isDone}
+      >
+        <RippleContainer ripples={ripples} color={isDone ? "oklch(1 0 0 / 0.4)" : "oklch(0.71 0.045 160 / 0.35)"} />
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="3"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          className={`relative h-5 w-5 transition-all duration-300 ${isDone ? "opacity-100 scale-100" : "opacity-0 scale-50"}`}
+          aria-hidden="true"
+        >
+          <path d="m5 12 4 4 10-10" />
+        </svg>
+      </button>
+
+      {/* Icon + name */}
+      <div className="flex flex-1 items-center gap-4 min-w-0">
+        <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl text-2xl transition-all duration-300 ${isDone ? "bg-white/40 grayscale mix-blend-luminosity" : "bg-muted/50 group-hover:bg-white group-hover:shadow-sm group-hover:scale-110"}`}>
+          {h.icon || "✨"}
+        </div>
+        <span className={`truncate text-[15px] font-semibold transition-all duration-400 ${isDone ? "text-muted-foreground/60 line-through decoration-muted-foreground/40" : "text-foreground/90"}`}>
+          {h.name}
+        </span>
+      </div>
+
+      {/* Delete (visible on hover) */}
+      <button
+        onClick={() => onRemove(h.id)}
+        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-muted-foreground/40 opacity-0 transition-all duration-200 hover:bg-destructive/10 hover:text-destructive group-hover:opacity-100 active:scale-90"
+        aria-label={`Hapus habit ${h.name}`}
+      >
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4.5 w-4.5" aria-hidden="true">
+          <path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6" />
+        </svg>
+      </button>
     </div>
   );
 }
@@ -303,64 +422,15 @@ function HabitPage() {
               const isDone = !!logs?.find((l) => l.habit_id === h.id);
               const popping = justCompleted === h.id;
               return (
-                <div
+                <HabitRow
                   key={h.id}
-                  className={`group relative flex items-center gap-5 rounded-[1.25rem] p-4 transition-all duration-500 ease-out animate-slide-up ${
-                    isDone
-                      ? "bg-gradient-to-r from-primary/10 via-primary/5 to-transparent border border-primary/20 shadow-sm"
-                      : "bg-card border border-border/40 hover:border-border/80 hover:shadow-md hover:-translate-y-0.5"
-                  }`}
-                  style={{ animationDelay: `${idx * 40}ms` }}
-                >
-                  {/* Confetti burst on completion */}
-                  <ConfettiBurst active={popping} />
-
-                  {/* Checkbox with premium feel */}
-                  <button
-                    onClick={() => toggle(h.id)}
-                    className={`relative grid h-11 w-11 shrink-0 place-items-center rounded-2xl border-2 transition-all duration-400 ${
-                      isDone
-                        ? "border-primary bg-primary text-primary-foreground shadow-lg shadow-primary/30 scale-100"
-                        : "border-border/60 bg-background/50 hover:border-primary/60 hover:bg-primary/5 scale-100 hover:scale-105 active:scale-90"
-                    } ${popping ? "animate-bounce-check" : ""}`}
-                    aria-label={isDone ? `Tandai ${h.name} sebagai belum selesai` : `Selesaikan ${h.name}`}
-                    aria-pressed={isDone}
-                  >
-                    <svg 
-                      viewBox="0 0 24 24" 
-                      fill="none" 
-                      stroke="currentColor" 
-                      strokeWidth="3" 
-                      strokeLinecap="round" 
-                      strokeLinejoin="round" 
-                      className={`h-5 w-5 transition-all duration-300 ${isDone ? "opacity-100 scale-100" : "opacity-0 scale-50"}`} 
-                      aria-hidden="true"
-                    >
-                      <path d="m5 12 4 4 10-10" />
-                    </svg>
-                  </button>
-
-                  {/* Icon + name */}
-                  <div className="flex flex-1 items-center gap-4 min-w-0">
-                    <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl text-2xl transition-all duration-300 ${isDone ? "bg-white/40 grayscale mix-blend-luminosity" : "bg-muted/50 group-hover:bg-white group-hover:shadow-sm group-hover:scale-110"}`}>
-                      {h.icon}
-                    </div>
-                    <span className={`truncate text-[15px] font-semibold transition-all duration-400 ${isDone ? "text-muted-foreground/60 line-through decoration-muted-foreground/40" : "text-foreground/90"}`}>
-                      {h.name}
-                    </span>
-                  </div>
-
-                  {/* Delete (visible on hover) */}
-                  <button
-                    onClick={() => remove(h.id)}
-                    className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-muted-foreground/40 opacity-0 transition-all duration-200 hover:bg-destructive/10 hover:text-destructive group-hover:opacity-100 active:scale-90"
-                    aria-label={`Hapus habit ${h.name}`}
-                  >
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4.5 w-4.5" aria-hidden="true">
-                      <path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6" />
-                    </svg>
-                  </button>
-                </div>
+                  h={h}
+                  idx={idx}
+                  isDone={isDone}
+                  popping={popping}
+                  onToggle={toggle}
+                  onRemove={remove}
+                />
               );
             })}
           </div>

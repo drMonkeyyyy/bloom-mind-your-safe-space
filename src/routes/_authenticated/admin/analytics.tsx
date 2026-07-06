@@ -151,6 +151,15 @@ function Page() {
   const { data, refetch } = useQuery({
     queryKey: ["admin-analytics"],
     queryFn: async () => {
+      const fetchFeedback = async () => {
+        try {
+          const res = await supabase.from("calm_feedback_logs" as any).select("*");
+          return res;
+        } catch {
+          return { data: [] };
+        }
+      };
+
       const [moods, journals, habits, eating, chats, totalMsgs, feedbackRes] = await Promise.all([
         supabase.from("mood_checkins").select("mood, triggers, user_id, date"),
         supabase.from("journals").select("id", { count: "exact", head: true }),
@@ -158,7 +167,7 @@ function Page() {
         supabase.from("emotional_eating_logs").select("hunger_type, emotion, trigger"),
         supabase.from("chats").select("companion_key"),
         supabase.from("messages").select("id", { count: "exact", head: true }).eq("role", "assistant"),
-        supabase.from("calm_feedback_logs" as any).select("*").then(res => res).catch(() => ({ data: [] }))
+        fetchFeedback()
       ]);
       
       const moodCount: Record<string,number> = {};
@@ -169,22 +178,22 @@ function Page() {
       const thirtyDaysAgo = new Date();
       thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
       const thirtyDaysAgoStr = thirtyDaysAgo.toISOString().split("T")[0];
-      const moods30Days = moods.data?.filter(m => m.date >= thirtyDaysAgoStr) ?? [];
+      const moods30Days = (moods.data as any[])?.filter((m: any) => m.date >= thirtyDaysAgoStr) ?? [];
 
       const moodUsers: Record<string, Set<string>> = {};
       const moodTotalCount: Record<string, number> = {};
 
-      moods.data?.forEach((m)=>{
+      (moods.data as any[])?.forEach((m: any)=>{
         moodCount[m.mood] = (moodCount[m.mood]??0)+1;
         if (!moodTriggers[m.mood]) moodTriggers[m.mood] = {};
-        m.triggers?.forEach((t)=>{ 
+        m.triggers?.forEach((t: any)=>{ 
           triggerCount[t]=(triggerCount[t]??0)+1;
           moodTriggers[m.mood][t] = (moodTriggers[m.mood][t]??0)+1;
         });
       });
 
       // Compute statistics for 30-day prevalence
-      moods30Days.forEach((m) => {
+      moods30Days.forEach((m: any) => {
         if (!moodUsers[m.mood]) moodUsers[m.mood] = new Set();
         moodUsers[m.mood].add(m.user_id);
         moodTotalCount[m.mood] = (moodTotalCount[m.mood] ?? 0) + 1;
@@ -201,13 +210,13 @@ function Page() {
       });
 
       const companionCount: Record<string, number> = {};
-      chats.data?.forEach((c) => {
+      (chats.data as any[])?.forEach((c: any) => {
         const key = c.companion_key || "sahabat";
         companionCount[key] = (companionCount[key] ?? 0) + 1;
       });
 
       const hungerCount: Record<string, number> = {};
-      eating.data?.forEach((e) => {
+      (eating.data as any[])?.forEach((e: any) => {
         if (e.hunger_type) {
           hungerCount[e.hunger_type] = (hungerCount[e.hunger_type] ?? 0) + 1;
         }

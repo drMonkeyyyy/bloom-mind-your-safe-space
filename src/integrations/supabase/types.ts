@@ -52,27 +52,66 @@ export type Database = {
       }
       chats: {
         Row: {
-          companion_key: Database["public"]["Enums"]["companion_key"]
+          companion_key: Database["public"]["Enums"]["companion_key"] | null
           created_at: string
+          custom_companion_id: string | null
           id: string
           title: string | null
           updated_at: string
           user_id: string
         }
         Insert: {
-          companion_key?: Database["public"]["Enums"]["companion_key"]
+          companion_key?: Database["public"]["Enums"]["companion_key"] | null
           created_at?: string
+          custom_companion_id?: string | null
           id?: string
           title?: string | null
           updated_at?: string
           user_id: string
         }
         Update: {
-          companion_key?: Database["public"]["Enums"]["companion_key"]
+          companion_key?: Database["public"]["Enums"]["companion_key"] | null
           created_at?: string
+          custom_companion_id?: string | null
           id?: string
           title?: string | null
           updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      custom_companions: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          description: string
+          emoji: string | null
+          id: string
+          name: string
+          system_prompt: string
+          tone: string
+          user_id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          description?: string
+          emoji?: string | null
+          id?: string
+          name: string
+          system_prompt: string
+          tone: string
+          user_id: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          description?: string
+          emoji?: string | null
+          id?: string
+          name?: string
+          system_prompt?: string
+          tone?: string
           user_id?: string
         }
         Relationships: []
@@ -444,6 +483,7 @@ export type Database = {
       profiles: {
         Row: {
           age: number | null
+          avatar_url: string | null
           communication_style: Database["public"]["Enums"]["comm_style"] | null
           created_at: string
           email: string | null
@@ -463,6 +503,7 @@ export type Database = {
         }
         Insert: {
           age?: number | null
+          avatar_url?: string | null
           communication_style?: Database["public"]["Enums"]["comm_style"] | null
           created_at?: string
           email?: string | null
@@ -482,6 +523,7 @@ export type Database = {
         }
         Update: {
           age?: number | null
+          avatar_url?: string | null
           communication_style?: Database["public"]["Enums"]["comm_style"] | null
           created_at?: string
           email?: string | null
