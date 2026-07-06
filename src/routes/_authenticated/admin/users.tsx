@@ -85,7 +85,7 @@ function Page() {
             </div>
 
             <div className="mt-3.5 flex flex-wrap gap-2 pt-2 border-t border-border/10">
-              <button onClick={async()=>{ await setPlan({ data: { userId: u.id, plan: u.plan==="premium"?"free":"premium", days: 30 } }); toast.success("Plan diperbarui"); qc.invalidateQueries({ queryKey:["admin-users"]}); }}
+              <button onClick={async()=>{ await setPlan({ data: { userId: u.id, plan: u.plan==="premium"?"free":"premium", days: 30 } }); toast.success("Plan diperbarui"); qc.invalidateQueries({ queryKey:["admin-users"]}); qc.invalidateQueries({ queryKey:["profile", u.id]}); }}
                 className="rounded-full border border-border px-3 py-1 text-xs">{u.plan==="premium"?"Set Free":"Set Premium 30 hari"}</button>
               <button onClick={async()=>{ await suspend({ data: { userId: u.id, suspended: !u.suspended } }); qc.invalidateQueries({ queryKey:["admin-users"]}); }}
                 className="rounded-full border border-border px-3 py-1 text-xs">{u.suspended?"Aktifkan":"Suspend"}</button>
