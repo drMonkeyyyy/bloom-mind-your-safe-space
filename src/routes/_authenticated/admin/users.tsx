@@ -147,9 +147,21 @@ function Page() {
                 </div>
                 <p className="truncate text-xs text-muted-foreground">{u.email}</p>
               </div>
-              <span className={`rounded-full px-3 py-1 text-xs capitalize font-semibold ${u.plan === "premium" ? "bg-accent-soft text-accent-foreground" : "bg-cream-deep text-muted-foreground"}`}>
-                {u.plan === "premium" ? "Prem Lim" : "Free"}
-              </span>
+              <div className="flex flex-col items-end gap-1 shrink-0">
+                <span className={`rounded-full px-3 py-1 text-xs capitalize font-semibold ${u.plan === "premium" ? "bg-accent-soft text-accent-foreground" : "bg-cream-deep text-muted-foreground"}`}>
+                  {u.plan === "premium" 
+                    ? (u.premium_end_date && u.premium_start_date &&
+                       (new Date(u.premium_end_date).getTime() - new Date(u.premium_start_date).getTime() > 60 * 24 * 60 * 60 * 1000)
+                        ? "Prem Tahunan 🏆"
+                        : "Prem Bulanan ✨")
+                    : "Free"}
+                </span>
+                {u.plan === "premium" && u.premium_end_date && (
+                  <span className="text-[10px] text-muted-foreground">
+                    s/d {new Date(u.premium_end_date).toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" })}
+                  </span>
+                )}
+              </div>
             </div>
 
             {/* AI usage details */}
