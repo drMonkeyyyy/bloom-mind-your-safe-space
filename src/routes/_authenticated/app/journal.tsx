@@ -271,13 +271,13 @@ function MagicalLetter({
   useEffect(() => {
     // Stage 1: Shake envelope
     const t1 = setTimeout(() => setStage("shaking"), 300);
-    // Stage 2: Flap open + Confetti blast
+    // Stage 2: Flap open + Confetti blast (Shakes for 3.0 seconds first)
     const t2 = setTimeout(() => {
       setStage("opening");
       setShowConfetti(true);
-    }, 1100);
-    // Stage 3: Letter slide up & reveal
-    const t3 = setTimeout(() => setStage("open"), 1800);
+    }, 3300);
+    // Stage 3: Letter slide up & reveal (Flap opens for 1.5 seconds first)
+    const t3 = setTimeout(() => setStage("open"), 4800);
 
     return () => {
       clearTimeout(t1);
@@ -295,11 +295,8 @@ function MagicalLetter({
       <style>{`
         @keyframes envelope-shake {
           0%, 100% { transform: rotate(0deg) scale(1); }
-          15% { transform: rotate(-4deg) scale(1.03); }
-          30% { transform: rotate(3deg) scale(1.03); }
-          45% { transform: rotate(-3deg) scale(1.03); }
-          60% { transform: rotate(2deg) scale(1.03); }
-          75% { transform: rotate(-1deg) scale(1.03); }
+          25% { transform: rotate(-5deg) scale(1.04); }
+          75% { transform: rotate(5deg) scale(1.04); }
         }
 
         @keyframes flap-open {
@@ -315,7 +312,7 @@ function MagicalLetter({
         @keyframes gold-sparkle {
           0% { transform: scale(0.3) translate(0, 0); opacity: 0; }
           50% { opacity: 1; }
-          100% { transform: scale(1.2) translate(var(--dx), var(--dy)); opacity: 0; }
+          100% { transform: scale(1.3) translate(var(--dx), var(--dy)); opacity: 0; }
         }
 
         @keyframes envelope-glow-pulse {
@@ -329,24 +326,24 @@ function MagicalLetter({
         }
 
         .envelope-shake {
-          animation: envelope-shake 0.8s ease-in-out;
+          animation: envelope-shake 0.25s ease-in-out infinite;
         }
 
         .envelope-glow {
-          animation: envelope-glow-pulse 2s infinite ease-in-out;
+          animation: envelope-glow-pulse 1.5s infinite ease-in-out;
         }
 
         .flap-anim {
-          animation: flap-open 0.7s forwards ease-in-out;
+          animation: flap-open 1.2s forwards ease-in-out;
           transform-origin: top center;
         }
 
         .letter-anim {
-          animation: letter-reveal 0.9s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+          animation: letter-reveal 1.5s cubic-bezier(0.19, 1, 0.22, 1) forwards;
         }
 
         .sparkle-burst {
-          animation: gold-sparkle 1.8s ease-out forwards;
+          animation: gold-sparkle 2.5s ease-out forwards;
         }
       `}</style>
 
