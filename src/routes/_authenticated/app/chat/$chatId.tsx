@@ -106,8 +106,8 @@ function ChatRoom() {
   });
 
   const scrollRef = useRef<HTMLDivElement>(null);
-  const fourMonthsAgo = new Date(Date.now() - 120 * 24 * 60 * 60 * 1000);
-  const hasOldMessages = messages && messages.length > 0 && messages.some(m => new Date(m.created_at) < fourMonthsAgo);
+  const threeMonthsAgo = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000);
+  const hasOldMessages = messages && messages.length > 0 && messages.some(m => new Date(m.created_at) < threeMonthsAgo);
 
   useEffect(() => {
     if (hasOldMessages && !warnedAt) {
@@ -120,7 +120,7 @@ function ChatRoom() {
   useEffect(() => {
     if (hasOldMessages && warnedAt) {
       const diff = Date.now() - warnedAt;
-      if (diff >= 7 * 24 * 60 * 60 * 1000) {
+      if (diff >= 30 * 24 * 60 * 60 * 1000) {
         const autoDelete = async () => {
           try {
             const oneMonthCutoff = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
@@ -312,10 +312,10 @@ function ChatRoom() {
             <div className="flex items-center gap-2">
               <span className="text-base select-none">⏳</span>
               <p className="leading-relaxed">
-                Riwayat obrolan sudah berjalan lebih dari 4 bulan. Bersihkan pesan lama yang sudah berjalan 3 bulan untuk menghemat ruang? 
+                Riwayat obrolan sudah berjalan lebih dari 3 bulan. Bersihkan pesan lama untuk menghemat ruang? 
                 {warnedAt && (() => {
                   const diff = Date.now() - warnedAt;
-                  const remainingDays = 7 - Math.floor(diff / (24 * 60 * 60 * 1000));
+                  const remainingDays = 30 - Math.floor(diff / (24 * 60 * 60 * 1000));
                   const dayText = remainingDays <= 1 ? "kurang dari 24 jam" : `${remainingDays} hari`;
                   return (
                     <strong className="text-rose-600 block mt-0.5">
