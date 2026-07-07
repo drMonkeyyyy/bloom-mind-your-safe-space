@@ -341,14 +341,14 @@ function ChatRoom() {
             <div className="flex items-center gap-2">
               <span className="text-base select-none">⏳</span>
               <p className="leading-relaxed">
-                Riwayat obrolan sudah berjalan lebih dari 3 bulan. Bersihkan pesan lama untuk menghemat ruang? 
+                Riwayat obrolan sudah berjalan lebih dari <strong>{isAnnual ? "1 tahun" : "3 bulan"}</strong>. Bersihkan pesan lama untuk menghemat ruang?
                 {warnedAt && (() => {
                   const diff = Date.now() - warnedAt;
                   const remainingDays = 30 - Math.floor(diff / (24 * 60 * 60 * 1000));
                   const dayText = remainingDays <= 1 ? "kurang dari 24 jam" : `${remainingDays} hari`;
                   return (
                     <strong className="text-rose-600 block mt-0.5">
-                      ⚠️ Data lama akan dihapus otomatis oleh sistem dalam {dayText} lagi jika tidak disimpan!
+                      ⚠️ Data lama akan dihapus otomatis dalam {dayText} lagi jika tidak disimpan!
                     </strong>
                   );
                 })()}
@@ -371,6 +371,7 @@ function ChatRoom() {
             </div>
           </div>
         )}
+
         {isNew && (
           <div className="rounded-2xl bg-primary-soft/50 p-4 text-sm text-foreground">
             Halo 🌿 Aku <strong>{comp?.name}</strong>. Apa pun yang kamu rasakan sekarang, aku siap mendengarkan. Mulai dari mana saja.
