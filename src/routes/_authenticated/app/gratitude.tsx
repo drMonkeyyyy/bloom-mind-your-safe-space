@@ -62,13 +62,28 @@ function Page() {
     const val = localStorage.getItem(`gratitude_cleanup_snoozed`);
     if (!val) return false;
     const snoozeTime = parseInt(val, 10);
-    return Date.now() - snoozeTime < 24 * 60 * 60 * 1000;
+    const durationVal = localStorage.getItem(`gratitude_cleanup_snooze_duration`);
+    const duration = durationVal ? parseInt(durationVal, 10) : 24 * 60 * 60 * 1000;
+    return Date.now() - snoozeTime < duration;
   });
 
   const snoozeCleanup = () => {
+    const warnedTime = warnedAt || Date.now();
+    const diff = Date.now() - warnedTime;
+    const remainingDays = 30 - Math.floor(diff / (24 * 60 * 60 * 1000));
+    
+    let snoozeDurationMs = 24 * 60 * 60 * 1000; // default 1 day
+    let message = "Peringatan pembersihan ditunda sampai besok ⏰";
+    
+    if (remainingDays > 7) {
+      snoozeDurationMs = 7 * 24 * 60 * 60 * 1000; // 1 week
+      message = "Peringatan pembersihan ditunda selama 1 minggu karena sisa waktu masih banyak ⏰";
+    }
+    
     localStorage.setItem(`gratitude_cleanup_snoozed`, Date.now().toString());
+    localStorage.setItem(`gratitude_cleanup_snooze_duration`, snoozeDurationMs.toString());
     setCleanupSnoozed(true);
-    toast.info("Peringatan pembersihan ditunda sampai besok ⏰");
+    toast.info(message);
   };
 
   const [warnedAt, setWarnedAt] = useState<number | null>(() => {
@@ -113,8 +128,11 @@ function Page() {
               .eq("user_id", user.id)
               .lt("created_at", oneMonthCutoff.toISOString());
             localStorage.removeItem(`gratitude_cleanup_warned_at`);
+            localStorage.removeItem(`gratitude_cleanup_snoozed`);
+            localStorage.removeItem(`gratitude_cleanup_snooze_duration`);
             setWarnedAt(null);
-            qc.invalidateQueries({ queryKey: ["gratitude", user.id] });
+            setCleanupSnoozed(false);
+            qc.invalidateQueries({ queryKey: ["gratitude", user?.id] });
             refetchOldGratitudesCount();
             toast.info("Catatan syukur lama telah dihapus otomatis untuk menghemat ruang 🧹");
           } catch (e) {
@@ -165,7 +183,10 @@ function Page() {
 
       if (error) throw error;
       localStorage.removeItem(`gratitude_cleanup_warned_at`);
+      localStorage.removeItem(`gratitude_cleanup_snoozed`);
+      localStorage.removeItem(`gratitude_cleanup_snooze_duration`);
       setWarnedAt(null);
+      setCleanupSnoozed(false);
       toast.success("Catatan rasa syukur lama berhasil dibersihkan! 🙏");
       setCleanupModalOpen(false);
       qc.invalidateQueries({ queryKey: ["gratitude", user.id] });

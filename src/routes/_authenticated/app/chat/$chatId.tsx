@@ -91,13 +91,28 @@ function ChatRoom() {
     const val = localStorage.getItem(`chat_cleanup_snoozed_${chatId}`);
     if (!val) return false;
     const snoozeTime = parseInt(val, 10);
-    return Date.now() - snoozeTime < 24 * 60 * 60 * 1000;
+    const durationVal = localStorage.getItem(`chat_cleanup_snooze_duration_${chatId}`);
+    const duration = durationVal ? parseInt(durationVal, 10) : 24 * 60 * 60 * 1000;
+    return Date.now() - snoozeTime < duration;
   });
 
   const snoozeCleanup = () => {
+    const warnedTime = warnedAt || Date.now();
+    const diff = Date.now() - warnedTime;
+    const remainingDays = 30 - Math.floor(diff / (24 * 60 * 60 * 1000));
+    
+    let snoozeDurationMs = 24 * 60 * 60 * 1000; // default 1 day
+    let message = "Peringatan pembersihan ditunda sampai besok ⏰";
+    
+    if (remainingDays > 7) {
+      snoozeDurationMs = 7 * 24 * 60 * 60 * 1000; // 1 week
+      message = "Peringatan pembersihan ditunda selama 1 minggu karena sisa waktu masih banyak ⏰";
+    }
+    
     localStorage.setItem(`chat_cleanup_snoozed_${chatId}`, Date.now().toString());
+    localStorage.setItem(`chat_cleanup_snooze_duration_${chatId}`, snoozeDurationMs.toString());
     setCleanupSnoozed(true);
-    toast.info("Peringatan pembersihan ditunda sampai besok ⏰");
+    toast.info(message);
   };
 
   const [warnedAt, setWarnedAt] = useState<number | null>(() => {
@@ -130,7 +145,10 @@ function ChatRoom() {
               .eq("chat_id", chatId)
               .lt("created_at", oneMonthCutoff.toISOString());
             localStorage.removeItem(`chat_cleanup_warned_at_${chatId}`);
+            localStorage.removeItem(`chat_cleanup_snoozed_${chatId}`);
+            localStorage.removeItem(`chat_cleanup_snooze_duration_${chatId}`);
             setWarnedAt(null);
+            setCleanupSnoozed(false);
             refetch();
             toast.info("Riwayat obrolan lama (di atas 1 bulan) telah dihapus otomatis untuk menghemat ruang 🧹");
           } catch (e) {
@@ -176,7 +194,10 @@ function ChatRoom() {
         
       if (error) throw error;
       localStorage.removeItem(`chat_cleanup_warned_at_${chatId}`);
+      localStorage.removeItem(`chat_cleanup_snoozed_${chatId}`);
+      localStorage.removeItem(`chat_cleanup_snooze_duration_${chatId}`);
       setWarnedAt(null);
+      setCleanupSnoozed(false);
       toast.success("Pesan lama (di atas 1 bulan) berhasil dibersihkan! 🌿");
       setCleanupModalOpen(false);
       refetch();
