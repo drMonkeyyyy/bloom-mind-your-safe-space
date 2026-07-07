@@ -256,7 +256,15 @@ function CozyDiaryBook({ size = "md" }: { size?: "sm" | "md" }) {
   );
 }
 
-function MagicalLetter({ capsule, onClose }: { capsule: TimeCapsule; onClose: () => void }) {
+function MagicalLetter({ 
+  capsule, 
+  onClose,
+  onDelete
+}: { 
+  capsule: TimeCapsule; 
+  onClose: () => void;
+  onDelete?: () => void;
+}) {
   const [stage, setStage] = useState<"closed" | "shaking" | "opening" | "open">("closed");
   const [showConfetti, setShowConfetti] = useState(false);
 
@@ -441,12 +449,22 @@ function MagicalLetter({ capsule, onClose }: { capsule: TimeCapsule; onClose: ()
             </div>
           </div>
 
-          <button
-            onClick={onClose}
-            className="w-full rounded-2xl bg-amber-400 hover:bg-amber-500 py-3 text-xs font-bold text-stone-900 shadow-md transition-all duration-200 hover:-translate-y-0.5 active:scale-95 flex items-center justify-center gap-1.5 relative z-10"
-          >
-            Simpan Kembali Ke Lemari Kapsul 🤍
-          </button>
+          <div className="flex flex-col gap-2 pt-1 relative z-10 w-full">
+            <button
+              onClick={onClose}
+              className="w-full rounded-2xl bg-amber-400 hover:bg-amber-500 py-3 text-xs font-bold text-stone-900 shadow-md transition-all duration-200 hover:-translate-y-0.5 active:scale-95 flex items-center justify-center gap-1.5"
+            >
+              Simpan Kembali Ke Lemari Kapsul 🤍
+            </button>
+            {onDelete && (
+              <button
+                onClick={onDelete}
+                className="w-full rounded-2xl border border-destructive/20 hover:border-destructive/40 bg-white/95 py-2 text-xs font-bold text-destructive shadow-sm transition-all duration-200 active:scale-95 flex items-center justify-center gap-1.5"
+              >
+                🗑️ Hapus & Bersihkan Kapsul Ini
+              </button>
+            )}
+          </div>
         </div>
       )}
     </div>
@@ -531,6 +549,15 @@ function JournalPage() {
     setCustomDate("");
     setCapsuleOpen(false);
     toast.success("Kapsul waktu berhasil dikunci! 🔒");
+  };
+
+  const deleteCapsule = (id: string) => {
+    if (!user) return;
+    const updated = capsules.filter((cap) => cap.id !== id);
+    setCapsules(updated);
+    localStorage.setItem(`bloom_time_capsules_${user.id}`, JSON.stringify(updated));
+    setViewCapsule(null);
+    toast.success("Kapsul waktu berhasil dihapus & dibersihkan! 🗑️");
   };
 
   const getCapsuleStatus = (unlockDateStr: string) => {
@@ -1112,6 +1139,7 @@ function JournalPage() {
           <MagicalLetter
             capsule={viewCapsule}
             onClose={() => setViewCapsule(null)}
+            onDelete={() => deleteCapsule(viewCapsule.id)}
           />
         )}
       </ModalDialog>
