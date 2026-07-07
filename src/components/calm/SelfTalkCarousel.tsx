@@ -137,8 +137,8 @@ export function SelfTalkCarousel() {
           <p className="text-sm font-semibold text-rose-800">Apa itu Self-Compassionate Talk?</p>
           <p className="text-sm text-rose-700 leading-relaxed">
             Cara kita berbicara pada diri sendiri memiliki dampak <strong>langsung</strong> pada sistem saraf.
-            Penelitian Dr. Kristin Neff menunjukkan bahwa <em>self-compassionate self-talk</em> (berbicara pada diri sendiri
-            dengan belas kasih) secara klinis menurunkan kecemasan, ruminasi, dan depresi.
+            Penelitian psikologi klinis menunjukkan bahwa <em>self-compassionate self-talk</em> (berbicara pada diri sendiri
+            dengan belas kasih) secara terbukti menurunkan kecemasan, ruminasi, dan depresi.
           </p>
           <p className="text-sm text-rose-700 leading-relaxed">
             Berbeda dengan afirmasi positif palsu, kalimat ini <strong>mengakui perasaanmu</strong> sekaligus
@@ -286,20 +286,28 @@ export function SelfTalkCarousel() {
         >
           {/* Breathe button visual */}
           <div className="flex justify-center">
-            <button
-              onClick={() => setBreatheActive(a => !a)}
-              className="relative w-16 h-16 rounded-full flex items-center justify-center transition-all duration-300"
-              style={{
-                background: breatheActive ? category.color : "white",
-                boxShadow: breatheActive
-                  ? `0 0 0 8px ${category.color}22, 0 4px 20px ${category.color}44`
-                  : "0 2px 8px rgba(0,0,0,0.08)",
-                animation: breatheActive ? "breath-pulse 4s ease-in-out infinite" : "none",
-              }}
-              title="Klik untuk napas dalam saat membaca"
-            >
-              <span className="text-2xl">{breatheActive ? "🌬️" : "🤍"}</span>
-            </button>
+            <div className="relative">
+              {breatheActive && (
+                <div
+                  className="absolute inset-0 rounded-full animate-breath-ring"
+                  style={{ background: category.color }}
+                />
+              )}
+              <button
+                onClick={() => setBreatheActive(a => !a)}
+                className="relative w-16 h-16 rounded-full flex items-center justify-center transition-all duration-500"
+                style={{
+                  background: breatheActive ? category.color : "white",
+                  boxShadow: breatheActive
+                    ? `0 0 0 8px ${category.color}22, 0 4px 20px ${category.color}44`
+                    : "0 2px 8px rgba(0,0,0,0.08)",
+                  transform: breatheActive ? "scale(1.1)" : "scale(1)",
+                }}
+                title="Klik untuk napas dalam saat membaca"
+              >
+                <span className="text-2xl">{breatheActive ? "🌬️" : "🤍"}</span>
+              </button>
+            </div>
           </div>
 
           {/* Main phrase */}
