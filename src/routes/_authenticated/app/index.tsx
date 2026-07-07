@@ -154,7 +154,14 @@ function Dashboard() {
     "Nikmati buah, camilan, atau minuman favorit secara perlahan tanpa memegang ponsel. 🍎"
   ];
 
-  const todayStr = new Date().toISOString().slice(0, 10);
+  // Use local date string instead of UTC to avoid early 7 AM day rollover bugs
+  const getLocalDateString = (d: Date = new Date()) => {
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+  const todayStr = getLocalDateString();
   const questStorageKey = user?.id ? `bloom_quest_completed_${user.id}_${todayStr}` : null;
   const dayOfMonth = new Date().getDate();
   const currentQuest = QUESTS[dayOfMonth % QUESTS.length];

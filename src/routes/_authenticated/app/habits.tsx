@@ -208,7 +208,15 @@ function HabitPage() {
   const [newIcon, setNewIcon] = useState("✨");
   const [addOpen, setAddOpen] = useState(false);
   const [justCompleted, setJustCompleted] = useState<string | null>(null);
-  const today = new Date().toISOString().slice(0, 10);
+
+  // Use local date string instead of UTC to avoid early 7 AM day rollover bugs
+  const getLocalDateString = (d: Date = new Date()) => {
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+  const today = getLocalDateString();
 
   const { data: habits } = useQuery({
     queryKey: ["habits", user?.id],
@@ -218,7 +226,7 @@ function HabitPage() {
       return data ?? [];
     },
   });
-  const { data: logs } = useQuery({
+  const { data: logs, refetch: refetchLogs } = useQuery({
     queryKey: ["habit-logs-today", user?.id, today],
     enabled: !!user,
     queryFn: async () => {
@@ -245,13 +253,28 @@ function HabitPage() {
     if (!user) return;
     const existing = logs?.find((l) => l.habit_id === habitId);
     if (existing) {
-      await supabase.from("habit_logs").delete().eq("id", existing.id);
+      // Deleting directly using habitId, date, and user_id to prevent any race condition failures
+      const { error } = await supabase
+        .from("habit_logs")
+        .delete()
+        .eq("habit_id", habitId)
+        .eq("date", today)
+        .eq("user_id", user.id);
+      if (error) {
+        toast.error(error.message);
+      }
     } else {
-      await supabase.from("habit_logs").insert({ user_id: user.id, habit_id: habitId, date: today, completed: true });
-      setJustCompleted(habitId);
-      setTimeout(() => setJustCompleted(null), 900);
+      const { error } = await supabase
+        .from("habit_logs")
+        .insert({ user_id: user.id, habit_id: habitId, date: today, completed: true });
+      if (error) {
+        toast.error(error.message);
+      } else {
+        setJustCompleted(habitId);
+        setTimeout(() => setJustCompleted(null), 900);
+      }
     }
-    qc.invalidateQueries({ queryKey: ["habit-logs-today", user.id, today] });
+    await refetchLogs();
     qc.invalidateQueries({ queryKey: ["habit-streak", user.id] });
     qc.invalidateQueries({ queryKey: ["habits-today-count", user.id] });
   };
@@ -261,8 +284,10 @@ function HabitPage() {
     qc.invalidateQueries({ queryKey: ["habits", user!.id] });
   };
 
+  const activeHabitIds = habits?.map((h) => h.id) ?? [];
+  const activeLogs = logs?.filter((l) => activeHabitIds.includes(l.habit_id)) ?? [];
   const total = habits?.length ?? 0;
-  const done = logs?.length ?? 0;
+  const done = activeLogs.length;
   const pct = total > 0 ? Math.round((done / total) * 100) : 0;
   const allDone = total > 0 && done >= total;
 

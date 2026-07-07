@@ -15,21 +15,28 @@ export function StreakBuddy({ userId }: { userId?: string }) {
         .limit(30);
       if (!data || data.length === 0) return 0;
       
+      const getLocalDateString = (dateObj: Date) => {
+        const year = dateObj.getFullYear();
+        const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+        const day = String(dateObj.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+      };
+
       const dates = new Set(data.map((d) => d.date));
       let s = 0;
       const d = new Date();
-      const todayStr = d.toISOString().slice(0, 10);
+      const todayStr = getLocalDateString(d);
       
       const yesterday = new Date();
       yesterday.setDate(yesterday.getDate() - 1);
-      const yesterdayStr = yesterday.toISOString().slice(0, 10);
+      const yesterdayStr = getLocalDateString(yesterday);
       
       if (!dates.has(todayStr) && !dates.has(yesterdayStr)) {
         return 0;
       }
 
       const countDate = dates.has(todayStr) ? d : yesterday;
-      while (dates.has(countDate.toISOString().slice(0, 10))) {
+      while (dates.has(getLocalDateString(countDate))) {
         s++;
         countDate.setDate(countDate.getDate() - 1);
       }

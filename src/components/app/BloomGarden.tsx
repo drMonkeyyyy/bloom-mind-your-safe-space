@@ -22,6 +22,16 @@ const FLOWERS = [
 ];
 
 export function BloomGarden({ userId }: { userId?: string }) {
+  // Use local date string instead of UTC to avoid early 7 AM day rollover bugs
+  const getLocalDateString = (d: Date = new Date()) => {
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
+  const todayStr = getLocalDateString();
+
   const [garden, setGarden] = useState<GardenData>(() => {
     const saved = userId ? localStorage.getItem(`bloom_garden_${userId}`) : null;
     if (saved) {
@@ -33,14 +43,12 @@ export function BloomGarden({ userId }: { userId?: string }) {
       completedHabits: [],
       completedMoods: [],
       completedJournals: [],
-      lastResetDate: new Date().toISOString().slice(0, 10),
+      lastResetDate: todayStr,
     };
   });
 
   const [showGallery, setShowGallery] = useState(false);
   const [justBloomed, setJustBloomed] = useState<{ name: string; emoji: string } | null>(null);
-
-  const todayStr = new Date().toISOString().slice(0, 10);
 
   // Queries for reactivity
   const { data: habits = [] } = useQuery({
@@ -74,14 +82,11 @@ export function BloomGarden({ userId }: { userId?: string }) {
     queryKey: ["journals-today", userId, todayStr],
     enabled: !!userId,
     queryFn: async () => {
-      const startOfDay = todayStr + "T00:00:00.000Z";
-      const endOfDay = todayStr + "T23:59:59.999Z";
       const { data } = await supabase
         .from("journals")
         .select("id")
         .eq("user_id", userId!)
-        .gte("created_at", startOfDay)
-        .lte("created_at", endOfDay);
+        .eq("date", todayStr);
       return data ?? [];
     },
   });
