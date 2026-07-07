@@ -121,8 +121,14 @@ function ChatRoom() {
   });
 
   const scrollRef = useRef<HTMLDivElement>(null);
-  const threeMonthsAgo = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000);
-  const hasOldMessages = messages && messages.length > 0 && messages.some(m => new Date(m.created_at) < threeMonthsAgo);
+  
+  // Detect if user has a 1-year annual premium subscription
+  const isAnnual = !!(profile?.premium_end_date && profile?.premium_start_date && 
+    (new Date(profile.premium_end_date).getTime() - new Date(profile.premium_start_date).getTime() > 60 * 24 * 60 * 60 * 1000));
+  
+  const cutoffDays = isAnnual ? 365 : 90;
+  const oldMessagesCutoff = new Date(Date.now() - cutoffDays * 24 * 60 * 60 * 1000);
+  const hasOldMessages = messages && messages.length > 0 && messages.some(m => new Date(m.created_at) < oldMessagesCutoff);
 
   useEffect(() => {
     if (hasOldMessages && !warnedAt) {
@@ -138,19 +144,20 @@ function ChatRoom() {
       if (diff >= 30 * 24 * 60 * 60 * 1000) {
         const autoDelete = async () => {
           try {
-            const oneMonthCutoff = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+            const keepDays = isAnnual ? 365 : 30;
+            const historyCutoff = new Date(Date.now() - keepDays * 24 * 60 * 60 * 1000);
             await supabase
               .from("messages")
               .delete()
               .eq("chat_id", chatId)
-              .lt("created_at", oneMonthCutoff.toISOString());
+              .lt("created_at", historyCutoff.toISOString());
             localStorage.removeItem(`chat_cleanup_warned_at_${chatId}`);
             localStorage.removeItem(`chat_cleanup_snoozed_${chatId}`);
             localStorage.removeItem(`chat_cleanup_snooze_duration_${chatId}`);
             setWarnedAt(null);
             setCleanupSnoozed(false);
             refetch();
-            toast.info("Riwayat obrolan lama (di atas 1 bulan) telah dihapus otomatis untuk menghemat ruang 🧹");
+            toast.info(`Riwayat obrolan lama (di atas ${isAnnual ? '1 tahun' : '1 bulan'}) telah dihapus otomatis untuk menghemat ruang 🧹`);
           } catch (e) {
             console.error(e);
           }
@@ -158,14 +165,15 @@ function ChatRoom() {
         autoDelete();
       }
     }
-  }, [hasOldMessages, warnedAt, chatId]);
+  }, [hasOldMessages, warnedAt, chatId, isAnnual]);
 
   const clearOldMessages = async (exportFormat: 'pdf' | 'json' | 'none') => {
     if (!user || isNew) return;
     setCleaning(true);
     try {
-      const oneMonthCutoff = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
-      const messagesToExport = messages?.filter(m => new Date(m.created_at) < oneMonthCutoff) ?? [];
+      const keepDays = isAnnual ? 365 : 30;
+      const historyCutoff = new Date(Date.now() - keepDays * 24 * 60 * 60 * 1000);
+      const messagesToExport = messages?.filter(m => new Date(m.created_at) < historyCutoff) ?? [];
 
       if (messagesToExport.length > 0) {
         if (exportFormat === 'pdf') {
@@ -190,7 +198,7 @@ function ChatRoom() {
         .from("messages")
         .delete()
         .eq("chat_id", chatId)
-        .lt("created_at", oneMonthCutoff.toISOString());
+        .lt("created_at", historyCutoff.toISOString());
         
       if (error) throw error;
       localStorage.removeItem(`chat_cleanup_warned_at_${chatId}`);
@@ -198,7 +206,7 @@ function ChatRoom() {
       localStorage.removeItem(`chat_cleanup_snooze_duration_${chatId}`);
       setWarnedAt(null);
       setCleanupSnoozed(false);
-      toast.success("Pesan lama (di atas 1 bulan) berhasil dibersihkan! 🌿");
+      toast.success(`Pesan lama (di atas ${isAnnual ? '1 tahun' : '1 bulan'}) berhasil dibersihkan! 🌿`);
       setCleanupModalOpen(false);
       refetch();
     } catch (err: any) {

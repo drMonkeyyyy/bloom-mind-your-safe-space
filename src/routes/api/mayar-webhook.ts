@@ -139,9 +139,13 @@ export const Route = createFileRoute('/api/mayar-webhook')({
             });
           }
 
-          // 6. Activate Premium Plan for user (30 days from now)
+          // 6. Activate Premium Plan for user (30 days or 365 days from now depending on package)
           const endDate = new Date(now);
-          endDate.setDate(endDate.getDate() + 30);
+          if (order.package_name === "Premium Tahunan") {
+            endDate.setDate(endDate.getDate() + 365);
+          } else {
+            endDate.setDate(endDate.getDate() + 30);
+          }
 
           const { error: updateProfileErr } = await supabaseAdmin
             .from('profiles')

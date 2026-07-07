@@ -12,6 +12,7 @@ function makeOrderNumber() {
 
 const CreatePaymentInput = z.object({
   redirectUrl: z.string().url(),
+  packageType: z.enum(["bulanan", "tahunan"]).default("bulanan"),
 });
 
 export const createPayment = createServerFn({ method: "POST" })
@@ -37,22 +38,29 @@ export const createPayment = createServerFn({ method: "POST" })
       throw new Error("Email user tidak valid");
     }
 
-    // 2. Fetch app settings to get premium price
+    // 2. Fetch app settings to get premium price for monthly, set yearly manually
     const { data: settings } = await supabaseAdmin
       .from("app_settings")
       .select("premium_price")
       .eq("id", 1)
       .maybeSingle();
       
-    const amount = settings?.premium_price ?? 49000;
+    let amount = settings?.premium_price ?? 49000;
+    let packageName = "Premium Bulanan";
 
-    // 3. Check if there is an existing pending order with a valid payment link
+    if (data.packageType === "tahunan") {
+      amount = 490000; // Rp490.000 for Annual
+      packageName = "Premium Tahunan";
+    }
+
+    // 3. Check if there is an existing pending order with a valid payment link for the same package
     const { data: existingOrder } = await supabaseAdmin
       .from("orders")
       .select("*")
       .eq("user_id", userId)
       .eq("payment_status", "menunggu_pembayaran")
       .eq("payment_method", "mayar")
+      .eq("package_name", packageName)
       .not("payment_link", "is", null)
       .order("created_at", { ascending: false })
       .limit(1)
@@ -70,7 +78,7 @@ export const createPayment = createServerFn({ method: "POST" })
         order_number: orderNumber,
         user_id: userId,
         amount: amount,
-        package_name: "Premium Bulanan",
+        package_name: packageName,
         payment_method: "mayar",
         payment_status: "menunggu_pembayaran",
       })
@@ -83,7 +91,7 @@ export const createPayment = createServerFn({ method: "POST" })
 
     try {
       // 5. Create payment request on Mayar
-      const description = `Upgrade JN-CALM Premium - ${orderNumber}`;
+      const description = `Upgrade JN-CALM ${packageName} - ${orderNumber}`;
       const paymentData = await createMayarPaymentLink({
         name: profile.name || email.split("@")[0],
         email: email,

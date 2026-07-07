@@ -50,6 +50,8 @@ function Page() {
   const { user } = useAuth();
   const { data: profile } = useProfile(user?.id);
   const isPremium = profile?.plan === "premium";
+  const isAnnual = !!(profile?.premium_end_date && profile?.premium_start_date &&
+    (new Date(profile.premium_end_date).getTime() - new Date(profile.premium_start_date).getTime() > 60 * 24 * 60 * 60 * 1000));
   const qc = useQueryClient();
   const [g, setG] = useState({ gratitude1: "", gratitude2: "", gratitude3: "", best_moment: "", lesson: "" });
   const [saving, setSaving] = useState(false);
@@ -91,17 +93,18 @@ function Page() {
     return val ? parseInt(val, 10) : null;
   });
 
-  const threeMonthsAgo = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000);
+  const cutoffDays = isAnnual ? 365 : 90;
+  const oldGratitudesCutoff = new Date(Date.now() - cutoffDays * 24 * 60 * 60 * 1000);
 
   const { data: oldGratitudesCount, refetch: refetchOldGratitudesCount } = useQuery({
-    queryKey: ["old-gratitudes-count", user?.id],
+    queryKey: ["old-gratitudes-count", user?.id, isAnnual],
     enabled: !!user,
     queryFn: async () => {
       const { count } = await supabase
         .from("gratitude_entries")
         .select("*", { count: "exact", head: true })
         .eq("user_id", user!.id)
-        .lt("created_at", threeMonthsAgo.toISOString());
+        .lt("created_at", oldGratitudesCutoff.toISOString());
       return count ?? 0;
     }
   });
@@ -121,12 +124,13 @@ function Page() {
       if (diff >= 30 * 24 * 60 * 60 * 1000) {
         const autoDelete = async () => {
           try {
-            const oneMonthCutoff = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+            const keepDays = isAnnual ? 365 : 30;
+            const historyCutoff = new Date(Date.now() - keepDays * 24 * 60 * 60 * 1000);
             await supabase
               .from("gratitude_entries")
               .delete()
               .eq("user_id", user.id)
-              .lt("created_at", oneMonthCutoff.toISOString());
+              .lt("created_at", historyCutoff.toISOString());
             localStorage.removeItem(`gratitude_cleanup_warned_at`);
             localStorage.removeItem(`gratitude_cleanup_snoozed`);
             localStorage.removeItem(`gratitude_cleanup_snooze_duration`);
@@ -134,7 +138,7 @@ function Page() {
             setCleanupSnoozed(false);
             qc.invalidateQueries({ queryKey: ["gratitude", user?.id] });
             refetchOldGratitudesCount();
-            toast.info("Catatan syukur lama telah dihapus otomatis untuk menghemat ruang 🧹");
+            toast.info(`Catatan syukur lama (di atas ${isAnnual ? '1 tahun' : '1 bulan'}) telah dihapus otomatis 🧹`);
           } catch (e) {
             console.error(e);
           }
@@ -142,18 +146,19 @@ function Page() {
         autoDelete();
       }
     }
-  }, [oldGratitudesCount, warnedAt, user, qc, refetchOldGratitudesCount]);
+  }, [oldGratitudesCount, warnedAt, user, qc, refetchOldGratitudesCount, isAnnual]);
 
   const clearOldGratitudes = async (exportFormat: 'pdf' | 'json' | 'none') => {
     if (!user) return;
     setCleaning(true);
     try {
-      const oneMonthCutoff = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+      const keepDays = isAnnual ? 365 : 30;
+      const historyCutoff = new Date(Date.now() - keepDays * 24 * 60 * 60 * 1000);
       const { data: oldGratitudes } = await supabase
         .from("gratitude_entries")
         .select("*")
         .eq("user_id", user.id)
-        .lt("created_at", oneMonthCutoff.toISOString())
+        .lt("created_at", historyCutoff.toISOString())
         .order("created_at", { ascending: true });
 
       if (oldGratitudes && oldGratitudes.length > 0) {
@@ -179,7 +184,7 @@ function Page() {
         .from("gratitude_entries")
         .delete()
         .eq("user_id", user.id)
-        .lt("created_at", oneMonthCutoff.toISOString());
+        .lt("created_at", historyCutoff.toISOString());
 
       if (error) throw error;
       localStorage.removeItem(`gratitude_cleanup_warned_at`);

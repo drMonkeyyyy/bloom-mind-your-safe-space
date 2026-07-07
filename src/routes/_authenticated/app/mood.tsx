@@ -2,6 +2,7 @@ import { createFileRoute, useSearch, Link } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import { z } from "zod";
 import { useAuth } from "@/hooks/use-auth";
+import { useProfile } from "@/hooks/use-profile";
 import { supabase } from "@/integrations/supabase/client";
 import { MOOD_OPTIONS, TRIGGER_OPTIONS } from "@/lib/companions";
 import { toast } from "sonner";
@@ -80,6 +81,9 @@ const DAYS_OF_WEEK = ["Min", "Sen", "Sel", "Rab", "Kam", "Jum", "Sab"];
 function MoodPage() {
   const { pre } = useSearch({ from: "/_authenticated/app/mood" });
   const { user } = useAuth();
+  const { data: profile } = useProfile(user?.id);
+  const isAnnual = !!(profile?.premium_end_date && profile?.premium_start_date &&
+    (new Date(profile.premium_end_date).getTime() - new Date(profile.premium_start_date).getTime() > 60 * 24 * 60 * 60 * 1000));
   const qc = useQueryClient();
   const [viewMode, setViewMode] = useState<"list" | "calendar">("list");
   const [currentMonth, setCurrentMonth] = useState(new Date().getMonth());
@@ -130,17 +134,18 @@ function MoodPage() {
     return val ? parseInt(val, 10) : null;
   });
 
-  const threeMonthsAgo = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000);
+  const cutoffDays = isAnnual ? 365 : 90;
+  const oldMoodsCutoff = new Date(Date.now() - cutoffDays * 24 * 60 * 60 * 1000);
 
   const { data: oldMoodsCount, refetch: refetchOldMoodsCount } = useQuery({
-    queryKey: ["old-moods-count", user?.id],
+    queryKey: ["old-moods-count", user?.id, isAnnual],
     enabled: !!user,
     queryFn: async () => {
       const { count } = await supabase
           .from("mood_checkins")
           .select("*", { count: "exact", head: true })
           .eq("user_id", user!.id)
-          .lt("created_at", threeMonthsAgo.toISOString());
+          .lt("created_at", oldMoodsCutoff.toISOString());
       return count ?? 0;
     }
   });
@@ -160,12 +165,13 @@ function MoodPage() {
       if (diff >= 30 * 24 * 60 * 60 * 1000) {
         const autoDelete = async () => {
           try {
-            const oneMonthCutoff = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+            const keepDays = isAnnual ? 365 : 30;
+            const historyCutoff = new Date(Date.now() - keepDays * 24 * 60 * 60 * 1000);
             await supabase
               .from("mood_checkins")
               .delete()
               .eq("user_id", user.id)
-              .lt("created_at", oneMonthCutoff.toISOString());
+              .lt("created_at", historyCutoff.toISOString());
             localStorage.removeItem(`mood_cleanup_warned_at`);
             localStorage.removeItem(`mood_cleanup_snoozed`);
             localStorage.removeItem(`mood_cleanup_snooze_duration`);
@@ -173,7 +179,7 @@ function MoodPage() {
             setCleanupSnoozed(false);
             qc.invalidateQueries({ queryKey: ["mood-list", user?.id] });
             refetchOldMoodsCount();
-            toast.info("Catatan mood lama telah dihapus otomatis untuk menghemat ruang 🧹");
+            toast.info(`Catatan mood lama (di atas ${isAnnual ? '1 tahun' : '1 bulan'}) telah dihapus otomatis 🧹`);
           } catch (e) {
             console.error(e);
           }
@@ -181,18 +187,19 @@ function MoodPage() {
         autoDelete();
       }
     }
-  }, [oldMoodsCount, warnedAt, user, qc, refetchOldMoodsCount]);
+  }, [oldMoodsCount, warnedAt, user, qc, refetchOldMoodsCount, isAnnual]);
 
   const clearOldMoods = async (exportFormat: 'pdf' | 'json' | 'none') => {
     if (!user) return;
     setCleaning(true);
     try {
-      const oneMonthCutoff = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+      const keepDays = isAnnual ? 365 : 30;
+      const historyCutoff = new Date(Date.now() - keepDays * 24 * 60 * 60 * 1000);
       const { data: oldMoods } = await supabase
         .from("mood_checkins")
         .select("*")
         .eq("user_id", user.id)
-        .lt("created_at", oneMonthCutoff.toISOString())
+        .lt("created_at", historyCutoff.toISOString())
         .order("created_at", { ascending: true });
 
       if (oldMoods && oldMoods.length > 0) {
@@ -218,7 +225,7 @@ function MoodPage() {
         .from("mood_checkins")
         .delete()
         .eq("user_id", user.id)
-        .lt("created_at", oneMonthCutoff.toISOString());
+        .lt("created_at", historyCutoff.toISOString());
 
       if (error) throw error;
       localStorage.removeItem(`mood_cleanup_warned_at`);

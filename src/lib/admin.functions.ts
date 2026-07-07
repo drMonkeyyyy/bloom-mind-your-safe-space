@@ -33,7 +33,12 @@ export const verifyOrder = createServerFn({ method: "POST" })
 
     if (data.approve) {
       const now = new Date();
-      const end = new Date(now); end.setDate(end.getDate() + 30);
+      const end = new Date(now);
+      if (order.package_name === "Premium Tahunan") {
+        end.setDate(end.getDate() + 365);
+      } else {
+        end.setDate(end.getDate() + 30);
+      }
       await client.from("orders").update({
         payment_status: "disetujui",
         verified_at: now.toISOString(),

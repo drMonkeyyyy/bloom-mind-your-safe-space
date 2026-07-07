@@ -54,6 +54,7 @@ function Page() {
     queryFn: async () => (await supabase.from("orders").select("*").eq("user_id", user!.id).order("created_at", { ascending: false })).data ?? [],
   });
 
+  const [packageType, setPackageType] = useState<"bulanan" | "tahunan">("bulanan");
   const activeOrder = orders?.find((o) => (o.payment_status === "menunggu_pembayaran" || o.payment_status === "menunggu_verifikasi") && o.payment_method === "mayar");
   const [creating, setCreating] = useState(false);
 
@@ -62,7 +63,7 @@ function Page() {
     setCreating(true);
     try {
       const redirectUrl = window.location.origin + "/app/premium";
-      const result = await startPayment({ data: { redirectUrl } });
+      const result = await startPayment({ data: { redirectUrl, packageType } });
       if (result && result.paymentLink) {
         toast.success("Mengarahkan ke halaman pembayaran...");
         window.location.href = result.paymentLink;
@@ -125,6 +126,35 @@ function Page() {
         <p className="mt-1 text-sm text-muted-foreground">Buka semua fitur dan dampingan AI penuh.</p>
       </div>
 
+      {/* ── PLAN SELECTOR ────────────────────────────────────────── */}
+      <div className="flex justify-center">
+        <div className="bg-muted p-1 rounded-[1.5rem] flex items-center ring-1 ring-border/40 max-w-sm w-full">
+          <button
+            onClick={() => setPackageType("bulanan")}
+            className={`flex-1 py-2.5 px-4 rounded-[1.25rem] text-xs font-bold transition-all duration-300 ${
+              packageType === "bulanan"
+                ? "bg-card text-foreground shadow-sm scale-100"
+                : "text-muted-foreground hover:text-foreground scale-95"
+            }`}
+          >
+            Bulanan
+          </button>
+          <button
+            onClick={() => setPackageType("tahunan")}
+            className={`flex-1 py-2.5 px-4 rounded-[1.25rem] text-xs font-bold transition-all duration-300 relative ${
+              packageType === "tahunan"
+                ? "bg-card text-foreground shadow-sm scale-100"
+                : "text-muted-foreground hover:text-foreground scale-95"
+            }`}
+          >
+            Tahunan
+            <span className="absolute -top-2 -right-1 bg-accent text-accent-foreground text-[8px] font-black px-1.5 py-0.5 rounded-full shadow-sm scale-90 animate-pulse">
+              HEMAT 17%
+            </span>
+          </button>
+        </div>
+      </div>
+
       {/* ── PRICE CARD ────────────────────────────────────────────── */}
       <div className="relative">
         <div className="absolute -inset-0.5 rounded-[2rem] bg-gradient-to-br from-accent via-primary to-accent opacity-50 blur-lg" />
@@ -134,18 +164,28 @@ function Page() {
 
           <div className="relative">
             <span className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-amber-100 to-orange-100 px-3 py-1 text-xs font-bold text-amber-700">
-              ✨ PALING POPULER
+              {packageType === "tahunan" ? "✨ BEST VALUE - SAVE 17%" : "✨ PALING POPULER"}
             </span>
             <div className="mt-4 flex items-baseline gap-2">
               <span className="font-display text-5xl font-bold text-foreground">
-                Rp{(settings?.premium_price ?? 49000).toLocaleString("id-ID")}
+                Rp{packageType === "tahunan" ? "490.000" : (settings?.premium_price ?? 49000).toLocaleString("id-ID")}
               </span>
-              <span className="text-base text-muted-foreground">/bulan</span>
+              <span className="text-base text-muted-foreground">/{packageType === "tahunan" ? "tahun" : "bulan"}</span>
             </div>
-            <p className="mt-1 text-xs text-muted-foreground">Tanpa kontrak · Bisa berhenti kapan saja</p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              {packageType === "tahunan" ? "Pembayaran sekali di depan · Aktif selama 12 bulan penuh" : "Tanpa kontrak · Bisa berhenti kapan saja"}
+            </p>
 
             <ul className="mt-5 grid grid-cols-1 gap-2 sm:grid-cols-2">
-              {FEATURES.map((f) => (
+              {[
+                { icon: "💬", label: "Chat AI tanpa batas & semua Companion" },
+                { icon: "📓", label: "Jurnal & Gratitude tanpa batas" },
+                { icon: "📈", label: "Growth Dashboard & Grafik Lengkap" },
+                { icon: "📊", label: "Weekly AI Insight personal" },
+                { icon: "🍎", label: "Emotional Eating Analysis" },
+                { icon: "📜", label: packageType === "tahunan" ? "Simpan riwayat obrolan hingga 1 tahun" : "Simpan riwayat obrolan hingga 3 bulan" },
+                { icon: "✅", label: "Habit tracker tanpa batas" },
+              ].map((f) => (
                 <li key={f.label} className="flex items-center gap-2.5 text-sm">
                   <span className="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-primary text-primary-foreground">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="h-3 w-3" aria-hidden="true">
@@ -163,11 +203,13 @@ function Page() {
                 disabled={creating}
                 className="mt-6 w-full rounded-full bg-accent py-4 text-sm font-semibold text-accent-foreground shadow-peach transition-all duration-300 hover:-translate-y-0.5 disabled:opacity-60"
               >
-                {creating ? "Membuat pesanan…" : "Buat Pesanan Sekarang →"}
+                {creating ? "Membuat pesanan…" : `Daftar Premium ${packageType === "tahunan" ? "Tahunan" : "Bulanan"} →`}
               </button>
             )}
             <p className="mt-3 text-center text-xs text-muted-foreground">
-              ☕ Kurang dari sekali nongkrong di coffee shop
+              {packageType === "tahunan" 
+                ? "☕ Hanya setara dengan Rp40.833 per bulan!"
+                : "☕ Kurang dari sekali nongkrong di coffee shop"}
             </p>
           </div>
         </section>
