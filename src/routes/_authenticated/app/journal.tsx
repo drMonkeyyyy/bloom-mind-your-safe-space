@@ -498,6 +498,22 @@ function JournalPage() {
 
 
 
+      {/* Cozy Reflection Banner (Permanent) */}
+      <EmptyState
+        icon={<CozyDiaryBook />}
+        title={items?.length === 0 ? "Buku Diary Masih Kosong" : "Ruang Refleksi Diri"}
+        description={
+          items?.length === 0
+            ? "Mulailah mengukir cerita hari ini. Setiap momen adalah lembaran berharga."
+            : "Tuangkan perasaanmu, keluh kesah, atau momen bahagia hari ini untuk ketenangan jiwamu."
+        }
+        action={
+          items?.length === 0
+            ? { label: "Tulis Lembaran Pertama", onClick: () => { reset(); setSheetOpen(true); } }
+            : undefined
+        }
+      />
+
       {/* ── TIME CAPSULE WIDGET ─────────────────────────────────── */}
       <div className="rounded-3xl bg-card p-5 ring-1 ring-border/60 shadow-card space-y-4 relative overflow-hidden">
         <div className="absolute -right-4 -bottom-4 text-6xl opacity-5 select-none pointer-events-none">💌</div>
@@ -552,22 +568,6 @@ function JournalPage() {
           </div>
         )}
       </div>
-
-      {/* Cozy Reflection Banner (Permanent) */}
-      <EmptyState
-        icon={<CozyDiaryBook />}
-        title={items?.length === 0 ? "Buku Diary Masih Kosong" : "Ruang Refleksi Diri"}
-        description={
-          items?.length === 0
-            ? "Mulailah mengukir cerita hari ini. Setiap momen adalah lembaran berharga."
-            : "Tuangkan perasaanmu, keluh kesah, atau momen bahagia hari ini untuk ketenangan jiwamu."
-        }
-        action={
-          items?.length === 0
-            ? { label: "Tulis Lembaran Pertama", onClick: () => { reset(); setSheetOpen(true); } }
-            : undefined
-        }
-      />
 
       {/* Diary history list */}
       {items && items.length > 0 && (
