@@ -101,13 +101,13 @@ function MoodPage() {
     const val = localStorage.getItem(`mood_cleanup_snoozed`);
     if (!val) return false;
     const snoozeTime = parseInt(val, 10);
-    return Date.now() - snoozeTime < 7 * 24 * 60 * 60 * 1000;
+    return Date.now() - snoozeTime < 24 * 60 * 60 * 1000;
   });
 
   const snoozeCleanup = () => {
     localStorage.setItem(`mood_cleanup_snoozed`, Date.now().toString());
     setCleanupSnoozed(true);
-    toast.info("Peringatan pembersihan ditunda selama 1 minggu ⏰");
+    toast.info("Peringatan pembersihan ditunda sampai besok ⏰");
   };
 
   const fourMonthsAgo = new Date(Date.now() - 120 * 24 * 60 * 60 * 1000);
@@ -434,7 +434,7 @@ function MoodPage() {
               <button
                 onClick={snoozeCleanup}
                 className="rounded-full border border-amber-300/40 hover:bg-amber-100/50 p-1.5 text-amber-900 transition-all active:scale-95"
-                title="Tunda 1 minggu"
+                title="Tunda sampai besok"
               >
                 ✕
               </button>

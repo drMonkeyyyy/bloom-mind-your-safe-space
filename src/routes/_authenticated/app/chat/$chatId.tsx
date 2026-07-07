@@ -91,13 +91,13 @@ function ChatRoom() {
     const val = localStorage.getItem(`chat_cleanup_snoozed_${chatId}`);
     if (!val) return false;
     const snoozeTime = parseInt(val, 10);
-    return Date.now() - snoozeTime < 7 * 24 * 60 * 60 * 1000;
+    return Date.now() - snoozeTime < 24 * 60 * 60 * 1000;
   });
 
   const snoozeCleanup = () => {
     localStorage.setItem(`chat_cleanup_snoozed_${chatId}`, Date.now().toString());
     setCleanupSnoozed(true);
-    toast.info("Peringatan pembersihan ditunda selama 1 minggu ⏰");
+    toast.info("Peringatan pembersihan ditunda sampai besok ⏰");
   };
 
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -285,7 +285,7 @@ function ChatRoom() {
               <button
                 onClick={snoozeCleanup}
                 className="rounded-full border border-amber-300/40 hover:bg-amber-100/50 p-1 text-amber-900 transition-all active:scale-95"
-                title="Tunda 1 minggu"
+                title="Tunda sampai besok"
               >
                 ✕
               </button>
