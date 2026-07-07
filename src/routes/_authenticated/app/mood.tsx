@@ -1,5 +1,5 @@
 import { createFileRoute, useSearch, Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { z } from "zod";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
@@ -139,6 +139,7 @@ function MoodPage() {
   }, [oldMoodsCount, warnedAt]);
 
   useEffect(() => {
+    if (!user) return;
     if (oldMoodsCount && oldMoodsCount > 0 && warnedAt) {
       const diff = Date.now() - warnedAt;
       if (diff >= 7 * 24 * 60 * 60 * 1000) {
@@ -148,11 +149,11 @@ function MoodPage() {
             await supabase
               .from("mood_checkins")
               .delete()
-              .eq("user_id", user?.id)
+              .eq("user_id", user.id)
               .lt("created_at", oneMonthCutoff.toISOString());
             localStorage.removeItem(`mood_cleanup_warned_at`);
             setWarnedAt(null);
-            qc.invalidateQueries({ queryKey: ["mood-list", user?.id] });
+            qc.invalidateQueries({ queryKey: ["mood-list", user.id] });
             refetchOldMoodsCount();
             toast.info("Catatan mood lama telah dihapus otomatis untuk menghemat ruang 🧹");
           } catch (e) {
@@ -162,7 +163,7 @@ function MoodPage() {
         autoDelete();
       }
     }
-  }, [oldMoodsCount, warnedAt]);
+  }, [oldMoodsCount, warnedAt, user, qc, refetchOldMoodsCount]);
 
   const clearOldMoods = async (exportFormat: 'pdf' | 'json' | 'none') => {
     if (!user) return;

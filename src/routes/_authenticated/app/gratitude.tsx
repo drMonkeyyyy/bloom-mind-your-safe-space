@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { useProfile } from "@/hooks/use-profile";
 import { supabase } from "@/integrations/supabase/client";
@@ -100,6 +100,7 @@ function Page() {
   }, [oldGratitudesCount, warnedAt]);
 
   useEffect(() => {
+    if (!user) return;
     if (oldGratitudesCount && oldGratitudesCount > 0 && warnedAt) {
       const diff = Date.now() - warnedAt;
       if (diff >= 7 * 24 * 60 * 60 * 1000) {
@@ -109,11 +110,11 @@ function Page() {
             await supabase
               .from("gratitude_entries")
               .delete()
-              .eq("user_id", user?.id)
+              .eq("user_id", user.id)
               .lt("created_at", oneMonthCutoff.toISOString());
             localStorage.removeItem(`gratitude_cleanup_warned_at`);
             setWarnedAt(null);
-            qc.invalidateQueries({ queryKey: ["gratitude", user?.id] });
+            qc.invalidateQueries({ queryKey: ["gratitude", user.id] });
             refetchOldGratitudesCount();
             toast.info("Catatan syukur lama telah dihapus otomatis untuk menghemat ruang 🧹");
           } catch (e) {
@@ -123,7 +124,7 @@ function Page() {
         autoDelete();
       }
     }
-  }, [oldGratitudesCount, warnedAt]);
+  }, [oldGratitudesCount, warnedAt, user, qc, refetchOldGratitudesCount]);
 
   const clearOldGratitudes = async (exportFormat: 'pdf' | 'json' | 'none') => {
     if (!user) return;
