@@ -553,15 +553,24 @@ function JournalPage() {
         )}
       </div>
 
+      {/* Cozy Reflection Banner (Permanent) */}
+      <EmptyState
+        icon={<CozyDiaryBook />}
+        title={items?.length === 0 ? "Buku Diary Masih Kosong" : "Ruang Refleksi Diri"}
+        description={
+          items?.length === 0
+            ? "Mulailah mengukir cerita hari ini. Setiap momen adalah lembaran berharga."
+            : "Tuangkan perasaanmu, keluh kesah, atau momen bahagia hari ini untuk ketenangan jiwamu."
+        }
+        action={
+          items?.length === 0
+            ? { label: "Tulis Lembaran Pertama", onClick: () => { reset(); setSheetOpen(true); } }
+            : undefined
+        }
+      />
+
       {/* Diary history list */}
-      {items?.length === 0 ? (
-        <EmptyState
-          icon={<CozyDiaryBook />}
-          title="Buku Diary Masih Kosong"
-          description="Mulailah mengukir cerita hari ini. Setiap momen adalah lembaran berharga."
-          action={{ label: "Tulis Lembaran Pertama", onClick: () => { reset(); setSheetOpen(true); } }}
-        />
-      ) : (
+      {items && items.length > 0 && (
         <div className="space-y-6">
           {Object.entries(groups).map(([month, entries]) => (
             <div key={month} className="space-y-3">
