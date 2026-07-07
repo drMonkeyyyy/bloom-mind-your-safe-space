@@ -430,18 +430,6 @@ function MagicalLetter({
             <p className="text-[9px] text-muted-foreground uppercase tracking-widest font-extrabold flex items-center gap-1.5">
               <span>📅</span> Ditulis pada: {new Date(capsule.createdAt).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" })}
             </p>
-            {(() => {
-              const unlockTime = new Date(capsule.unlockDate).getTime();
-              const daysSinceUnlock = (Date.now() - unlockTime) / (1000 * 60 * 60 * 24);
-              const remainingDays = 7 - Math.floor(daysSinceUnlock);
-              const dayText = remainingDays <= 1 ? "kurang dari 24 jam" : `${remainingDays} hari`;
-              return (
-                <div className="bg-amber-50/80 border border-amber-100/50 rounded-xl p-2.5 text-[9px] text-amber-800 font-semibold leading-relaxed flex items-center gap-1.5 animate-pulse">
-                  <span>⏳</span> 
-                  <span>Surat ini akan hilang otomatis dari lemari dalam <strong>{dayText} lagi</strong>.</span>
-                </div>
-              );
-            })()}
             
             <div className="py-2 min-h-[140px] text-stone-800 font-serif italic text-base leading-relaxed whitespace-pre-wrap">
               "{capsule.message}"
@@ -512,17 +500,7 @@ function JournalPage() {
     if (!user) return;
     const data = localStorage.getItem(`bloom_time_capsules_${user.id}`);
     if (data) {
-      const loaded: TimeCapsule[] = JSON.parse(data);
-      const now = Date.now();
-      const filtered = loaded.filter(cap => {
-        const unlockTime = new Date(cap.unlockDate).getTime();
-        const daysSinceUnlock = (now - unlockTime) / (1000 * 60 * 60 * 24);
-        return daysSinceUnlock < 7;
-      });
-      if (filtered.length !== loaded.length) {
-        localStorage.setItem(`bloom_time_capsules_${user.id}`, JSON.stringify(filtered));
-      }
-      setCapsules(filtered);
+      setCapsules(JSON.parse(data));
     }
   }, [user]);
 
@@ -581,20 +559,8 @@ function JournalPage() {
   };
 
   const getCapsuleStatus = (unlockDateStr: string) => {
-    const now = new Date();
-    const unlockDate = new Date(unlockDateStr);
-    const diff = unlockDate.getTime() - now.getTime();
-    
-    if (diff <= 0) {
-      const daysSinceUnlock = (now.getTime() - unlockDate.getTime()) / (1000 * 60 * 60 * 24);
-      const remainingDays = 7 - Math.floor(daysSinceUnlock);
-      if (remainingDays <= 1) {
-        const hoursLeft = Math.ceil((7 * 24 * 60 * 60 * 1000 - (now.getTime() - unlockDate.getTime())) / 3600000);
-        if (hoursLeft <= 0) return { locked: false, label: "Tutup Kapsul", expired: true };
-        return { locked: false, label: `Siap Dibuka! (${hoursLeft} jam sisa)` };
-      }
-      return { locked: false, label: `Siap Dibuka! (${remainingDays} hari sisa)` };
-    }
+    const diff = new Date(unlockDateStr).getTime() - new Date().getTime();
+    if (diff <= 0) return { locked: false, label: "Siap Dibuka!" };
     
     const minutes = Math.ceil(diff / 60000);
     if (minutes < 60) return { locked: true, label: `${minutes} menit lagi` };

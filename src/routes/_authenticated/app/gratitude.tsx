@@ -58,6 +58,18 @@ function Page() {
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
   const [cleanupModalOpen, setCleanupModalOpen] = useState(false);
   const [cleaning, setCleaning] = useState(false);
+  const [cleanupSnoozed, setCleanupSnoozed] = useState(() => {
+    const val = localStorage.getItem(`gratitude_cleanup_snoozed`);
+    if (!val) return false;
+    const snoozeTime = parseInt(val, 10);
+    return Date.now() - snoozeTime < 7 * 24 * 60 * 60 * 1000;
+  });
+
+  const snoozeCleanup = () => {
+    localStorage.setItem(`gratitude_cleanup_snoozed`, Date.now().toString());
+    setCleanupSnoozed(true);
+    toast.info("Peringatan pembersihan ditunda selama 1 minggu ⏰");
+  };
 
   const fourMonthsAgo = new Date(Date.now() - 120 * 24 * 60 * 60 * 1000);
 
@@ -415,7 +427,7 @@ function Page() {
       </div>
 
       {/* ── HISTORY ─────────────────────────────────────────────── */}
-      {oldGratitudesCount && oldGratitudesCount > 0 ? (
+      {oldGratitudesCount && oldGratitudesCount > 0 && !cleanupSnoozed ? (
         <div className="flex items-center justify-between gap-3 rounded-2xl bg-amber-50/70 border border-amber-100/50 p-3.5 text-xs text-amber-900 animate-slide-up mb-4">
           <div className="flex items-center gap-2">
             <span className="text-base select-none">⏳</span>
@@ -423,12 +435,21 @@ function Page() {
               Terdapat catatan syukur yang sudah berjalan lebih dari 4 bulan. Bersihkan riwayat lama yang sudah berjalan 3 bulan untuk menghemat ruang?
             </p>
           </div>
-          <button
-            onClick={() => setCleanupModalOpen(true)}
-            className="shrink-0 rounded-full bg-amber-600 hover:bg-amber-700 px-3 py-1.5 font-bold text-white transition-all active:scale-95 shadow-sm"
-          >
-            Bersihkan 🧹
-          </button>
+          <div className="flex items-center gap-1.5 shrink-0">
+            <button
+              onClick={() => setCleanupModalOpen(true)}
+              className="rounded-full bg-amber-600 hover:bg-amber-700 px-3 py-1.5 font-bold text-white transition-all active:scale-95 shadow-sm"
+            >
+              Bersihkan 🧹
+            </button>
+            <button
+              onClick={snoozeCleanup}
+              className="rounded-full border border-amber-300/40 hover:bg-amber-100/50 p-1.5 text-amber-900 transition-all active:scale-95"
+              title="Tunda 1 minggu"
+            >
+              ✕
+            </button>
+          </div>
         </div>
       ) : null}
 
