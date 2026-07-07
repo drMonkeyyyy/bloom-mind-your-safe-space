@@ -100,9 +100,47 @@ function ChatRoom() {
     toast.info("Peringatan pembersihan ditunda sampai besok ⏰");
   };
 
+  const [warnedAt, setWarnedAt] = useState<number | null>(() => {
+    const val = localStorage.getItem(`chat_cleanup_warned_at_${chatId}`);
+    return val ? parseInt(val, 10) : null;
+  });
+
   const scrollRef = useRef<HTMLDivElement>(null);
   const fourMonthsAgo = new Date(Date.now() - 120 * 24 * 60 * 60 * 1000);
   const hasOldMessages = messages && messages.length > 0 && messages.some(m => new Date(m.created_at) < fourMonthsAgo);
+
+  useEffect(() => {
+    if (hasOldMessages && !warnedAt) {
+      const now = Date.now();
+      localStorage.setItem(`chat_cleanup_warned_at_${chatId}`, now.toString());
+      setWarnedAt(now);
+    }
+  }, [hasOldMessages, warnedAt, chatId]);
+
+  useEffect(() => {
+    if (hasOldMessages && warnedAt) {
+      const diff = Date.now() - warnedAt;
+      if (diff >= 7 * 24 * 60 * 60 * 1000) {
+        const autoDelete = async () => {
+          try {
+            const oneMonthCutoff = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+            await supabase
+              .from("messages")
+              .delete()
+              .eq("chat_id", chatId)
+              .lt("created_at", oneMonthCutoff.toISOString());
+            localStorage.removeItem(`chat_cleanup_warned_at_${chatId}`);
+            setWarnedAt(null);
+            refetch();
+            toast.info("Riwayat obrolan lama (di atas 1 bulan) telah dihapus otomatis untuk menghemat ruang 🧹");
+          } catch (e) {
+            console.error(e);
+          }
+        };
+        autoDelete();
+      }
+    }
+  }, [hasOldMessages, warnedAt, chatId]);
 
   const clearOldMessages = async (exportFormat: 'pdf' | 'json' | 'none') => {
     if (!user || isNew) return;
@@ -137,6 +175,8 @@ function ChatRoom() {
         .lt("created_at", oneMonthCutoff.toISOString());
         
       if (error) throw error;
+      localStorage.removeItem(`chat_cleanup_warned_at_${chatId}`);
+      setWarnedAt(null);
       toast.success("Pesan lama (di atas 1 bulan) berhasil dibersihkan! 🌿");
       setCleanupModalOpen(false);
       refetch();
@@ -272,7 +312,17 @@ function ChatRoom() {
             <div className="flex items-center gap-2">
               <span className="text-base select-none">⏳</span>
               <p className="leading-relaxed">
-                Riwayat obrolan sudah berjalan lebih dari 4 bulan. Bersihkan pesan lama yang sudah berjalan 3 bulan untuk menghemat ruang?
+                Riwayat obrolan sudah berjalan lebih dari 4 bulan. Bersihkan pesan lama yang sudah berjalan 3 bulan untuk menghemat ruang? 
+                {warnedAt && (() => {
+                  const diff = Date.now() - warnedAt;
+                  const remainingDays = 7 - Math.floor(diff / (24 * 60 * 60 * 1000));
+                  const dayText = remainingDays <= 1 ? "kurang dari 24 jam" : `${remainingDays} hari`;
+                  return (
+                    <strong className="text-rose-600 block mt-0.5">
+                      ⚠️ Data lama akan dihapus otomatis oleh sistem dalam {dayText} lagi jika tidak disimpan!
+                    </strong>
+                  );
+                })()}
               </p>
             </div>
             <div className="flex items-center gap-1.5 shrink-0">

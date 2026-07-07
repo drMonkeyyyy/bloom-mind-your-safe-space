@@ -110,6 +110,11 @@ function MoodPage() {
     toast.info("Peringatan pembersihan ditunda sampai besok ⏰");
   };
 
+  const [warnedAt, setWarnedAt] = useState<number | null>(() => {
+    const val = localStorage.getItem(`mood_cleanup_warned_at`);
+    return val ? parseInt(val, 10) : null;
+  });
+
   const fourMonthsAgo = new Date(Date.now() - 120 * 24 * 60 * 60 * 1000);
 
   const { data: oldMoodsCount, refetch: refetchOldMoodsCount } = useQuery({
@@ -124,6 +129,40 @@ function MoodPage() {
       return count ?? 0;
     }
   });
+
+  useEffect(() => {
+    if (oldMoodsCount && oldMoodsCount > 0 && !warnedAt) {
+      const now = Date.now();
+      localStorage.setItem(`mood_cleanup_warned_at`, now.toString());
+      setWarnedAt(now);
+    }
+  }, [oldMoodsCount, warnedAt]);
+
+  useEffect(() => {
+    if (oldMoodsCount && oldMoodsCount > 0 && warnedAt) {
+      const diff = Date.now() - warnedAt;
+      if (diff >= 7 * 24 * 60 * 60 * 1000) {
+        const autoDelete = async () => {
+          try {
+            const oneMonthCutoff = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+            await supabase
+              .from("mood_checkins")
+              .delete()
+              .eq("user_id", user?.id)
+              .lt("created_at", oneMonthCutoff.toISOString());
+            localStorage.removeItem(`mood_cleanup_warned_at`);
+            setWarnedAt(null);
+            qc.invalidateQueries({ queryKey: ["mood-list", user?.id] });
+            refetchOldMoodsCount();
+            toast.info("Catatan mood lama telah dihapus otomatis untuk menghemat ruang 🧹");
+          } catch (e) {
+            console.error(e);
+          }
+        };
+        autoDelete();
+      }
+    }
+  }, [oldMoodsCount, warnedAt]);
 
   const clearOldMoods = async (exportFormat: 'pdf' | 'json' | 'none') => {
     if (!user) return;
@@ -163,6 +202,8 @@ function MoodPage() {
         .lt("created_at", oneMonthCutoff.toISOString());
 
       if (error) throw error;
+      localStorage.removeItem(`mood_cleanup_warned_at`);
+      setWarnedAt(null);
       toast.success("Catatan mood lama berhasil dibersihkan! 🌿");
       setCleanupModalOpen(false);
       qc.invalidateQueries({ queryKey: ["mood-list", user.id] });
@@ -422,6 +463,16 @@ function MoodPage() {
               <span className="text-base select-none">⏳</span>
               <p className="leading-relaxed">
                 Terdapat catatan mood yang sudah berjalan lebih dari 4 bulan. Bersihkan riwayat lama yang sudah berjalan 3 bulan untuk menghemat ruang?
+                {warnedAt && (() => {
+                  const diff = Date.now() - warnedAt;
+                  const remainingDays = 7 - Math.floor(diff / (24 * 60 * 60 * 1000));
+                  const dayText = remainingDays <= 1 ? "kurang dari 24 jam" : `${remainingDays} hari`;
+                  return (
+                    <strong className="text-rose-600 block mt-0.5">
+                      ⚠️ Data lama akan dihapus otomatis oleh sistem dalam {dayText} lagi jika tidak disimpan!
+                    </strong>
+                  );
+                })()}
               </p>
             </div>
             <div className="flex items-center gap-1.5 shrink-0">
