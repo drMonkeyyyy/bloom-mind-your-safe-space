@@ -420,7 +420,7 @@ function Page() {
           <div className="flex items-center gap-2">
             <span className="text-base select-none">⏳</span>
             <p className="leading-relaxed">
-              Terdapat catatan syukur yang sudah berjalan lebih dari 4 bulan. Bersihkan riwayat lama di atas 3 bulan untuk menghemat ruang?
+              Terdapat catatan syukur yang sudah berjalan lebih dari 4 bulan. Bersihkan riwayat lama yang sudah berjalan 3 bulan untuk menghemat ruang?
             </p>
           </div>
           <button

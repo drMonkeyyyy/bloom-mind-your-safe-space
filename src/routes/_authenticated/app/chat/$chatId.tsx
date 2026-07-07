@@ -259,7 +259,7 @@ function ChatRoom() {
             <div className="flex items-center gap-2">
               <span className="text-base select-none">⏳</span>
               <p className="leading-relaxed">
-                Riwayat obrolan sudah berjalan lebih dari 4 bulan. Bersihkan pesan lama di atas 3 bulan untuk menghemat ruang?
+                Riwayat obrolan sudah berjalan lebih dari 4 bulan. Bersihkan pesan lama yang sudah berjalan 3 bulan untuk menghemat ruang?
               </p>
             </div>
             <button
