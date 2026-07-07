@@ -164,17 +164,57 @@ function Page() {
             {/* Action buttons */}
             <div className="mt-3.5 flex flex-wrap gap-2 pt-2 border-t border-border/10">
               {/* Plan toggle */}
-              <button
-                onClick={async () => {
-                  await setPlan({ data: { userId: u.id, plan: u.plan === "premium" ? "free" : "premium", days: 30 } });
-                  toast.success("Plan diperbarui");
-                  qc.invalidateQueries({ queryKey: ["admin-users"] });
-                  qc.invalidateQueries({ queryKey: ["profile", u.id] });
-                }}
-                className="rounded-full border border-border px-3 py-1 text-xs hover:bg-cream-deep transition-colors"
-              >
-                {u.plan === "premium" ? "Set Free" : "Set Premium 30 hari"}
-              </button>
+              {u.plan === "premium" ? (
+                <>
+                  <button
+                    onClick={async () => {
+                      await setPlan({ data: { userId: u.id, plan: "free", days: 0 } });
+                      toast.success("Plan diperbarui ke Free");
+                      qc.invalidateQueries({ queryKey: ["admin-users"] });
+                      qc.invalidateQueries({ queryKey: ["profile", u.id] });
+                    }}
+                    className="rounded-full border border-border px-3 py-1 text-xs hover:bg-cream-deep transition-colors"
+                  >
+                    Set Free
+                  </button>
+                  <button
+                    onClick={async () => {
+                      await setPlan({ data: { userId: u.id, plan: "premium", days: 365 } });
+                      toast.success("Plan diperbarui ke Premium 1 Tahun");
+                      qc.invalidateQueries({ queryKey: ["admin-users"] });
+                      qc.invalidateQueries({ queryKey: ["profile", u.id] });
+                    }}
+                    className="rounded-full border border-border px-3 py-1 text-xs hover:bg-cream-deep transition-colors"
+                  >
+                    Set Premium 1 tahun
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button
+                    onClick={async () => {
+                      await setPlan({ data: { userId: u.id, plan: "premium", days: 30 } });
+                      toast.success("Plan diperbarui ke Premium 30 Hari");
+                      qc.invalidateQueries({ queryKey: ["admin-users"] });
+                      qc.invalidateQueries({ queryKey: ["profile", u.id] });
+                    }}
+                    className="rounded-full border border-border px-3 py-1 text-xs hover:bg-cream-deep transition-colors"
+                  >
+                    Set Premium 30 hari
+                  </button>
+                  <button
+                    onClick={async () => {
+                      await setPlan({ data: { userId: u.id, plan: "premium", days: 365 } });
+                      toast.success("Plan diperbarui ke Premium 1 Tahun");
+                      qc.invalidateQueries({ queryKey: ["admin-users"] });
+                      qc.invalidateQueries({ queryKey: ["profile", u.id] });
+                    }}
+                    className="rounded-full border border-border px-3 py-1 text-xs hover:bg-cream-deep transition-colors"
+                  >
+                    Set Premium 1 tahun
+                  </button>
+                </>
+              )}
 
               {/* Suspend / Aktifkan */}
               <button
