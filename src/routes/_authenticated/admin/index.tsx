@@ -68,7 +68,7 @@ function AdminDashboard() {
   const isStorageCritical = dbPercent >= 95;
 
   const geminiCallsToday = stats?.geminiCallsToday ?? 0;
-  const geminiLimit = 1500;
+  const geminiLimit = 20;
   const geminiPercent = Math.min((geminiCallsToday / geminiLimit) * 100, 100);
   const isGeminiWarning = geminiPercent >= 80;
   const isGeminiCritical = geminiPercent >= 95;
@@ -184,11 +184,11 @@ function AdminDashboard() {
           <div className="rounded-3xl bg-card p-5 ring-1 ring-border col-span-1 sm:col-span-2 lg:col-span-3">
             <div className="flex justify-between items-center mb-2">
               <div>
-                <p className="text-xs font-semibold text-muted-foreground">Penggunaan API Gemini (Free Tier)</p>
+                <p className="text-xs font-semibold text-muted-foreground">Penggunaan API Gemini (Unpaid Free Tier)</p>
                 <p className="text-2xl font-bold font-display mt-1">
                   {geminiCallsToday.toLocaleString("id-ID")}{" "}
                   <span className="text-xs font-normal text-muted-foreground">
-                    dari {geminiLimit.toLocaleString("id-ID")} permintaan gratis per hari
+                    dari {geminiLimit.toLocaleString("id-ID")} permintaan per hari
                   </span>
                 </p>
               </div>
@@ -205,7 +205,7 @@ function AdminDashboard() {
               />
             </div>
             <p className="mt-2.5 text-[10px] text-muted-foreground leading-normal">
-              *Batas gratis Gemini API Free Tier adalah 1.500 permintaan per hari (RPD). Jika melampaui batas ini, API akan mengembalikan error kuota (RESOURCE_EXHAUSTED).
+              *Batas gratis Gemini 2.5 Flash tanpa billing adalah 20 permintaan per hari (RPD). Jika melampaui batas ini, API akan mengembalikan error kuota (RESOURCE_EXHAUSTED). Aktifkan billing di Google AI Studio untuk kapasitas hingga 1.500 RPD gratis atau bayar per token tanpa batas.
             </p>
           </div>
         ) : null}
