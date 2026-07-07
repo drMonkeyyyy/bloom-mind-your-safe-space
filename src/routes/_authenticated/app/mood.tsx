@@ -117,12 +117,12 @@ function MoodPage() {
     if (!user) return;
     setCleaning(true);
     try {
-      const threeMonthsCutoff = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000);
+      const oneMonthCutoff = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
       const { data: oldMoods } = await supabase
         .from("mood_checkins")
         .select("*")
         .eq("user_id", user.id)
-        .lt("created_at", threeMonthsCutoff.toISOString())
+        .lt("created_at", oneMonthCutoff.toISOString())
         .order("created_at", { ascending: true });
 
       if (oldMoods && oldMoods.length > 0) {
@@ -148,7 +148,7 @@ function MoodPage() {
         .from("mood_checkins")
         .delete()
         .eq("user_id", user.id)
-        .lt("created_at", threeMonthsCutoff.toISOString());
+        .lt("created_at", oneMonthCutoff.toISOString());
 
       if (error) throw error;
       toast.success("Catatan mood lama berhasil dibersihkan! 🌿");
@@ -779,13 +779,13 @@ function MoodPage() {
       >
         <div className="space-y-4">
           <p className="text-xs text-muted-foreground leading-normal">
-            Catatan mood yang lebih lama dari 3 bulan (90 hari) akan dihapus secara permanen dari database. Catatan 3 bulan terakhir tetap disimpan di aplikasi.
+            Catatan mood yang lebih lama dari 1 bulan (30 hari) akan dihapus secara permanen dari database. Catatan 1 bulan terakhir tetap disimpan di aplikasi.
           </p>
           <div className="rounded-2xl bg-amber-50 border border-amber-100 p-3.5 flex gap-3 text-amber-950">
             <span className="text-2xl select-none">💡</span>
             <div className="text-xs leading-relaxed">
               <p className="font-bold text-amber-900 mb-0.5 font-display">Saran Penyimpanan</p>
-              <p>Apakah Anda ingin menyimpan seluruh catatan mood yang akan dihapus (di atas 3 bulan) sebagai **PDF** atau mendownload file **JSON** di laptop Anda sebelum dihapus?</p>
+              <p>Apakah Anda ingin menyimpan seluruh catatan mood yang akan dihapus (di atas 1 bulan) sebagai **PDF** atau mendownload file **JSON** di laptop Anda sebelum dihapus?</p>
             </div>
           </div>
           <div className="mt-5 flex flex-col gap-2 pt-3 border-t border-border/40">

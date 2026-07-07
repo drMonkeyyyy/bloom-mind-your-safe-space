@@ -517,8 +517,10 @@ function JournalPage() {
       targetDate.setMonth(targetDate.getMonth() + 1);
     } else if (newCapsuleTarget === "3months") {
       targetDate.setMonth(targetDate.getMonth() + 3);
-    } else if (newCapsuleTarget === "4months") {
-      targetDate.setMonth(targetDate.getMonth() + 4);
+    } else if (newCapsuleTarget === "6months") {
+      targetDate.setMonth(targetDate.getMonth() + 6);
+    } else if (newCapsuleTarget === "1year") {
+      targetDate.setFullYear(targetDate.getFullYear() + 1);
     } else if (newCapsuleTarget === "custom") {
       if (!customDate) {
         toast.error("Silakan pilih tanggal kustom!");
@@ -1088,7 +1090,8 @@ function JournalPage() {
               <option value="3mins">3 Menit (Untuk testing)</option>
               <option value="1month">1 Bulan Ke Depan</option>
               <option value="3months">3 Bulan Ke Depan</option>
-              <option value="4months">4 Bulan Ke Depan</option>
+              <option value="6months">6 Bulan Ke Depan</option>
+              <option value="1year">1 Tahun Ke Depan ⌛</option>
               <option value="custom">Pilih Tanggal Bebas... 📅</option>
             </select>
           </div>
