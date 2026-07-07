@@ -88,8 +88,8 @@ function ChatRoom() {
   const [cleanupModalOpen, setCleanupModalOpen] = useState(false);
   const [cleaning, setCleaning] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
-  const sixMonthsAgo = new Date(Date.now() - 180 * 24 * 60 * 60 * 1000);
-  const hasOldMessages = messages && messages.length > 0 && messages.some(m => new Date(m.created_at) < sixMonthsAgo);
+  const fourMonthsAgo = new Date(Date.now() - 120 * 24 * 60 * 60 * 1000);
+  const hasOldMessages = messages && messages.length > 0 && messages.some(m => new Date(m.created_at) < fourMonthsAgo);
 
   const clearOldMessages = async (exportFormat: 'pdf' | 'json' | 'none') => {
     if (!user || isNew) return;
@@ -259,7 +259,7 @@ function ChatRoom() {
             <div className="flex items-center gap-2">
               <span className="text-base select-none">⏳</span>
               <p className="leading-relaxed">
-                Riwayat obrolan sudah berjalan lebih dari 6 bulan. Bersihkan pesan lama di atas 3 bulan untuk menghemat ruang?
+                Riwayat obrolan sudah berjalan lebih dari 4 bulan. Bersihkan pesan lama di atas 3 bulan untuk menghemat ruang?
               </p>
             </div>
             <button

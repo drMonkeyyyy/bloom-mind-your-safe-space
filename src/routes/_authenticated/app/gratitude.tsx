@@ -59,7 +59,7 @@ function Page() {
   const [cleanupModalOpen, setCleanupModalOpen] = useState(false);
   const [cleaning, setCleaning] = useState(false);
 
-  const sixMonthsAgo = new Date(Date.now() - 180 * 24 * 60 * 60 * 1000);
+  const fourMonthsAgo = new Date(Date.now() - 120 * 24 * 60 * 60 * 1000);
 
   const { data: oldGratitudesCount, refetch: refetchOldGratitudesCount } = useQuery({
     queryKey: ["old-gratitudes-count", user?.id],
@@ -69,7 +69,7 @@ function Page() {
         .from("gratitude_entries")
         .select("*", { count: "exact", head: true })
         .eq("user_id", user!.id)
-        .lt("created_at", sixMonthsAgo.toISOString());
+        .lt("created_at", fourMonthsAgo.toISOString());
       return count ?? 0;
     }
   });
@@ -420,7 +420,7 @@ function Page() {
           <div className="flex items-center gap-2">
             <span className="text-base select-none">⏳</span>
             <p className="leading-relaxed">
-              Terdapat catatan syukur yang sudah berjalan lebih dari 6 bulan. Bersihkan riwayat lama di atas 3 bulan untuk menghemat ruang?
+              Terdapat catatan syukur yang sudah berjalan lebih dari 4 bulan. Bersihkan riwayat lama di atas 3 bulan untuk menghemat ruang?
             </p>
           </div>
           <button
