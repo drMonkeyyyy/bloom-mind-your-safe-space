@@ -250,14 +250,208 @@ function CozyDiaryBook({ size = "md" }: { size?: "sm" | "md" }) {
         <line x1="68" y1="66" x2="98" y2="62" stroke="oklch(0.85 0.015 90)" strokeWidth="0.8" />
 
         {/* Botanical Vine Detail on Right Page */}
-        <path d="M 98 62 Q 95 68 90 70" fill="none" stroke="oklch(0.71 0.045 160)" strokeWidth="1.2" strokeLinecap="round" />
-        <path d="M 95 68 Q 93 69 92 68 Z" fill="oklch(0.71 0.045 160)" />
         <path d="M 92 70 Q 90 71 89 70 Z" fill="oklch(0.80 0.05 165)" />
       </svg>
     </div>
   );
 }
 
+function MagicalLetter({ capsule, onClose }: { capsule: TimeCapsule; onClose: () => void }) {
+  const [stage, setStage] = useState<"closed" | "shaking" | "opening" | "open">("closed");
+  const [showConfetti, setShowConfetti] = useState(false);
+
+  useEffect(() => {
+    // Stage 1: Shake envelope
+    const t1 = setTimeout(() => setStage("shaking"), 300);
+    // Stage 2: Flap open + Confetti blast
+    const t2 = setTimeout(() => {
+      setStage("opening");
+      setShowConfetti(true);
+    }, 1100);
+    // Stage 3: Letter slide up & reveal
+    const t3 = setTimeout(() => setStage("open"), 1800);
+
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+      clearTimeout(t3);
+    };
+  }, [capsule]);
+
+  // Generate confetti items
+  const confettiCount = 25;
+  const confettiArray = Array.from({ length: confettiCount });
+
+  return (
+    <div className="relative w-full flex flex-col items-center justify-center overflow-visible py-4 min-h-[380px]">
+      <style>{`
+        @keyframes envelope-shake {
+          0%, 100% { transform: rotate(0deg) scale(1); }
+          15% { transform: rotate(-4deg) scale(1.03); }
+          30% { transform: rotate(3deg) scale(1.03); }
+          45% { transform: rotate(-3deg) scale(1.03); }
+          60% { transform: rotate(2deg) scale(1.03); }
+          75% { transform: rotate(-1deg) scale(1.03); }
+        }
+
+        @keyframes flap-open {
+          0% { transform: rotateX(0deg); z-index: 10; }
+          100% { transform: rotateX(-180deg); z-index: 0; }
+        }
+
+        @keyframes letter-reveal {
+          0% { transform: translateY(80px) scale(0.6); opacity: 0; }
+          100% { transform: translateY(0) scale(1); opacity: 1; }
+        }
+
+        @keyframes gold-sparkle {
+          0% { transform: scale(0.3) translate(0, 0); opacity: 0; }
+          50% { opacity: 1; }
+          100% { transform: scale(1.2) translate(var(--dx), var(--dy)); opacity: 0; }
+        }
+
+        @keyframes envelope-glow-pulse {
+          0%, 100% { box-shadow: 0 0 20px 2px rgba(251, 191, 36, 0.15); }
+          50% { box-shadow: 0 0 45px 12px rgba(251, 191, 36, 0.45); }
+        }
+
+        .envelope-card {
+          perspective: 1000px;
+          transition: all 0.6s ease-in-out;
+        }
+
+        .envelope-shake {
+          animation: envelope-shake 0.8s ease-in-out;
+        }
+
+        .envelope-glow {
+          animation: envelope-glow-pulse 2s infinite ease-in-out;
+        }
+
+        .flap-anim {
+          animation: flap-open 0.7s forwards ease-in-out;
+          transform-origin: top center;
+        }
+
+        .letter-anim {
+          animation: letter-reveal 0.9s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        .sparkle-burst {
+          animation: gold-sparkle 1.8s ease-out forwards;
+        }
+      `}</style>
+
+      {/* Confetti / Sparkle Burst */}
+      {showConfetti && (
+        <div className="absolute inset-0 pointer-events-none overflow-visible select-none z-50">
+          {confettiArray.map((_, i) => {
+            const angle = (i / confettiCount) * 360 + (Math.random() - 0.5) * 20;
+            const distance = 80 + Math.random() * 120;
+            const dx = `${Math.cos((angle * Math.PI) / 180) * distance}px`;
+            const dy = `${Math.sin((angle * Math.PI) / 180) * distance - 20}px`;
+            const duration = 1 + Math.random() * 1.2;
+            const size = 12 + Math.floor(Math.random() * 16);
+            const emojis = ["✨", "💌", "🌸", "🎉", "💖", "🌸", "✨"];
+            const emoji = emojis[i % emojis.length];
+
+            return (
+              <span
+                key={i}
+                className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 sparkle-burst text-lg"
+                style={{
+                  "--dx": dx,
+                  "--dy": dy,
+                  animationDuration: `${duration}s`,
+                  fontSize: `${size}px`,
+                  animationDelay: `${Math.random() * 0.2}s`
+                } as any}
+              >
+                {emoji}
+              </span>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Magical Glow Radial Backdrop */}
+      {stage !== "closed" && (
+        <div className="absolute w-72 h-72 bg-[radial-gradient(circle_at_center,_rgba(251,191,36,0.3)_0%,_transparent_70%)] pointer-events-none animate-pulse z-0" />
+      )}
+
+      {/* Envelope Container */}
+      {stage !== "open" && (
+        <div className={`relative w-64 h-40 bg-[#f5eccb] rounded-xl border-2 border-[#d9c58b] flex flex-col items-center justify-center envelope-card z-20 ${
+          stage === "shaking" ? "envelope-shake" : ""
+        } ${stage === "opening" ? "envelope-glow" : ""}`}
+        style={{
+          boxShadow: "0 12px 30px -10px rgba(100,80,40,0.25)"
+        }}>
+          {/* Back Triangle / Pocket Visual */}
+          <div className="absolute inset-0 bg-[#ebdcb2] rounded-xl" style={{ clipPath: "polygon(0 0, 50% 60%, 100% 0, 100% 100%, 0 100%)" }} />
+          {/* Left/Right folding flaps */}
+          <div className="absolute inset-0 bg-[#e3d1a1] rounded-xl" style={{ clipPath: "polygon(0 0, 48% 50%, 0 100%)" }} />
+          <div className="absolute inset-0 bg-[#e3d1a1] rounded-xl" style={{ clipPath: "polygon(100% 0, 52% 50%, 100% 100%)" }} />
+          <div className="absolute inset-0 bg-[#ebd091] rounded-xl" style={{ clipPath: "polygon(0 100%, 50% 45%, 100% 100%)", borderBottom: "1px solid #d3b473" }} />
+          
+          {/* Top Flap (Animating open) */}
+          <div className={`absolute top-0 left-0 right-0 h-20 bg-[#ebdcb2] border-t-2 border-[#d9c58b] rounded-t-xl origin-top z-30 ${
+            stage === "opening" ? "flap-anim" : ""
+          }`} style={{
+            clipPath: "polygon(0 0, 50% 100%, 100% 0)"
+          }} />
+
+          {/* Red Wax Seal Visual Stamp (shaking/glowing) */}
+          <div className={`absolute bottom-8 z-40 w-12 h-12 rounded-full bg-red-600 border border-red-700/50 flex items-center justify-center text-white text-xl shadow-md transition-all duration-300 ${
+            stage === "shaking" ? "scale-110 rotate-12" : "scale-100"
+          }`}>
+            🏵️
+          </div>
+
+          <p className="absolute bottom-2 text-[9px] font-bold text-[#8c743e] uppercase tracking-widest select-none">
+            {stage === "shaking" ? "Membuka Kapsul..." : stage === "opening" ? "Terbuka!" : "Menyiapkan Surat..."}
+          </p>
+        </div>
+      )}
+
+      {/* The Letter Document itself (Parchment Paper slide up) */}
+      {stage === "open" && (
+        <div className="w-full max-w-sm rounded-[2rem] border border-amber-200/50 bg-[#faf8ee] p-6 shadow-elevated letter-anim relative overflow-hidden flex flex-col space-y-4">
+          {/* Decorative vintage lines / botanical leaves on corner */}
+          <div className="absolute right-0 top-0 opacity-10 select-none pointer-events-none text-7xl">🌿</div>
+          <div className="absolute left-3 top-0 bottom-0 w-[1px] bg-red-300/30" />
+
+          {/* Lined journal layout spacing */}
+          <div className="pl-4 space-y-3 relative z-10 text-left">
+            <p className="text-[9px] text-muted-foreground uppercase tracking-widest font-extrabold flex items-center gap-1.5">
+              <span>📅</span> Ditulis pada: {new Date(capsule.createdAt).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" })}
+            </p>
+            
+            <div className="py-2 min-h-[140px] text-stone-800 font-serif italic text-base leading-relaxed whitespace-pre-wrap">
+              "{capsule.message}"
+            </div>
+
+            {/* Retro signature / wax stamp seal at bottom of letter */}
+            <div className="pt-4 border-t border-stone-200/40 flex items-center justify-between">
+              <span className="text-[10px] text-stone-400 font-sans tracking-wide">Pesan untuk Masa Depan</span>
+              <div className="flex items-center gap-1.5 select-none">
+                <span className="text-xl">🏵️</span>
+                <span className="text-[9px] font-bold uppercase tracking-widest text-[#8a7238]">Terbuka</span>
+              </div>
+            </div>
+          </div>
+
+          <button
+            onClick={onClose}
+            className="w-full rounded-2xl bg-amber-400 hover:bg-amber-500 py-3 text-xs font-bold text-stone-900 shadow-md transition-all duration-200 hover:-translate-y-0.5 active:scale-95 flex items-center justify-center gap-1.5 relative z-10"
+          >
+            Simpan Kembali Ke Lemari Kapsul 🤍
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
 
 function JournalPage() {
   const { user } = useAuth();
@@ -915,26 +1109,10 @@ function JournalPage() {
         onClose={() => setViewCapsule(null)}
       >
         {viewCapsule && (
-          <div className="space-y-4">
-            <p className="text-[9px] text-muted-foreground uppercase tracking-wider font-extrabold">
-              Ditulis pada: {new Date(viewCapsule.createdAt).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" })}
-            </p>
-            <div 
-              className="rounded-2xl p-5 border border-amber-200/40 shadow-sm leading-relaxed text-stone-700 font-display italic text-sm whitespace-pre-wrap relative overflow-hidden"
-              style={{ background: "linear-gradient(135deg, oklch(0.98 0.035 70 / 0.4) 0%, oklch(0.99 0.02 80 / 0.1) 100%)" }}
-            >
-              <div className="absolute left-3 top-0 bottom-0 w-[1px] bg-red-300/40" />
-              <div className="pl-4">
-                "{viewCapsule.message}"
-              </div>
-            </div>
-            <button
-              onClick={() => setViewCapsule(null)}
-              className="w-full rounded-full bg-amber-400 py-2.5 text-xs font-bold text-stone-900 shadow-md transition-all duration-200 hover:-translate-y-0.5 active:scale-95"
-            >
-              Simpan Kembali Ke Lemari Kapsul 🤍
-            </button>
-          </div>
+          <MagicalLetter
+            capsule={viewCapsule}
+            onClose={() => setViewCapsule(null)}
+          />
         )}
       </ModalDialog>
 
