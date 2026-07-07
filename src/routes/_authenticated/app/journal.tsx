@@ -498,6 +498,35 @@ function JournalPage() {
 
 
 
+      {/* ── COZY REFLECTION HERO BANNER ────────────────────────────────── */}
+      <div className="rounded-[2rem] bg-card p-6 ring-1 ring-border/60 shadow-card flex flex-col sm:flex-row items-center gap-6 relative overflow-hidden border border-amber-950/5">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_rgba(251,191,36,0.06)_0%,_transparent_75%)] pointer-events-none" />
+        
+        {/* The big gorgeous animated book */}
+        <CozyDiaryBook size="md" />
+
+        <div className="space-y-3 flex-1 text-center sm:text-left">
+          <div className="space-y-1">
+            <h3 className="font-display text-lg font-bold text-foreground">Ruang Refleksi Diri</h3>
+            <p className="text-xs text-muted-foreground leading-relaxed max-w-md">
+              Setiap tulisan adalah langkah kecil untuk memahami diri sendiri. Tuangkan perasaanmu, keluh kesah, atau momen bahagia hari ini untuk ketenangan pikiran.
+            </p>
+          </div>
+          
+          {/* Stats summary inside banner */}
+          <div className="flex gap-4 pt-1 flex-wrap justify-center sm:justify-start">
+            <div className="px-3 py-1.5 rounded-xl bg-muted/40 border border-border/20 text-left min-w-[100px]">
+              <p className="text-[9px] uppercase tracking-wider text-muted-foreground font-bold">Total Cerita</p>
+              <p className="text-sm font-bold text-foreground mt-0.5">{items?.length || 0} Lembar</p>
+            </div>
+            <div className="px-3 py-1.5 rounded-xl bg-muted/40 border border-border/20 text-left min-w-[100px]">
+              <p className="text-[9px] uppercase tracking-wider text-muted-foreground font-bold">Kapsul Waktu</p>
+              <p className="text-sm font-bold text-foreground mt-0.5">{capsules?.length || 0} Surat</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* ── TIME CAPSULE WIDGET ─────────────────────────────────── */}
       <div className="rounded-3xl bg-card p-5 ring-1 ring-border/60 shadow-card space-y-4 relative overflow-hidden">
         <div className="absolute -right-4 -bottom-4 text-6xl opacity-5 select-none pointer-events-none">💌</div>
@@ -555,12 +584,13 @@ function JournalPage() {
 
       {/* Diary history list */}
       {items?.length === 0 ? (
-        <EmptyState
-          icon={<CozyDiaryBook />}
-          title="Buku Diary Masih Kosong"
-          description="Mulailah mengukir cerita hari ini. Setiap momen adalah lembaran berharga."
-          action={{ label: "Tulis Lembaran Pertama", onClick: () => { reset(); setSheetOpen(true); } }}
-        />
+        <div className="rounded-[2rem] bg-card/60 p-8 ring-1 ring-border/60 shadow-card flex flex-col items-center text-center justify-center border border-dashed border-border/80">
+          <span className="text-3xl select-none mb-3">🌸</span>
+          <p className="text-sm font-bold text-foreground">Belum ada coretan hari ini</p>
+          <p className="text-xs text-muted-foreground leading-relaxed mt-1 max-w-xs">
+            Klik tombol "Tulis Diary" di atas untuk mulai mengukir cerita pertamamu hari ini.
+          </p>
+        </div>
       ) : (
         <div className="space-y-6">
           {Object.entries(groups).map(([month, entries]) => (
