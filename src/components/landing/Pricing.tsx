@@ -13,14 +13,14 @@ const premiumMonthlyFeatures = [
   "Weekly AI Insight personal",
   "Emotional Eating Analysis",
   "Riwayat 3 bulan terakhir tersimpan",
-  "Ekspor data ke PDF / JSON kapan saja",
+  "Ekspor PDF Diary bergaya buku harian",
   "Habit tracker tanpa batas",
 ];
 
 const premiumAnnualFeatures = [
   "Semua fitur Premium Bulanan",
   "Riwayat penuh 1 TAHUN tersimpan aman",
-  "Ekspor data ke PDF / JSON kapan saja",
+  "Ekspor PDF Diary bergaya buku harian",
   "Hemat Rp98.000 vs bayar per bulan",
   "Prioritas akses fitur baru",
   "Dukungan & respons lebih cepat",
@@ -33,11 +33,11 @@ const FAQ = [
   },
   {
     q: "Berapa lama riwayat saya disimpan?",
-    a: "Paket Bulanan menyimpan riwayat chat, mood, dan jurnal syukur selama 3 bulan terakhir. Paket Tahunan menyimpan seluruh riwayat hingga 1 tahun penuh. Data yang lebih lama bisa kamu unduh sebagai PDF atau JSON sebelum dihapus — tidak ada yang hilang tanpa peringatan.",
+    a: "Paket Bulanan menyimpan riwayat chat, mood, dan jurnal syukur selama 3 bulan terakhir. Paket Tahunan menyimpan seluruh riwayat hingga 1 tahun penuh. Data yang lebih lama bisa kamu unduh sebagai PDF Diary bergaya buku harian atau JSON sebelum dihapus — tidak ada yang hilang tanpa peringatan.",
   },
   {
     q: "Bisakah saya mengunduh data saya?",
-    a: "Tentu! Kamu bisa mengekspor seluruh riwayat chat, mood, dan jurnal syukur ke format PDF (siap cetak) atau JSON (untuk arsip digital) kapan pun kamu mau, langsung dari dalam aplikasi.",
+    a: "Tentu! Kamu bisa mengekspor seluruh riwayat chat, mood, dan jurnal syukur ke format PDF Diary bergaya buku harian — lengkap dengan tanggal, emoji, dan tata letak yang rapi, siap dicetak atau disimpan sebagai kenangan. Tersedia juga format JSON untuk arsip digital.",
   },
   {
     q: "Apakah ada kontrak jangka panjang?",
@@ -159,9 +159,9 @@ export function Pricing() {
 
               {/* Storage info badge */}
               <div className="mt-4 flex items-start gap-2 rounded-xl bg-amber-50 px-3 py-2.5 ring-1 ring-amber-200/60">
-                <span className="text-base leading-none mt-0.5">📂</span>
+                <span className="text-base leading-none mt-0.5">📒</span>
                 <p className="text-xs text-amber-800 leading-snug">
-                  <span className="font-semibold">Riwayat disimpan 3 bulan.</span> Data lebih lama bisa kamu ekspor ke <strong>PDF atau JSON</strong> kapan saja sebelum dihapus.
+                  <span className="font-semibold">Riwayat disimpan 3 bulan.</span> Data lebih lama bisa diekspor sebagai <strong>PDF Diary bergaya buku harian</strong> yang cantik & siap cetak, kapan saja sebelum dihapus.
                 </p>
               </div>
 
@@ -211,9 +211,9 @@ export function Pricing() {
 
               {/* Storage info badge */}
               <div className="mt-4 flex items-start gap-2 rounded-xl bg-violet-50 px-3 py-2.5 ring-1 ring-violet-200/80">
-                <span className="text-base leading-none mt-0.5">🗄️</span>
+                <span className="text-base leading-none mt-0.5">📖</span>
                 <p className="text-xs text-violet-800 leading-snug">
-                  <span className="font-semibold">Riwayat disimpan 1 TAHUN PENUH.</span> Ekspor kapan saja ke <strong>PDF atau JSON</strong> — kenangan baikmu tidak akan hilang.
+                  <span className="font-semibold">Riwayat disimpan 1 TAHUN PENUH.</span> Ekspor kapan saja sebagai <strong>PDF Diary bergaya buku harian</strong> — kenangan indahmu tersimpan rapi & bisa dicetak seumur hidup.
                 </p>
               </div>
 
@@ -256,7 +256,7 @@ export function Pricing() {
         <div data-reveal className="mx-auto mt-10 max-w-5xl">
           <div className="flex flex-wrap justify-center gap-x-8 gap-y-2 text-sm text-muted-foreground">
             <span className="flex items-center gap-1.5">🔒 Data terenkripsi & pribadi</span>
-            <span className="flex items-center gap-1.5">📄 Ekspor PDF / JSON kapan saja</span>
+            <span className="flex items-center gap-1.5">📒 Ekspor PDF Diary bergaya buku harian</span>
             <span className="flex items-center gap-1.5">🚫 Tidak ada kontrak tersembunyi</span>
             <span className="flex items-center gap-1.5">💳 Bayar via GoPay, OVO, QRIS & kartu</span>
           </div>
