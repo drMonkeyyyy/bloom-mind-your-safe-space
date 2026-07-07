@@ -174,7 +174,11 @@ export const sendChatMessage = createServerFn({ method: "POST" })
           content: m.content,
         })),
       });
-      reply = result.text?.trim() || "Aku di sini menemanimu. Bisa cerita lebih lanjut?";
+      if (result.finishReason === "content-filter") {
+        reply = "Maaf, aku tidak bisa membahas topik tersebut demi kenyamanan bersama. Mari kita bicarakan hal lain yang bisa membantumu merasa lebih baik. 🌿";
+      } else {
+        reply = result.text?.trim() || "Aku di sini menemanimu. Bisa cerita lebih lanjut?";
+      }
     } catch (e: unknown) {
       handleAiError(e);
     }
