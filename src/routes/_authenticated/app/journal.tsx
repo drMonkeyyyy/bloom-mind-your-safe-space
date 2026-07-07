@@ -182,17 +182,17 @@ function CozyDiaryBook({ size = "md" }: { size?: "sm" | "md" }) {
           50% { transform: translateY(-3px) rotate(1.5deg); }
         }
         
-        .anim-diary-md-p1 { animation: float-diary-md-1 6s ease-in-out infinite; }
-        .anim-diary-md-p2 { animation: float-diary-md-2 8s ease-in-out infinite; animation-delay: 2s; }
-        .anim-diary-md-p3 { animation: float-diary-md-3 7s ease-in-out infinite; animation-delay: 3.8s; }
-        .anim-diary-md-p4 { animation: float-diary-md-1 9s ease-in-out infinite; animation-delay: 1s; }
-        .anim-diary-md-p5 { animation: float-diary-md-2 7.5s ease-in-out infinite; animation-delay: 4.8s; }
+        .anim-diary-md-p1 { animation: float-diary-md-1 6s ease-in-out infinite; animation-delay: -1.5s; }
+        .anim-diary-md-p2 { animation: float-diary-md-2 8s ease-in-out infinite; animation-delay: -3.5s; }
+        .anim-diary-md-p3 { animation: float-diary-md-3 7s ease-in-out infinite; animation-delay: -5.0s; }
+        .anim-diary-md-p4 { animation: float-diary-md-1 9s ease-in-out infinite; animation-delay: -0.5s; }
+        .anim-diary-md-p5 { animation: float-diary-md-2 7.5s ease-in-out infinite; animation-delay: -2.5s; }
 
-        .anim-diary-sm-p1 { animation: float-diary-sm-1 5s ease-in-out infinite; }
-        .anim-diary-sm-p2 { animation: float-diary-sm-2 6.5s ease-in-out infinite; animation-delay: 1.5s; }
-        .anim-diary-sm-p3 { animation: float-diary-sm-3 5.5s ease-in-out infinite; animation-delay: 2.8s; }
-        .anim-diary-sm-p4 { animation: float-diary-sm-1 7.5s ease-in-out infinite; animation-delay: 0.8s; }
-        .anim-diary-sm-p5 { animation: float-diary-sm-2 6s ease-in-out infinite; animation-delay: 3.5s; }
+        .anim-diary-sm-p1 { animation: float-diary-sm-1 5s ease-in-out infinite; animation-delay: -1.0s; }
+        .anim-diary-sm-p2 { animation: float-diary-sm-2 6.5s ease-in-out infinite; animation-delay: -2.8s; }
+        .anim-diary-sm-p3 { animation: float-diary-sm-3 5.5s ease-in-out infinite; animation-delay: -4.0s; }
+        .anim-diary-sm-p4 { animation: float-diary-sm-1 7.5s ease-in-out infinite; animation-delay: -0.4s; }
+        .anim-diary-sm-p5 { animation: float-diary-sm-2 6s ease-in-out infinite; animation-delay: -2.0s; }
 
         .anim-book-sway {
           animation: book-sway-gentle 4.5s ease-in-out infinite;
