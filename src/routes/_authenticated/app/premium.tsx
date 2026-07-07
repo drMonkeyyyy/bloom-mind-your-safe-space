@@ -19,13 +19,25 @@ function makeOrderNumber() {
   return `BM-${ymd}-${rand}`;
 }
 
-const FEATURES = [
+const FEATURES_MONTHLY = [
   { icon: "💬", label: "Chat AI tanpa batas & semua Companion" },
   { icon: "📓", label: "Jurnal & Gratitude tanpa batas" },
   { icon: "📈", label: "Growth Dashboard & Grafik Lengkap" },
   { icon: "📊", label: "Weekly AI Insight personal" },
   { icon: "🍎", label: "Emotional Eating Analysis" },
-  { icon: "📜", label: "Riwayat penuh tanpa batas" },
+  { icon: "📂", label: "Riwayat tersimpan 3 bulan" },
+  { icon: "📄", label: "Ekspor ke PDF / JSON kapan saja" },
+  { icon: "✅", label: "Habit tracker tanpa batas" },
+];
+
+const FEATURES_ANNUAL = [
+  { icon: "💬", label: "Chat AI tanpa batas & semua Companion" },
+  { icon: "📓", label: "Jurnal & Gratitude tanpa batas" },
+  { icon: "📈", label: "Growth Dashboard & Grafik Lengkap" },
+  { icon: "📊", label: "Weekly AI Insight personal" },
+  { icon: "🍎", label: "Emotional Eating Analysis" },
+  { icon: "🗄️", label: "Riwayat 1 TAHUN PENUH tersimpan" },
+  { icon: "📄", label: "Ekspor ke PDF / JSON kapan saja" },
   { icon: "✅", label: "Habit tracker tanpa batas" },
 ];
 
@@ -85,6 +97,9 @@ function Page() {
 
   // Active premium state
   if (profile?.plan === "premium") {
+    const isAnnual = !!(profile?.premium_end_date && profile?.premium_start_date &&
+      (new Date(profile.premium_end_date).getTime() - new Date(profile.premium_start_date).getTime() > 60 * 24 * 60 * 60 * 1000));
+    const activeFeatures = isAnnual ? FEATURES_ANNUAL : FEATURES_MONTHLY;
     return (
       <div className="space-y-6">
         <h1 className="font-display text-3xl font-semibold">✨ Premium Aktif</h1>
@@ -95,9 +110,13 @@ function Page() {
           <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10" />
           <div className="absolute -bottom-10 right-20 h-28 w-28 rounded-full bg-white/5" />
           <div className="relative">
-            <p className="text-4xl">✨</p>
-            <h2 className="mt-3 font-display text-2xl font-semibold">JN-CALM Premium</h2>
-            <p className="mt-1 text-sm opacity-80">Akun premium aktif</p>
+            <p className="text-4xl">{isAnnual ? "🏆" : "✨"}</p>
+            <h2 className="mt-3 font-display text-2xl font-semibold">
+              JN-CALM Premium {isAnnual ? "Tahunan" : "Bulanan"}
+            </h2>
+            <p className="mt-1 text-sm opacity-80">
+              {isAnnual ? "Riwayat disimpan 1 tahun penuh · Ekspor PDF/JSON" : "Riwayat disimpan 3 bulan · Ekspor PDF/JSON"}
+            </p>
             <div className="mt-6 rounded-2xl bg-white/15 px-5 py-4 backdrop-blur-sm">
               <p className="text-xs opacity-75">Berlaku hingga</p>
               <p className="mt-1 font-display text-xl font-semibold">
@@ -109,7 +128,7 @@ function Page() {
           </div>
         </div>
         <div className="grid grid-cols-2 gap-2">
-          {FEATURES.map((f) => (
+          {activeFeatures.map((f) => (
             <div key={f.label} className="flex items-center gap-2 rounded-2xl bg-card p-3 ring-1 ring-border text-sm">
               <span>{f.icon}</span> {f.label}
             </div>
@@ -177,15 +196,25 @@ function Page() {
             </p>
 
             <ul className="mt-5 grid grid-cols-1 gap-2 sm:grid-cols-2">
-              {[
+              {(packageType === "tahunan" ? [
                 { icon: "💬", label: "Chat AI tanpa batas & semua Companion" },
                 { icon: "📓", label: "Jurnal & Gratitude tanpa batas" },
                 { icon: "📈", label: "Growth Dashboard & Grafik Lengkap" },
                 { icon: "📊", label: "Weekly AI Insight personal" },
                 { icon: "🍎", label: "Emotional Eating Analysis" },
-                { icon: "📜", label: packageType === "tahunan" ? "Simpan riwayat obrolan hingga 1 tahun" : "Simpan riwayat obrolan hingga 3 bulan" },
+                { icon: "🗄️", label: "Riwayat 1 TAHUN PENUH tersimpan" },
+                { icon: "📄", label: "Ekspor ke PDF / JSON kapan saja" },
                 { icon: "✅", label: "Habit tracker tanpa batas" },
-              ].map((f) => (
+              ] : [
+                { icon: "💬", label: "Chat AI tanpa batas & semua Companion" },
+                { icon: "📓", label: "Jurnal & Gratitude tanpa batas" },
+                { icon: "📈", label: "Growth Dashboard & Grafik Lengkap" },
+                { icon: "📊", label: "Weekly AI Insight personal" },
+                { icon: "🍎", label: "Emotional Eating Analysis" },
+                { icon: "📂", label: "Riwayat tersimpan 3 bulan" },
+                { icon: "📄", label: "Ekspor ke PDF / JSON kapan saja" },
+                { icon: "✅", label: "Habit tracker tanpa batas" },
+              ]).map((f) => (
                 <li key={f.label} className="flex items-center gap-2.5 text-sm">
                   <span className="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-primary text-primary-foreground">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="h-3 w-3" aria-hidden="true">
@@ -196,6 +225,16 @@ function Page() {
                 </li>
               ))}
             </ul>
+
+            {/* Storage info callout */}
+            <div className={`mt-4 flex items-start gap-2 rounded-xl px-3 py-2.5 ring-1 ${packageType === "tahunan" ? "bg-violet-50 ring-violet-200/80" : "bg-amber-50 ring-amber-200/60"}`}>
+              <span className="text-base leading-none mt-0.5">{packageType === "tahunan" ? "🗄️" : "📂"}</span>
+              <p className={`text-xs leading-snug ${packageType === "tahunan" ? "text-violet-800" : "text-amber-800"}`}>
+                {packageType === "tahunan"
+                  ? <><span className="font-semibold">Riwayat disimpan 1 tahun penuh.</span> Ekspor kapan saja ke <strong>PDF atau JSON</strong> — kenangan baikmu tidak akan hilang.</>  
+                  : <><span className="font-semibold">Riwayat disimpan 3 bulan.</span> Data lebih lama bisa diekspor ke <strong>PDF atau JSON</strong> sebelum dihapus.</>}
+              </p>
+            </div>
 
             {!activeOrder && (
               <button

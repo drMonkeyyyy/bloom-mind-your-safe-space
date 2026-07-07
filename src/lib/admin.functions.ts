@@ -72,6 +72,21 @@ export const promoteToAdmin = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+const DemoteInput = z.object({ userId: z.string().uuid() });
+
+export const demoteFromAdmin = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => DemoteInput.parse(d))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    // Prevent self-demotion
+    if (data.userId === context.userId) throw new Error("Tidak bisa mencopot peran admin diri sendiri");
+    const client = await getClient(context);
+    await client.from("user_roles").delete().eq("user_id", data.userId).eq("role", "admin");
+    return { ok: true };
+  });
+
+
 const SettingsInput = z.object({
   bank_name: z.string().optional(),
   bank_account_number: z.string().optional(),
