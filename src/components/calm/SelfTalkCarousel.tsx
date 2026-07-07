@@ -137,7 +137,7 @@ export function SelfTalkCarousel() {
           <p className="text-sm font-semibold text-rose-800">Apa itu Self-Compassionate Talk?</p>
           <p className="text-sm text-rose-700 leading-relaxed">
             Cara kita berbicara pada diri sendiri memiliki dampak <strong>langsung</strong> pada sistem saraf.
-            Penelitian psikologi klinis menunjukkan bahwa <em>self-compassionate self-talk</em> (berbicara pada diri sendiri
+            Penelitian menunjukkan bahwa <em>self-compassionate self-talk</em> (berbicara pada diri sendiri
             dengan belas kasih) secara terbukti menurunkan kecemasan, ruminasi, dan depresi.
           </p>
           <p className="text-sm text-rose-700 leading-relaxed">
