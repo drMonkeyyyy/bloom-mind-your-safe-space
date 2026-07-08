@@ -1,5 +1,5 @@
 // Global Audio Engine for JN-CALM Ambient Soundscapes (Multi-channel Mixer)
-export type SoundType = "rain" | "waves" | "forest" | "wind" | "whitenoise" | "piano" | "guitar";
+export type SoundType = "rain" | "waves" | "forest" | "wind" | "whitenoise" | "canon";
 
 export const SOUNDS: { id: SoundType; emoji: string; label: string; desc: string }[] = [
   { id: "rain",       emoji: "🌧️", label: "Hujan",       desc: "Suara rintik hujan yang menenangkan" },
@@ -7,8 +7,7 @@ export const SOUNDS: { id: SoundType; emoji: string; label: string; desc: string
   { id: "forest",     emoji: "🌲", label: "Hutan",       desc: "Kicauan burung & gemericik angin" },
   { id: "wind",       emoji: "💨", label: "Angin",       desc: "Hembusan angin sepoi yang sejuk" },
   { id: "whitenoise", emoji: "🌫️", label: "White Noise", desc: "Suara putih untuk fokus & tidur" },
-  { id: "piano",      emoji: "🎹", label: "Melodi Piano", desc: "Alunan Canon in D yang menenteramkan" },
-  { id: "guitar",     emoji: "🎸", label: "Gitar Akustik", desc: "Petikan Canon in D yang menenangkan" },
+  { id: "canon",      emoji: "🎻", label: "Canon in D",   desc: "LAYERS CLASSIC (Violin, Cello, Piano)" },
 ];
 
 export interface ActiveSoundChannel {
@@ -54,8 +53,7 @@ const getChannelVolumesState = (): Record<SoundType, number> => {
     forest: 0,
     wind: 0,
     whitenoise: 0,
-    piano: 0,
-    guitar: 0,
+    canon: 0,
   };
   if (window.__bloomChannels && window.__bloomChannelVolumes) {
     for (const key of Object.keys(state) as SoundType[]) {
@@ -150,9 +148,26 @@ const stopChannel = (sound: SoundType) => {
       delete window.__bloomChannels[sound];
     }
   }
+
+  if (sound === "canon") {
+    const player = (window as any).__bloomYoutubePlayer;
+    if (player && typeof player.pauseVideo === "function") {
+      player.pauseVideo();
+    }
+  }
 };
 
 const updateChannelGain = (sound: SoundType) => {
+  if (sound === "canon") {
+    const player = (window as any).__bloomYoutubePlayer;
+    if (player && typeof player.setVolume === "function") {
+      const localVol = window.__bloomChannelVolumes?.["canon"] ?? 0.5;
+      const masterVol = typeof window.__bloomMasterVolume === "number" ? window.__bloomMasterVolume : 0.5;
+      player.setVolume(Math.round(localVol * masterVol * 100));
+    }
+    return;
+  }
+
   const channel = window.__bloomChannels?.[sound];
   if (!channel || !window.__bloomAudioCtx) return;
 
@@ -164,8 +179,6 @@ const updateChannelGain = (sound: SoundType) => {
   else if (sound === "forest") factor = 0.25;
   else if (sound === "wind") factor = 0.35;
   else if (sound === "whitenoise") factor = 0.2;
-  else if (sound === "piano") factor = 0.70;
-  else if (sound === "guitar") factor = 0.70;
 
   channel.gainNode.gain.setTargetAtTime(localVol * factor, window.__bloomAudioCtx.currentTime, 0.1);
 };
@@ -177,107 +190,95 @@ export const setAmbientVolume = (vol: number) => {
     const masterGain = getMasterGain(ctx);
     masterGain.gain.setTargetAtTime(vol, ctx.currentTime, 0.15);
   }
+
+  // Update youtube player volume if active
+  const player = (window as any).__bloomYoutubePlayer;
+  if (player && typeof player.setVolume === "function") {
+    const localVol = window.__bloomChannelVolumes?.["canon"] ?? 0.5;
+    player.setVolume(Math.round(localVol * vol * 100));
+  }
+
   notifyListeners();
 };
 
 export const setChannelVolume = (sound: SoundType, vol: number) => {
   if (!window.__bloomChannelVolumes) {
-    window.__bloomChannelVolumes = { rain: 0.5, waves: 0.5, forest: 0.5, wind: 0.5, whitenoise: 0.5, piano: 0.5, guitar: 0.5 };
+    window.__bloomChannelVolumes = { rain: 0.5, waves: 0.5, forest: 0.5, wind: 0.5, whitenoise: 0.5, canon: 0.5 };
   }
   window.__bloomChannelVolumes[sound] = vol;
   updateChannelGain(sound);
   notifyListeners();
 };
 
-// --- Canon in D Step Sequencer Constants ---
-const CS4 = 277.18;
-const D4  = 293.66;
-const E4  = 329.63;
-const FS4 = 369.99;
-const G4  = 392.00;
-const A4  = 440.00;
-const B4  = 493.88;
-const CS5 = 554.37;
-const D5  = 587.33;
-const E5  = 659.25;
-const FS5 = 739.99;
-const G5  = 783.99;
-const A5  = 880.00;
-const B5  = 987.77;
-const CS6 = 1109.73;
+const initYoutubePlayer = (callback: (player: any) => void) => {
+  const existingPlayer = (window as any).__bloomYoutubePlayer;
+  if (existingPlayer) {
+    callback(existingPlayer);
+    return;
+  }
 
-const bassNotes = [
-  146.83, // D3 (M1)
-  110.00, // A2 (M2)
-  123.47, // B2 (M3)
-  92.50,  // F#2 (M4)
-  98.00,  // G2 (M5)
-  146.83, // D3 (M6)
-  98.00,  // G2 (M7)
-  110.00  // A2 (M8)
-];
+  // 1. Check if the script is already added
+  let script = document.getElementById("youtube-iframe-api") as HTMLScriptElement;
+  if (!script) {
+    script = document.createElement("script");
+    script.id = "youtube-iframe-api";
+    script.src = "https://www.youtube.com/iframe_api";
+    document.head.appendChild(script);
+  }
 
-const arpNotes = [
-  // Chord 0 (D): D3, A3, D4, F#4, A4, F#4, D4, A3
-  [220.00, 293.66, 369.99, 440.00, 369.99, 293.66, 220.00, 293.66],
-  // Chord 1 (A): A2, E3, A3, C#4, E4, C#4, A3, E3
-  [164.81, 220.00, 277.18, 329.63, 277.18, 220.00, 164.81, 220.00],
-  // Chord 2 (Bm): B2, F#3, B3, D4, F#4, D4, B3, F#3
-  [185.00, 246.94, 293.66, 369.99, 293.66, 246.94, 185.00, 246.94],
-  // Chord 3 (F#m): F#2, C#3, F#3, A3, C#4, A3, F#3, C#3
-  [138.59, 185.00, 220.00, 277.18, 220.00, 185.00, 138.59, 185.00],
-  // Chord 4 (G): G2, D3, G3, B3, D4, B3, G3, D3
-  [146.83, 196.00, 246.94, 293.66, 246.94, 196.00, 146.83, 196.00],
-  // Chord 5 (D): D3, A3, D4, F#4, A4, F#4, D4, A3
-  [220.00, 293.66, 369.99, 440.00, 369.99, 293.66, 220.00, 293.66],
-  // Chord 6 (G): G2, D3, G3, B3, D4, B3, G3, D3
-  [146.83, 196.00, 246.94, 293.66, 246.94, 196.00, 146.83, 196.00],
-  // Chord 7 (A): A2, E3, A3, C#4, E4, C#4, A3, E3
-  [164.81, 220.00, 277.18, 329.63, 277.18, 220.00, 164.81, 220.00]
-];
+  // 2. Create the hidden container if not exists
+  let container = document.getElementById("bloom-yt-container");
+  if (!container) {
+    container = document.createElement("div");
+    container.id = "bloom-yt-container";
+    container.style.position = "absolute";
+    container.style.top = "-9999px";
+    container.style.left = "-9999px";
+    container.style.width = "200px";
+    container.style.height = "200px";
+    container.style.opacity = "0.001";
+    container.style.pointerEvents = "none";
+    document.body.appendChild(container);
+  }
 
-// 512 steps melody (32 measures of 16 steps each)
-const melodyPattern: (number | null)[] = [
-  // --- Section 1: Slow Descending Theme (Measures 1-8, steps 0-127) ---
-  FS5, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, // M1
-  E5,  null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, // M2
-  D5,  null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, // M3
-  CS5, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, // M4
-  B4,  null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, // M5
-  A4,  null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, // M6
-  B4,  null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, // M7
-  CS5, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, // M8
+  // Define the global callback that YT API calls when loaded
+  const onAPIReady = () => {
+    const YT = (window as any).YT;
+    if (!YT) return;
+    
+    const player = new YT.Player("bloom-yt-container", {
+      videoId: "SjYecEQFL0U",
+      playerVars: {
+        autoplay: 1,
+        loop: 1,
+        playlist: "SjYecEQFL0U", // required for looping single video
+        controls: 0,
+        disablekb: 1,
+        fs: 0,
+        modestbranding: 1,
+        rel: 0,
+        playsinline: 1
+      },
+      events: {
+        onReady: () => {
+          (window as any).__bloomYoutubePlayer = player;
+          callback(player);
+        }
+      }
+    });
+  };
 
-  // --- Section 2: Quarter Notes (Measures 9-16, steps 128-255) ---
-  D5,  null, null, null, CS5, null, null, null, B4,  null, null, null, A4,  null, null, null, // M9
-  B4,  null, null, null, A4,  null, null, null, G4,  null, null, null, FS4, null, null, null, // M10
-  G4,  null, null, null, FS4, null, null, null, E4,  null, null, null, D4,  null, null, null, // M11
-  E4,  null, null, null, FS4, null, null, null, G4,  null, null, null, A4,  null, null, null, // M12
-  FS4, null, null, null, D4,  null, null, null, E4,  null, null, null, FS4, null, null, null, // M13
-  G4,  null, null, null, B4,  null, null, null, A4,  null, null, null, G4,  null, null, null, // M14
-  A4,  null, null, null, G4,  null, null, null, FS4, null, null, null, E4,  null, null, null, // M15
-  FS4, null, null, null, E4,  null, null, null, D4,  null, null, null, CS4, null, null, null, // M16
-
-  // --- Section 3: Eighth Notes (Measures 17-24, steps 256-383) ---
-  FS5, null, E5,  null, FS5, null, G5,  null, A5,  null, G5,  null, FS5, null, E5,  null, // M17
-  D5,  null, CS5, null, D5,  null, E5,  null, FS5, null, E5,  null, D5,  null, CS5, null, // M18
-  B4,  null, A4,  null, B4,  null, CS5, null, D5,  null, CS5, null, B4,  null, A4,  null, // M19
-  G4,  null, FS4, null, G4,  null, A4,  null, B4,  null, A4,  null, G4,  null, FS4, null, // M20
-  G4,  null, FS4, null, E4,  null, FS4, null, G4,  null, A4,  null, B4,  null, CS5, null, // M21
-  D5,  null, CS5, null, B4,  null, CS5, null, D5,  null, E5,  null, FS5, null, G5,  null, // M22
-  B4,  null, A4,  null, G4,  null, A4,  null, B4,  null, CS5, null, D5,  null, E5,  null, // M23
-  CS5, null, B4,  null, A4,  null, B4,  null, CS5, null, D5,  null, E5,  null, FS5, null, // M24
-
-  // --- Section 4: Sixteenth Notes (Measures 25-32, steps 384-511) ---
-  FS5, G5, A5, FS5, G5, A5, D5, E5, FS5, G5, A5, B5, A5, G5, A5, FS5, // M25
-  G5, FS5, E5, G5, FS5, E5, A4, B4, CS5, D5, E5, FS5, G5, FS5, E5, G5, // M26
-  FS5, E5, D5, FS5, E5, D5, G4, A4, B4, CS5, D5, E5, FS5, E5, D5, FS5, // M27
-  E5, D5, CS5, E5, D5, CS5, FS4, G4, A4, B4, CS5, D5, E5, D5, CS5, E5, // M28
-  D5, CS5, B4, D5, CS5, B4, E4, FS4, G4, A4, B4, CS5, D5, CS5, B4, D5, // M29
-  CS5, B4, A4, CS5, B4, A4, D4, E4, FS4, G4, A4, B4, CS5, B4, A4, CS5, // M30
-  B4, A4, G4, B4, A4, G4, G4, A4, B4, CS5, D5, E5, FS5, E5, D5, FS5, // M31
-  E5, D5, CS5, E5, D5, CS5, A4, B4, CS5, D5, E5, FS5, G5, FS5, E5, G5  // M32
-];
+  if ((window as any).YT && (window as any).YT.Player) {
+    onAPIReady();
+  } else {
+    // If API is loading, wait for onYouTubeIframeAPIReady
+    const prevReady = (window as any).onYouTubeIframeAPIReady;
+    (window as any).onYouTubeIframeAPIReady = () => {
+      if (prevReady) prevReady();
+      onAPIReady();
+    };
+  }
+};
 
 export const playAmbientSound = (sound: SoundType) => {
   const ctx = initCtx();
@@ -287,7 +288,7 @@ export const playAmbientSound = (sound: SoundType) => {
     window.__bloomChannels = {};
   }
   if (!window.__bloomChannelVolumes) {
-    window.__bloomChannelVolumes = { rain: 0.5, waves: 0.5, forest: 0.5, wind: 0.5, whitenoise: 0.5, piano: 0.5, guitar: 0.5 };
+    window.__bloomChannelVolumes = { rain: 0.5, waves: 0.5, forest: 0.5, wind: 0.5, whitenoise: 0.5, canon: 0.5 };
   }
 
   // If already playing, do nothing
@@ -411,17 +412,8 @@ export const playAmbientSound = (sound: SoundType) => {
 
     channelGain.gain.value = localVol * 0.2;
     src.start();
-  } else if (sound === "piano") {
-    // Reverb/Delay simulation node graph
-    const delayNode = ctx.createDelay(2.0);
-    delayNode.delayTime.value = 0.8; // Long spacey echo
-    const feedbackNode = ctx.createGain();
-    feedbackNode.gain.value = 0.45; // 45% echo decay
-
-    delayNode.connect(feedbackNode);
-    feedbackNode.connect(delayNode);
-    delayNode.connect(channelGain); // Echo goes to main output
-
+  } else if (sound === "canon") {
+    // Create a dummy source node to register the canon channel in our mixer state
     const src = ctx.createBufferSource();
     src.buffer = ctx.createBuffer(1, 1, ctx.sampleRate);
     src.loop = true;
@@ -429,213 +421,13 @@ export const playAmbientSound = (sound: SoundType) => {
     sourceNode = src;
     src.start();
 
-    const playPianoNote = (freq: number, volume: number, isBass: boolean, duration: number = 3.0) => {
-      if (!window.__bloomAudioCtx || !window.__bloomChannels?.["piano"]) return;
-      const c = window.__bloomAudioCtx;
-      const curLocalVol = window.__bloomChannelVolumes?.["piano"] ?? 0.5;
-      
-      // 1. Acoustic Mallet Strike Transient (Filtered noise burst)
-      const noise = c.createBufferSource();
-      noise.buffer = createNoiseBuffer(c, "pink");
-      const noiseFilter = c.createBiquadFilter();
-      noiseFilter.type = "bandpass";
-      noiseFilter.frequency.setValueAtTime(isBass ? 200 : 500, c.currentTime); // Low thump
-      noiseFilter.Q.value = 1.5;
-      const noiseGain = c.createGain();
-      noiseGain.gain.setValueAtTime(isBass ? 0.05 * curLocalVol : 0.02 * curLocalVol, c.currentTime);
-      noiseGain.gain.exponentialRampToValueAtTime(0.001, c.currentTime + 0.06); // 60ms decay
-
-      noise.connect(noiseFilter);
-      noiseFilter.connect(noiseGain);
-      noiseGain.connect(channelGain);
-      noise.start();
-
-      // 2. Warm Tone Generator (Triangle + Sine combo, detuned)
-      const osc1 = c.createOscillator();
-      const osc2 = c.createOscillator();
-      const g = c.createGain();
-      const filter = c.createBiquadFilter();
-
-      osc1.type = "sine";
-      osc1.frequency.setValueAtTime(freq, c.currentTime);
-
-      osc2.type = "triangle";
-      osc2.frequency.setValueAtTime(freq, c.currentTime);
-      // Low mix for triangle to keep it warm and non-synthetic
-      const triGain = c.createGain();
-      triGain.gain.setValueAtTime(0.18, c.currentTime);
-      osc2.connect(triGain);
-
-      // Low cutoff to remove bright/metallic digital frequencies
-      filter.type = "lowpass";
-      filter.frequency.setValueAtTime(isBass ? 350 : 650, c.currentTime); 
-      filter.frequency.exponentialRampToValueAtTime(80, c.currentTime + 2.5);
-
-      // Pad attack envelope: slow build to avoid click and sound ambient
-      g.gain.setValueAtTime(0, c.currentTime);
-      g.gain.linearRampToValueAtTime(volume * curLocalVol * 0.32, c.currentTime + (isBass ? 0.15 : 0.03));
-      g.gain.exponentialRampToValueAtTime(0.001, c.currentTime + duration);
-
-      osc1.connect(filter);
-      triGain.connect(filter);
-      filter.connect(g);
-      
-      // Connect to both dry (direct) output and wet (delay/reverb) input
-      g.connect(channelGain);
-      g.connect(delayNode);
-
-      osc1.start();
-      osc2.start();
-      osc1.stop(c.currentTime + duration + 0.2);
-      osc2.stop(c.currentTime + duration + 0.2);
-    };
-
-    let step = 0;
-    const tick = () => {
-      if (!window.__bloomAudioCtx || !window.__bloomChannels?.["piano"]) return;
-      
-      const chordIdx = Math.floor(step / 16) % 8;
-      const stepInMeasure = step % 16;
-
-      // 1. Play Bass Note on step 0
-      if (stepInMeasure === 0) {
-        playPianoNote(bassNotes[chordIdx], 0.70, true, 4.5);
-      }
-
-      // 2. Play Arpeggio Note on even steps (eighth notes)
-      if (stepInMeasure % 2 === 0) {
-        const arpIdx = stepInMeasure / 2;
-        const arpFreq = arpNotes[chordIdx][arpIdx];
-        if (arpFreq) {
-          playPianoNote(arpFreq, 0.14, false, 2.0);
-        }
-      }
-
-      // 3. Play Melody Note if scheduled
-      const melFreq = melodyPattern[step];
-      if (melFreq !== null) {
-        const duration = step >= 384 ? 0.6 : (step >= 256 ? 1.2 : 2.5);
-        const volume = step >= 384 ? 0.40 : 0.60;
-        playPianoNote(melFreq, volume, false, duration);
-      }
-
-      step = (step + 1) % 512;
-    };
-
-    tick();
-    intervalId = setInterval(tick, 180);
-
-  } else if (sound === "guitar") {
-    // Reverb/Delay simulation node graph for guitar echo
-    const delayNode = ctx.createDelay(2.0);
-    delayNode.delayTime.value = 0.6; // 600ms delay time
-    const feedbackNode = ctx.createGain();
-    feedbackNode.gain.value = 0.35; // 35% echo decay
-
-    delayNode.connect(feedbackNode);
-    feedbackNode.connect(delayNode);
-    delayNode.connect(channelGain);
-
-    const src = ctx.createBufferSource();
-    src.buffer = ctx.createBuffer(1, 1, ctx.sampleRate);
-    src.loop = true;
-    src.connect(channelGain);
-    sourceNode = src;
-    src.start();
-
-    const playGuitarNote = (freq: number, volume: number, isBass: boolean, duration: number = 3.0) => {
-      if (!window.__bloomAudioCtx || !window.__bloomChannels?.["guitar"]) return;
-      const c = window.__bloomAudioCtx;
-      const curLocalVol = window.__bloomChannelVolumes?.["guitar"] ?? 0.5;
-
-      // 1. Guitar Pick scrape transient (Filtered pink noise burst)
-      const noise = c.createBufferSource();
-      noise.buffer = createNoiseBuffer(c, "pink");
-      const noiseFilter = c.createBiquadFilter();
-      noiseFilter.type = "bandpass";
-      noiseFilter.frequency.setValueAtTime(isBass ? 300 : 900, c.currentTime); // High string scrape
-      noiseFilter.Q.value = 2.0;
-      const noiseGain = c.createGain();
-      noiseGain.gain.setValueAtTime(0.012 * curLocalVol, c.currentTime);
-      noiseGain.gain.exponentialRampToValueAtTime(0.001, c.currentTime + 0.03); // 30ms quick scrape
-
-      noise.connect(noiseFilter);
-      noiseFilter.connect(noiseGain);
-      noiseGain.connect(channelGain);
-      noise.start();
-
-      // 2. Nylon string warm tone (Triangle + Sine, rapid lowpass decay)
-      const osc1 = c.createOscillator();
-      const osc2 = c.createOscillator();
-      const g = c.createGain();
-      const filter = c.createBiquadFilter();
-
-      osc1.type = "sine";
-      osc1.frequency.setValueAtTime(freq, c.currentTime);
-
-      osc2.type = "triangle";
-      osc2.frequency.setValueAtTime(freq, c.currentTime);
-      const triGain = c.createGain();
-      triGain.gain.setValueAtTime(0.12, c.currentTime);
-      osc2.connect(triGain);
-
-      // Guitar pluck: filter starts higher (800Hz) and decays very rapidly (0.35s) to 110Hz
-      filter.type = "lowpass";
-      filter.frequency.setValueAtTime(800, c.currentTime);
-      filter.frequency.exponentialRampToValueAtTime(110, c.currentTime + 0.35); // Fast damping
-
-      // Pluck volume envelope: sharp attack (0.01s), slow release
-      g.gain.setValueAtTime(0, c.currentTime);
-      g.gain.linearRampToValueAtTime(volume * curLocalVol * 0.18, c.currentTime + (isBass ? 0.08 : 0.02));
-      g.gain.exponentialRampToValueAtTime(0.001, c.currentTime + duration);
-
-      osc1.connect(filter);
-      triGain.connect(filter);
-      filter.connect(g);
-      
-      g.connect(channelGain);
-      g.connect(delayNode);
-
-      osc1.start();
-      osc2.start();
-      osc1.stop(c.currentTime + duration + 0.2);
-      osc2.stop(c.currentTime + duration + 0.2);
-    };
-
-    let step = 64; // Offset by 4 measures (64 steps) for canon weaving effect!
-    const tick = () => {
-      if (!window.__bloomAudioCtx || !window.__bloomChannels?.["guitar"]) return;
-
-      const chordIdx = Math.floor(step / 16) % 8;
-      const stepInMeasure = step % 16;
-
-      // 1. Play Bass Note on step 0
-      if (stepInMeasure === 0) {
-        playGuitarNote(bassNotes[chordIdx], 0.65, true, 4.0);
-      }
-
-      // 2. Play Arpeggio Note on even steps (eighth notes)
-      if (stepInMeasure % 2 === 0) {
-        const arpIdx = stepInMeasure / 2;
-        const arpFreq = arpNotes[chordIdx][arpIdx];
-        if (arpFreq) {
-          playGuitarNote(arpFreq, 0.11, false, 1.8);
-        }
-      }
-
-      // 3. Play Melody Note if scheduled
-      const melFreq = melodyPattern[step];
-      if (melFreq !== null) {
-        const duration = step >= 384 ? 0.5 : (step >= 256 ? 1.0 : 2.2);
-        const volume = step >= 384 ? 0.35 : 0.55;
-        playGuitarNote(melFreq, volume, false, duration);
-      }
-
-      step = (step + 1) % 512;
-    };
-
-    tick();
-    intervalId = setInterval(tick, 180);
+    // Initialize & Play the YouTube Player
+    initYoutubePlayer((player) => {
+      const curLocalVol = window.__bloomChannelVolumes?.["canon"] ?? 0.5;
+      const masterVol = typeof window.__bloomMasterVolume === "number" ? window.__bloomMasterVolume : 0.5;
+      player.setVolume(Math.round(curLocalVol * masterVol * 100));
+      player.playVideo();
+    });
 
   } else {
     return; // Fallback safety

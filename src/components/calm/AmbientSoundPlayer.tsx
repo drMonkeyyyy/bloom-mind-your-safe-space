@@ -9,8 +9,7 @@ export function AmbientSoundPlayer() {
     forest: 0,
     wind: 0,
     whitenoise: 0,
-    piano: 0,
-    guitar: 0,
+    canon: 0,
   });
   const [masterVolume, setMasterVolume] = useState(0.5);
 
