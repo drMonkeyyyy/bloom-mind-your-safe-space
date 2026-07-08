@@ -320,7 +320,7 @@ export const playAmbientSound = (sound: SoundType) => {
   } else if (sound === "piano") {
     // Reverb/Delay simulation node graph
     const delayNode = ctx.createDelay(2.0);
-    delayNode.delayTime.value = 0.6; // 600ms delay time
+    delayNode.delayTime.value = 0.8; // Long spacey echo
     const feedbackNode = ctx.createGain();
     feedbackNode.gain.value = 0.45; // 45% echo decay
 
@@ -335,17 +335,16 @@ export const playAmbientSound = (sound: SoundType) => {
     sourceNode = src;
     src.start();
 
-    // Canon in D chord progression (1 oktaf lebih rendah untuk kehangatan frekuensi)
-    // D -> A -> Bm -> F#m -> G -> D -> G -> A
+    // Deep, warm cinematic chords (rooted in D major / Canon in D)
     const progression = [
-      [146.83, 185.00, 220.00, 293.66], // D (D3, F#3, A3, D4)
-      [110.00, 164.81, 220.00, 277.18], // A (A2, E3, A3, C#4)
-      [123.47, 185.00, 246.94, 293.66], // Bm (B2, F#3, B3, D4)
-      [92.50,  138.59, 185.00, 220.00], // F#m (F#2, C#3, F#3, A3)
-      [98.00,  146.83, 196.00, 246.94], // G (G2, D3, G3, B3)
       [146.83, 220.00, 293.66, 369.99], // D (D3, A3, D4, F#4)
-      [98.00,  146.83, 196.00, 246.94], // G (G2, D3, G3, B3)
-      [110.00, 164.81, 220.00, 277.18]  // A (A2, E3, A3, C#4)
+      [110.00, 220.00, 277.18, 329.63], // A (A2, A3, C#4, E4)
+      [123.47, 246.94, 293.66, 369.99], // Bm (B2, B3, D4, F#4)
+      [92.50,  185.00, 220.00, 277.18], // F#m (F#2, F#3, A3, C#4)
+      [98.00,  196.00, 246.94, 293.66], // G (G2, G3, B3, D4)
+      [146.83, 220.00, 293.66, 369.99], // D (D3, A3, D4, F#4)
+      [98.00,  196.00, 246.94, 293.66], // G (G2, G3, B3, D4)
+      [110.00, 220.00, 277.18, 329.63]  // A (A2, A3, C#4, E4)
     ];
 
     let chordIdx = 0;
@@ -356,6 +355,23 @@ export const playAmbientSound = (sound: SoundType) => {
         const c = window.__bloomAudioCtx;
         const curLocalVol = window.__bloomChannelVolumes?.["piano"] ?? 0.5;
         
+        // 1. Acoustic Mallet Strike Transient (Filtered noise burst)
+        const noise = c.createBufferSource();
+        noise.buffer = createNoiseBuffer(c, "pink");
+        const noiseFilter = c.createBiquadFilter();
+        noiseFilter.type = "bandpass";
+        noiseFilter.frequency.setValueAtTime(400, c.currentTime); // Low thump
+        noiseFilter.Q.value = 1.0;
+        const noiseGain = c.createGain();
+        noiseGain.gain.setValueAtTime(0.04 * curLocalVol, c.currentTime);
+        noiseGain.gain.exponentialRampToValueAtTime(0.001, c.currentTime + 0.06); // 60ms decay
+
+        noise.connect(noiseFilter);
+        noiseFilter.connect(noiseGain);
+        noiseGain.connect(channelGain);
+        noise.start();
+
+        // 2. Warm Tone Generator (Triangle + Sine combo, detuned)
         const osc1 = c.createOscillator();
         const osc2 = c.createOscillator();
         const g = c.createGain();
@@ -363,21 +379,21 @@ export const playAmbientSound = (sound: SoundType) => {
 
         osc1.type = "triangle";
         osc1.frequency.setValueAtTime(freq, c.currentTime);
-        osc1.detune.setValueAtTime(-5, c.currentTime);
+        osc1.detune.setValueAtTime(-6, c.currentTime);
 
         osc2.type = "sine";
         osc2.frequency.setValueAtTime(freq, c.currentTime);
-        osc2.detune.setValueAtTime(5, c.currentTime);
+        osc2.detune.setValueAtTime(6, c.currentTime);
 
-        // Warm, rounded lowpass filter sweep
+        // Low cutoff to remove bright/metallic digital frequencies
         filter.type = "lowpass";
-        filter.frequency.setValueAtTime(700, c.currentTime);
-        filter.frequency.exponentialRampToValueAtTime(90, c.currentTime + 1.8);
+        filter.frequency.setValueAtTime(450, c.currentTime); 
+        filter.frequency.exponentialRampToValueAtTime(80, c.currentTime + 2.5);
 
-        // Soft, pad-like attack (0.08s) to eliminate metallic clicks
+        // Pad attack envelope: slow build (0.35s) to avoid click and sound ambient
         g.gain.setValueAtTime(0, c.currentTime);
-        g.gain.linearRampToValueAtTime(volume * curLocalVol * 0.35, c.currentTime + 0.08);
-        g.gain.exponentialRampToValueAtTime(0.001, c.currentTime + 3.5);
+        g.gain.linearRampToValueAtTime(volume * curLocalVol * 0.32, c.currentTime + 0.35);
+        g.gain.exponentialRampToValueAtTime(0.001, c.currentTime + 4.5);
 
         osc1.connect(filter);
         osc2.connect(filter);
@@ -389,35 +405,35 @@ export const playAmbientSound = (sound: SoundType) => {
 
         osc1.start();
         osc2.start();
-        osc1.stop(c.currentTime + 3.8);
-        osc2.stop(c.currentTime + 3.8);
+        osc1.stop(c.currentTime + 4.8);
+        osc2.stop(c.currentTime + 4.8);
       }, delay);
     };
 
     const triggerChord = () => {
       const chord = progression[chordIdx];
-      // Slow, relaxing arpeggiation (320ms delay between notes)
+      // Trigger all notes almost simultaneously (slight 40ms humanized strum delay) to sound like a block chord, not an arpeggio
       chord.forEach((freq, index) => {
-        const arpeggioDelay = index * 320 + Math.random() * 50;
-        const noteVol = 0.8 - (index * 0.08);
-        playPianoNote(freq, arpeggioDelay, noteVol);
+        const strumDelay = index * 40 + Math.random() * 15;
+        const noteVol = 0.85 - (index * 0.05);
+        playPianoNote(freq, strumDelay, noteVol);
       });
       chordIdx = (chordIdx + 1) % progression.length;
     };
 
     triggerChord();
 
-    // Trigger chord progression every 7.5 seconds (slows brainwaves)
+    // Trigger chords slowly every 8.0 seconds for meditative breathing
     intervalId = setInterval(() => {
       triggerChord();
-    }, 7500);
+    }, 8000);
 
   } else if (sound === "guitar") {
     // Reverb/Delay simulation node graph for guitar echo
     const delayNode = ctx.createDelay(2.0);
-    delayNode.delayTime.value = 0.5; // 500ms delay time
+    delayNode.delayTime.value = 0.6; // 600ms delay time
     const feedbackNode = ctx.createGain();
-    feedbackNode.gain.value = 0.38; // 38% echo decay
+    feedbackNode.gain.value = 0.35; // 35% echo decay
 
     delayNode.connect(feedbackNode);
     feedbackNode.connect(delayNode);
@@ -430,8 +446,7 @@ export const playAmbientSound = (sound: SoundType) => {
     sourceNode = src;
     src.start();
 
-    // Serene acoustic nylon string progression (Canon in D)
-    // D -> A -> Bm -> F#m -> G -> D -> G -> A
+    // Deep acoustic progression in D major (Canon in D)
     const guitarProgression = [
       [146.83, 220.00, 293.66, 369.99], // D (D3, A3, D4, F#4)
       [110.00, 220.00, 277.18, 329.63], // A (A2, A3, C#4, E4)
@@ -451,6 +466,23 @@ export const playAmbientSound = (sound: SoundType) => {
         const c = window.__bloomAudioCtx;
         const curLocalVol = window.__bloomChannelVolumes?.["guitar"] ?? 0.5;
 
+        // 1. Guitar Pick scrape transient (Filtered pink noise burst)
+        const noise = c.createBufferSource();
+        noise.buffer = createNoiseBuffer(c, "pink");
+        const noiseFilter = c.createBiquadFilter();
+        noiseFilter.type = "bandpass";
+        noiseFilter.frequency.setValueAtTime(1000, c.currentTime); // High string scrape
+        noiseFilter.Q.value = 2.0;
+        const noiseGain = c.createGain();
+        noiseGain.gain.setValueAtTime(0.012 * curLocalVol, c.currentTime);
+        noiseGain.gain.exponentialRampToValueAtTime(0.001, c.currentTime + 0.03); // 30ms quick scrape
+
+        noise.connect(noiseFilter);
+        noiseFilter.connect(noiseGain);
+        noiseGain.connect(channelGain);
+        noise.start();
+
+        // 2. Nylon string warm tone (Triangle + Sine, rapid lowpass decay)
         const osc1 = c.createOscillator();
         const osc2 = c.createOscillator();
         const g = c.createGain();
@@ -459,20 +491,20 @@ export const playAmbientSound = (sound: SoundType) => {
         // Warm nylon string resonance combo: Triangle + Sine
         osc1.type = "triangle";
         osc1.frequency.setValueAtTime(freq, c.currentTime);
-        osc1.detune.setValueAtTime(-6, c.currentTime);
+        osc1.detune.setValueAtTime(-8, c.currentTime);
 
         osc2.type = "sine";
         osc2.frequency.setValueAtTime(freq, c.currentTime);
-        osc2.detune.setValueAtTime(6, c.currentTime);
+        osc2.detune.setValueAtTime(8, c.currentTime);
 
-        // Guitar pluck: filter starts higher (1400Hz) and decays very rapidly (0.15s) to 100Hz
+        // Guitar pluck: filter starts higher (800Hz) and decays very rapidly (0.35s) to 110Hz
         filter.type = "lowpass";
-        filter.frequency.setValueAtTime(1400, c.currentTime);
-        filter.frequency.exponentialRampToValueAtTime(100, c.currentTime + 0.15);
+        filter.frequency.setValueAtTime(800, c.currentTime);
+        filter.frequency.exponentialRampToValueAtTime(110, c.currentTime + 0.35); // Fast damping
 
-        // Pluck volume envelope: extremely sharp attack (0.008s), slow release
+        // Pluck volume envelope: sharp attack (0.01s), slow release
         g.gain.setValueAtTime(0, c.currentTime);
-        g.gain.linearRampToValueAtTime(volume * curLocalVol * 0.24, c.currentTime + 0.008);
+        g.gain.linearRampToValueAtTime(volume * curLocalVol * 0.18, c.currentTime + 0.01);
         g.gain.exponentialRampToValueAtTime(0.001, c.currentTime + 3.0);
 
         osc1.connect(filter);
@@ -491,9 +523,9 @@ export const playAmbientSound = (sound: SoundType) => {
 
     const triggerGuitarChord = () => {
       const chord = guitarProgression[guitarChordIdx];
-      // Pluck speed: slower arpeggiation (240ms between plucks)
+      // Very slow, sparse fingerpicking (450ms delay between plucks to avoid ringtone speed)
       chord.forEach((freq, index) => {
-        const pluckDelay = index * 240 + Math.random() * 40;
+        const pluckDelay = index * 450 + Math.random() * 30;
         const noteVol = 0.85 - (index * 0.06);
         playGuitarNote(freq, pluckDelay, noteVol);
       });
@@ -502,10 +534,10 @@ export const playAmbientSound = (sound: SoundType) => {
 
     triggerGuitarChord();
 
-    // Trigger guitar chord every 6.8 seconds
+    // Trigger guitar chord every 7.2 seconds
     intervalId = setInterval(() => {
       triggerGuitarChord();
-    }, 6800);
+    }, 7200);
 
   } else {
     return; // Fallback safety
