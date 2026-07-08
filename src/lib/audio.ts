@@ -7,8 +7,8 @@ export const SOUNDS: { id: SoundType; emoji: string; label: string; desc: string
   { id: "forest",     emoji: "🌲", label: "Hutan",       desc: "Kicauan burung & gemericik angin" },
   { id: "wind",       emoji: "💨", label: "Angin",       desc: "Hembusan angin sepoi yang sejuk" },
   { id: "whitenoise", emoji: "🌫️", label: "White Noise", desc: "Suara putih untuk fokus & tidur" },
-  { id: "piano",      emoji: "🎹", label: "Melodi Piano", desc: "Suara piano ambient yang menenteramkan" },
-  { id: "guitar",     emoji: "🎸", label: "Gitar Akustik", desc: "Petikan gitar akustik yang menenangkan" },
+  { id: "piano",      emoji: "🎹", label: "Melodi Piano", desc: "Alunan Canon in D yang menenteramkan" },
+  { id: "guitar",     emoji: "🎸", label: "Gitar Akustik", desc: "Petikan Canon in D yang menenangkan" },
 ];
 
 export interface ActiveSoundChannel {
@@ -335,13 +335,17 @@ export const playAmbientSound = (sound: SoundType) => {
     sourceNode = src;
     src.start();
 
-    // Cinematic chord progression (1 octave lower for deep warmth)
-    // Cmaj9 -> Fmaj7 -> Am9 -> Gsus4
+    // Canon in D chord progression (1 oktaf lebih rendah untuk kehangatan frekuensi)
+    // D -> A -> Bm -> F#m -> G -> D -> G -> A
     const progression = [
-      [130.81, 164.81, 196.00, 246.94, 261.63], // Cmaj9 (C3, E3, G3, B3, C4)
-      [174.61, 220.00, 261.63, 329.63, 349.23], // Fmaj7 (F3, A3, C4, E4, F4)
-      [110.00, 164.81, 196.00, 220.00, 261.63], // Am9 (A2, E3, G3, A3, C4)
-      [146.83, 196.00, 220.00, 293.66, 392.00]  // Gsus4 (D3, G3, A3, D4, G4)
+      [146.83, 185.00, 220.00, 293.66], // D (D3, F#3, A3, D4)
+      [110.00, 164.81, 220.00, 277.18], // A (A2, E3, A3, C#4)
+      [123.47, 185.00, 246.94, 293.66], // Bm (B2, F#3, B3, D4)
+      [92.50,  138.59, 185.00, 220.00], // F#m (F#2, C#3, F#3, A3)
+      [98.00,  146.83, 196.00, 246.94], // G (G2, D3, G3, B3)
+      [146.83, 220.00, 293.66, 369.99], // D (D3, A3, D4, F#4)
+      [98.00,  146.83, 196.00, 246.94], // G (G2, D3, G3, B3)
+      [110.00, 164.81, 220.00, 277.18]  // A (A2, E3, A3, C#4)
     ];
 
     let chordIdx = 0;
@@ -426,12 +430,17 @@ export const playAmbientSound = (sound: SoundType) => {
     sourceNode = src;
     src.start();
 
-    // Serene acoustic nylon string progression (1 octave lower for deep body)
+    // Serene acoustic nylon string progression (Canon in D)
+    // D -> A -> Bm -> F#m -> G -> D -> G -> A
     const guitarProgression = [
-      [82.41, 130.81, 196.00, 261.63, 329.63],  // C/E (E2, C3, G3, C4, E4)
-      [110.00, 164.81, 220.00, 293.66, 349.23], // Dm/A (A2, E3, A3, D4, F4)
-      [87.31, 174.61, 261.63, 349.23, 440.00],  // Fmaj7 (F2, F3, C4, F4, A4)
-      [98.00, 146.83, 196.00, 293.66, 392.00]   // G (G2, D3, G3, D4, G4)
+      [146.83, 220.00, 293.66, 369.99], // D (D3, A3, D4, F#4)
+      [110.00, 220.00, 277.18, 329.63], // A (A2, A3, C#4, E4)
+      [123.47, 246.94, 293.66, 369.99], // Bm (B2, B3, D4, F#4)
+      [92.50,  185.00, 220.00, 277.18], // F#m (F#2, F#3, A3, C#4)
+      [98.00,  196.00, 246.94, 293.66], // G (G2, G3, B3, D4)
+      [146.83, 220.00, 293.66, 369.99], // D (D3, A3, D4, F#4)
+      [98.00,  196.00, 246.94, 293.66], // G (G2, G3, B3, D4)
+      [110.00, 220.00, 277.18, 329.63]  // A (A2, A3, C#4, E4)
     ];
 
     let guitarChordIdx = 0;
