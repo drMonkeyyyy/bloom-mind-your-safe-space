@@ -546,9 +546,9 @@ Aktivitas user dalam 7 hari terakhir:
         prompt: `Sebagai pendamping ${companionRole} JN-CALM, buat insight mingguan dalam Bahasa Indonesia yang hangat, tulus, dan tidak menghakimi berdasarkan seluruh aktivitas user seminggu terakhir (mood, jurnal, rasa syukur, kebiasaan/habit tracker, dan pola makan emosional).
 
 Format output wajib terbagi menjadi 3 bagian yang jelas dipisahkan baris kosong:
-1. 💡 Kenapa & Mengapa: Berikan penjelasan hangat (3-4 kalimat) mengenai penyebab emosi/mood dominan serta trigger user minggu ini, dihubungkan dengan pola makan emosional dan pencapaian kebiasaan atau rasa syukur mereka.
-2. 📋 Terus Harus Gimana: Tuliskan 3 langkah solusi konkret, praktis, dan terukur yang bisa dilakukan user minggu depan untuk merespons kondisi emosi dan mendukung kesejahteraan mereka. Gunakan nomor 1, 2, 3 dan emoji yang menarik di awal setiap langkah.
-3. 🌱 Harapan & Pesan Pertumbuhan: Tuliskan 1-2 kalimat doa, harapan yang tulus, atau pesan penyemangat agar kondisi user membaik, sukses/berhasil dalam usahanya, dan terus bertumbuh dengan baik di minggu depan.
+1. 🔍 Refleksi Hangat Perjalananmu: Berikan penjelasan hangat (3-4 kalimat) mengenai penyebab emosi/mood dominan serta trigger user minggu ini, dihubungkan dengan pola makan emosional dan pencapaian kebiasaan atau rasa syukur mereka.
+2. 🧭 Langkah Damai Hari Esok: Tuliskan 3 langkah solusi konkret, praktis, dan terukur yang bisa dilakukan user minggu depan untuk merespons kondisi emosi dan mendukung kesejahteraan mereka. Gunakan nomor 1, 2, 3 dan emoji yang menarik di awal setiap langkah.
+3. ✨ Harapan & Kekuatan Baru: Tuliskan 1-2 kalimat doa, harapan yang tulus, atau pesan penyemangat agar kondisi user membaik, sukses/berhasil dalam usahanya, dan terus bertumbuh dengan baik di minggu depan.
 
 Data aktivitas user minggu ini:
 ${summary}`,
