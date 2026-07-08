@@ -190,6 +190,11 @@ export const setChannelVolume = (sound: SoundType, vol: number) => {
 };
 
 // --- Canon in D Step Sequencer Constants ---
+const CS4 = 277.18;
+const D4  = 293.66;
+const E4  = 329.63;
+const FS4 = 369.99;
+const G4  = 392.00;
 const A4  = 440.00;
 const B4  = 493.88;
 const CS5 = 554.37;
@@ -197,6 +202,9 @@ const D5  = 587.33;
 const E5  = 659.25;
 const FS5 = 739.99;
 const G5  = 783.99;
+const A5  = 880.00;
+const B5  = 987.77;
+const CS6 = 1109.73;
 
 const bassNotes = [
   146.83, // D3 (M1)
@@ -228,47 +236,47 @@ const arpNotes = [
   [164.81, 220.00, 277.18, 329.63, 277.18, 220.00, 164.81, 220.00]
 ];
 
-// 256 steps melody (32 measures of 8 steps each)
+// 512 steps melody (32 measures of 16 steps each)
 const melodyPattern: (number | null)[] = [
-  // Measures 1-8 (Iconic slow theme)
-  FS5, null, null, null, null, null, null, null,
-  E5,  null, null, null, null, null, null, null,
-  D5,  null, null, null, null, null, null, null,
-  CS5, null, null, null, null, null, null, null,
-  B4,  null, null, null, null, null, null, null,
-  A4,  null, null, null, null, null, null, null,
-  B4,  null, null, null, null, null, null, null,
-  CS5, null, null, null, null, null, null, null,
+  // --- Section 1: Slow Descending Theme (Measures 1-8, steps 0-127) ---
+  FS5, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, // M1
+  E5,  null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, // M2
+  D5,  null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, // M3
+  CS5, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, // M4
+  B4,  null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, // M5
+  A4,  null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, // M6
+  B4,  null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, // M7
+  CS5, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, // M8
 
-  // Measures 9-16 (Active repeating half notes)
-  D5,  null, null, null, D5,  null, null, null,
-  E5,  null, null, null, E5,  null, null, null,
-  FS5, null, null, null, FS5, null, null, null,
-  G5,  null, null, null, G5,  null, null, null,
-  FS5, null, null, null, FS5, null, null, null,
-  E5,  null, null, null, E5,  null, null, null,
-  D5,  null, null, null, D5,  null, null, null,
-  CS5, null, null, null, CS5, null, null, null,
+  // --- Section 2: Quarter Notes (Measures 9-16, steps 128-255) ---
+  D5,  null, null, null, CS5, null, null, null, B4,  null, null, null, A4,  null, null, null, // M9
+  B4,  null, null, null, A4,  null, null, null, G4,  null, null, null, FS4, null, null, null, // M10
+  G4,  null, null, null, FS4, null, null, null, E4,  null, null, null, D4,  null, null, null, // M11
+  E4,  null, null, null, FS4, null, null, null, G4,  null, null, null, A4,  null, null, null, // M12
+  FS4, null, null, null, D4,  null, null, null, E4,  null, null, null, FS4, null, null, null, // M13
+  G4,  null, null, null, B4,  null, null, null, A4,  null, null, null, G4,  null, null, null, // M14
+  A4,  null, null, null, G4,  null, null, null, FS4, null, null, null, E4,  null, null, null, // M15
+  FS4, null, null, null, E4,  null, null, null, D4,  null, null, null, CS4, null, null, null, // M16
 
-  // Measures 17-24 (Active rising/falling notes)
-  B4,  null, null, null, B4,  null, null, null,
-  CS5, null, null, null, CS5, null, null, null,
-  D5,  null, null, null, D5,  null, null, null,
-  E5,  null, null, null, E5,  null, null, null,
-  FS5, null, null, null, FS5, null, null, null,
-  G5,  null, null, null, G5,  null, null, null,
-  FS5, null, null, null, FS5, null, null, null,
-  E5,  null, null, null, E5,  null, null, null,
+  // --- Section 3: Eighth Notes (Measures 17-24, steps 256-383) ---
+  FS5, null, E5,  null, FS5, null, G5,  null, A5,  null, G5,  null, FS5, null, E5,  null, // M17
+  D5,  null, CS5, null, D5,  null, E5,  null, FS5, null, E5,  null, D5,  null, CS5, null, // M18
+  B4,  null, A4,  null, B4,  null, CS5, null, D5,  null, CS5, null, B4,  null, A4,  null, // M19
+  G4,  null, FS4, null, G4,  null, A4,  null, B4,  null, A4,  null, G4,  null, FS4, null, // M20
+  G4,  null, FS4, null, E4,  null, FS4, null, G4,  null, A4,  null, B4,  null, CS5, null, // M21
+  D5,  null, CS5, null, B4,  null, CS5, null, D5,  null, E5,  null, FS5, null, G5,  null, // M22
+  B4,  null, A4,  null, G4,  null, A4,  null, B4,  null, CS5, null, D5,  null, E5,  null, // M23
+  CS5, null, B4,  null, A4,  null, B4,  null, CS5, null, D5,  null, E5,  null, FS5, null, // M24
 
-  // Measures 25-32 (Flowing resolution)
-  D5,  null, null, null, D5,  null, null, null,
-  E5,  null, null, null, E5,  null, null, null,
-  FS5, null, null, null, FS5, null, null, null,
-  G5,  null, null, null, G5,  null, null, null,
-  FS5, null, null, null, E5,  null, null, null,
-  D5,  null, null, null, CS5, null, null, null,
-  B4,  null, null, null, A4,  null, null, null,
-  B4,  null, null, null, CS5, null, null, null
+  // --- Section 4: Sixteenth Notes (Measures 25-32, steps 384-511) ---
+  FS5, G5, A5, FS5, G5, A5, D5, E5, FS5, G5, A5, B5, A5, G5, A5, FS5, // M25
+  G5, FS5, E5, G5, FS5, E5, A4, B4, CS5, D5, E5, FS5, G5, FS5, E5, G5, // M26
+  FS5, E5, D5, FS5, E5, D5, G4, A4, B4, CS5, D5, E5, FS5, E5, D5, FS5, // M27
+  E5, D5, CS5, E5, D5, CS5, FS4, G4, A4, B4, CS5, D5, E5, D5, CS5, E5, // M28
+  D5, CS5, B4, D5, CS5, B4, E4, FS4, G4, A4, B4, CS5, D5, CS5, B4, D5, // M29
+  CS5, B4, A4, CS5, B4, A4, D4, E4, FS4, G4, A4, B4, CS5, B4, A4, CS5, // M30
+  B4, A4, G4, B4, A4, G4, G4, A4, B4, CS5, D5, E5, FS5, E5, D5, FS5, // M31
+  E5, D5, CS5, E5, D5, CS5, A4, B4, CS5, D5, E5, FS5, G5, FS5, E5, G5  // M32
 ];
 
 export const playAmbientSound = (sound: SoundType) => {
@@ -421,7 +429,7 @@ export const playAmbientSound = (sound: SoundType) => {
     sourceNode = src;
     src.start();
 
-    const playPianoNote = (freq: number, volume: number, isBass: boolean) => {
+    const playPianoNote = (freq: number, volume: number, isBass: boolean, duration: number = 3.0) => {
       if (!window.__bloomAudioCtx || !window.__bloomChannels?.["piano"]) return;
       const c = window.__bloomAudioCtx;
       const curLocalVol = window.__bloomChannelVolumes?.["piano"] ?? 0.5;
@@ -466,7 +474,7 @@ export const playAmbientSound = (sound: SoundType) => {
       // Pad attack envelope: slow build to avoid click and sound ambient
       g.gain.setValueAtTime(0, c.currentTime);
       g.gain.linearRampToValueAtTime(volume * curLocalVol * 0.32, c.currentTime + (isBass ? 0.15 : 0.03));
-      g.gain.exponentialRampToValueAtTime(0.001, c.currentTime + (isBass ? 4.5 : 3.0));
+      g.gain.exponentialRampToValueAtTime(0.001, c.currentTime + duration);
 
       osc1.connect(filter);
       triGain.connect(filter);
@@ -478,39 +486,44 @@ export const playAmbientSound = (sound: SoundType) => {
 
       osc1.start();
       osc2.start();
-      osc1.stop(c.currentTime + 4.8);
-      osc2.stop(c.currentTime + 4.8);
+      osc1.stop(c.currentTime + duration + 0.2);
+      osc2.stop(c.currentTime + duration + 0.2);
     };
 
     let step = 0;
     const tick = () => {
       if (!window.__bloomAudioCtx || !window.__bloomChannels?.["piano"]) return;
       
-      const chordIdx = Math.floor(step / 8) % 8;
-      const stepInMeasure = step % 8;
+      const chordIdx = Math.floor(step / 16) % 8;
+      const stepInMeasure = step % 16;
 
       // 1. Play Bass Note on step 0
       if (stepInMeasure === 0) {
-        playPianoNote(bassNotes[chordIdx], 0.75, true);
+        playPianoNote(bassNotes[chordIdx], 0.70, true, 4.5);
       }
 
-      // 2. Play Arpeggio Note on every step (rolling)
-      const arpFreq = arpNotes[chordIdx][stepInMeasure];
-      if (arpFreq) {
-        playPianoNote(arpFreq, 0.15, false);
+      // 2. Play Arpeggio Note on even steps (eighth notes)
+      if (stepInMeasure % 2 === 0) {
+        const arpIdx = stepInMeasure / 2;
+        const arpFreq = arpNotes[chordIdx][arpIdx];
+        if (arpFreq) {
+          playPianoNote(arpFreq, 0.14, false, 2.0);
+        }
       }
 
       // 3. Play Melody Note if scheduled
       const melFreq = melodyPattern[step];
       if (melFreq !== null) {
-        playPianoNote(melFreq, 0.65, false);
+        const duration = step >= 384 ? 0.6 : (step >= 256 ? 1.2 : 2.5);
+        const volume = step >= 384 ? 0.40 : 0.60;
+        playPianoNote(melFreq, volume, false, duration);
       }
 
-      step = (step + 1) % 256;
+      step = (step + 1) % 512;
     };
 
     tick();
-    intervalId = setInterval(tick, 350);
+    intervalId = setInterval(tick, 180);
 
   } else if (sound === "guitar") {
     // Reverb/Delay simulation node graph for guitar echo
@@ -530,7 +543,7 @@ export const playAmbientSound = (sound: SoundType) => {
     sourceNode = src;
     src.start();
 
-    const playGuitarNote = (freq: number, volume: number, isBass: boolean) => {
+    const playGuitarNote = (freq: number, volume: number, isBass: boolean, duration: number = 3.0) => {
       if (!window.__bloomAudioCtx || !window.__bloomChannels?.["guitar"]) return;
       const c = window.__bloomAudioCtx;
       const curLocalVol = window.__bloomChannelVolumes?.["guitar"] ?? 0.5;
@@ -574,7 +587,7 @@ export const playAmbientSound = (sound: SoundType) => {
       // Pluck volume envelope: sharp attack (0.01s), slow release
       g.gain.setValueAtTime(0, c.currentTime);
       g.gain.linearRampToValueAtTime(volume * curLocalVol * 0.18, c.currentTime + (isBass ? 0.08 : 0.02));
-      g.gain.exponentialRampToValueAtTime(0.001, c.currentTime + 3.0);
+      g.gain.exponentialRampToValueAtTime(0.001, c.currentTime + duration);
 
       osc1.connect(filter);
       triGain.connect(filter);
@@ -585,39 +598,44 @@ export const playAmbientSound = (sound: SoundType) => {
 
       osc1.start();
       osc2.start();
-      osc1.stop(c.currentTime + 3.2);
-      osc2.stop(c.currentTime + 3.2);
+      osc1.stop(c.currentTime + duration + 0.2);
+      osc2.stop(c.currentTime + duration + 0.2);
     };
 
-    let step = 32; // Offset by 4 measures for canon weaving effect!
+    let step = 64; // Offset by 4 measures (64 steps) for canon weaving effect!
     const tick = () => {
       if (!window.__bloomAudioCtx || !window.__bloomChannels?.["guitar"]) return;
 
-      const chordIdx = Math.floor(step / 8) % 8;
-      const stepInMeasure = step % 8;
+      const chordIdx = Math.floor(step / 16) % 8;
+      const stepInMeasure = step % 16;
 
       // 1. Play Bass Note on step 0
       if (stepInMeasure === 0) {
-        playGuitarNote(bassNotes[chordIdx], 0.70, true);
+        playGuitarNote(bassNotes[chordIdx], 0.65, true, 4.0);
       }
 
-      // 2. Play Arpeggio Note on every step (rolling)
-      const arpFreq = arpNotes[chordIdx][stepInMeasure];
-      if (arpFreq) {
-        playGuitarNote(arpFreq, 0.12, false);
+      // 2. Play Arpeggio Note on even steps (eighth notes)
+      if (stepInMeasure % 2 === 0) {
+        const arpIdx = stepInMeasure / 2;
+        const arpFreq = arpNotes[chordIdx][arpIdx];
+        if (arpFreq) {
+          playGuitarNote(arpFreq, 0.11, false, 1.8);
+        }
       }
 
       // 3. Play Melody Note if scheduled
       const melFreq = melodyPattern[step];
       if (melFreq !== null) {
-        playGuitarNote(melFreq, 0.60, false);
+        const duration = step >= 384 ? 0.5 : (step >= 256 ? 1.0 : 2.2);
+        const volume = step >= 384 ? 0.35 : 0.55;
+        playGuitarNote(melFreq, volume, false, duration);
       }
 
-      step = (step + 1) % 256;
+      step = (step + 1) % 512;
     };
 
     tick();
-    intervalId = setInterval(tick, 350);
+    intervalId = setInterval(tick, 180);
 
   } else {
     return; // Fallback safety
