@@ -189,6 +189,88 @@ export const setChannelVolume = (sound: SoundType, vol: number) => {
   notifyListeners();
 };
 
+// --- Canon in D Step Sequencer Constants ---
+const A4  = 440.00;
+const B4  = 493.88;
+const CS5 = 554.37;
+const D5  = 587.33;
+const E5  = 659.25;
+const FS5 = 739.99;
+const G5  = 783.99;
+
+const bassNotes = [
+  146.83, // D3 (M1)
+  110.00, // A2 (M2)
+  123.47, // B2 (M3)
+  92.50,  // F#2 (M4)
+  98.00,  // G2 (M5)
+  146.83, // D3 (M6)
+  98.00,  // G2 (M7)
+  110.00  // A2 (M8)
+];
+
+const arpNotes = [
+  // Chord 0 (D): D3, A3, D4, F#4, A4, F#4, D4, A3
+  [220.00, 293.66, 369.99, 440.00, 369.99, 293.66, 220.00, 293.66],
+  // Chord 1 (A): A2, E3, A3, C#4, E4, C#4, A3, E3
+  [164.81, 220.00, 277.18, 329.63, 277.18, 220.00, 164.81, 220.00],
+  // Chord 2 (Bm): B2, F#3, B3, D4, F#4, D4, B3, F#3
+  [185.00, 246.94, 293.66, 369.99, 293.66, 246.94, 185.00, 246.94],
+  // Chord 3 (F#m): F#2, C#3, F#3, A3, C#4, A3, F#3, C#3
+  [138.59, 185.00, 220.00, 277.18, 220.00, 185.00, 138.59, 185.00],
+  // Chord 4 (G): G2, D3, G3, B3, D4, B3, G3, D3
+  [146.83, 196.00, 246.94, 293.66, 246.94, 196.00, 146.83, 196.00],
+  // Chord 5 (D): D3, A3, D4, F#4, A4, F#4, D4, A3
+  [220.00, 293.66, 369.99, 440.00, 369.99, 293.66, 220.00, 293.66],
+  // Chord 6 (G): G2, D3, G3, B3, D4, B3, G3, D3
+  [146.83, 196.00, 246.94, 293.66, 246.94, 196.00, 146.83, 196.00],
+  // Chord 7 (A): A2, E3, A3, C#4, E4, C#4, A3, E3
+  [164.81, 220.00, 277.18, 329.63, 277.18, 220.00, 164.81, 220.00]
+];
+
+// 256 steps melody (32 measures of 8 steps each)
+const melodyPattern: (number | null)[] = [
+  // Measures 1-8 (Iconic slow theme)
+  FS5, null, null, null, null, null, null, null,
+  E5,  null, null, null, null, null, null, null,
+  D5,  null, null, null, null, null, null, null,
+  CS5, null, null, null, null, null, null, null,
+  B4,  null, null, null, null, null, null, null,
+  A4,  null, null, null, null, null, null, null,
+  B4,  null, null, null, null, null, null, null,
+  CS5, null, null, null, null, null, null, null,
+
+  // Measures 9-16 (Active repeating half notes)
+  D5,  null, null, null, D5,  null, null, null,
+  E5,  null, null, null, E5,  null, null, null,
+  FS5, null, null, null, FS5, null, null, null,
+  G5,  null, null, null, G5,  null, null, null,
+  FS5, null, null, null, FS5, null, null, null,
+  E5,  null, null, null, E5,  null, null, null,
+  D5,  null, null, null, D5,  null, null, null,
+  CS5, null, null, null, CS5, null, null, null,
+
+  // Measures 17-24 (Active rising/falling notes)
+  B4,  null, null, null, B4,  null, null, null,
+  CS5, null, null, null, CS5, null, null, null,
+  D5,  null, null, null, D5,  null, null, null,
+  E5,  null, null, null, E5,  null, null, null,
+  FS5, null, null, null, FS5, null, null, null,
+  G5,  null, null, null, G5,  null, null, null,
+  FS5, null, null, null, FS5, null, null, null,
+  E5,  null, null, null, E5,  null, null, null,
+
+  // Measures 25-32 (Flowing resolution)
+  D5,  null, null, null, D5,  null, null, null,
+  E5,  null, null, null, E5,  null, null, null,
+  FS5, null, null, null, FS5, null, null, null,
+  G5,  null, null, null, G5,  null, null, null,
+  FS5, null, null, null, E5,  null, null, null,
+  D5,  null, null, null, CS5, null, null, null,
+  B4,  null, null, null, A4,  null, null, null,
+  B4,  null, null, null, CS5, null, null, null
+];
+
 export const playAmbientSound = (sound: SoundType) => {
   const ctx = initCtx();
   const masterGain = getMasterGain(ctx);
@@ -339,107 +421,96 @@ export const playAmbientSound = (sound: SoundType) => {
     sourceNode = src;
     src.start();
 
-    // Meditative Canon in D melody line (Bass root + melody)
-    const progression = [
-      { bass: 146.83, melody: 369.99 }, // D (D3, F#4)
-      { bass: 110.00, melody: 329.63 }, // A (A2, E4)
-      { bass: 123.47, melody: 293.66 }, // Bm (B2, D4)
-      { bass: 92.50,  melody: 277.18 }, // F#m (F#2, C#4)
-      { bass: 98.00,  melody: 246.94 }, // G (G2, B3)
-      { bass: 146.83, melody: 220.00 }, // D (D3, A3)
-      { bass: 98.00,  melody: 246.94 }, // G (G2, B3)
-      { bass: 110.00, melody: 277.18 }  // A (A2, C#4)
-    ];
+    const playPianoNote = (freq: number, volume: number, isBass: boolean) => {
+      if (!window.__bloomAudioCtx || !window.__bloomChannels?.["piano"]) return;
+      const c = window.__bloomAudioCtx;
+      const curLocalVol = window.__bloomChannelVolumes?.["piano"] ?? 0.5;
+      
+      // 1. Acoustic Mallet Strike Transient (Filtered noise burst)
+      const noise = c.createBufferSource();
+      noise.buffer = createNoiseBuffer(c, "pink");
+      const noiseFilter = c.createBiquadFilter();
+      noiseFilter.type = "bandpass";
+      noiseFilter.frequency.setValueAtTime(isBass ? 200 : 500, c.currentTime); // Low thump
+      noiseFilter.Q.value = 1.5;
+      const noiseGain = c.createGain();
+      noiseGain.gain.setValueAtTime(isBass ? 0.05 * curLocalVol : 0.02 * curLocalVol, c.currentTime);
+      noiseGain.gain.exponentialRampToValueAtTime(0.001, c.currentTime + 0.06); // 60ms decay
 
-    let chordIdx = 0;
-    
-    const playPianoNote = (freq: number, delay: number, volume: number, isBass: boolean) => {
-      const tid = setTimeout(() => {
-        if (!window.__bloomAudioCtx || !window.__bloomChannels?.["piano"]) return;
-        const c = window.__bloomAudioCtx;
-        const curLocalVol = window.__bloomChannelVolumes?.["piano"] ?? 0.5;
-        
-        // 1. Acoustic Mallet Strike Transient (Filtered noise burst)
-        const noise = c.createBufferSource();
-        noise.buffer = createNoiseBuffer(c, "pink");
-        const noiseFilter = c.createBiquadFilter();
-        noiseFilter.type = "bandpass";
-        noiseFilter.frequency.setValueAtTime(isBass ? 200 : 500, c.currentTime); // Low thump
-        noiseFilter.Q.value = 1.5;
-        const noiseGain = c.createGain();
-        noiseGain.gain.setValueAtTime(isBass ? 0.05 * curLocalVol : 0.02 * curLocalVol, c.currentTime);
-        noiseGain.gain.exponentialRampToValueAtTime(0.001, c.currentTime + 0.06); // 60ms decay
+      noise.connect(noiseFilter);
+      noiseFilter.connect(noiseGain);
+      noiseGain.connect(channelGain);
+      noise.start();
 
-        noise.connect(noiseFilter);
-        noiseFilter.connect(noiseGain);
-        noiseGain.connect(channelGain);
-        noise.start();
+      // 2. Warm Tone Generator (Triangle + Sine combo, detuned)
+      const osc1 = c.createOscillator();
+      const osc2 = c.createOscillator();
+      const g = c.createGain();
+      const filter = c.createBiquadFilter();
 
-        // 2. Warm Tone Generator (Triangle + Sine combo, detuned)
-        const osc1 = c.createOscillator();
-        const osc2 = c.createOscillator();
-        const g = c.createGain();
-        const filter = c.createBiquadFilter();
+      osc1.type = "sine";
+      osc1.frequency.setValueAtTime(freq, c.currentTime);
 
-        osc1.type = "sine";
-        osc1.frequency.setValueAtTime(freq, c.currentTime);
+      osc2.type = "triangle";
+      osc2.frequency.setValueAtTime(freq, c.currentTime);
+      // Low mix for triangle to keep it warm and non-synthetic
+      const triGain = c.createGain();
+      triGain.gain.setValueAtTime(0.18, c.currentTime);
+      osc2.connect(triGain);
 
-        osc2.type = "triangle";
-        osc2.frequency.setValueAtTime(freq, c.currentTime);
-        // Low mix for triangle to keep it warm and non-synthetic
-        const triGain = c.createGain();
-        triGain.gain.setValueAtTime(0.18, c.currentTime);
-        osc2.connect(triGain);
+      // Low cutoff to remove bright/metallic digital frequencies
+      filter.type = "lowpass";
+      filter.frequency.setValueAtTime(isBass ? 350 : 650, c.currentTime); 
+      filter.frequency.exponentialRampToValueAtTime(80, c.currentTime + 2.5);
 
-        // Low cutoff to remove bright/metallic digital frequencies
-        filter.type = "lowpass";
-        filter.frequency.setValueAtTime(isBass ? 350 : 650, c.currentTime); 
-        filter.frequency.exponentialRampToValueAtTime(80, c.currentTime + 2.5);
+      // Pad attack envelope: slow build to avoid click and sound ambient
+      g.gain.setValueAtTime(0, c.currentTime);
+      g.gain.linearRampToValueAtTime(volume * curLocalVol * 0.32, c.currentTime + (isBass ? 0.15 : 0.03));
+      g.gain.exponentialRampToValueAtTime(0.001, c.currentTime + (isBass ? 4.5 : 3.0));
 
-        // Pad attack envelope: slow build to avoid click and sound ambient
-        g.gain.setValueAtTime(0, c.currentTime);
-        g.gain.linearRampToValueAtTime(volume * curLocalVol * 0.32, c.currentTime + (isBass ? 0.15 : 0.06));
-        g.gain.exponentialRampToValueAtTime(0.001, c.currentTime + (isBass ? 4.5 : 3.5));
+      osc1.connect(filter);
+      triGain.connect(filter);
+      filter.connect(g);
+      
+      // Connect to both dry (direct) output and wet (delay/reverb) input
+      g.connect(channelGain);
+      g.connect(delayNode);
 
-        osc1.connect(filter);
-        triGain.connect(filter);
-        filter.connect(g);
-        
-        // Connect to both dry (direct) output and wet (delay/reverb) input
-        g.connect(channelGain);
-        g.connect(delayNode);
+      osc1.start();
+      osc2.start();
+      osc1.stop(c.currentTime + 4.8);
+      osc2.stop(c.currentTime + 4.8);
+    };
 
-        osc1.start();
-        osc2.start();
-        osc1.stop(c.currentTime + 4.8);
-        osc2.stop(c.currentTime + 4.8);
+    let step = 0;
+    const tick = () => {
+      if (!window.__bloomAudioCtx || !window.__bloomChannels?.["piano"]) return;
+      
+      const chordIdx = Math.floor(step / 8) % 8;
+      const stepInMeasure = step % 8;
 
-        // Clean up timeout ID
-        if (window.__bloomChannels?.["piano"]?.timeouts) {
-          window.__bloomChannels["piano"].timeouts = window.__bloomChannels["piano"].timeouts.filter(t => t !== tid);
-        }
-      }, delay);
-
-      if (window.__bloomChannels?.["piano"]) {
-        if (!window.__bloomChannels["piano"].timeouts) window.__bloomChannels["piano"].timeouts = [];
-        window.__bloomChannels["piano"].timeouts.push(tid);
+      // 1. Play Bass Note on step 0
+      if (stepInMeasure === 0) {
+        playPianoNote(bassNotes[chordIdx], 0.75, true);
       }
+
+      // 2. Play Arpeggio Note on every step (rolling)
+      const arpFreq = arpNotes[chordIdx][stepInMeasure];
+      if (arpFreq) {
+        playPianoNote(arpFreq, 0.15, false);
+      }
+
+      // 3. Play Melody Note if scheduled
+      const melFreq = melodyPattern[step];
+      if (melFreq !== null) {
+        playPianoNote(melFreq, 0.65, false);
+      }
+
+      step = (step + 1) % 256;
     };
 
-    const triggerChord = () => {
-      const step = progression[chordIdx];
-      // Slow, single-note spacing
-      playPianoNote(step.bass, 0, 0.9, true);
-      playPianoNote(step.melody, 1000, 0.75, false);
-      chordIdx = (chordIdx + 1) % progression.length;
-    };
-
-    triggerChord();
-
-    // Trigger chords slowly every 5.0 seconds for meditative breathing
-    intervalId = setInterval(() => {
-      triggerChord();
-    }, 5000);
+    tick();
+    intervalId = setInterval(tick, 350);
 
   } else if (sound === "guitar") {
     // Reverb/Delay simulation node graph for guitar echo
@@ -459,110 +530,94 @@ export const playAmbientSound = (sound: SoundType) => {
     sourceNode = src;
     src.start();
 
-    // Meditative Canon in D melody line for guitar
-    const guitarProgression = [
-      { bass: 146.83, melody: 369.99 }, // D (D3, F#4)
-      { bass: 110.00, melody: 329.63 }, // A (A2, E4)
-      { bass: 123.47, melody: 293.66 }, // Bm (B2, D4)
-      { bass: 92.50,  melody: 277.18 }, // F#m (F#2, C#4)
-      { bass: 98.00,  melody: 246.94 }, // G (G2, B3)
-      { bass: 146.83, melody: 220.00 }, // D (D3, A3)
-      { bass: 98.00,  melody: 246.94 }, // G (G2, B3)
-      { bass: 110.00, melody: 277.18 }  // A (A2, C#4)
-    ];
+    const playGuitarNote = (freq: number, volume: number, isBass: boolean) => {
+      if (!window.__bloomAudioCtx || !window.__bloomChannels?.["guitar"]) return;
+      const c = window.__bloomAudioCtx;
+      const curLocalVol = window.__bloomChannelVolumes?.["guitar"] ?? 0.5;
 
-    let guitarChordIdx = 0;
+      // 1. Guitar Pick scrape transient (Filtered pink noise burst)
+      const noise = c.createBufferSource();
+      noise.buffer = createNoiseBuffer(c, "pink");
+      const noiseFilter = c.createBiquadFilter();
+      noiseFilter.type = "bandpass";
+      noiseFilter.frequency.setValueAtTime(isBass ? 300 : 900, c.currentTime); // High string scrape
+      noiseFilter.Q.value = 2.0;
+      const noiseGain = c.createGain();
+      noiseGain.gain.setValueAtTime(0.012 * curLocalVol, c.currentTime);
+      noiseGain.gain.exponentialRampToValueAtTime(0.001, c.currentTime + 0.03); // 30ms quick scrape
 
-    const playGuitarNote = (freq: number, delay: number, volume: number, isBass: boolean) => {
-      const tid = setTimeout(() => {
-        if (!window.__bloomAudioCtx || !window.__bloomChannels?.["guitar"]) return;
-        const c = window.__bloomAudioCtx;
-        const curLocalVol = window.__bloomChannelVolumes?.["guitar"] ?? 0.5;
+      noise.connect(noiseFilter);
+      noiseFilter.connect(noiseGain);
+      noiseGain.connect(channelGain);
+      noise.start();
 
-        // 1. Guitar Pick scrape transient (Filtered pink noise burst)
-        const noise = c.createBufferSource();
-        noise.buffer = createNoiseBuffer(c, "pink");
-        const noiseFilter = c.createBiquadFilter();
-        noiseFilter.type = "bandpass";
-        noiseFilter.frequency.setValueAtTime(isBass ? 300 : 900, c.currentTime); // High string scrape
-        noiseFilter.Q.value = 2.0;
-        const noiseGain = c.createGain();
-        noiseGain.gain.setValueAtTime(0.012 * curLocalVol, c.currentTime);
-        noiseGain.gain.exponentialRampToValueAtTime(0.001, c.currentTime + 0.03); // 30ms quick scrape
+      // 2. Nylon string warm tone (Triangle + Sine, rapid lowpass decay)
+      const osc1 = c.createOscillator();
+      const osc2 = c.createOscillator();
+      const g = c.createGain();
+      const filter = c.createBiquadFilter();
 
-        noise.connect(noiseFilter);
-        noiseFilter.connect(noiseGain);
-        noiseGain.connect(channelGain);
-        noise.start();
+      osc1.type = "sine";
+      osc1.frequency.setValueAtTime(freq, c.currentTime);
 
-        // 2. Nylon string warm tone (Triangle + Sine, rapid lowpass decay)
-        const osc1 = c.createOscillator();
-        const osc2 = c.createOscillator();
-        const g = c.createGain();
-        const filter = c.createBiquadFilter();
+      osc2.type = "triangle";
+      osc2.frequency.setValueAtTime(freq, c.currentTime);
+      const triGain = c.createGain();
+      triGain.gain.setValueAtTime(0.12, c.currentTime);
+      osc2.connect(triGain);
 
-        osc1.type = "sine";
-        osc1.frequency.setValueAtTime(freq, c.currentTime);
+      // Guitar pluck: filter starts higher (800Hz) and decays very rapidly (0.35s) to 110Hz
+      filter.type = "lowpass";
+      filter.frequency.setValueAtTime(800, c.currentTime);
+      filter.frequency.exponentialRampToValueAtTime(110, c.currentTime + 0.35); // Fast damping
 
-        osc2.type = "triangle";
-        osc2.frequency.setValueAtTime(freq, c.currentTime);
-        const triGain = c.createGain();
-        triGain.gain.setValueAtTime(0.12, c.currentTime);
-        osc2.connect(triGain);
+      // Pluck volume envelope: sharp attack (0.01s), slow release
+      g.gain.setValueAtTime(0, c.currentTime);
+      g.gain.linearRampToValueAtTime(volume * curLocalVol * 0.18, c.currentTime + (isBass ? 0.08 : 0.02));
+      g.gain.exponentialRampToValueAtTime(0.001, c.currentTime + 3.0);
 
-        // Guitar pluck: filter starts higher (800Hz) and decays very rapidly (0.35s) to 110Hz
-        filter.type = "lowpass";
-        filter.frequency.setValueAtTime(800, c.currentTime);
-        filter.frequency.exponentialRampToValueAtTime(110, c.currentTime + 0.35); // Fast damping
+      osc1.connect(filter);
+      triGain.connect(filter);
+      filter.connect(g);
+      
+      g.connect(channelGain);
+      g.connect(delayNode);
 
-        // Pluck volume envelope: sharp attack (0.01s), slow release
-        g.gain.setValueAtTime(0, c.currentTime);
-        g.gain.linearRampToValueAtTime(volume * curLocalVol * 0.18, c.currentTime + (isBass ? 0.08 : 0.02));
-        g.gain.exponentialRampToValueAtTime(0.001, c.currentTime + 3.0);
+      osc1.start();
+      osc2.start();
+      osc1.stop(c.currentTime + 3.2);
+      osc2.stop(c.currentTime + 3.2);
+    };
 
-        osc1.connect(filter);
-        triGain.connect(filter);
-        filter.connect(g);
-        
-        g.connect(channelGain);
-        g.connect(delayNode);
+    let step = 32; // Offset by 4 measures for canon weaving effect!
+    const tick = () => {
+      if (!window.__bloomAudioCtx || !window.__bloomChannels?.["guitar"]) return;
 
-        osc1.start();
-        osc2.start();
-        osc1.stop(c.currentTime + 3.2);
-        osc2.stop(c.currentTime + 3.2);
+      const chordIdx = Math.floor(step / 8) % 8;
+      const stepInMeasure = step % 8;
 
-        // Clean up timeout ID
-        if (window.__bloomChannels?.["guitar"]?.timeouts) {
-          window.__bloomChannels["guitar"].timeouts = window.__bloomChannels["guitar"].timeouts.filter(t => t !== tid);
-        }
-      }, delay);
-
-      if (window.__bloomChannels?.["guitar"]) {
-        if (!window.__bloomChannels["guitar"].timeouts) window.__bloomChannels["guitar"].timeouts = [];
-        window.__bloomChannels["guitar"].timeouts.push(tid);
+      // 1. Play Bass Note on step 0
+      if (stepInMeasure === 0) {
+        playGuitarNote(bassNotes[chordIdx], 0.70, true);
       }
+
+      // 2. Play Arpeggio Note on every step (rolling)
+      const arpFreq = arpNotes[chordIdx][stepInMeasure];
+      if (arpFreq) {
+        playGuitarNote(arpFreq, 0.12, false);
+      }
+
+      // 3. Play Melody Note if scheduled
+      const melFreq = melodyPattern[step];
+      if (melFreq !== null) {
+        playGuitarNote(melFreq, 0.60, false);
+      }
+
+      step = (step + 1) % 256;
     };
 
-    const triggerGuitarChord = () => {
-      const step = guitarProgression[guitarChordIdx];
-      playGuitarNote(step.bass, 0, 0.85, true);
-      playGuitarNote(step.melody, 1000, 0.7, false);
-      guitarChordIdx = (guitarChordIdx + 1) % guitarProgression.length;
-    };
-
-    // Guitar starts playing with a 2.5s offset for a beautiful canon weaving effect!
-    const initTimeout = setTimeout(() => {
-      triggerGuitarChord();
-      intervalId = setInterval(() => {
-        triggerGuitarChord();
-      }, 5000);
-    }, 2500);
-
-    if (window.__bloomChannels?.["guitar"]) {
-      if (!window.__bloomChannels["guitar"].timeouts) window.__bloomChannels["guitar"].timeouts = [];
-      window.__bloomChannels["guitar"].timeouts.push(initTimeout);
-    }
+    tick();
+    intervalId = setInterval(tick, 350);
 
   } else {
     return; // Fallback safety
