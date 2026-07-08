@@ -320,6 +320,18 @@ function Page() {
   const moodChartData = (moods ?? []).map((m) => ({ value: m.mood_score, date: m.date }));
   const stressChartData = (moods ?? []).map((m) => ({ value: m.stress_score, date: m.date }));
 
+  const getLocalDateString = (d: Date = new Date()) => {
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
+  const todayStr = getLocalDateString();
+  const hasGeneratedToday = insightHistory.some(
+    (item) => getLocalDateString(new Date(item.date)) === todayStr
+  );
+
   const generate = async () => {
     setInsightLoading(true);
     try { 
@@ -328,14 +340,32 @@ function Page() {
       if (user) {
         localStorage.setItem(`bloom_weekly_insight_${user.id}`, r.text);
         
-        // Save to history
-        const newEntry = {
-          id: Math.random().toString(36).substring(2, 9),
-          date: new Date().toISOString(),
-          text: r.text,
-        };
+        // Check if there is already an entry generated today to overwrite
+        const existingIdx = insightHistory.findIndex(
+          (item) => getLocalDateString(new Date(item.date)) === todayStr
+        );
+
+        let updatedHistory;
+        if (existingIdx !== -1) {
+          // Overwrite existing today's entry
+          updatedHistory = [...insightHistory];
+          updatedHistory[existingIdx] = {
+            ...updatedHistory[existingIdx],
+            text: r.text,
+            date: new Date().toISOString() // Update timestamp to latest generate time
+          };
+        } else {
+          // Insert new entry
+          const newEntry = {
+            id: Math.random().toString(36).substring(2, 9),
+            date: new Date().toISOString(),
+            text: r.text,
+          };
+          updatedHistory = [newEntry, ...insightHistory];
+        }
+
         // Keep max 50 entries in history to prevent storage exhaustion
-        const updatedHistory = [newEntry, ...insightHistory].slice(0, 50);
+        updatedHistory = updatedHistory.slice(0, 50);
         setInsightHistory(updatedHistory);
         localStorage.setItem(`bloom_weekly_insights_history_${user.id}`, JSON.stringify(updatedHistory));
       }
@@ -482,9 +512,9 @@ function Page() {
             <button
               onClick={generate}
               disabled={insightLoading}
-              className="rounded-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 px-5 py-2.5 text-xs font-bold text-white transition-all hover:-translate-y-0.5 hover:shadow-md disabled:opacity-60"
+              className="rounded-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 px-5 py-2.5 text-xs font-bold text-white transition-all hover:-translate-y-0.5 hover:shadow-md disabled:opacity-60 flex items-center gap-1.5"
             >
-              {insightLoading ? "Memuat…" : "Generate"}
+              {insightLoading ? "Memuat…" : hasGeneratedToday ? "🔄 Regenerate" : "Generate"}
             </button>
           </div>
         </div>
@@ -510,6 +540,15 @@ function Page() {
           <p className="mt-4 text-sm text-muted-foreground">
             Klik "Generate" untuk mendapatkan insight personal minggu ini.
           </p>
+        )}
+
+        {hasGeneratedToday && !insightLoading && (
+          <div className="mt-4 text-[10px] text-purple-700 bg-purple-50/50 border border-purple-100/60 rounded-2xl p-3 font-semibold flex items-start gap-2 animate-fade-in shadow-inner">
+            <span>💡</span>
+            <p className="leading-normal">
+              Kamu sudah membuat insight hari ini. Mengklik <strong>Regenerate</strong> akan memperbarui laporan hari ini di riwayat kamu tanpa membuat entri ganda.
+            </p>
+          </div>
         )}
       </section>
 
