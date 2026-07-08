@@ -236,9 +236,74 @@ function Page() {
       return;
     }
     setSaving(true);
-    const { error } = await supabase.from("gratitude_entries").insert({ ...g, user_id: user.id });
+
+    const getLocalDateString = (d: Date = new Date()) => {
+      const year = d.getFullYear();
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    };
+    const todayStr = getLocalDateString();
+
+    const gratitudePayload = { ...g, user_id: user.id, date: todayStr };
+    const { error } = await supabase.from("gratitude_entries").insert(gratitudePayload);
+
+    if (error) {
+      setSaving(false);
+      toast.error(error.message);
+      return;
+    }
+
+    // Consolidate gratitude info into today's journal entry
+    try {
+      const { data: todayJournal } = await supabase
+        .from("journals")
+        .select("*")
+        .eq("user_id", user.id)
+        .eq("date", todayStr)
+        .maybeSingle();
+
+      const gratLines = [g.gratitude1, g.gratitude2, g.gratitude3].filter(Boolean).map(x => `- ${x}`).join("\n");
+      const newGratitudeText = gratLines;
+      const newLessonText = g.lesson;
+
+      if (todayJournal) {
+        // Merge with existing reflections
+        const mergedGratitude = todayJournal.gratitude
+          ? `${todayJournal.gratitude}\n${newGratitudeText}`
+          : newGratitudeText;
+        const mergedLesson = todayJournal.lesson
+          ? `${todayJournal.lesson}\n${newLessonText}`
+          : newLessonText;
+
+        await supabase
+          .from("journals")
+          .update({
+            gratitude: mergedGratitude,
+            lesson: mergedLesson
+          })
+          .eq("id", todayJournal.id);
+      } else {
+        // Create new journal for today
+        await supabase
+          .from("journals")
+          .insert({
+            user_id: user.id,
+            date: todayStr,
+            gratitude: newGratitudeText,
+            lesson: newLessonText,
+            summary: "Hari ini saya menulis catatan syukur.",
+            main_emotion: "😊 Bahagia",
+            source: "manual"
+          });
+      }
+      qc.invalidateQueries({ queryKey: ["journals", user.id] });
+      qc.invalidateQueries({ queryKey: ["last-journal", user.id] });
+    } catch (journalErr) {
+      console.error("Gagal menyinkronkan rasa syukur ke jurnal:", journalErr);
+    }
+
     setSaving(false);
-    if (error) { toast.error(error.message); return; }
     setHeart(true);
     toast.success("Tersimpan 🙏");
     setG({ gratitude1: "", gratitude2: "", gratitude3: "", best_moment: "", lesson: "" });

@@ -569,6 +569,13 @@ function JournalPage() {
     return { locked: true, label: `${days} hari lagi` };
   };
 
+  const getLocalDateString = (d: Date = new Date()) => {
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
   const { data: items } = useQuery({
     queryKey: ["journals", user?.id],
     enabled: !!user,
@@ -576,6 +583,68 @@ function JournalPage() {
       const { data } = await supabase.from("journals").select("*").eq("user_id", user!.id).order("created_at", { ascending: false });
       return data ?? [];
     },
+  });
+
+  const { data: allGratitude } = useQuery({
+    queryKey: ["all-gratitude", user?.id],
+    enabled: !!user,
+    queryFn: async () => {
+      const { data } = await supabase.from("gratitude_entries").select("date").eq("user_id", user!.id);
+      return data ?? [];
+    }
+  });
+
+  const { data: allHabitLogs } = useQuery({
+    queryKey: ["all-habit-logs", user?.id],
+    enabled: !!user,
+    queryFn: async () => {
+      const { data } = await supabase.from("habit_logs").select("date, completed").eq("user_id", user!.id).eq("completed", true);
+      return data ?? [];
+    }
+  });
+
+  const { data: allEatingLogs } = useQuery({
+    queryKey: ["all-eating", user?.id],
+    enabled: !!user,
+    queryFn: async () => {
+      const { data } = await supabase.from("emotional_eating_logs").select("date").eq("user_id", user!.id);
+      return data ?? [];
+    }
+  });
+
+  const { data: allCalmLogs } = useQuery({
+    queryKey: ["all-calm", user?.id],
+    enabled: !!user,
+    queryFn: async () => {
+      const { data } = await supabase.from("calm_feedback_logs" as any).select("created_at").eq("user_id", user!.id);
+      return data ?? [];
+    }
+  });
+
+  const { data: journalDetails } = useQuery({
+    queryKey: ["journal-details", user?.id, selectedJournal?.date],
+    enabled: !!user && !!selectedJournal?.date,
+    queryFn: async () => {
+      const dateStr = selectedJournal.date;
+      const [gratitudeRes, habitLogsRes, eatingRes, calmRes] = await Promise.all([
+        supabase.from("gratitude_entries").select("*").eq("user_id", user!.id).eq("date", dateStr),
+        supabase.from("habit_logs").select("*, habits(name, icon)").eq("user_id", user!.id).eq("date", dateStr).eq("completed", true),
+        supabase.from("emotional_eating_logs").select("*").eq("user_id", user!.id).eq("date", dateStr),
+        supabase.from("calm_feedback_logs" as any).select("*").eq("user_id", user!.id)
+      ]);
+
+      const calmLogs = (calmRes.data ?? []).filter((log: any) => {
+        const logDateStr = new Date(log.created_at).toLocaleDateString("sv-SE");
+        return logDateStr === dateStr;
+      });
+
+      return {
+        gratitude: gratitudeRes.data ?? [],
+        habits: habitLogsRes.data ?? [],
+        eating: eatingRes.data ?? [],
+        calm: calmLogs
+      };
+    }
   });
 
   const reset = () => {
@@ -600,14 +669,20 @@ function JournalPage() {
       return;
     }
 
-    const payload = { ...form, user_id: user.id, source: "manual" as const };
-    const { error } = editId
-      ? await supabase.from("journals").update(payload).eq("id", editId)
+    const todayStr = getLocalDateString();
+    const payload = { ...form, user_id: user.id, source: "manual" as const, date: todayStr };
+    
+    // Find today's journal to consolidate
+    const todayJournal = items?.find((j) => j.date === todayStr);
+    const targetEditId = editId || todayJournal?.id;
+
+    const { error } = targetEditId
+      ? await supabase.from("journals").update(payload).eq("id", targetEditId)
       : await supabase.from("journals").insert(payload);
     if (error) { toast.error(error.message); return; }
     
     setSavedAnim(true);
-    toast.success(editId ? "Diary diperbarui." : "Diary tersimpan 📓");
+    toast.success(targetEditId ? "Diary diperbarui." : "Diary tersimpan 📓");
     setSheetOpen(false);
     reset();
     setTimeout(() => setSavedAnim(false), 1000);
@@ -704,7 +779,24 @@ function JournalPage() {
             </div>
           </div>
           <button
-            onClick={() => { reset(); setSheetOpen(true); }}
+            onClick={() => {
+              const todayStr = getLocalDateString();
+              const todayJournal = items?.find((j) => j.date === todayStr);
+              if (todayJournal) {
+                setEditId(todayJournal.id);
+                setForm({
+                  summary: todayJournal.summary ?? "",
+                  main_emotion: todayJournal.main_emotion ?? "",
+                  main_trigger: todayJournal.main_trigger ?? "",
+                  lesson: todayJournal.lesson ?? "",
+                  gratitude: todayJournal.gratitude ?? "",
+                  tomorrow_focus: todayJournal.tomorrow_focus ?? ""
+                });
+              } else {
+                reset();
+              }
+              setSheetOpen(true);
+            }}
             className={`relative overflow-hidden rounded-full px-5 py-2.5 text-xs font-bold shadow-soft transition-all duration-350 btn-spring ${
               savedAnim ? "bg-emerald-500 text-white" : "bg-cream-deep hover:bg-white text-stone-900 border border-stone-200"
             }`}
@@ -728,7 +820,27 @@ function JournalPage() {
         }
         action={
           items?.length === 0
-            ? { label: "Tulis Lembaran Pertama", onClick: () => { reset(); setSheetOpen(true); } }
+            ? {
+                label: "Tulis Lembaran Pertama",
+                onClick: () => {
+                  const todayStr = getLocalDateString();
+                  const todayJournal = items?.find((j) => j.date === todayStr);
+                  if (todayJournal) {
+                    setEditId(todayJournal.id);
+                    setForm({
+                      summary: todayJournal.summary ?? "",
+                      main_emotion: todayJournal.main_emotion ?? "",
+                      main_trigger: todayJournal.main_trigger ?? "",
+                      lesson: todayJournal.lesson ?? "",
+                      gratitude: todayJournal.gratitude ?? "",
+                      tomorrow_focus: todayJournal.tomorrow_focus ?? ""
+                    });
+                  } else {
+                    reset();
+                  }
+                  setSheetOpen(true);
+                }
+              }
             : undefined
         }
       />
@@ -833,6 +945,36 @@ function JournalPage() {
                             </span>
                           </div>
 
+                          {/* Badges for completed daily activities */}
+                          <div className="mt-2.5 flex flex-wrap gap-1.5 pl-1">
+                            {allGratitude?.some((g: any) => g.date === j.date) && (
+                              <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 border border-amber-200/60 px-2 py-0.5 text-[8px] font-bold text-amber-800 shadow-sm animate-fade-in">
+                                🙏 Rasa Syukur
+                              </span>
+                            )}
+                            {(() => {
+                              const count = allHabitLogs?.filter((h: any) => h.date === j.date).length || 0;
+                              return count > 0 ? (
+                                <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 border border-emerald-200/60 px-2 py-0.5 text-[8px] font-bold text-emerald-800 shadow-sm animate-fade-in">
+                                  ✅ {count} Kebiasaan
+                                </span>
+                              ) : null;
+                            })()}
+                            {allEatingLogs?.some((e: any) => e.date === j.date) && (
+                              <span className="inline-flex items-center gap-1 rounded-full bg-rose-50 border border-rose-200/60 px-2 py-0.5 text-[8px] font-bold text-rose-800 shadow-sm animate-fade-in">
+                                🍽️ Eating Log
+                              </span>
+                            )}
+                            {(() => {
+                              const count = allCalmLogs?.filter((c: any) => new Date(c.created_at).toLocaleDateString("sv-SE") === j.date).length || 0;
+                              return count > 0 ? (
+                                <span className="inline-flex items-center gap-1 rounded-full bg-sky-50 border border-sky-200/60 px-2 py-0.5 text-[8px] font-bold text-sky-800 shadow-sm animate-fade-in">
+                                  🌬️ {count} Calm Exercise
+                                </span>
+                              ) : null;
+                            })()}
+                          </div>
+
                           {/* Preview / Lined summary */}
                           {j.summary && (
                             <div className="mt-3">
@@ -882,7 +1024,7 @@ function JournalPage() {
       <BottomSheet
         open={sheetOpen}
         onClose={() => { setSheetOpen(false); reset(); }}
-        title={editId ? "📝 Edit Diary" : "✍️ Tulis Lembaran Baru"}
+        title={editId ? (editId === items?.find((j) => j.date === getLocalDateString())?.id ? "📝 Lanjutkan Diary Hari Ini" : "📝 Edit Diary") : "✍️ Tulis Lembaran Baru"}
       >
         <div className="space-y-4 max-h-[75vh] overflow-y-auto scrollbar-none pr-1 pb-4">
           
@@ -1244,6 +1386,153 @@ function JournalPage() {
                       </div>
                     </div>
                   )}
+                </div>
+              )}
+
+              {/* Dynamic Activities Dashboard */}
+              {journalDetails && (
+                <div className="space-y-4 pt-3 border-t border-stone-200/40 text-left">
+                  <p className="text-xs font-bold text-stone-500 uppercase tracking-wider">Aktivitas Terintegrasi</p>
+                  
+                  {/* Habits completed */}
+                  {journalDetails.habits && journalDetails.habits.length > 0 && (
+                    <div className="space-y-1.5 animate-fade-in">
+                      <p className="text-[10px] font-extrabold text-stone-400 uppercase tracking-wider pl-1">Kebiasaan yang Diselesaikan</p>
+                      <div className="flex flex-wrap gap-1.5">
+                        {journalDetails.habits.map((h: any, hIdx: number) => (
+                          <span key={hIdx} className="inline-flex items-center gap-1.5 rounded-xl bg-emerald-50 border border-emerald-100 px-3 py-1.5 text-xs font-semibold text-emerald-800 shadow-sm">
+                            <span>{(h.habits as any)?.icon || "🎯"}</span>
+                            <span>{(h.habits as any)?.name}</span>
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Gratitude Entries */}
+                  {journalDetails.gratitude && journalDetails.gratitude.length > 0 && (
+                    <div className="space-y-1.5 animate-fade-in">
+                      <p className="text-[10px] font-extrabold text-stone-400 uppercase tracking-wider pl-1">Catatan Rasa Syukur</p>
+                      <div className="space-y-2">
+                        {journalDetails.gratitude.map((g: any, gIdx: number) => (
+                          <div key={gIdx} className="rounded-2xl border border-amber-100 bg-amber-50/20 p-3 text-stone-700 text-xs space-y-1.5 shadow-sm">
+                            <div className="flex items-center gap-1.5 font-bold text-amber-900">
+                              <span>🙏 Hal yang Disyukuri:</span>
+                            </div>
+                            <ul className="list-disc pl-4 space-y-1">
+                              {g.gratitude1 && <li>{g.gratitude1}</li>}
+                              {g.gratitude2 && <li>{g.gratitude2}</li>}
+                              {g.gratitude3 && <li>{g.gratitude3}</li>}
+                            </ul>
+                            {g.best_moment && (
+                              <p className="text-[11px] italic text-stone-600 pl-1 border-l-2 border-amber-300">
+                                <strong>Momen terbaik:</strong> "{g.best_moment}"
+                              </p>
+                            )}
+                            {g.lesson && (
+                              <p className="text-[11px] text-stone-600 pl-1">
+                                <strong>Pelajaran:</strong> {g.lesson}
+                              </p>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Emotional Eating Logs */}
+                  {journalDetails.eating && journalDetails.eating.length > 0 && (
+                    <div className="space-y-1.5 animate-fade-in">
+                      <p className="text-[10px] font-extrabold text-stone-400 uppercase tracking-wider pl-1">Pola Makan Emosional (Eating Logs)</p>
+                      <div className="space-y-2">
+                        {journalDetails.eating.map((e: any, eIdx: number) => {
+                          const hungerLabels: Record<string, string> = {
+                            lapar_fisik: "Lapar Fisik",
+                            lapar_emosional: "Lapar Emosional",
+                            craving: "Craving",
+                            stress_eating: "Stress Eating",
+                            mindless_eating: "Mindless Eating"
+                          };
+                          return (
+                            <div key={eIdx} className="rounded-2xl border border-rose-100 bg-rose-50/20 p-4 text-xs space-y-2.5 shadow-sm">
+                              <div className="flex justify-between items-center">
+                                <span className="font-bold text-rose-900 uppercase text-[9px] tracking-wide bg-rose-100/60 px-2 py-0.5 rounded-full">
+                                  {hungerLabels[e.hunger_type] || e.hunger_type}
+                                </span>
+                              </div>
+                              <div className="grid grid-cols-2 gap-2 text-stone-700">
+                                {e.emotion && (
+                                  <div>
+                                    <p className="font-bold text-[9px] text-stone-400 uppercase">Emosi</p>
+                                    <p>{e.emotion}</p>
+                                  </div>
+                                )}
+                                {e.craving_food && (
+                                  <div>
+                                    <p className="font-bold text-[9px] text-stone-400 uppercase">Keinginan Makanan</p>
+                                    <p>{e.craving_food}</p>
+                                  </div>
+                                )}
+                                {e.trigger && (
+                                  <div className="col-span-2">
+                                    <p className="font-bold text-[9px] text-stone-400 uppercase">Pemicu (Trigger)</p>
+                                    <p>{e.trigger}</p>
+                                  </div>
+                                )}
+                              </div>
+                              {e.ai_insight && (
+                                <div className="p-3 bg-white/70 border border-rose-100/60 rounded-xl space-y-1">
+                                  <p className="font-bold text-[9px] text-rose-800 uppercase tracking-wider">Insight AI</p>
+                                  <p className="text-stone-700 italic leading-relaxed">"{e.ai_insight}"</p>
+                                </div>
+                              )}
+                              {e.suggested_action && (
+                                <div className="p-3 bg-emerald-50/30 border border-emerald-100/60 rounded-xl space-y-1">
+                                  <p className="font-bold text-[9px] text-emerald-800 uppercase tracking-wider">Saran Coping</p>
+                                  <p className="text-stone-700 font-medium">
+                                    {e.suggested_action.split(" · ").map((act: string, aIdx: number) => (
+                                      <span key={aIdx} className="inline-block bg-white/80 border border-stone-200/50 rounded-lg px-2 py-0.5 m-0.5 text-[10px]">
+                                        {act}
+                                      </span>
+                                    ))}
+                                  </p>
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Calm feedback exercises */}
+                  {journalDetails.calm && journalDetails.calm.length > 0 && (
+                    <div className="space-y-1.5 animate-fade-in">
+                      <p className="text-[10px] font-extrabold text-stone-400 uppercase tracking-wider pl-1">Latihan Emergency Calm</p>
+                      <div className="space-y-2">
+                        {journalDetails.calm.map((c: any, cIdx: number) => {
+                          const toolNames: Record<string, string> = {
+                            breath: "🌬️ Breathing 4-7-8",
+                            ground: "🌍 Grounding 5-4-3-2-1",
+                            selftalk: "🤍 Self-Calming Talk",
+                            vent: "🍃 Kotak Pelepasan",
+                            reframing: "🪞 Ubah Sudut Pandang",
+                            somatic: "🦋 Latihan Somatik",
+                            panic: "🆘 Panic Attack Timer"
+                          };
+                          return (
+                            <div key={cIdx} className="flex items-center justify-between p-3 rounded-2xl bg-sky-50/35 border border-sky-100 text-stone-700 text-xs shadow-sm">
+                              <span className="font-semibold">{toolNames[c.exercise_key] || c.exercise_key}</span>
+                              <span className={`px-2 py-0.5 rounded-full font-bold text-[9px] ${c.is_helpful ? 'bg-emerald-100 text-emerald-800' : 'bg-stone-100 text-stone-600'}`}>
+                                {c.is_helpful ? '👍 Sangat Membantu' : '👎 Kurang Membantu'}
+                              </span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+
                 </div>
               )}
 

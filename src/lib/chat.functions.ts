@@ -269,6 +269,50 @@ Tugasmu:
       suggested_action: action,
     });
 
+    // Consolidate into today's journal
+    const todayStr = new Date().toLocaleDateString("sv-SE", { timeZone: "Asia/Jakarta" });
+    const hungerLabels: Record<string, string> = {
+      lapar_fisik: "Lapar Fisik",
+      lapar_emosional: "Lapar Emosional",
+      craving: "Craving",
+      stress_eating: "Stress Eating",
+      mindless_eating: "Mindless Eating"
+    };
+    const hungerLabel = data.hungerType ? (hungerLabels[data.hungerType] || data.hungerType) : "Tidak diketahui";
+    const eatingSummary = `Pola Makan Emosional (${hungerLabel}):
+- Emosi: ${data.emotion || "-"}
+- Makanan Diinginkan: ${data.cravingFood || "-"}
+- Pemicu: ${data.trigger || "-"}
+- Insight AI: ${insight}`;
+
+    const { data: todayJournal } = await supabase
+      .from("journals")
+      .select("*")
+      .eq("user_id", userId)
+      .eq("date", todayStr)
+      .maybeSingle();
+
+    if (todayJournal) {
+      const mergedSummary = todayJournal.summary ? `${todayJournal.summary}\n\n${eatingSummary}` : eatingSummary;
+      await supabase
+        .from("journals")
+        .update({
+          summary: mergedSummary,
+          main_emotion: todayJournal.main_emotion ? todayJournal.main_emotion : "😰 Cemas"
+        })
+        .eq("id", todayJournal.id);
+    } else {
+      await supabase
+        .from("journals")
+        .insert({
+          user_id: userId,
+          date: todayStr,
+          summary: eatingSummary,
+          main_emotion: "😰 Cemas",
+          source: "manual"
+        });
+    }
+
     return { insight, action };
   });
 
@@ -282,7 +326,10 @@ const COMPANION_ROLES: Record<string, string> = {
   coach: "Coach",
 };
 
-const JournalFromChatInput = z.object({ chatId: z.string().uuid() });
+const JournalFromChatInput = z.object({
+  chatId: z.string().uuid(),
+  localDate: z.string().optional()
+});
 
 export const generateJournalFromChat = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -347,24 +394,87 @@ JSON:`;
       parsed = { summary: r.text.slice(0, 400) };
     }
 
-    const { data: journal, error: insertError } = await supabase.from("journals").insert({
-      user_id: userId,
-      source: "from_chat",
-      companion_key: companionKey ?? undefined,
-      summary: parsed.summary ?? null,
-      main_emotion: parsed.main_emotion ?? null,
-      main_trigger: parsed.main_trigger ?? null,
-      lesson: parsed.lesson ?? null,
-      gratitude: parsed.gratitude ?? null,
-      tomorrow_focus: parsed.tomorrow_focus ?? null,
-    } as any).select("id").single();
+    const todayStr = data.localDate || new Date().toLocaleDateString("sv-SE", { timeZone: "Asia/Jakarta" });
 
-    if (insertError) {
-      console.error("Gagal menyimpan journal:", insertError);
-      throw new Error(`Gagal menyimpan journal: ${insertError.message}`);
+    // Check if today's journal already exists
+    const { data: existingJournal } = await supabase
+      .from("journals")
+      .select("*")
+      .eq("user_id", userId)
+      .eq("date", todayStr)
+      .maybeSingle();
+
+    let journalId;
+
+    if (existingJournal) {
+      // Merge values
+      const mergedSummary = existingJournal.summary
+        ? `${existingJournal.summary}\n\nPercakapan dengan ${companionRole}:\n${parsed.summary}`
+        : parsed.summary;
+
+      const mergedEmotion = existingJournal.main_emotion
+        ? `${existingJournal.main_emotion}, ${parsed.main_emotion}`
+        : parsed.main_emotion;
+
+      const existingStickers = existingJournal.main_trigger ? existingJournal.main_trigger.split(", ").filter(Boolean) : [];
+      const newStickers = parsed.main_trigger ? parsed.main_trigger.split(", ").filter(Boolean) : [];
+      const mergedStickers = Array.from(new Set([...existingStickers, ...newStickers])).join(", ");
+
+      const mergedLesson = existingJournal.lesson
+        ? `${existingJournal.lesson}\n${parsed.lesson}`
+        : parsed.lesson;
+
+      const mergedGratitude = existingJournal.gratitude
+        ? `${existingJournal.gratitude}\n${parsed.gratitude}`
+        : parsed.gratitude;
+
+      const mergedFocus = existingJournal.tomorrow_focus
+        ? `${existingJournal.tomorrow_focus}\n${parsed.tomorrow_focus}`
+        : parsed.tomorrow_focus;
+
+      const { data: updatedJournal, error: updateError } = await supabase
+        .from("journals")
+        .update({
+          summary: mergedSummary,
+          main_emotion: mergedEmotion,
+          main_trigger: mergedStickers,
+          lesson: mergedLesson,
+          gratitude: mergedGratitude,
+          tomorrow_focus: mergedFocus,
+          source: "from_chat",
+          companion_key: companionKey ?? undefined,
+        })
+        .eq("id", existingJournal.id)
+        .select("id")
+        .single();
+
+      if (updateError) {
+        console.error("Gagal mengupdate journal:", updateError);
+        throw new Error(`Gagal mengupdate journal: ${updateError.message}`);
+      }
+      journalId = updatedJournal?.id;
+    } else {
+      const { data: journal, error: insertError } = await supabase.from("journals").insert({
+        user_id: userId,
+        date: todayStr,
+        source: "from_chat",
+        companion_key: companionKey ?? undefined,
+        summary: parsed.summary ?? null,
+        main_emotion: parsed.main_emotion ?? null,
+        main_trigger: parsed.main_trigger ?? null,
+        lesson: parsed.lesson ?? null,
+        gratitude: parsed.gratitude ?? null,
+        tomorrow_focus: parsed.tomorrow_focus ?? null,
+      } as any).select("id").single();
+
+      if (insertError) {
+        console.error("Gagal menyimpan journal:", insertError);
+        throw new Error(`Gagal menyimpan journal: ${insertError.message}`);
+      }
+      journalId = journal?.id;
     }
 
-    return { journalId: journal?.id };
+    return { journalId };
   });
 
 export const getWeeklyInsight = createServerFn({ method: "POST" })

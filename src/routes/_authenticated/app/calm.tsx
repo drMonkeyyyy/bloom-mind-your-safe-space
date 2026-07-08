@@ -46,6 +46,60 @@ function Page() {
       });
 
       if (error) throw error;
+
+      // Consolidate into today's journal
+      try {
+        const getLocalDateString = (d: Date = new Date()) => {
+          const year = d.getFullYear();
+          const month = String(d.getMonth() + 1).padStart(2, '0');
+          const day = String(d.getDate()).padStart(2, '0');
+          return `${year}-${month}-${day}`;
+        };
+        const todayStr = getLocalDateString();
+
+        const toolNames: Record<string, string> = {
+          breath: "Breathing 4-7-8",
+          ground: "Grounding 5-4-3-2-1",
+          selftalk: "Self-Calming Talk",
+          vent: "Kotak Pelepasan",
+          reframing: "Ubah Sudut Pandang",
+          somatic: "Latihan Somatik",
+          panic: "Panic Attack Timer"
+        };
+        const toolName = toolNames[tool] || tool;
+        const calmSummary = `Melakukan latihan Emergency Calm: ${toolName} (${isHelpful ? "Membantu menenangkan diri" : "Kurang membantu"}).`;
+
+        const { data: todayJournal } = await supabase
+          .from("journals")
+          .select("*")
+          .eq("user_id", user.id)
+          .eq("date", todayStr)
+          .maybeSingle();
+
+        if (todayJournal) {
+          const mergedSummary = todayJournal.summary ? `${todayJournal.summary}\n\n${calmSummary}` : calmSummary;
+          await supabase
+            .from("journals")
+            .update({
+              summary: mergedSummary,
+              main_emotion: todayJournal.main_emotion ? todayJournal.main_emotion : "😰 Cemas"
+            })
+            .eq("id", todayJournal.id);
+        } else {
+          await supabase
+            .from("journals")
+            .insert({
+              user_id: user.id,
+              date: todayStr,
+              summary: calmSummary,
+              main_emotion: "😰 Cemas",
+              source: "manual"
+            });
+        }
+      } catch (journalErr) {
+        console.error("Gagal menyinkronkan emergency calm ke jurnal:", journalErr);
+      }
+
       setFeedbackSubmitted(true);
     } catch (e) {
       console.error("Gagal mengirim feedback:", e);
