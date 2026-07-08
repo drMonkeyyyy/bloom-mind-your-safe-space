@@ -1,5 +1,5 @@
 // Global Audio Engine for JN-CALM Ambient Soundscapes (Multi-channel Mixer)
-export type SoundType = "rain" | "waves" | "forest" | "wind" | "whitenoise";
+export type SoundType = "rain" | "waves" | "forest" | "wind" | "whitenoise" | "piano" | "guitar";
 
 export const SOUNDS: { id: SoundType; emoji: string; label: string; desc: string }[] = [
   { id: "rain",       emoji: "🌧️", label: "Hujan",       desc: "Suara rintik hujan yang menenangkan" },
@@ -7,6 +7,8 @@ export const SOUNDS: { id: SoundType; emoji: string; label: string; desc: string
   { id: "forest",     emoji: "🌲", label: "Hutan",       desc: "Kicauan burung & gemericik angin" },
   { id: "wind",       emoji: "💨", label: "Angin",       desc: "Hembusan angin sepoi yang sejuk" },
   { id: "whitenoise", emoji: "🌫️", label: "White Noise", desc: "Suara putih untuk fokus & tidur" },
+  { id: "piano",      emoji: "🎹", label: "Melodi Piano", desc: "Suara piano ambient yang menenteramkan" },
+  { id: "guitar",     emoji: "🎸", label: "Gitar Akustik", desc: "Petikan gitar akustik yang menenangkan" },
 ];
 
 export interface ActiveSoundChannel {
@@ -51,6 +53,8 @@ const getChannelVolumesState = (): Record<SoundType, number> => {
     forest: 0,
     wind: 0,
     whitenoise: 0,
+    piano: 0,
+    guitar: 0,
   };
   if (window.__bloomChannels && window.__bloomChannelVolumes) {
     for (const key of Object.keys(state) as SoundType[]) {
@@ -156,6 +160,8 @@ const updateChannelGain = (sound: SoundType) => {
   else if (sound === "forest") factor = 0.25;
   else if (sound === "wind") factor = 0.35;
   else if (sound === "whitenoise") factor = 0.2;
+  else if (sound === "piano") factor = 0.70;
+  else if (sound === "guitar") factor = 0.70;
 
   channel.gainNode.gain.setTargetAtTime(localVol * factor, window.__bloomAudioCtx.currentTime, 0.1);
 };
@@ -172,7 +178,7 @@ export const setAmbientVolume = (vol: number) => {
 
 export const setChannelVolume = (sound: SoundType, vol: number) => {
   if (!window.__bloomChannelVolumes) {
-    window.__bloomChannelVolumes = { rain: 0.5, waves: 0.5, forest: 0.5, wind: 0.5, whitenoise: 0.5 };
+    window.__bloomChannelVolumes = { rain: 0.5, waves: 0.5, forest: 0.5, wind: 0.5, whitenoise: 0.5, piano: 0.5, guitar: 0.5 };
   }
   window.__bloomChannelVolumes[sound] = vol;
   updateChannelGain(sound);
@@ -187,7 +193,7 @@ export const playAmbientSound = (sound: SoundType) => {
     window.__bloomChannels = {};
   }
   if (!window.__bloomChannelVolumes) {
-    window.__bloomChannelVolumes = { rain: 0.5, waves: 0.5, forest: 0.5, wind: 0.5, whitenoise: 0.5 };
+    window.__bloomChannelVolumes = { rain: 0.5, waves: 0.5, forest: 0.5, wind: 0.5, whitenoise: 0.5, piano: 0.5, guitar: 0.5 };
   }
 
   // If already playing, do nothing
@@ -311,6 +317,155 @@ export const playAmbientSound = (sound: SoundType) => {
 
     channelGain.gain.value = localVol * 0.2;
     src.start();
+  } else if (sound === "piano") {
+    const src = ctx.createBufferSource();
+    src.buffer = ctx.createBuffer(1, 1, ctx.sampleRate);
+    src.loop = true;
+    src.connect(channelGain);
+    sourceNode = src;
+    src.start();
+
+    // Calming chord progression: Cmaj9 -> Fmaj7 -> Am9 -> Gsus4
+    const progression = [
+      [261.63, 329.63, 392.00, 493.88, 523.25], // Cmaj9 (C4, E4, G4, B4, C5)
+      [349.23, 440.00, 523.25, 659.25, 698.46], // Fmaj7 (F4, A4, C5, E5, F5)
+      [220.00, 329.63, 392.00, 440.00, 523.25], // Am9 (A3, E4, G4, A4, C5)
+      [293.66, 392.00, 440.00, 587.33, 783.99]  // Gsus4 (D4, G4, A4, D5, G5)
+    ];
+
+    let chordIdx = 0;
+    
+    const playPianoNote = (freq: number, delay: number, volume: number) => {
+      setTimeout(() => {
+        if (!window.__bloomAudioCtx || !window.__bloomChannels?.["piano"]) return;
+        const c = window.__bloomAudioCtx;
+        const curLocalVol = window.__bloomChannelVolumes?.["piano"] ?? 0.5;
+        
+        const osc1 = c.createOscillator();
+        const osc2 = c.createOscillator();
+        const g = c.createGain();
+        const filter = c.createBiquadFilter();
+
+        osc1.type = "triangle";
+        osc1.frequency.setValueAtTime(freq, c.currentTime);
+        osc1.detune.setValueAtTime(-4, c.currentTime);
+
+        osc2.type = "sine";
+        osc2.frequency.setValueAtTime(freq * 2, c.currentTime);
+        osc2.detune.setValueAtTime(4, c.currentTime);
+
+        filter.type = "lowpass";
+        filter.frequency.setValueAtTime(1500, c.currentTime);
+        filter.frequency.exponentialRampToValueAtTime(150, c.currentTime + 1.2);
+
+        g.gain.setValueAtTime(0, c.currentTime);
+        g.gain.linearRampToValueAtTime(volume * curLocalVol * 0.28, c.currentTime + 0.04);
+        g.gain.exponentialRampToValueAtTime(0.001, c.currentTime + 3.0);
+
+        osc1.connect(filter);
+        osc2.connect(filter);
+        filter.connect(g);
+        g.connect(channelGain);
+
+        osc1.start();
+        osc2.start();
+        osc1.stop(c.currentTime + 3.2);
+        osc2.stop(c.currentTime + 3.2);
+      }, delay);
+    };
+
+    const triggerChord = () => {
+      const chord = progression[chordIdx];
+      chord.forEach((freq, index) => {
+        const arpeggioDelay = index * 180 + Math.random() * 40;
+        const noteVol = 0.7 - (index * 0.08);
+        playPianoNote(freq, arpeggioDelay, noteVol);
+      });
+      chordIdx = (chordIdx + 1) % progression.length;
+    };
+
+    triggerChord();
+
+    intervalId = setInterval(() => {
+      triggerChord();
+    }, 5500);
+
+  } else if (sound === "guitar") {
+    const src = ctx.createBufferSource();
+    src.buffer = ctx.createBuffer(1, 1, ctx.sampleRate);
+    src.loop = true;
+    src.connect(channelGain);
+    sourceNode = src;
+    src.start();
+
+    const guitarProgression = [
+      [130.81, 196.00, 261.63, 329.63, 392.00], // C (C3, G3, C4, E4, G4)
+      [146.83, 220.00, 293.66, 349.23, 440.00], // Dm (D3, A3, D4, F4, A4)
+      [174.61, 261.63, 349.23, 440.00, 523.25], // F (F3, C4, F4, A4, C5)
+      [196.00, 293.66, 392.00, 493.88, 587.33]  // G (G3, D4, G4, B4, D5)
+    ];
+
+    let guitarChordIdx = 0;
+
+    const playGuitarNote = (freq: number, delay: number, volume: number) => {
+      setTimeout(() => {
+        if (!window.__bloomAudioCtx || !window.__bloomChannels?.["guitar"]) return;
+        const c = window.__bloomAudioCtx;
+        const curLocalVol = window.__bloomChannelVolumes?.["guitar"] ?? 0.5;
+
+        const osc1 = c.createOscillator();
+        const osc2 = c.createOscillator();
+        const g = c.createGain();
+        const filter = c.createBiquadFilter();
+
+        osc1.type = "triangle";
+        osc1.frequency.setValueAtTime(freq, c.currentTime);
+        osc1.detune.setValueAtTime(-8, c.currentTime);
+
+        osc2.type = "sawtooth";
+        osc2.frequency.setValueAtTime(freq, c.currentTime);
+        osc2.detune.setValueAtTime(8, c.currentTime);
+
+        filter.type = "lowpass";
+        filter.frequency.setValueAtTime(2000, c.currentTime);
+        filter.frequency.exponentialRampToValueAtTime(120, c.currentTime + 0.8);
+
+        g.gain.setValueAtTime(0, c.currentTime);
+        g.gain.linearRampToValueAtTime(volume * curLocalVol * 0.16, c.currentTime + 0.006);
+        g.gain.exponentialRampToValueAtTime(0.001, c.currentTime + 2.5);
+
+        osc1.connect(filter);
+        const sawGain = c.createGain();
+        sawGain.gain.setValueAtTime(0.15, c.currentTime);
+        osc2.connect(sawGain);
+        sawGain.connect(filter);
+        
+        filter.connect(g);
+        g.connect(channelGain);
+
+        osc1.start();
+        osc2.start();
+        osc1.stop(c.currentTime + 2.8);
+        osc2.stop(c.currentTime + 2.8);
+      }, delay);
+    };
+
+    const triggerGuitarChord = () => {
+      const chord = guitarProgression[guitarChordIdx];
+      chord.forEach((freq, index) => {
+        const pluckDelay = index * 140 + Math.random() * 30;
+        const noteVol = 0.8 - (index * 0.05);
+        playGuitarNote(freq, pluckDelay, noteVol);
+      });
+      guitarChordIdx = (guitarChordIdx + 1) % guitarProgression.length;
+    };
+
+    triggerGuitarChord();
+
+    intervalId = setInterval(() => {
+      triggerGuitarChord();
+    }, 4800);
+
   } else {
     return; // Fallback safety
   }
