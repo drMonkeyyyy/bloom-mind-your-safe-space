@@ -160,14 +160,15 @@ function Page() {
         }
       };
 
-      const [moods, journals, habits, eating, chats, totalMsgs, feedbackRes] = await Promise.all([
+      const [moods, journals, habits, eating, chats, totalMsgs, feedbackRes, chatJournals] = await Promise.all([
         supabase.from("mood_checkins").select("mood, triggers, user_id, date"),
         supabase.from("journals").select("id", { count: "exact", head: true }),
         supabase.from("habit_logs").select("id", { count: "exact", head: true }).eq("completed", true),
         supabase.from("emotional_eating_logs").select("hunger_type, emotion, trigger"),
         supabase.from("chats").select("companion_key"),
         supabase.from("messages").select("id", { count: "exact", head: true }).eq("role", "assistant"),
-        fetchFeedback()
+        fetchFeedback(),
+        supabase.from("journals").select("id", { count: "exact", head: true }).in("source", ["from_chat", "chat"])
       ]);
       
       const moodCount: Record<string,number> = {};
@@ -252,6 +253,7 @@ function Page() {
         habitCompletions: habits.count ?? 0,
         eatingCount: eating.data?.length ?? 0,
         aiReplyCount: totalMsgs.count ?? 0,
+        chatJournalCount: chatJournals.count ?? 0,
         feedbackStats: {
           total: totalFeedbacks,
           helpful: helpfulFeedbacks,
@@ -293,8 +295,13 @@ function Page() {
   const topCompanions = Object.entries(data?.companionCount ?? {}).sort((a,b)=>b[1]-a[1]);
   const topHunger = Object.entries(data?.hungerCount ?? {}).sort((a,b)=>b[1]-a[1]);
 
-  const estTokens = (data?.aiReplyCount ?? 0) * 1650;
-  const estApiCost = (data?.aiReplyCount ?? 0) * 2.57;
+  const chatCalls = data?.aiReplyCount ?? 0;
+  const eatingCalls = data?.eatingCount ?? 0;
+  const journalizerCalls = data?.chatJournalCount ?? 0;
+  const totalAiCalls = chatCalls + eatingCalls + journalizerCalls;
+
+  const estTokens = (chatCalls * 1050) + (eatingCalls * 1900) + (journalizerCalls * 3000);
+  const estApiCost = totalAiCalls * 2.5;
 
   return (
     <div className="space-y-6">
@@ -545,16 +552,121 @@ function Page() {
         </div>
       </section>
       
-      {data?.aiReplyCount ? (
-        <section className="rounded-3xl bg-card p-5 ring-1 ring-border">
-          <p className="text-sm font-semibold">Rincian Penggunaan API Gemini</p>
-          <div className="mt-3 grid grid-cols-2 gap-4 text-xs">
-            <div className="bg-cream-deep/30 p-3 rounded-2xl border border-border/40">
-              <p className="text-muted-foreground">Total Token Diproses</p>
-              <p className="text-lg font-bold font-display mt-1">{estTokens.toLocaleString("id-ID")} token</p>
+      {totalAiCalls > 0 ? (
+        <section className="rounded-3xl bg-card p-6 ring-1 ring-border space-y-5 shadow-xs">
+          <div>
+            <h2 className="text-lg font-bold">Infrastruktur & Distribusi Gemini AI</h2>
+            <p className="text-xs text-muted-foreground">
+              Beban kerja API, perkiraan alokasi token, dan persentase penggunaan per modul kecerdasan buatan.
+            </p>
+          </div>
+
+          <div className="space-y-6">
+            {/* Multi-segment stacked progress bar */}
+            <div>
+              <div className="flex justify-between items-center text-[10px] text-muted-foreground font-semibold mb-2">
+                <span>Rasio Alokasi Modul</span>
+                <span>{totalAiCalls} Total Panggilan AI</span>
+              </div>
+              <div className="w-full bg-cream-deep/50 rounded-full h-4 overflow-hidden flex">
+                <div 
+                  className="h-full bg-indigo-500 transition-all duration-500"
+                  style={{ width: `${totalAiCalls > 0 ? Math.round((chatCalls / totalAiCalls) * 100) : 0}%` }}
+                  title={`Obrolan AI: ${totalAiCalls > 0 ? Math.round((chatCalls / totalAiCalls) * 100) : 0}%`}
+                />
+                <div 
+                  className="h-full bg-amber-500 transition-all duration-500"
+                  style={{ width: `${totalAiCalls > 0 ? Math.round((eatingCalls / totalAiCalls) * 100) : 0}%` }}
+                  title={`Emotional Eating: ${totalAiCalls > 0 ? Math.round((eatingCalls / totalAiCalls) * 100) : 0}%`}
+                />
+                <div 
+                  className="h-full bg-emerald-500 transition-all duration-500"
+                  style={{ width: `${totalAiCalls > 0 ? Math.round((journalizerCalls / totalAiCalls) * 100) : 0}%` }}
+                  title={`Chat Journalizer: ${totalAiCalls > 0 ? Math.round((journalizerCalls / totalAiCalls) * 100) : 0}%`}
+                />
+              </div>
+              <div className="flex flex-wrap gap-4 mt-3 justify-center sm:justify-start">
+                <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                  <span className="h-2.5 w-2.5 rounded-full bg-indigo-500" />
+                  <span>Obrolan AI ({totalAiCalls > 0 ? Math.round((chatCalls / totalAiCalls) * 100) : 0}%)</span>
+                </div>
+                <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                  <span className="h-2.5 w-2.5 rounded-full bg-amber-500" />
+                  <span>Emotional Eating ({totalAiCalls > 0 ? Math.round((eatingCalls / totalAiCalls) * 100) : 0}%)</span>
+                </div>
+                <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                  <span className="h-2.5 w-2.5 rounded-full bg-emerald-500" />
+                  <span>Refleksi Harian ({totalAiCalls > 0 ? Math.round((journalizerCalls / totalAiCalls) * 100) : 0}%)</span>
+                </div>
+              </div>
             </div>
-            <div className="bg-cream-deep/30 p-3 rounded-2xl border border-border/40">
-              <p className="text-lg font-bold font-display text-emerald-800 mt-1">Rp {estApiCost.toLocaleString("id-ID", { maximumFractionDigits: 1 })}</p>
+
+            {/* Grid of detail analysis */}
+            <div className="grid gap-4 sm:grid-cols-3">
+              <div className="p-4 rounded-2xl border border-border/40 bg-indigo-50/10 flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-indigo-700">Obrolan AI</span>
+                    <span className="text-[10px] bg-indigo-100 text-indigo-700 px-1.5 py-0.5 rounded-full font-bold">
+                      {totalAiCalls > 0 ? Math.round((chatCalls / totalAiCalls) * 100) : 0}%
+                    </span>
+                  </div>
+                  <p className="mt-2 text-xl font-bold font-display">{chatCalls} <span className="text-xs font-normal text-muted-foreground">panggilan</span></p>
+                </div>
+                <p className="mt-3 text-[10px] text-muted-foreground leading-relaxed">
+                  Interaksi langsung pengguna dengan Karakter Pendamping (Ibu, Ayah, Sahabat, dll.) untuk curhat.
+                </p>
+              </div>
+
+              <div className="p-4 rounded-2xl border border-border/40 bg-amber-50/10 flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-amber-700">Emotional Eating</span>
+                    <span className="text-[10px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded-full font-bold">
+                      {totalAiCalls > 0 ? Math.round((eatingCalls / totalAiCalls) * 100) : 0}%
+                    </span>
+                  </div>
+                  <p className="mt-2 text-xl font-bold font-display">{eatingCalls} <span className="text-xs font-normal text-muted-foreground">panggilan</span></p>
+                </div>
+                <p className="mt-3 text-[10px] text-muted-foreground leading-relaxed">
+                  Analisis pemicu psikologis makan emosional harian beserta rekomendasi aktivitas coping.
+                </p>
+              </div>
+
+              <div className="p-4 rounded-2xl border border-border/40 bg-emerald-50/10 flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-emerald-700">Refleksi Harian AI</span>
+                    <span className="text-[10px] bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded-full font-bold">
+                      {totalAiCalls > 0 ? Math.round((journalizerCalls / totalAiCalls) * 100) : 0}%
+                    </span>
+                  </div>
+                  <p className="mt-2 text-xl font-bold font-display">{journalizerCalls} <span className="text-xs font-normal text-muted-foreground">panggilan</span></p>
+                </div>
+                <p className="mt-3 text-[10px] text-muted-foreground leading-relaxed">
+                  Rangkuman otomatis dari sesi obrolan harian pengguna yang disatukan menjadi jurnal diary harian.
+                </p>
+              </div>
+            </div>
+
+            {/* Performance Stats Cards */}
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="p-4 bg-cream-deep/30 rounded-2xl border border-border/40 text-xs">
+                <p className="text-muted-foreground font-medium">Total Token Diproses</p>
+                <p className="text-lg font-bold font-display mt-1">{estTokens.toLocaleString("id-ID")} token</p>
+                <p className="text-[9px] text-muted-foreground mt-1.5">
+                  Estimasi rata-rata: Chat (1.050t), Eating (1.900t), Journalizer (3.000t) per panggilan.
+                </p>
+              </div>
+              <div className="p-4 bg-cream-deep/30 rounded-2xl border border-border/40 text-xs">
+                <p className="text-muted-foreground font-medium">Estimasi Biaya Operasional AI</p>
+                <p className="text-lg font-bold font-display text-emerald-800 mt-1">
+                  Rp {estApiCost.toLocaleString("id-ID", { maximumFractionDigits: 1 })}
+                </p>
+                <p className="text-[9px] text-muted-foreground mt-1.5">
+                  Berdasarkan tarif Gemini 2.5 Flash Pay-as-you-go (rata-rata Rp2.5 per panggilan).
+                </p>
+              </div>
             </div>
           </div>
         </section>
