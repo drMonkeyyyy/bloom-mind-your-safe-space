@@ -14,7 +14,7 @@ export const Route = createFileRoute("/_authenticated/app/")({
   component: Dashboard,
 });
 
-const AFFIRMATIONS = [
+const HANDCRAFTED_AFFIRMATIONS = [
   "Hari ini adalah lembaran baru. Berjalanlah dengan kecepatanmu sendiri. 🍃",
   "Kamu berharga bukan karena apa yang kamu lakukan, tetapi karena dirimu apa adanya. ✨",
   "Tidak apa-apa untuk merasa lelah. Istirahatlah sejenak dan mulailah lagi esok hari. 🌸",
@@ -23,8 +23,103 @@ const AFFIRMATIONS = [
   "Kamu telah bertahan menghadapi banyak badai. Kamu lebih kuat dari yang kamu sadari. ⭐",
   "Satu langkah kecil ke depan tetaplah sebuah kemajuan yang patut dirayakan. 🎯",
   "Izinkan dirimu untuk tumbuh secara perlahan. Bunga pun mekar pada waktunya. 🌸",
-  "Hari ini, pilihlah untuk bersikap lembut pada diri sendiri. 🕊️"
+  "Hari ini, pilihlah untuk bersikap lembut pada diri sendiri. 🕊️",
+  "Setiap tantangan adalah kesempatan bagiku untuk belajar dan bertumbuh lebih dewasa. 🌱",
+  "Pikiran buruk hanyalah awan yang lewat. Langit diriku akan selalu kembali cerah dan tenang. ☀️",
+  "Aku berhak bahagia, damai, dan dicintai apa adanya tanpa syarat. 💖",
+  "Kegagalan hari ini bukanlah akhir, melainkan petunjuk arah untuk jalan yang lebih baik. 🧭",
+  "Aku menerima perasaanku saat ini, baik yang senang maupun sedih, sebagai bagian dari diriku yang utuh. 🫂",
+  "Kemampuanku untuk pulih dan bangkit kembali jauh lebih besar dari masalah apa pun. ⚡",
+  "Aku melepaskan apa yang tidak bisa kukontrol dan memfokuskan energi pada apa yang bisa kuusahakan. 🍃",
+  "Dunia ini lebih indah dengan kehadiran dirimu di dalamnya. Jangan lupakan itu. 🌟",
+  "Tidak perlu terburu-buru membandingkan dirimu dengan orang lain. Perjalanan setiap jiwa itu unik. 🕊️",
+  "Setiap hari aku belajar untuk lebih menyayangi dan menerima diriku sendiri apa adanya. 🌸",
+  "Suara hatiku yang penuh kasih adalah pemandu terbaikku di saat-saat sulit. 🗣️",
+  "Aku pantas mendapatkan ruang untuk bernapas, merasa bebas, dan berekspresi secara jujur. 🎨",
+  "Masa laluku tidak mendefinisikan siapa diriku sekarang dan siapa aku di masa depan. 🌅",
+  "Hari ini adalah kesempatan untuk mengukir cerita yang indah, bahkan lewat hal-hal kecil sekalipun. ✏️",
+  "Aku memaafkan diriku atas kesalahan masa lalu dan mengizinkan diriku untuk melangkah maju. 🕯️",
+  "Kekuatan sejati bukanlah tidak pernah jatuh, melainkan kemauan untuk terus bangkit setiap kali terjatuh. 💪",
+  "Tubuh dan pikiranku adalah rumahku. Hari ini aku akan memperlakukannya dengan penuh kelembutan. 🏡",
+  "Aku dikelilingi oleh kemungkinan-kemungkinan baik yang sedang menanti untuk dijemput. ✨",
+  "Setiap langkah kecil yang kuambil hari ini mendekatkanku pada versi diriku yang lebih damai. 👣",
+  "Aku berani memilih jalan hidup yang membahagiakan jiwaku, tanpa harus selalu menyenangkan semua orang. 🌻",
+  "Ketidaksempurnaan adalah keindahan alami yang membuat diriku unik dan berharga. 🍁",
+  "Aku percaya pada proses hidupku. Segala sesuatu akan indah dan tepat pada waktunya. ⏳",
+  "Hari ini, aku memilih untuk memusatkan pikiranku pada kedamaian dan rasa syukur atas apa yang kupunya. 🪴"
 ];
+
+const PREFIXES = [
+  "Hari ini, aku memilih untuk",
+  "Aku mengizinkan diriku untuk",
+  "Dengan penuh keyakinan, aku percaya aku bisa",
+  "Di setiap embusan napas, aku melepaskan beban dan",
+  "Aku berhak untuk",
+  "Mulai saat ini, aku berjanji untuk lebih",
+  "Aku layak mendapatkan ruang untuk",
+  "Dengan segenap jiwaku, aku memutuskan untuk",
+  "Saat badai pikiran datang, aku memilih untuk tetap",
+  "Hari demi hari, aku belajar untuk",
+  "Aku bangga pada diriku karena mampu",
+  "Dalam keheningan hatiku, aku selalu bisa",
+  "Aku percaya bahwa aku memiliki kekuatan untuk",
+  "Aku bersyukur atas kesempatanku untuk",
+  "Di dalam safe space ini, aku bebas untuk"
+];
+
+const CORES = [
+  "bertumbuh dengan kecepatan dan jalanku sendiri",
+  "menerima ketidaksempurnaan sebagai bagian dari keindahan",
+  "melepaskan segala kekhawatiran tentang masa depan",
+  "menghargai setiap usaha kecil yang telah kulakukan",
+  "menjadi pelindung dan rumah yang aman bagi jiwaku",
+  "memaafkan kesalahan masa lalu dan berdamai dengan diri",
+  "merasakan kehangatan cinta tanpa syarat dari dalam hati",
+  "berdiri tegak menghadapi segala rintangan hidup",
+  "menyayangi dan merawat diriku dengan penuh kelembutan",
+  "membiarkan luka-luka lama sembuh secara perlahan",
+  "memilih kedamaian batin di atas kebisingan dunia luar",
+  "menemukan kebahagiaan dalam kesederhanaan hari ini",
+  "melangkah maju dengan penuh keberanian dan harapan",
+  "menjadi versi diriku yang paling jujur dan otentik",
+  "menyadari bahwa kehadiranku di dunia ini sangat berharga"
+];
+
+const SUFFIXES = [
+  "karena aku sangat berharga. 🍃",
+  "dan itu sudah sangat cukup bagi jiwaku. ✨",
+  "hari demi hari dengan penuh rasa syukur. 🌸",
+  "tanpa syarat dan tanpa keraguan. 🤍",
+  "di bawah langit yang teduh ini. 🌿",
+  "demi ketenangan jiwaku yang damai. ⭐",
+  "pada waktu yang tepat dan indah. 🕊️",
+  "dan terus berjalan ke depan dengan senyuman. 🪴",
+  "di dunia yang luas dan penuh warna ini. 🌻",
+  "sebagai bukti kekuatan batinku. 🌈"
+];
+
+// Helper to pre-populate 1000 distinct combinations
+const generateAffirmationsList = (): string[] => {
+  const list = [...HANDCRAFTED_AFFIRMATIONS];
+  const seen = new Set(list);
+  
+  let attempts = 0;
+  while (list.length < 1000 && attempts < 10000) {
+    attempts++;
+    const prefix = PREFIXES[Math.floor(Math.random() * PREFIXES.length)];
+    const core = CORES[Math.floor(Math.random() * CORES.length)];
+    const suffix = SUFFIXES[Math.floor(Math.random() * SUFFIXES.length)];
+    const sentence = `${prefix} ${core} ${suffix}`;
+    
+    if (!seen.has(sentence)) {
+      seen.add(sentence);
+      list.push(sentence);
+    }
+  }
+  return list;
+};
+
+const AFFIRMATIONS = generateAffirmationsList();
 
 /* ── Animated count-up hook ────────────────────────────────────── */
 function useCountUp(target: number, duration = 800) {

@@ -795,20 +795,30 @@ export function ShareAffirmationModal({ open, onClose, affirmation }: ShareModal
     if (!open) return;
     
     let isMounted = true;
-    const convertToBase64 = async (url: string, callback: (base64: string) => void) => {
-      try {
-        const response = await fetch(url);
-        const blob = await response.blob();
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          if (isMounted && typeof reader.result === "string") {
-            callback(reader.result);
+    const convertToBase64 = (url: string, callback: (base64: string) => void) => {
+      const img = new Image();
+      img.crossOrigin = "anonymous";
+      img.onload = () => {
+        try {
+          const canvas = document.createElement("canvas");
+          canvas.width = img.width;
+          canvas.height = img.height;
+          const ctx = canvas.getContext("2d");
+          if (ctx) {
+            ctx.drawImage(img, 0, 0);
+            const dataUrl = canvas.toDataURL("image/png");
+            if (isMounted) {
+              callback(dataUrl);
+            }
           }
-        };
-        reader.readAsDataURL(blob);
-      } catch (error) {
-        console.error("Failed to convert image to base64:", error);
-      }
+        } catch (e) {
+          console.error("Canvas conversion failed:", e);
+        }
+      };
+      img.onerror = () => {
+        console.error("Image loading failed for url:", url);
+      };
+      img.src = `${url}?cb=${Date.now()}`;
     };
 
     convertToBase64("/logo.png", setLogoBase64);
