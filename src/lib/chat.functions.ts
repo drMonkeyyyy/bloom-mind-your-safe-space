@@ -488,27 +488,41 @@ export const getWeeklyInsight = createServerFn({ method: "POST" })
       { data: chat },
       { data: journals },
       { data: gratitude },
-      { data: habits }
+      { data: habits },
+      { data: profile }
     ] = await Promise.all([
       supabase.from("mood_checkins").select("mood, mood_score, stress_score, energy_score, triggers, date")
         .eq("user_id", userId).gte("date", since).order("date"),
       supabase.from("emotional_eating_logs").select("hunger_type, emotion, trigger, date")
         .eq("user_id", userId).gte("date", since),
-      supabase.from("chats").select("companion_key").eq("user_id", userId).order("updated_at", { ascending: false }).limit(1).maybeSingle(),
+      supabase.from("chats").select("companion_key, custom_companion_id").eq("user_id", userId).order("updated_at", { ascending: false }).limit(1).maybeSingle(),
       supabase.from("journals").select("main_emotion, main_trigger, summary, lesson, date")
         .eq("user_id", userId).gte("date", since),
       supabase.from("gratitude_entries").select("gratitude1, gratitude2, gratitude3, date")
         .eq("user_id", userId).gte("date", since),
       supabase.from("habit_logs").select("completed, date, habits!inner(name, is_active)")
         .eq("user_id", userId).eq("habits.is_active", true).gte("date", since),
+      supabase.from("profiles").select("name").eq("id", userId).maybeSingle(),
     ]);
 
     if (!moods || moods.length === 0) {
       return { text: "Belum cukup data minggu ini. Mulai mood check-in harian untuk dapat insight personal." };
     }
 
-    const companionKey = chat?.companion_key || "sahabat";
-    const companionRole = COMPANION_ROLES[companionKey] || "Sahabat";
+    const userName = profile?.name || "Teman";
+    const companionKey = chat?.companion_key;
+    let companionRole = "Sahabat";
+
+    if (chat?.custom_companion_id) {
+      const { data: customComp } = await supabase
+        .from("custom_companions")
+        .select("name")
+        .eq("id", chat.custom_companion_id)
+        .maybeSingle();
+      companionRole = customComp?.name || "Pendamping Kustom";
+    } else if (companionKey) {
+      companionRole = COMPANION_ROLES[companionKey] || "Sahabat";
+    }
 
     const { createGeminiClient, getGeminiApiKey } = await import("./ai-client.server");
     const apiKey = getGeminiApiKey();
@@ -544,6 +558,9 @@ Aktivitas user dalam 7 hari terakhir:
       r = await generateText({
         model: gateway("gemini-2.5-flash"),
         prompt: `Sebagai pendamping ${companionRole} JN-CALM, buat insight mingguan dalam Bahasa Indonesia yang hangat, tulus, dan tidak menghakimi berdasarkan seluruh aktivitas user seminggu terakhir (mood, jurnal, rasa syukur, kebiasaan/habit tracker, dan pola makan emosional).
+
+PENTING: Jangan memanggil atau menyapa user dengan sebutan "${companionRole}" (misalnya "Halo Kakak Perempuan", "Kakak Perempuan, seminggu ini...", dll). "${companionRole}" adalah sebutan/peran milikmu (AI), bukan nama/sebutan untuk user. 
+Sapa dan panggillah user menggunakan nama aslinya yaitu "${userName}" (misalnya: "Halo ${userName}", "Hari ini ${userName}...", dll). Jika nama user adalah "Teman" atau tidak diketahui, gunakan panggilan yang netral dan hangat seperti "kamu" atau "teman".
 
 Format output wajib terbagi menjadi 3 bagian yang jelas dipisahkan baris kosong:
 1. 🔍 Refleksi Hangat Perjalananmu: Berikan penjelasan hangat (3-4 kalimat) mengenai penyebab emosi/mood dominan serta trigger user minggu ini, dihubungkan dengan pola makan emosional dan pencapaian kebiasaan atau rasa syukur mereka.
