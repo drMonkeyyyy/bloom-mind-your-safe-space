@@ -187,12 +187,64 @@ function PremiumQRCode({ color, size = 32 }: { color: string; size?: number }) {
   );
 }
 
+/* ── Delicate Sparkle SVG for Celestial theme ─────────────────── */
+function CelestialSparkle({ color, size = 18, style = {} }: { color: string; size?: number; style?: React.CSSProperties }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      width={size}
+      height={size}
+      style={style}
+      aria-hidden="true"
+    >
+      <path d="M12 3a9 9 0 0 0 9 9 9 9 0 0 0-9 9 9 9 0 0 0-9-9 9 9 0 0 0 9-9z" />
+    </svg>
+  );
+}
+
+/* ── Crescent Moon SVG for Celestial theme ────────────────────── */
+function CelestialMoon({ color, size = 20 }: { color: string; size?: number }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      width={size}
+      height={size}
+      aria-hidden="true"
+    >
+      <path d="M12 3a9 9 0 1 0 9 9 7 7 0 1 1-9-9z" />
+    </svg>
+  );
+}
+
+/* ── Zen Flower SVG for Minimalist theme ──────────────────────── */
+function ZenLotus({ color, size = 20 }: { color: string; size?: number }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke={color}
+      strokeWidth="1.8"
+      width={size}
+      height={size}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M12 2c1.5 4 4.5 6 7 7-2.5 1-5.5 3-7 7-1.5-4-4.5-6-7-7 2.5-1 5.5-3 7-7z" />
+      <circle cx="12" cy="12" r="2" fill={color} />
+    </svg>
+  );
+}
+
 /* ── The actual shareable card visual ──────────────────────────── */
 interface AffirmationCardPreviewProps {
   text: string;
   theme: typeof CARD_THEMES[0];
   style?: React.CSSProperties;
   isHighRes?: boolean;
+  layout?: "botanical" | "minimalist" | "celestial";
 }
 
 function AffirmationCardPreview({
@@ -200,6 +252,7 @@ function AffirmationCardPreview({
   theme,
   style = {},
   isHighRes = false,
+  layout = "botanical",
 }: AffirmationCardPreviewProps) {
   // Scaling factors for high-res export (1080x1920)
   const padding = isHighRes ? "160px 100px" : "48px 24px";
@@ -215,11 +268,6 @@ function AffirmationCardPreview({
   const dividerLine = isHighRes ? "100px" : "32px";
   const dividerHeight = isHighRes ? "3px" : "1.5px";
   const dividerGap = isHighRes ? "20px" : "8px";
-  const qrSize = isHighRes ? 80 : 28;
-  const brandTextSize = isHighRes ? "28px" : "12px";
-  const brandSubtext = isHighRes ? "14px" : "7px";
-  const brandGap = isHighRes ? "16px" : "8px";
-  const brandLetterSpacing = isHighRes ? "0.25em" : "0.15em";
 
   return (
     <div
@@ -242,87 +290,172 @@ function AffirmationCardPreview({
         ...style,
       }}
     >
-      {/* Ambient background blobs (slightly larger for rich color blending) */}
-      <div
-        style={{
-          position: "absolute",
-          width: "70%",
-          aspectRatio: "1",
-          borderRadius: "50%",
-          background: theme.blobA,
-          filter: isHighRes ? "blur(180px)" : "blur(64px)",
-          top: "-10%",
-          right: "-10%",
-        }}
-      />
-      <div
-        style={{
-          position: "absolute",
-          width: "60%",
-          aspectRatio: "1",
-          borderRadius: "50%",
-          background: theme.blobB,
-          filter: isHighRes ? "blur(150px)" : "blur(50px)",
-          bottom: "-5%",
-          left: "-10%",
-        }}
-      />
+      {/* Background Blobs (only for botanical) */}
+      {layout === "botanical" && (
+        <>
+          <div
+            style={{
+              position: "absolute",
+              width: "70%",
+              aspectRatio: "1",
+              borderRadius: "50%",
+              background: theme.blobA,
+              filter: isHighRes ? "blur(180px)" : "blur(64px)",
+              top: "-10%",
+              right: "-10%",
+            }}
+          />
+          <div
+            style={{
+              position: "absolute",
+              width: "60%",
+              aspectRatio: "1",
+              borderRadius: "50%",
+              background: theme.blobB,
+              filter: isHighRes ? "blur(150px)" : "blur(50px)",
+              bottom: "-5%",
+              left: "-10%",
+            }}
+          />
+        </>
+      )}
 
-      {/* Decorative Botanical Branches (Framing in the corners) */}
-      <div
-        style={{
-          position: "absolute",
-          top: isHighRes ? "40px" : "12px",
-          left: isHighRes ? "40px" : "12px",
-          width: isHighRes ? "400px" : "130px",
-          height: isHighRes ? "400px" : "130px",
-          transform: "rotate(-15deg)",
-        }}
-      >
-        <PremiumLeafBranch color={theme.textColor} opacity={0.15} />
-      </div>
-      <div
-        style={{
-          position: "absolute",
-          bottom: isHighRes ? "40px" : "12px",
-          right: isHighRes ? "40px" : "12px",
-          width: isHighRes ? "400px" : "130px",
-          height: isHighRes ? "400px" : "130px",
-          transform: "rotate(165deg) scaleX(-1)",
-        }}
-      >
-        <PremiumLeafBranch color={theme.textColor} opacity={0.15} />
-      </div>
+      {/* Background Stars/Sparkles (only for celestial) */}
+      {layout === "celestial" && (
+        <div style={{ position: "absolute", inset: 0, opacity: 0.2, pointerEvents: "none" }}>
+          <CelestialSparkle color={theme.textColor} size={isHighRes ? 48 : 16} style={{ position: "absolute", top: "15%", left: "20%" }} />
+          <CelestialSparkle color={theme.textColor} size={isHighRes ? 36 : 12} style={{ position: "absolute", top: "25%", right: "15%" }} />
+          <CelestialSparkle color={theme.textColor} size={isHighRes ? 42 : 14} style={{ position: "absolute", top: "45%", left: "10%" }} />
+          <CelestialSparkle color={theme.textColor} size={isHighRes ? 30 : 10} style={{ position: "absolute", top: "60%", right: "20%" }} />
+          <CelestialSparkle color={theme.textColor} size={isHighRes ? 48 : 16} style={{ position: "absolute", bottom: "20%", left: "25%" }} />
+        </div>
+      )}
 
-      {/* Top badge (Floating cleanly) */}
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: badgeGap,
-          background: "rgba(255, 255, 255, 0.45)",
-          border: isHighRes ? "2px solid rgba(255,255,255,0.7)" : "1px solid rgba(255, 255, 255, 0.5)",
-          backdropFilter: "blur(8px)",
-          WebkitBackdropFilter: "blur(8px)",
-          borderRadius: 999,
-          padding: badgePadding,
-          zIndex: 3,
-        }}
-      >
-        <BloomLogo color={theme.textColor} size={logoSize} />
-        <span
+      {/* Decorative Botanical Branches (only for botanical) */}
+      {layout === "botanical" && (
+        <>
+          <div
+            style={{
+              position: "absolute",
+              top: isHighRes ? "40px" : "12px",
+              left: isHighRes ? "40px" : "12px",
+              width: isHighRes ? "400px" : "130px",
+              height: isHighRes ? "400px" : "130px",
+              transform: "rotate(-15deg)",
+            }}
+          >
+            <PremiumLeafBranch color={theme.textColor} opacity={0.15} />
+          </div>
+          <div
+            style={{
+              position: "absolute",
+              bottom: isHighRes ? "40px" : "12px",
+              right: isHighRes ? "40px" : "12px",
+              width: isHighRes ? "400px" : "130px",
+              height: isHighRes ? "400px" : "130px",
+              transform: "rotate(165deg) scaleX(-1)",
+            }}
+          >
+            <PremiumLeafBranch color={theme.textColor} opacity={0.15} />
+          </div>
+        </>
+      )}
+
+      {/* Celestial corner frames (only for celestial) */}
+      {layout === "celestial" && (
+        <div
           style={{
-            fontFamily: "'Inter', sans-serif",
-            fontSize: badgeTextSize,
-            fontWeight: 800,
-            color: theme.textColor,
-            letterSpacing: "0.1em",
-            textTransform: "uppercase",
+            position: "absolute",
+            inset: isHighRes ? "40px" : "12px",
+            border: `1.5px solid ${theme.textColor}25`,
+            borderRadius: isHighRes ? "40px" : "16px",
+            pointerEvents: "none",
+          }}
+        />
+      )}
+
+      {/* Minimalist Inset Frame (only for minimalist) */}
+      {layout === "minimalist" && (
+        <div
+          style={{
+            position: "absolute",
+            inset: isHighRes ? "30px" : "10px",
+            border: `2px solid ${theme.textColor}15`,
+            borderRadius: isHighRes ? "40px" : "18px",
+            pointerEvents: "none",
+          }}
+        />
+      )}
+
+      {/* Top Header/Badge */}
+      {layout === "botanical" && (
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: badgeGap,
+            background: "rgba(255, 255, 255, 0.45)",
+            border: isHighRes ? "2px solid rgba(255,255,255,0.7)" : "1px solid rgba(255, 255, 255, 0.5)",
+            backdropFilter: "blur(8px)",
+            WebkitBackdropFilter: "blur(8px)",
+            borderRadius: 999,
+            padding: badgePadding,
+            zIndex: 3,
           }}
         >
-          JN-CALM
-        </span>
-      </div>
+          <BloomLogo color={theme.textColor} size={logoSize} />
+          <span
+            style={{
+              fontFamily: "'Inter', sans-serif",
+              fontSize: badgeTextSize,
+              fontWeight: 800,
+              color: theme.textColor,
+              letterSpacing: "0.1em",
+              textTransform: "uppercase",
+            }}
+          >
+            JN-CALM
+          </span>
+        </div>
+      )}
+
+      {layout === "minimalist" && (
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "6px", zIndex: 3 }}>
+          <ZenLotus color={theme.textColor} size={isHighRes ? 36 : 14} />
+          <span
+            style={{
+              fontFamily: "'Inter', sans-serif",
+              fontSize: isHighRes ? "18px" : "8px",
+              fontWeight: 700,
+              color: theme.textColor,
+              opacity: 0.6,
+              letterSpacing: "0.2em",
+              textTransform: "uppercase",
+            }}
+          >
+            JN-CALM
+          </span>
+        </div>
+      )}
+
+      {layout === "celestial" && (
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "6px", zIndex: 3 }}>
+          <CelestialMoon color={theme.textColor} size={isHighRes ? 36 : 14} />
+          <span
+            style={{
+              fontFamily: "'Inter', sans-serif",
+              fontSize: isHighRes ? "18px" : "8px",
+              fontWeight: 700,
+              color: theme.textColor,
+              opacity: 0.6,
+              letterSpacing: "0.2em",
+              textTransform: "uppercase",
+            }}
+          >
+            JN-CALM
+          </span>
+        </div>
+      )}
 
       {/* Main Content (Quote) */}
       <div
@@ -338,32 +471,34 @@ function AffirmationCardPreview({
           flex: 1,
         }}
       >
-        {/* Serif quote icon */}
-        <span
-          style={{
-            fontFamily: "'Playfair Display', serif",
-            fontSize: quoteFontSize,
-            lineHeight: 1,
-            color: theme.textColor,
-            opacity: 0.18,
-            marginBottom: quoteMarginBottom,
-            userSelect: "none",
-          }}
-          aria-hidden="true"
-        >
-          “
-        </span>
+        {/* Serif quote icon (only for botanical) */}
+        {layout === "botanical" && (
+          <span
+            style={{
+              fontFamily: "'Playfair Display', serif",
+              fontSize: quoteFontSize,
+              lineHeight: 1,
+              color: theme.textColor,
+              opacity: 0.18,
+              marginBottom: quoteMarginBottom,
+              userSelect: "none",
+            }}
+            aria-hidden="true"
+          >
+            “
+          </span>
+        )}
 
         {/* Body quote text */}
         <p
           style={{
-            fontFamily: "'Playfair Display', serif",
+            fontFamily: layout === "minimalist" ? "'Inter', sans-serif" : "'Playfair Display', serif",
             fontSize: textFontSize,
-            fontWeight: 600,
+            fontWeight: layout === "minimalist" ? 500 : 600,
             color: theme.textColor,
             lineHeight: textLineHeight,
             textAlign: "center",
-            letterSpacing: "-0.01em",
+            letterSpacing: layout === "minimalist" ? "0" : "-0.01em",
             margin: 0,
             padding: "0 8%",
           }}
@@ -371,91 +506,103 @@ function AffirmationCardPreview({
           {text}
         </p>
 
-        {/* Premium Elegant Line Divider */}
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: dividerGap,
-            width: "100%",
-          }}
-        >
+        {/* Divider */}
+        {layout === "botanical" && (
           <div
             style={{
-              width: dividerLine,
-              height: dividerHeight,
-              background: `linear-gradient(90deg, transparent, ${theme.textColor}35)`,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: dividerGap,
+              width: "100%",
             }}
-          />
+          >
+            <div
+              style={{
+                width: dividerLine,
+                height: dividerHeight,
+                background: `linear-gradient(90deg, transparent, ${theme.textColor}35)`,
+              }}
+            />
+            <div
+              style={{
+                width: isHighRes ? 8 : 4,
+                height: isHighRes ? 8 : 4,
+                borderRadius: "50%",
+                background: theme.textColor,
+                opacity: 0.5,
+              }}
+            />
+            <div
+              style={{
+                width: dividerLine,
+                height: dividerHeight,
+                background: `linear-gradient(270deg, transparent, ${theme.textColor}35)`,
+              }}
+            />
+          </div>
+        )}
+
+        {layout === "minimalist" && (
           <div
             style={{
-              width: isHighRes ? 8 : 4,
-              height: isHighRes ? 8 : 4,
-              borderRadius: "50%",
+              width: isHighRes ? "60px" : "20px",
+              height: isHighRes ? "2px" : "1px",
               background: theme.textColor,
-              opacity: 0.5,
+              opacity: 0.35,
             }}
           />
+        )}
+
+        {layout === "celestial" && (
           <div
             style={{
-              width: dividerLine,
-              height: dividerHeight,
-              background: `linear-gradient(270deg, transparent, ${theme.textColor}35)`,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: dividerGap,
+              width: "100%",
             }}
-          />
-        </div>
+          >
+            <div
+              style={{
+                width: dividerLine,
+                height: dividerHeight,
+                background: `linear-gradient(90deg, transparent, ${theme.textColor}25)`,
+              }}
+            />
+            <CelestialSparkle color={theme.textColor} size={isHighRes ? 24 : 8} style={{ opacity: 0.6 }} />
+            <div
+              style={{
+                width: dividerLine,
+                height: dividerHeight,
+                background: `linear-gradient(270deg, transparent, ${theme.textColor}25)`,
+              }}
+            />
+          </div>
+        )}
       </div>
 
-      {/* Bottom branding: JNCALM logo + QR code side-by-side */}
+      {/* Bottom branding: JNCALM custom speech bubble QR code */}
       <div
         style={{
           display: "flex",
+          flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
-          gap: brandGap,
-          width: "100%",
           zIndex: 3,
         }}
       >
-        <PremiumQRCode color={theme.textColor} size={qrSize} />
-        <div
+        <img
+          src="/qr-code.png"
+          alt="JN-CALM QR Code"
           style={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "flex-start",
-            justifyContent: "center",
-            gap: isHighRes ? "6px" : "2px",
+            height: isHighRes ? "180px" : "60px",
+            width: "auto",
+            mixBlendMode: "multiply",
+            borderRadius: isHighRes ? "20px" : "6px",
           }}
-        >
-          <span
-            style={{
-              fontFamily: "'Inter', sans-serif",
-              fontSize: brandTextSize,
-              fontWeight: 900,
-              color: theme.textColor,
-              letterSpacing: brandLetterSpacing,
-              textTransform: "uppercase",
-              lineHeight: 1,
-            }}
-          >
-            jncalm
-          </span>
-          <span
-            style={{
-              fontFamily: "'Inter', sans-serif",
-              fontSize: brandSubtext,
-              fontWeight: 600,
-              color: theme.textColor,
-              opacity: 0.5,
-              letterSpacing: "0.08em",
-              textTransform: "uppercase",
-              lineHeight: 1,
-            }}
-          >
-            Scan to find peace
-          </span>
-        </div>
+        />
       </div>
     </div>
   );
@@ -470,6 +617,7 @@ interface ShareModalProps {
 
 export function ShareAffirmationModal({ open, onClose, affirmation }: ShareModalProps) {
   const [selectedTheme, setSelectedTheme] = useState(0);
+  const [selectedLayout, setSelectedLayout] = useState<"botanical" | "minimalist" | "celestial">("botanical");
   const [sharing, setSharing] = useState(false);
   const [downloading, setDownloading] = useState(false);
   const exportRef = useRef<HTMLDivElement>(null);
@@ -501,7 +649,7 @@ export function ShareAffirmationModal({ open, onClose, affirmation }: ShareModal
     } finally {
       setDownloading(false);
     }
-  }, [selectedTheme]);
+  }, [selectedTheme, selectedLayout]);
 
   const handleShareImage = useCallback(async () => {
     setSharing(true);
@@ -539,7 +687,7 @@ export function ShareAffirmationModal({ open, onClose, affirmation }: ShareModal
     } finally {
       setSharing(false);
     }
-  }, [affirmation, selectedTheme]);
+  }, [affirmation, selectedTheme, selectedLayout]);
 
   if (!open) return null;
 
@@ -579,6 +727,7 @@ export function ShareAffirmationModal({ open, onClose, affirmation }: ShareModal
             text={affirmation}
             theme={theme}
             isHighRes={true}
+            layout={selectedLayout}
           />
         </div>
       </div>
@@ -601,7 +750,7 @@ export function ShareAffirmationModal({ open, onClose, affirmation }: ShareModal
                 ✨ Bagikan Afirmasi
               </p>
               <h2 className="font-display text-lg font-semibold text-foreground mt-0.5">
-                Pilih Tema Kartu
+                Pilih Desain & Tema
               </h2>
             </div>
             <button
@@ -620,27 +769,57 @@ export function ShareAffirmationModal({ open, onClose, affirmation }: ShareModal
             className="w-full max-w-[200px] mx-auto"
             style={{ animation: "scale-in 0.4s cubic-bezier(0.16, 1, 0.3, 1) both" }}
           >
-            <AffirmationCardPreview text={affirmation} theme={theme} />
+            <AffirmationCardPreview text={affirmation} theme={theme} layout={selectedLayout} />
           </div>
 
-          {/* Theme selector */}
-          <div className="flex items-center justify-center gap-2.5 mt-4">
-            {CARD_THEMES.map((t, i) => (
-              <button
-                key={t.id}
-                onClick={() => setSelectedTheme(i)}
-                id={`share-theme-${t.id}`}
-                className="relative h-7 w-7 rounded-full transition-all duration-200 hover:scale-110 active:scale-95"
-                style={{ background: t.bg }}
-                aria-label={`Tema ${t.label}`}
-                title={t.label}
-              >
-                {selectedTheme === i && (
-                  <span className="absolute inset-0 rounded-full ring-2 ring-offset-2 ring-offset-card"
-                    style={{ boxShadow: `0 0 0 2px ${t.accentColor}` }} />
-                )}
-              </button>
-            ))}
+          {/* Selector section */}
+          <div className="mt-4 space-y-3.5">
+            {/* Layout selector */}
+            <div>
+              <p className="text-[9px] font-bold uppercase tracking-[0.12em] text-muted-foreground mb-1.5 text-center">
+                Gaya Desain
+              </p>
+              <div className="flex bg-cream-deep/60 p-1.5 rounded-2xl gap-1">
+                {(["botanical", "minimalist", "celestial"] as const).map((lay) => (
+                  <button
+                    key={lay}
+                    onClick={() => setSelectedLayout(lay)}
+                    className={`flex-1 py-1.5 text-[11px] font-bold rounded-xl transition-all duration-250 ${
+                      selectedLayout === lay
+                        ? "bg-background text-foreground shadow-sm"
+                        : "text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    {lay === "botanical" ? "Botanical" : lay === "minimalist" ? "Minimal" : "Celestial"}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Theme selector */}
+            <div>
+              <p className="text-[9px] font-bold uppercase tracking-[0.12em] text-muted-foreground mb-2 text-center">
+                Warna Tema
+              </p>
+              <div className="flex items-center justify-center gap-3">
+                {CARD_THEMES.map((t, i) => (
+                  <button
+                    key={t.id}
+                    onClick={() => setSelectedTheme(i)}
+                    id={`share-theme-${t.id}`}
+                    className="relative h-7 w-7 rounded-full transition-all duration-200 hover:scale-110 active:scale-95"
+                    style={{ background: t.bg }}
+                    aria-label={`Tema ${t.label}`}
+                    title={t.label}
+                  >
+                    {selectedTheme === i && (
+                      <span className="absolute inset-0 rounded-full ring-2 ring-offset-2 ring-offset-card"
+                        style={{ boxShadow: `0 0 0 2px ${t.accentColor}` }} />
+                    )}
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
 
           {/* Privacy note */}
