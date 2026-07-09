@@ -8,7 +8,7 @@ const CARD_THEMES = [
   {
     id: "sage",
     label: "Sage",
-    bg: "linear-gradient(145deg, oklch(0.93 0.035 165) 0%, oklch(0.96 0.025 150) 40%, oklch(0.94 0.03 170) 100%)",
+    bg: "linear-gradient(145deg, oklch(0.93 0.035 165) 0%, oklch(0.85 0.05 160) 100%)",
     textColor: "oklch(0.22 0.04 160)",
     accentColor: "oklch(0.71 0.045 160)",
     blobA: "oklch(0.71 0.045 160 / 0.18)",
@@ -19,7 +19,7 @@ const CARD_THEMES = [
   {
     id: "peach",
     label: "Peach",
-    bg: "linear-gradient(145deg, oklch(0.97 0.03 50) 0%, oklch(0.95 0.05 40) 45%, oklch(0.97 0.03 30) 100%)",
+    bg: "linear-gradient(145deg, oklch(0.97 0.03 50) 0%, oklch(0.88 0.07 45) 100%)",
     textColor: "oklch(0.28 0.06 35)",
     accentColor: "oklch(0.77 0.085 40)",
     blobA: "oklch(0.77 0.085 40 / 0.22)",
@@ -30,7 +30,7 @@ const CARD_THEMES = [
   {
     id: "lavender",
     label: "Lavender",
-    bg: "linear-gradient(145deg, oklch(0.96 0.025 290) 0%, oklch(0.94 0.035 280) 45%, oklch(0.97 0.02 300) 100%)",
+    bg: "linear-gradient(145deg, oklch(0.96 0.025 290) 0%, oklch(0.88 0.05 280) 100%)",
     textColor: "oklch(0.25 0.05 280)",
     accentColor: "oklch(0.65 0.075 285)",
     blobA: "oklch(0.65 0.075 285 / 0.22)",
@@ -41,7 +41,7 @@ const CARD_THEMES = [
   {
     id: "aurora",
     label: "Aurora",
-    bg: "linear-gradient(145deg, oklch(0.96 0.02 195) 0%, oklch(0.94 0.03 175) 45%, oklch(0.96 0.025 220) 100%)",
+    bg: "linear-gradient(145deg, oklch(0.96 0.02 195) 0%, oklch(0.86 0.05 195) 100%)",
     textColor: "oklch(0.22 0.045 195)",
     accentColor: "oklch(0.60 0.07 200)",
     blobA: "oklch(0.60 0.07 200 / 0.22)",
@@ -202,25 +202,24 @@ function AffirmationCardPreview({
   isHighRes = false,
 }: AffirmationCardPreviewProps) {
   // Scaling factors for high-res export (1080x1920)
-  const padding = isHighRes ? "120px 80px" : "32px 20px";
-  const gap = isHighRes ? "64px" : "24px";
-  const borderRadius = isHighRes ? "56px" : "24px";
-  const badgeTextSize = isHighRes ? "20px" : "9px";
-  const badgePadding = isHighRes ? "12px 32px" : "5px 12px";
+  const padding = isHighRes ? "160px 100px" : "48px 24px";
+  const gap = isHighRes ? "56px" : "20px";
+  const badgeTextSize = isHighRes ? "22px" : "10px";
+  const badgePadding = isHighRes ? "12px 36px" : "6px 14px";
   const badgeGap = isHighRes ? "12px" : "6px";
   const logoSize = isHighRes ? 36 : 14;
-  const quoteFontSize = isHighRes ? "180px" : "64px";
-  const quoteMarginBottom = isHighRes ? "-80px" : "-32px";
-  const textFontSize = isHighRes ? "44px" : "15px";
-  const textLineHeight = "1.8";
-  const dividerLine = isHighRes ? "80px" : "28px";
-  const dividerHeight = isHighRes ? "2px" : "1px";
-  const dividerGap = isHighRes ? "16px" : "8px";
-  const qrSize = isHighRes ? 72 : 28;
-  const brandTextSize = isHighRes ? "26px" : "11px";
-  const brandSubtext = isHighRes ? "12px" : "6px";
-  const brandGap = isHighRes ? "12px" : "6px";
-  const brandLetterSpacing = isHighRes ? "0.2em" : "0.12em";
+  const quoteFontSize = isHighRes ? "240px" : "80px";
+  const quoteMarginBottom = isHighRes ? "-100px" : "-36px";
+  const textFontSize = isHighRes ? "54px" : "18px";
+  const textLineHeight = "1.85";
+  const dividerLine = isHighRes ? "100px" : "32px";
+  const dividerHeight = isHighRes ? "3px" : "1.5px";
+  const dividerGap = isHighRes ? "20px" : "8px";
+  const qrSize = isHighRes ? 80 : 28;
+  const brandTextSize = isHighRes ? "28px" : "12px";
+  const brandSubtext = isHighRes ? "14px" : "7px";
+  const brandGap = isHighRes ? "16px" : "8px";
+  const brandLetterSpacing = isHighRes ? "0.25em" : "0.15em";
 
   return (
     <div
@@ -234,247 +233,228 @@ function AffirmationCardPreview({
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
-        justifyContent: "center",
-        padding: isHighRes ? "100px" : "24px",
+        justifyContent: "space-between",
+        padding: padding,
         boxShadow: isHighRes
           ? "none"
-          : "0 20px 60px -12px rgba(0,0,0,0.18), 0 4px 12px -4px rgba(0,0,0,0.10)",
+          : "0 20px 60px -12px rgba(0,0,0,0.15), 0 4px 12px -4px rgba(0,0,0,0.08)",
         boxSizing: "border-box",
         ...style,
       }}
     >
-      {/* Ambient background blobs */}
+      {/* Ambient background blobs (slightly larger for rich color blending) */}
+      <div
+        style={{
+          position: "absolute",
+          width: "70%",
+          aspectRatio: "1",
+          borderRadius: "50%",
+          background: theme.blobA,
+          filter: isHighRes ? "blur(180px)" : "blur(64px)",
+          top: "-10%",
+          right: "-10%",
+        }}
+      />
       <div
         style={{
           position: "absolute",
           width: "60%",
           aspectRatio: "1",
           borderRadius: "50%",
-          background: theme.blobA,
-          filter: isHighRes ? "blur(140px)" : "blur(48px)",
-          top: "-5%",
-          right: "-5%",
-        }}
-      />
-      <div
-        style={{
-          position: "absolute",
-          width: "55%",
-          aspectRatio: "1",
-          borderRadius: "50%",
           background: theme.blobB,
-          filter: isHighRes ? "blur(120px)" : "blur(40px)",
-          bottom: "5%",
-          left: "-5%",
+          filter: isHighRes ? "blur(150px)" : "blur(50px)",
+          bottom: "-5%",
+          left: "-10%",
         }}
       />
 
-      {/* Decorative Botanical Branches (Peeking from behind the card) */}
+      {/* Decorative Botanical Branches (Framing in the corners) */}
       <div
         style={{
           position: "absolute",
-          top: isHighRes ? "80px" : "24px",
-          left: isHighRes ? "80px" : "24px",
-          width: isHighRes ? "320px" : "110px",
-          height: isHighRes ? "320px" : "110px",
+          top: isHighRes ? "40px" : "12px",
+          left: isHighRes ? "40px" : "12px",
+          width: isHighRes ? "400px" : "130px",
+          height: isHighRes ? "400px" : "130px",
           transform: "rotate(-15deg)",
-          opacity: 0.8,
         }}
       >
-        <PremiumLeafBranch color={theme.accentColor} opacity={0.22} />
+        <PremiumLeafBranch color={theme.textColor} opacity={0.15} />
       </div>
       <div
         style={{
           position: "absolute",
-          bottom: isHighRes ? "80px" : "24px",
-          right: isHighRes ? "80px" : "24px",
-          width: isHighRes ? "320px" : "110px",
-          height: isHighRes ? "320px" : "110px",
+          bottom: isHighRes ? "40px" : "12px",
+          right: isHighRes ? "40px" : "12px",
+          width: isHighRes ? "400px" : "130px",
+          height: isHighRes ? "400px" : "130px",
           transform: "rotate(165deg) scaleX(-1)",
-          opacity: 0.8,
         }}
       >
-        <PremiumLeafBranch color={theme.accentColor} opacity={0.22} />
+        <PremiumLeafBranch color={theme.textColor} opacity={0.15} />
       </div>
 
-      {/* Center Glass Card Container */}
+      {/* Top badge (Floating cleanly) */}
       <div
         style={{
-          width: "100%",
-          height: "100%",
-          background: "linear-gradient(135deg, rgba(255, 255, 255, 0.45) 0%, rgba(255, 255, 255, 0.15) 100%)",
-          borderRadius: borderRadius,
-          border: isHighRes ? "3px solid rgba(255, 255, 255, 0.6)" : "1.5px solid rgba(255, 255, 255, 0.5)",
-          backdropFilter: "blur(20px)",
-          WebkitBackdropFilter: "blur(20px)",
-          boxShadow: isHighRes ? "none" : "0 30px 70px -15px rgba(0,0,0,0.06), inset 0 2px 2px rgba(255,255,255,0.4)",
+          display: "flex",
+          alignItems: "center",
+          gap: badgeGap,
+          background: "rgba(255, 255, 255, 0.45)",
+          border: isHighRes ? "2px solid rgba(255,255,255,0.7)" : "1px solid rgba(255, 255, 255, 0.5)",
+          backdropFilter: "blur(8px)",
+          WebkitBackdropFilter: "blur(8px)",
+          borderRadius: 999,
+          padding: badgePadding,
+          zIndex: 3,
+        }}
+      >
+        <BloomLogo color={theme.textColor} size={logoSize} />
+        <span
+          style={{
+            fontFamily: "'Inter', sans-serif",
+            fontSize: badgeTextSize,
+            fontWeight: 800,
+            color: theme.textColor,
+            letterSpacing: "0.1em",
+            textTransform: "uppercase",
+          }}
+        >
+          JN-CALM
+        </span>
+      </div>
+
+      {/* Main Content (Quote) */}
+      <div
+        style={{
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
-          justifyContent: "space-between",
-          padding: padding,
-          boxSizing: "border-box",
-          zIndex: 2,
+          justifyContent: "center",
+          width: "100%",
+          textAlign: "center",
+          gap: gap,
+          zIndex: 3,
+          flex: 1,
         }}
       >
-        {/* Top badge */}
+        {/* Serif quote icon */}
+        <span
+          style={{
+            fontFamily: "'Playfair Display', serif",
+            fontSize: quoteFontSize,
+            lineHeight: 1,
+            color: theme.textColor,
+            opacity: 0.18,
+            marginBottom: quoteMarginBottom,
+            userSelect: "none",
+          }}
+          aria-hidden="true"
+        >
+          “
+        </span>
+
+        {/* Body quote text */}
+        <p
+          style={{
+            fontFamily: "'Playfair Display', serif",
+            fontSize: textFontSize,
+            fontWeight: 600,
+            color: theme.textColor,
+            lineHeight: textLineHeight,
+            textAlign: "center",
+            letterSpacing: "-0.01em",
+            margin: 0,
+            padding: "0 8%",
+          }}
+        >
+          {text}
+        </p>
+
+        {/* Premium Elegant Line Divider */}
         <div
           style={{
             display: "flex",
             alignItems: "center",
-            gap: badgeGap,
-            background: "rgba(255, 255, 255, 0.55)",
-            border: isHighRes ? "2px solid rgba(255,255,255,0.8)" : "1px solid rgba(255, 255, 255, 0.6)",
-            boxShadow: "0 2px 8px rgba(0,0,0,0.02)",
-            borderRadius: 999,
-            padding: badgePadding,
-            whiteSpace: "nowrap",
+            justifyContent: "center",
+            gap: dividerGap,
+            width: "100%",
           }}
         >
-          <BloomLogo color={theme.textColor} size={logoSize} />
-          <span
+          <div
             style={{
-              fontFamily: "'Inter', sans-serif",
-              fontSize: badgeTextSize,
-              fontWeight: 800,
-              color: theme.textColor,
-              letterSpacing: "0.1em",
-              textTransform: "uppercase",
+              width: dividerLine,
+              height: dividerHeight,
+              background: `linear-gradient(90deg, transparent, ${theme.textColor}35)`,
             }}
-          >
-            JN-CALM
-          </span>
+          />
+          <div
+            style={{
+              width: isHighRes ? 8 : 4,
+              height: isHighRes ? 8 : 4,
+              borderRadius: "50%",
+              background: theme.textColor,
+              opacity: 0.5,
+            }}
+          />
+          <div
+            style={{
+              width: dividerLine,
+              height: dividerHeight,
+              background: `linear-gradient(270deg, transparent, ${theme.textColor}35)`,
+            }}
+          />
         </div>
+      </div>
 
-        {/* Main Content (Quote) */}
+      {/* Bottom branding: JNCALM logo + QR code side-by-side */}
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: brandGap,
+          width: "100%",
+          zIndex: 3,
+        }}
+      >
+        <PremiumQRCode color={theme.textColor} size={qrSize} />
         <div
           style={{
             display: "flex",
             flexDirection: "column",
-            alignItems: "center",
+            alignItems: "flex-start",
             justifyContent: "center",
-            width: "100%",
-            textAlign: "center",
-            gap: gap,
+            gap: isHighRes ? "6px" : "2px",
           }}
         >
-          {/* Serif quote icon */}
           <span
             style={{
-              fontFamily: "'Playfair Display', serif",
-              fontSize: quoteFontSize,
-              lineHeight: 1,
+              fontFamily: "'Inter', sans-serif",
+              fontSize: brandTextSize,
+              fontWeight: 900,
               color: theme.textColor,
-              opacity: 0.18,
-              marginBottom: quoteMarginBottom,
-              userSelect: "none",
+              letterSpacing: brandLetterSpacing,
+              textTransform: "uppercase",
+              lineHeight: 1,
             }}
-            aria-hidden="true"
           >
-            “
+            jncalm
           </span>
-
-          {/* Body quote text */}
-          <p
+          <span
             style={{
-              fontFamily: "'Playfair Display', serif",
-              fontSize: textFontSize,
+              fontFamily: "'Inter', sans-serif",
+              fontSize: brandSubtext,
               fontWeight: 600,
               color: theme.textColor,
-              lineHeight: textLineHeight,
-              textAlign: "center",
-              letterSpacing: "-0.01em",
-              margin: 0,
-              padding: "0 5%",
+              opacity: 0.5,
+              letterSpacing: "0.08em",
+              textTransform: "uppercase",
+              lineHeight: 1,
             }}
           >
-            {text}
-          </p>
-
-          {/* Premium Elegant Line Divider */}
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: dividerGap,
-              width: "100%",
-            }}
-          >
-            <div
-              style={{
-                width: dividerLine,
-                height: dividerHeight,
-                background: `linear-gradient(90deg, transparent, ${theme.textColor}40)`,
-              }}
-            />
-            <div
-              style={{
-                width: isHighRes ? 8 : 4,
-                height: isHighRes ? 8 : 4,
-                borderRadius: "50%",
-                background: theme.textColor,
-                opacity: 0.6,
-              }}
-            />
-            <div
-              style={{
-                width: dividerLine,
-                height: dividerHeight,
-                background: `linear-gradient(270deg, transparent, ${theme.textColor}40)`,
-              }}
-            />
-          </div>
-        </div>
-
-        {/* Bottom branding: JNCALM logo + QR code side-by-side */}
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: brandGap,
-            width: "100%",
-          }}
-        >
-          <PremiumQRCode color={theme.textColor} size={qrSize} />
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "flex-start",
-              justifyContent: "center",
-              gap: isHighRes ? "6px" : "2px",
-            }}
-          >
-            <span
-              style={{
-                fontFamily: "'Inter', sans-serif",
-                fontSize: brandTextSize,
-                fontWeight: 900,
-                color: theme.textColor,
-                letterSpacing: brandLetterSpacing,
-                textTransform: "uppercase",
-                lineHeight: 1,
-              }}
-            >
-              jncalm
-            </span>
-            <span
-              style={{
-                fontFamily: "'Inter', sans-serif",
-                fontSize: brandSubtext,
-                fontWeight: 600,
-                color: theme.textColor,
-                opacity: 0.5,
-                letterSpacing: "0.08em",
-                textTransform: "uppercase",
-                lineHeight: 1,
-              }}
-            >
-              Scan to find peace
-            </span>
-          </div>
+            Scan to find peace
+          </span>
         </div>
       </div>
     </div>
