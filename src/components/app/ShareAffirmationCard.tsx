@@ -11,8 +11,8 @@ const CARD_THEMES = [
     bg: "linear-gradient(145deg, oklch(0.93 0.035 165) 0%, oklch(0.96 0.025 150) 40%, oklch(0.94 0.03 170) 100%)",
     textColor: "oklch(0.22 0.04 160)",
     accentColor: "oklch(0.71 0.045 160)",
-    blobA: "oklch(0.71 0.045 160 / 0.15)",
-    blobB: "oklch(0.77 0.085 40 / 0.10)",
+    blobA: "oklch(0.71 0.045 160 / 0.18)",
+    blobB: "oklch(0.77 0.085 40 / 0.12)",
     tagBg: "oklch(0.71 0.045 160 / 0.15)",
     tagText: "oklch(0.35 0.04 160)",
   },
@@ -22,8 +22,8 @@ const CARD_THEMES = [
     bg: "linear-gradient(145deg, oklch(0.97 0.03 50) 0%, oklch(0.95 0.05 40) 45%, oklch(0.97 0.03 30) 100%)",
     textColor: "oklch(0.28 0.06 35)",
     accentColor: "oklch(0.77 0.085 40)",
-    blobA: "oklch(0.77 0.085 40 / 0.18)",
-    blobB: "oklch(0.71 0.045 160 / 0.10)",
+    blobA: "oklch(0.77 0.085 40 / 0.22)",
+    blobB: "oklch(0.71 0.045 160 / 0.12)",
     tagBg: "oklch(0.77 0.085 40 / 0.18)",
     tagText: "oklch(0.35 0.07 35)",
   },
@@ -33,8 +33,8 @@ const CARD_THEMES = [
     bg: "linear-gradient(145deg, oklch(0.96 0.025 290) 0%, oklch(0.94 0.035 280) 45%, oklch(0.97 0.02 300) 100%)",
     textColor: "oklch(0.25 0.05 280)",
     accentColor: "oklch(0.65 0.075 285)",
-    blobA: "oklch(0.65 0.075 285 / 0.18)",
-    blobB: "oklch(0.77 0.085 40 / 0.09)",
+    blobA: "oklch(0.65 0.075 285 / 0.22)",
+    blobB: "oklch(0.77 0.085 40 / 0.12)",
     tagBg: "oklch(0.65 0.075 285 / 0.15)",
     tagText: "oklch(0.30 0.06 285)",
   },
@@ -44,52 +44,36 @@ const CARD_THEMES = [
     bg: "linear-gradient(145deg, oklch(0.96 0.02 195) 0%, oklch(0.94 0.03 175) 45%, oklch(0.96 0.025 220) 100%)",
     textColor: "oklch(0.22 0.045 195)",
     accentColor: "oklch(0.60 0.07 200)",
-    blobA: "oklch(0.60 0.07 200 / 0.18)",
-    blobB: "oklch(0.71 0.045 160 / 0.12)",
+    blobA: "oklch(0.60 0.07 200 / 0.22)",
+    blobB: "oklch(0.71 0.045 160 / 0.14)",
     tagBg: "oklch(0.60 0.07 200 / 0.15)",
     tagText: "oklch(0.28 0.05 200)",
   },
 ];
 
-/* ── Leaf SVG decoration ────────────────────────────────────────── */
-function CardLeaf({
-  x, y, size, rotate, opacity, accent,
-}: { x: string; y: string; size: number; rotate: number; opacity: number; accent: string }) {
+/* ── Premium botanical branch SVG component ─────────────────────── */
+function PremiumLeafBranch({ color, opacity = 0.35 }: { color: string; opacity?: number }) {
   return (
     <svg
-      viewBox="0 0 48 48"
+      viewBox="0 0 100 100"
       fill="none"
-      style={{
-        position: "absolute",
-        left: x,
-        top: y,
-        width: size,
-        height: size,
-        transform: `rotate(${rotate}deg)`,
-        opacity,
-        pointerEvents: "none",
-      }}
+      style={{ width: "100%", height: "100%" }}
       aria-hidden="true"
     >
       <path
-        d="M24 4C14 4 6 14 8 26c2 12 14 18 22 16C22 34 18 22 24 4z"
-        fill={accent}
-      />
-      <path
-        d="M24 4C34 4 42 14 40 26"
-        fill="none"
-        stroke={accent}
-        strokeWidth="1.5"
+        d="M50 95 C49 75 42 42 20 18"
+        stroke={color}
+        strokeWidth="2.2"
         strokeLinecap="round"
+        opacity={opacity}
       />
-      <path
-        d="M24 4 C18 14 16 24 20 36"
-        fill="none"
-        stroke="white"
-        strokeWidth="0.8"
-        strokeLinecap="round"
-        opacity="0.5"
-      />
+      {/* Elegant Leaf Silhouettes */}
+      <path d="M46 72 Q31 66 33 56 Q43 59 46 72" fill={color} opacity={opacity * 1.25} />
+      <path d="M47 62 Q63 56 58 46 Q51 50 47 62" fill={color} opacity={opacity} />
+      <path d="M40 50 Q25 44 27 34 Q37 37 40 50" fill={color} opacity={opacity * 1.25} />
+      <path d="M39 39 Q54 34 50 24 Q43 27 39 39" fill={color} opacity={opacity} />
+      <path d="M32 28 Q18 22 21 12 Q29 16 32 28" fill={color} opacity={opacity * 1.25} />
+      <path d="M22 17 C27 7 22 4 20 2" fill={color} opacity={opacity * 1.3} />
     </svg>
   );
 }
@@ -99,63 +83,106 @@ function BloomLogo({ color, size = 18 }: { color: string; size?: number }) {
   return (
     <svg viewBox="0 0 32 32" fill="none" width={size} height={size} aria-hidden="true">
       <circle cx="16" cy="16" r="4" fill={color} />
-      <circle cx="16" cy="8" r="4" fill={color} opacity="0.8" />
-      <circle cx="22" cy="11.5" r="4" fill={color} opacity="0.7" />
-      <circle cx="22" cy="20.5" r="4" fill={color} opacity="0.7" />
-      <circle cx="16" cy="24" r="4" fill={color} opacity="0.8" />
-      <circle cx="10" cy="20.5" r="4" fill={color} opacity="0.7" />
-      <circle cx="10" cy="11.5" r="4" fill={color} opacity="0.7" />
+      <circle cx="16" cy="8" r="4" fill={color} opacity="0.85" />
+      <circle cx="22" cy="11.5" r="4" fill={color} opacity="0.75" />
+      <circle cx="22" cy="20.5" r="4" fill={color} opacity="0.75" />
+      <circle cx="16" cy="24" r="4" fill={color} opacity="0.85" />
+      <circle cx="10" cy="20.5" r="4" fill={color} opacity="0.75" />
+      <circle cx="10" cy="11.5" r="4" fill={color} opacity="0.75" />
     </svg>
   );
 }
 
-/* ── Custom SVG Mini QR Code ────────────────────────────────────── */
-function MiniQRCode({ color, size = 28 }: { color: string; size?: number }) {
+/* ── Custom detailed SVG QR Code ────────────────────────────────── */
+function PremiumQRCode({ color, size = 32 }: { color: string; size?: number }) {
   return (
     <svg
-      viewBox="0 0 24 24"
+      viewBox="0 0 29 29"
       width={size}
       height={size}
       style={{
-        background: "rgba(255, 255, 255, 0.45)",
+        background: "white",
         padding: size * 0.1,
-        borderRadius: size * 0.2,
-        border: `1px solid ${color}20`,
+        borderRadius: size * 0.22,
+        boxShadow: "0 4px 12px rgba(0,0,0,0.03)",
       }}
       aria-hidden="true"
     >
-      {/* Finder patterns */}
-      <path
-        d="M 1,1 H 7 V 7 H 1 Z M 2,2 H 6 V 6 H 2 Z M 3,3 H 5 V 5 H 3 Z"
-        fill={color}
-      />
-      <path
-        d="M 17,1 H 23 V 7 H 17 Z M 18,2 H 22 V 6 H 18 Z M 19,3 H 21 V 5 H 19 Z"
-        fill={color}
-      />
-      <path
-        d="M 1,17 H 7 V 23 H 1 Z M 2,18 H 6 V 22 H 2 Z M 3,19 H 5 V 21 H 3 Z"
-        fill={color}
-      />
-      {/* Dynamic/Random QR layout blocks */}
-      <rect x="9" y="1" width="2" height="2" fill={color} />
-      <rect x="13" y="1" width="2" height="2" fill={color} />
-      <rect x="9" y="5" width="2" height="2" fill={color} />
-      <rect x="11" y="9" width="2" height="2" fill={color} />
-      <rect x="1" y="11" width="2" height="2" fill={color} />
-      <rect x="5" y="13" width="2" height="2" fill={color} />
-      <path
-        d="M 9,13 H 11 V 15 H 9 Z M 11,15 H 13 V 17 H 11 Z M 13,11 H 15 V 13 H 13 Z M 15,13 H 17 V 15 H 15 Z M 17,9 H 19 V 11 H 17 Z"
-        fill={color}
-      />
-      <path
-        d="M 9,19 H 11 V 21 H 9 Z M 13,19 H 15 V 21 H 13 Z M 11,21 H 13 V 23 H 11 Z M 15,21 H 17 V 23 H 15 Z"
-        fill={color}
-      />
-      <path
-        d="M 19,13 H 21 V 15 H 19 Z M 21,15 H 23 V 17 H 21 Z M 17,17 H 19 V 19 H 17 Z M 21,19 H 23 V 21 H 21 Z M 19,21 H 21 V 23 H 19 Z"
-        fill={color}
-      />
+      {/* Finder Pattern Top-Left */}
+      <rect x="0" y="0" width="7" height="7" fill={color} />
+      <rect x="1" y="1" width="5" height="5" fill="white" />
+      <rect x="2" y="2" width="3" height="3" fill={color} />
+      
+      {/* Finder Pattern Top-Right */}
+      <rect x="22" y="0" width="7" height="7" fill={color} />
+      <rect x="23" y="1" width="5" height="5" fill="white" />
+      <rect x="24" y="2" width="3" height="3" fill={color} />
+      
+      {/* Finder Pattern Bottom-Left */}
+      <rect x="0" y="22" width="7" height="7" fill={color} />
+      <rect x="1" y="23" width="5" height="5" fill="white" />
+      <rect x="2" y="24" width="3" height="3" fill={color} />
+
+      {/* Timing Patterns & Alignment */}
+      <rect x="8" y="2" width="2" height="1" fill={color} />
+      <rect x="11" y="2" width="1" height="1" fill={color} />
+      <rect x="13" y="2" width="2" height="1" fill={color} />
+      <rect x="16" y="2" width="1" height="1" fill={color} />
+      <rect x="18" y="2" width="2" height="1" fill={color} />
+      
+      <rect x="8" y="4" width="1" height="2" fill={color} />
+      <rect x="10" y="4" width="2" height="1" fill={color} />
+      <rect x="13" y="4" width="1" height="3" fill={color} />
+      <rect x="15" y="5" width="2" height="1" fill={color} />
+      <rect x="18" y="4" width="1" height="2" fill={color} />
+      <rect x="20" y="5" width="1" height="1" fill={color} />
+
+      {/* Data blocks representation */}
+      <rect x="8" y="8" width="2" height="2" fill={color} />
+      <rect x="11" y="9" width="1" height="1" fill={color} />
+      <rect x="13" y="8" width="3" height="1" fill={color} />
+      <rect x="17" y="9" width="2" height="2" fill={color} />
+      <rect x="20" y="8" width="1" height="1" fill={color} />
+
+      <rect x="8" y="11" width="1" height="3" fill={color} />
+      <rect x="10" y="12" width="2" height="1" fill={color} />
+      <rect x="13" y="11" width="1" height="2" fill={color} />
+      <rect x="15" y="13" width="3" height="1" fill={color} />
+      <rect x="19" y="11" width="2" height="1" fill={color} />
+      <rect x="22" y="10" width="1" height="3" fill={color} />
+      <rect x="24" y="9" width="2" height="1" fill={color} />
+      <rect x="27" y="11" width="1" height="2" fill={color} />
+
+      <rect x="10" y="15" width="1" height="1" fill={color} />
+      <rect x="12" y="16" width="3" height="2" fill={color} />
+      <rect x="16" y="15" width="1" height="1" fill={color} />
+      <rect x="18" y="16" width="2" height="1" fill={color} />
+      <rect x="21" y="15" width="2" height="2" fill={color} />
+      <rect x="24" y="16" width="1" height="1" fill={color} />
+      <rect x="26" y="15" width="2" height="1" fill={color} />
+
+      <rect x="8" y="19" width="2" height="1" fill={color} />
+      <rect x="11" y="18" width="1" height="2" fill={color} />
+      <rect x="13" y="19" width="3" height="1" fill={color} />
+      <rect x="17" y="18" width="2" height="1" fill={color} />
+      <rect x="20" y="19" width="1" height="2" fill={color} />
+      <rect x="22" y="18" width="2" height="1" fill={color} />
+      <rect x="25" y="19" width="1" height="1" fill={color} />
+      <rect x="27" y="18" width="2" height="2" fill={color} />
+
+      <rect x="8" y="22" width="1" height="2" fill={color} />
+      <rect x="10" y="23" width="2" height="1" fill={color} />
+      <rect x="13" y="22" width="1" height="3" fill={color} />
+      <rect x="15" y="24" width="2" height="1" fill={color} />
+      <rect x="18" y="23" width="1" height="2" fill={color} />
+      <rect x="20" y="22" width="2" height="1" fill={color} />
+      <rect x="23" y="24" width="3" height="1" fill={color} />
+      <rect x="27" y="23" width="1" height="3" fill={color} />
+
+      <rect x="10" y="26" width="2" height="2" fill={color} />
+      <rect x="14" y="27" width="3" height="1" fill={color} />
+      <rect x="18" y="26" width="2" height="1" fill={color} />
+      <rect x="21" y="27" width="4" height="1" fill={color} />
     </svg>
   );
 }
@@ -174,20 +201,26 @@ function AffirmationCardPreview({
   style = {},
   isHighRes = false,
 }: AffirmationCardPreviewProps) {
-  const leafScale = isHighRes ? 2.5 : 1;
-  const quoteSize = isHighRes ? 180 : 72;
-  const textSize = isHighRes ? 46 : 16;
-  const dividerWidth = isHighRes ? 100 : 32;
-  const dividerEmoji = isHighRes ? 24 : 12;
-  const logoSize = isHighRes ? 36 : 18;
-  const badgeTextSize = isHighRes ? 22 : 10;
-  const qrSize = isHighRes ? 52 : 24;
-  const brandTextSize = isHighRes ? 26 : 12;
-  const badgePadding = isHighRes ? "12px 32px" : "5px 14px";
-  const badgeGap = isHighRes ? 12 : 6;
-  const badgeTop = isHighRes ? "120px" : "6%";
-  const brandBottom = isHighRes ? "120px" : "5%";
-  const brandGap = isHighRes ? 16 : 8;
+  // Scaling factors for high-res export (1080x1920)
+  const padding = isHighRes ? "120px 80px" : "32px 20px";
+  const gap = isHighRes ? "64px" : "24px";
+  const borderRadius = isHighRes ? "56px" : "24px";
+  const badgeTextSize = isHighRes ? "20px" : "9px";
+  const badgePadding = isHighRes ? "12px 32px" : "5px 12px";
+  const badgeGap = isHighRes ? "12px" : "6px";
+  const logoSize = isHighRes ? 36 : 14;
+  const quoteFontSize = isHighRes ? "180px" : "64px";
+  const quoteMarginBottom = isHighRes ? "-80px" : "-32px";
+  const textFontSize = isHighRes ? "44px" : "15px";
+  const textLineHeight = "1.8";
+  const dividerLine = isHighRes ? "80px" : "28px";
+  const dividerHeight = isHighRes ? "2px" : "1px";
+  const dividerGap = isHighRes ? "16px" : "8px";
+  const qrSize = isHighRes ? 72 : 28;
+  const brandTextSize = isHighRes ? "26px" : "11px";
+  const brandSubtext = isHighRes ? "12px" : "6px";
+  const brandGap = isHighRes ? "12px" : "6px";
+  const brandLetterSpacing = isHighRes ? "0.2em" : "0.12em";
 
   return (
     <div
@@ -202,7 +235,7 @@ function AffirmationCardPreview({
         flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
-        padding: isHighRes ? "160px 100px" : "10% 8%",
+        padding: isHighRes ? "100px" : "24px",
         boxShadow: isHighRes
           ? "none"
           : "0 20px 60px -12px rgba(0,0,0,0.18), 0 4px 12px -4px rgba(0,0,0,0.10)",
@@ -210,7 +243,7 @@ function AffirmationCardPreview({
         ...style,
       }}
     >
-      {/* Ambient blobs */}
+      {/* Ambient background blobs */}
       <div
         style={{
           position: "absolute",
@@ -218,178 +251,231 @@ function AffirmationCardPreview({
           aspectRatio: "1",
           borderRadius: "50%",
           background: theme.blobA,
-          filter: isHighRes ? "blur(120px)" : "blur(48px)",
-          top: "-10%",
-          right: "-10%",
-          animation: isHighRes ? "none" : "blob-drift 16s ease-in-out infinite",
+          filter: isHighRes ? "blur(140px)" : "blur(48px)",
+          top: "-5%",
+          right: "-5%",
         }}
       />
       <div
         style={{
           position: "absolute",
-          width: "45%",
+          width: "55%",
           aspectRatio: "1",
           borderRadius: "50%",
           background: theme.blobB,
-          filter: isHighRes ? "blur(100px)" : "blur(40px)",
+          filter: isHighRes ? "blur(120px)" : "blur(40px)",
           bottom: "5%",
-          left: "-8%",
-          animation: isHighRes ? "none" : "blob-drift-alt 20s ease-in-out infinite",
-        }}
-      />
-      <div
-        style={{
-          position: "absolute",
-          width: "30%",
-          aspectRatio: "1",
-          borderRadius: "50%",
-          background: theme.blobA,
-          filter: isHighRes ? "blur(80px)" : "blur(32px)",
-          top: "40%",
-          left: "5%",
-          opacity: 0.5,
-          animation: isHighRes ? "none" : "blob-drift-slow 24s ease-in-out infinite",
+          left: "-5%",
         }}
       />
 
-      {/* Leaf decorations */}
-      <CardLeaf x={isHighRes ? "4%" : "2%"} y={isHighRes ? "10%" : "12%"} size={52 * leafScale} rotate={-25} opacity={0.45} accent={theme.accentColor} />
-      <CardLeaf x={isHighRes ? "80%" : "75%"} y={isHighRes ? "8%" : "6%"} size={38 * leafScale} rotate={40} opacity={0.35} accent={theme.accentColor} />
-      <CardLeaf x={isHighRes ? "82%" : "80%"} y={isHighRes ? "74%" : "70%"} size={46 * leafScale} rotate={-15} opacity={0.40} accent={theme.accentColor} />
-      <CardLeaf x={isHighRes ? "2%" : "0%"} y={isHighRes ? "76%" : "72%"} size={34 * leafScale} rotate={30} opacity={0.30} accent={theme.accentColor} />
-
-      {/* Top badge */}
+      {/* Decorative Botanical Branches (Peeking from behind the card) */}
       <div
         style={{
           position: "absolute",
-          top: badgeTop,
-          left: "50%",
-          transform: "translateX(-50%)",
-          display: "flex",
-          alignItems: "center",
-          gap: badgeGap,
-          background: theme.tagBg,
-          border: `1px solid ${theme.accentColor}30`,
-          borderRadius: 999,
-          padding: badgePadding,
-          backdropFilter: "blur(12px)",
-          WebkitBackdropFilter: "blur(12px)",
-          whiteSpace: "nowrap",
+          top: isHighRes ? "80px" : "24px",
+          left: isHighRes ? "80px" : "24px",
+          width: isHighRes ? "320px" : "110px",
+          height: isHighRes ? "320px" : "110px",
+          transform: "rotate(-15deg)",
+          opacity: 0.8,
         }}
       >
-        <BloomLogo color={theme.accentColor} size={logoSize} />
-        <span
-          style={{
-            fontFamily: "'Inter', sans-serif",
-            fontSize: badgeTextSize,
-            fontWeight: 700,
-            color: theme.tagText,
-            letterSpacing: "0.06em",
-            textTransform: "uppercase",
-          }}
-        >
-          JN-CALM
-        </span>
+        <PremiumLeafBranch color={theme.accentColor} opacity={0.22} />
       </div>
-
-      {/* Main content area */}
       <div
         style={{
-          position: "relative",
-          zIndex: 1,
-          textAlign: "center",
+          position: "absolute",
+          bottom: isHighRes ? "80px" : "24px",
+          right: isHighRes ? "80px" : "24px",
+          width: isHighRes ? "320px" : "110px",
+          height: isHighRes ? "320px" : "110px",
+          transform: "rotate(165deg) scaleX(-1)",
+          opacity: 0.8,
+        }}
+      >
+        <PremiumLeafBranch color={theme.accentColor} opacity={0.22} />
+      </div>
+
+      {/* Center Glass Card Container */}
+      <div
+        style={{
+          width: "100%",
+          height: "100%",
+          background: "linear-gradient(135deg, rgba(255, 255, 255, 0.45) 0%, rgba(255, 255, 255, 0.15) 100%)",
+          borderRadius: borderRadius,
+          border: isHighRes ? "3px solid rgba(255, 255, 255, 0.6)" : "1.5px solid rgba(255, 255, 255, 0.5)",
+          backdropFilter: "blur(20px)",
+          WebkitBackdropFilter: "blur(20px)",
+          boxShadow: isHighRes ? "none" : "0 30px 70px -15px rgba(0,0,0,0.06), inset 0 2px 2px rgba(255,255,255,0.4)",
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
-          gap: isHighRes ? 45 : 20,
-          padding: "0 4%",
+          justifyContent: "space-between",
+          padding: padding,
+          boxSizing: "border-box",
+          zIndex: 2,
         }}
       >
-        {/* Decorative quote mark */}
-        <span
-          style={{
-            fontFamily: "'Playfair Display', serif",
-            fontSize: quoteSize,
-            lineHeight: 0.6,
-            color: theme.accentColor,
-            opacity: 0.3,
-            userSelect: "none",
-          }}
-          aria-hidden="true"
-        >
-          "
-        </span>
-
-        {/* Affirmation text */}
-        <p
-          style={{
-            fontFamily: "'Playfair Display', serif",
-            fontSize: textSize,
-            fontWeight: 600,
-            color: theme.textColor,
-            lineHeight: 1.65,
-            textAlign: "center",
-            letterSpacing: "-0.01em",
-            margin: 0,
-          }}
-        >
-          {text}
-        </p>
-
-        {/* Divider ornament */}
+        {/* Top badge */}
         <div
           style={{
             display: "flex",
             alignItems: "center",
-            gap: isHighRes ? 24 : 10,
-            marginTop: 4,
+            gap: badgeGap,
+            background: "rgba(255, 255, 255, 0.55)",
+            border: isHighRes ? "2px solid rgba(255,255,255,0.8)" : "1px solid rgba(255, 255, 255, 0.6)",
+            boxShadow: "0 2px 8px rgba(0,0,0,0.02)",
+            borderRadius: 999,
+            padding: badgePadding,
+            whiteSpace: "nowrap",
           }}
         >
-          <div
+          <BloomLogo color={theme.textColor} size={logoSize} />
+          <span
             style={{
-              width: dividerWidth,
-              height: isHighRes ? 2 : 1,
-              background: `linear-gradient(90deg, transparent, ${theme.accentColor}80)`,
+              fontFamily: "'Inter', sans-serif",
+              fontSize: badgeTextSize,
+              fontWeight: 800,
+              color: theme.textColor,
+              letterSpacing: "0.1em",
+              textTransform: "uppercase",
             }}
-          />
-          <span style={{ fontSize: dividerEmoji, opacity: 0.6 }}>🌸</span>
-          <div
-            style={{
-              width: dividerWidth,
-              height: isHighRes ? 2 : 1,
-              background: `linear-gradient(270deg, transparent, ${theme.accentColor}80)`,
-            }}
-          />
+          >
+            JN-CALM
+          </span>
         </div>
-      </div>
 
-      {/* Bottom branding: jncalm + mini QR code */}
-      <div
-        style={{
-          position: "absolute",
-          bottom: brandBottom,
-          left: "50%",
-          transform: "translateX(-50%)",
-          display: "flex",
-          alignItems: "center",
-          gap: brandGap,
-          whiteSpace: "nowrap",
-        }}
-      >
-        <MiniQRCode color={theme.textColor} size={qrSize} />
-        <span
+        {/* Main Content (Quote) */}
+        <div
           style={{
-            fontFamily: "'Inter', sans-serif",
-            fontSize: brandTextSize,
-            fontWeight: 800,
-            color: theme.textColor,
-            letterSpacing: "0.12em",
-            textTransform: "uppercase",
-            opacity: 0.85,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            width: "100%",
+            textAlign: "center",
+            gap: gap,
           }}
         >
-          jncalm
-        </span>
+          {/* Serif quote icon */}
+          <span
+            style={{
+              fontFamily: "'Playfair Display', serif",
+              fontSize: quoteFontSize,
+              lineHeight: 1,
+              color: theme.textColor,
+              opacity: 0.18,
+              marginBottom: quoteMarginBottom,
+              userSelect: "none",
+            }}
+            aria-hidden="true"
+          >
+            “
+          </span>
+
+          {/* Body quote text */}
+          <p
+            style={{
+              fontFamily: "'Playfair Display', serif",
+              fontSize: textFontSize,
+              fontWeight: 600,
+              color: theme.textColor,
+              lineHeight: textLineHeight,
+              textAlign: "center",
+              letterSpacing: "-0.01em",
+              margin: 0,
+              padding: "0 5%",
+            }}
+          >
+            {text}
+          </p>
+
+          {/* Premium Elegant Line Divider */}
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: dividerGap,
+              width: "100%",
+            }}
+          >
+            <div
+              style={{
+                width: dividerLine,
+                height: dividerHeight,
+                background: `linear-gradient(90deg, transparent, ${theme.textColor}40)`,
+              }}
+            />
+            <div
+              style={{
+                width: isHighRes ? 8 : 4,
+                height: isHighRes ? 8 : 4,
+                borderRadius: "50%",
+                background: theme.textColor,
+                opacity: 0.6,
+              }}
+            />
+            <div
+              style={{
+                width: dividerLine,
+                height: dividerHeight,
+                background: `linear-gradient(270deg, transparent, ${theme.textColor}40)`,
+              }}
+            />
+          </div>
+        </div>
+
+        {/* Bottom branding: JNCALM logo + QR code side-by-side */}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: brandGap,
+            width: "100%",
+          }}
+        >
+          <PremiumQRCode color={theme.textColor} size={qrSize} />
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "flex-start",
+              justifyContent: "center",
+              gap: isHighRes ? "6px" : "2px",
+            }}
+          >
+            <span
+              style={{
+                fontFamily: "'Inter', sans-serif",
+                fontSize: brandTextSize,
+                fontWeight: 900,
+                color: theme.textColor,
+                letterSpacing: brandLetterSpacing,
+                textTransform: "uppercase",
+                lineHeight: 1,
+              }}
+            >
+              jncalm
+            </span>
+            <span
+              style={{
+                fontFamily: "'Inter', sans-serif",
+                fontSize: brandSubtext,
+                fontWeight: 600,
+                color: theme.textColor,
+                opacity: 0.5,
+                letterSpacing: "0.08em",
+                textTransform: "uppercase",
+                lineHeight: 1,
+              }}
+            >
+              Scan to find peace
+            </span>
+          </div>
+        </div>
       </div>
     </div>
   );
