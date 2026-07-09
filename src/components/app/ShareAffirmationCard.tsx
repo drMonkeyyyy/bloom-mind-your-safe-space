@@ -194,565 +194,714 @@ const getAbsoluteUrl = (path: string) => {
   return `${window.location.origin}${path}`;
 };
 
-/* ── Cozy Journal Heart Doodle ───────────────────────────────── */
-function JournalHeart({ color, size = 20, style = {} }: { color: string; size?: number; style?: React.CSSProperties }) {
+/* ── Cozy Journal Book Illustration ──────────────────────────── */
+function JournalBook({ size = 50, style = {} }: { size?: number; style?: React.CSSProperties }) {
   return (
     <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke={color}
-      strokeWidth="1.5"
+      viewBox="0 0 60 70"
       width={size}
       height={size}
       style={style}
       aria-hidden="true"
     >
-      <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" strokeDasharray="2,2" />
+      <rect x="7" y="10" width="46" height="54" rx="4" fill="rgba(0,0,0,0.06)" />
+      <rect x="5" y="8" width="46" height="54" rx="4" fill="#607666" />
+      <rect x="5" y="8" width="5" height="54" rx="1" fill="#4B5E50" />
+      <path d="M51 12 L53 12 L53 60 L51 60 Z" fill="#EAE5D9" />
+      <path
+        d="M28 28 C28 28 22 23 22 30 C22 34 28 38 28 38 C28 38 34 34 34 30 C34 23 28 28 28 28 Z"
+        fill="#FFF"
+        opacity="0.9"
+      />
     </svg>
   );
 }
 
-/* ── Retro Daisy Flower for Vintage style ─────────────────────── */
-function RetroDaisy({ color, size = 32, style = {} }: { color: string; size?: number; style?: React.CSSProperties }) {
+/* ── Pampas Vase Illustration ────────────────────────────────── */
+function PampasVase({ size = 80, style = {} }: { size?: number; style?: React.CSSProperties }) {
   return (
     <svg
-      viewBox="0 0 24 24"
-      fill="none"
+      viewBox="0 0 100 150"
       width={size}
       height={size}
       style={style}
       aria-hidden="true"
     >
-      <circle cx="12" cy="6" r="3.2" fill="#FFFFFF" />
-      <circle cx="12" cy="18" r="3.2" fill="#FFFFFF" />
-      <circle cx="6" cy="12" r="3.2" fill="#FFFFFF" />
-      <circle cx="18" cy="12" r="3.2" fill="#FFFFFF" />
-      <circle cx="7.8" cy="7.8" r="3.2" fill="#FFFFFF" />
-      <circle cx="16.2" cy="16.2" r="3.2" fill="#FFFFFF" />
-      <circle cx="7.8" cy="16.2" r="3.2" fill="#FFFFFF" />
-      <circle cx="16.2" cy="7.8" r="3.2" fill="#FFFFFF" />
-      <circle cx="12" cy="12" r="3.5" fill={color} />
+      <path d="M45 100 Q30 40 10 20" stroke="#C4B7A6" strokeWidth="1.5" fill="none" />
+      <path d="M50 100 Q50 30 40 10" stroke="#C4B7A6" strokeWidth="1.5" fill="none" />
+      <path d="M55 100 Q70 40 90 25" stroke="#C4B7A6" strokeWidth="1.5" fill="none" />
+      <path d="M10 20 C15 15 25 25 20 35 C15 45 5 35 10 20 Z" fill="#DCD3C7" opacity="0.8" />
+      <path d="M40 10 C45 5 50 15 45 25 C40 35 35 25 40 10 Z" fill="#DCD3C7" opacity="0.8" />
+      <path d="M90 25 C95 20 98 35 90 40 C82 45 85 30 90 25 Z" fill="#DCD3C7" opacity="0.8" />
+      <path
+        d="M35 100 C35 85 65 85 65 100 L62 135 C62 140 38 140 38 135 Z"
+        fill="#E5C3B3"
+      />
+      <path d="M42 100 C45 92 55 92 58 100" stroke="#FFF" strokeWidth="1" fill="none" opacity="0.4" />
     </svg>
   );
 }
 
-/* ── App Brand Logo Image Container ───────────────────────────── */
-function CardBrandLogo({ size = 20, isHighRes = false, src }: { size?: number; isHighRes?: boolean; src?: string }) {
-  const containerSize = isHighRes ? size * 3.5 : size;
-  const radius = isHighRes ? "18px" : "6px";
-  const imageSrc = src || getAbsoluteUrl("/logo.png");
+/* ── Hanging Lantern Illustration ─────────────────────────────── */
+function HangingLantern({ size = 80, style = {} }: { size?: number; style?: React.CSSProperties }) {
+  return (
+    <svg
+      viewBox="0 0 80 160"
+      width={size}
+      height={size}
+      style={style}
+      aria-hidden="true"
+    >
+      <line x1="40" y1="0" x2="40" y2="60" stroke="#FFEAA7" strokeWidth="1.5" strokeDasharray="3,3" />
+      <path d="M25 60 L55 60 L48 50 L32 50 Z" fill="#4A455A" />
+      <path d="M25 60 L55 60 L50 65 L30 65 Z" fill="#D4AF37" />
+      <path d="M28 65 L52 65 L56 105 L24 105 Z" fill="rgba(255, 230, 150, 0.15)" stroke="#D4AF37" strokeWidth="1.5" />
+      <circle cx="40" cy="85" r="10" fill="#FFEAA7" style={{ filter: "blur(2px)" }} />
+      <path d="M37 90 C37 90 40 80 40 80 C40 80 43 90 43 90 Z" fill="#E5A93B" />
+      <rect x="20" y="105" width="40" height="10" rx="2" fill="#4A455A" />
+      <rect x="25" y="115" width="30" height="5" rx="1" fill="#D4AF37" />
+    </svg>
+  );
+}
+
+/* ── Scented Candle Illustration ──────────────────────────────── */
+function ScentedCandle({ size = 45, style = {} }: { size?: number; style?: React.CSSProperties }) {
+  return (
+    <svg
+      viewBox="0 0 60 60"
+      width={size}
+      height={size}
+      style={style}
+      aria-hidden="true"
+    >
+      <rect x="15" y="25" width="30" height="28" rx="4" fill="#D2B48C" opacity="0.6" stroke="#C2A47C" strokeWidth="1" />
+      <rect x="17" y="32" width="26" height="19" rx="2" fill="#EAE5D9" />
+      <line x1="30" y1="20" x2="30" y2="25" stroke="#4A3B32" strokeWidth="1.5" />
+      <path d="M30 10 C32 15 30 20 30 20 C30 20 28 15 30 10 Z" fill="#FFC048" />
+    </svg>
+  );
+}
+
+/* ── Meadow Flowers Illustration ──────────────────────────────── */
+function MeadowFlowers({ size = 80, style = {} }: { size?: number; style?: React.CSSProperties }) {
+  return (
+    <svg
+      viewBox="0 0 100 80"
+      width={size}
+      height={size * 0.8}
+      style={style}
+      aria-hidden="true"
+    >
+      <path d="M30 80 Q25 40 15 20" stroke="#558B6E" strokeWidth="1.5" fill="none" />
+      <path d="M50 80 Q55 35 65 15" stroke="#558B6E" strokeWidth="1.5" fill="none" />
+      <path d="M70 80 Q65 45 80 30" stroke="#558B6E" strokeWidth="1" fill="none" />
+      <circle cx="15" cy="20" r="8" fill="#FFF" />
+      <circle cx="15" cy="20" r="3.5" fill="#F39C12" />
+      <circle cx="65" cy="15" r="7" fill="#F1C40F" />
+      <circle cx="65" cy="15" r="2.5" fill="#D35400" />
+      <circle cx="80" cy="30" r="5" fill="#FFF" />
+      <circle cx="80" cy="30" r="2" fill="#F39C12" />
+    </svg>
+  );
+}
+
+/* ── Leaf Sprig SVG helper ────────────────────────────────────── */
+function LeafSprig({ color, style = {}, scale = 1 }: { color: string; style?: React.CSSProperties; scale?: number }) {
+  return (
+    <svg
+      viewBox="0 0 50 100"
+      width={25 * scale}
+      height={50 * scale}
+      style={style}
+      aria-hidden="true"
+    >
+      <path d="M25 100 Q20 50 25 10" stroke={color} strokeWidth="1.5" fill="none" />
+      <path d="M25 80 Q10 70 8 60 C8 55 18 55 24 72" fill={color} />
+      <path d="M25 70 Q40 60 42 50 C42 45 32 45 26 62" fill={color} />
+      <path d="M25 50 Q10 40 8 30 C8 25 18 25 24 42" fill={color} />
+      <path d="M25 40 Q40 30 42 20 C42 15 32 15 26 32" fill={color} />
+      <path d="M25 20 Q15 10 25 5 C35 10 25 20 25 20" fill={color} />
+    </svg>
+  );
+}
+
+/* ── Header with logo & tagline ──────────────────────────────── */
+function BrandHeader({ color, scale = 1, isMidnight = false }: { color: string; scale?: number; isMidnight?: boolean }) {
+  const brandColor = isMidnight ? "#FFE3A8" : color;
+  const tagColor = isMidnight ? "#C3BEDA" : "rgba(0,0,0,0.5)";
+  
   return (
     <div
       style={{
-        width: `${containerSize}px`,
-        height: `${containerSize}px`,
-        borderRadius: radius,
-        backgroundColor: "white",
-        boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
-        border: "1px solid rgba(0,0,0,0.06)",
-        overflow: "hidden",
-        display: "grid",
-        placeItems: "center",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        marginTop: 18 * scale,
+        marginBottom: 10 * scale,
+        zIndex: 3,
       }}
     >
-      <img
-        src={imageSrc}
-        alt="JN-CALM Logo"
+      <div style={{ display: "flex", alignItems: "center", gap: 6 * scale }}>
+        <svg
+          viewBox="0 0 24 24"
+          width={18 * scale}
+          height={18 * scale}
+          fill="none"
+          stroke={brandColor}
+          strokeWidth="1.8"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path d="M12 22C12 22 20 16 20 11C20 6.5 16.5 3 12 3C7.5 3 4 6.5 4 11C4 16 12 22 12 22Z" />
+          <path d="M12 22V10" />
+          <path d="M12 14C12 14 9 12 9 10" />
+          <path d="M12 12C12 12 15 10 15 8" />
+        </svg>
+        <span
+          style={{
+            fontFamily: "'Inter', sans-serif",
+            fontSize: 12 * scale,
+            fontWeight: 800,
+            letterSpacing: "0.15em",
+            color: brandColor,
+          }}
+        >
+          JN-CALM
+        </span>
+      </div>
+      <span
         style={{
-          width: "100%",
-          height: "100%",
-          objectFit: "cover",
+          fontFamily: "'Inter', sans-serif",
+          fontSize: 6 * scale,
+          fontWeight: 600,
+          letterSpacing: "0.08em",
+          color: tagColor,
+          textTransform: "uppercase",
+          marginTop: 2 * scale,
         }}
-      />
+      >
+        Find Calm. Find Yourself.
+      </span>
     </div>
   );
 }
 
-/* ── The actual shareable card visual ──────────────────────────── */
-interface AffirmationCardPreviewProps {
+/* ── Top script layout title ─────────────────────────────────── */
+function TitleSection({ scale = 1, isMidnight = false }: { scale?: number; isMidnight?: boolean }) {
+  const titleColor = isMidnight ? "#FFF" : "#2E3B2F";
+  const scriptColor = isMidnight ? "#FFE3A8" : "#8A6D5F";
+  const subtitleColor = isMidnight ? "#A39EC4" : "rgba(0,0,0,0.5)";
+  
+  return (
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        textAlign: "center",
+        zIndex: 3,
+        marginBottom: 12 * scale,
+      }}
+    >
+      <h1
+        style={{
+          fontFamily: "'Playfair Display', Georgia, serif",
+          fontSize: 22 * scale,
+          fontWeight: 700,
+          color: titleColor,
+          margin: 0,
+          lineHeight: 1.1,
+          letterSpacing: "0.02em",
+        }}
+      >
+        Afirmasi Positif
+      </h1>
+      <span
+        style={{
+          fontFamily: "'Caveat', cursive",
+          fontSize: 24 * scale,
+          color: scriptColor,
+          lineHeight: 1.0,
+          marginTop: -2 * scale,
+          display: "flex",
+          alignItems: "center",
+          gap: 4 * scale,
+        }}
+      >
+        Hari Ini <span style={{ fontSize: 16 * scale }}>♡</span>
+      </span>
+      <span
+        style={{
+          fontFamily: "'Inter', sans-serif",
+          fontSize: 7 * scale,
+          fontWeight: 500,
+          letterSpacing: "0.05em",
+          color: subtitleColor,
+          marginTop: 4 * scale,
+        }}
+      >
+        Kata-kata kecil untuk hati yang besar.
+      </span>
+    </div>
+  );
+}
+
+/* ── 4 bottom outlined icons row ──────────────────────────────── */
+function BottomIconsRow({ color, scale = 1, isMidnight = false }: { color: string; scale?: number; isMidnight?: boolean }) {
+  const gap = 8 * scale;
+  const fontSize = 7 * scale;
+  
+  return (
+    <div
+      style={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: 12 * scale,
+        zIndex: 3,
+        width: "90%",
+        marginTop: 18 * scale,
+      }}
+    >
+      {[
+        { label: "Bersyukur", icon: "♡" },
+        { label: "Fokus", icon: "🍃" },
+        { label: "Tenang", icon: "🧘" },
+        { label: "Bersinar", icon: "⭐" },
+      ].map((item) => (
+        <div
+          key={item.label}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: gap,
+            background: "rgba(255, 255, 255, 0.4)",
+            border: "1px solid rgba(255, 255, 255, 0.3)",
+            borderRadius: "999px",
+            padding: `${4 * scale}px ${10 * scale}px`,
+            boxShadow: "0 2px 8px rgba(0,0,0,0.02)",
+            backdropFilter: "blur(4px)",
+          }}
+        >
+          <span style={{ fontSize: 9 * scale }}>{item.icon}</span>
+          <span
+            style={{
+              fontFamily: "'Inter', sans-serif",
+              fontSize: fontSize,
+              fontWeight: 700,
+              color: isMidnight ? "#FFE3A8" : color,
+              letterSpacing: "0.05em",
+            }}
+          >
+            {item.label}
+          </span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+interface PreviewProps {
   text: string;
   theme: typeof CARD_THEMES[0];
-  style?: React.CSSProperties;
   isHighRes?: boolean;
-  layout?: "botanical" | "journal" | "retro";
+  layout?: "journal" | "botanical" | "aesthetic" | "landscape" | "midnight" | "meadow";
   logoSrc?: string;
   qrSrc?: string;
 }
 
-function AffirmationCardPreview({
+export function AffirmationCardPreview({
   text,
   theme,
-  style = {},
   isHighRes = false,
-  layout = "botanical",
+  layout = "journal",
   logoSrc,
   qrSrc,
-}: AffirmationCardPreviewProps) {
-  // Dynamic layout colors and backgrounds
-  let cardBg = theme.bg;
-  let cardTextColor = theme.textColor;
-  let accentColor = theme.accentColor;
+}: PreviewProps) {
+  const scale = isHighRes ? 3.375 : 1;
+  const isMidnight = layout === "midnight";
   
-  if (layout === "journal") {
-    const baseColor = theme.bg.match(/oklch\([^)]+\)/)?.[0] || "oklch(0.96 0.02 160)";
-    cardBg = `linear-gradient(180deg, #FAF8F5 0%, ${baseColor} 100%)`;
-    cardTextColor = "oklch(0.26 0.03 70)";
-    accentColor = theme.accentColor;
-  } else if (layout === "retro") {
-    if (theme.id === "sage") {
-      cardBg = "linear-gradient(135deg, oklch(0.90 0.05 140) 0%, oklch(0.83 0.07 120) 100%)";
-      cardTextColor = "oklch(0.25 0.05 120)";
-      accentColor = "oklch(0.45 0.08 120)";
-    } else if (theme.id === "peach") {
-      cardBg = "linear-gradient(135deg, oklch(0.89 0.10 50) 0%, oklch(0.81 0.12 35) 100%)";
-      cardTextColor = "oklch(0.30 0.08 30)";
-      accentColor = "oklch(0.50 0.12 35)";
-    } else if (theme.id === "lavender") {
-      cardBg = "linear-gradient(135deg, oklch(0.89 0.06 320) 0%, oklch(0.81 0.08 300) 100%)";
-      cardTextColor = "oklch(0.28 0.06 300)";
-      accentColor = "oklch(0.48 0.08 300)";
-    } else {
-      cardBg = "linear-gradient(135deg, oklch(0.87 0.06 220) 0%, oklch(0.77 0.10 180) 100%)";
-      cardTextColor = "oklch(0.22 0.06 180)";
-      accentColor = "oklch(0.42 0.08 180)";
+  // Custom styles for each layout background
+  const getBackgroundStyle = (): React.CSSProperties => {
+    switch (layout) {
+      case "journal":
+        return { backgroundColor: "#F6EFE6" };
+      case "botanical":
+        return { backgroundColor: "#E8EFE9" };
+      case "aesthetic":
+        return { backgroundColor: "#FAF4EC" };
+      case "landscape":
+        return { backgroundColor: "#EDF4EE" };
+      case "midnight":
+        return { background: "linear-gradient(180deg, #2E284A 0%, #161224 100%)" };
+      case "meadow":
+        return { background: "linear-gradient(180deg, #E3F2FD 0%, #F5F7FA 100%)" };
+      default:
+        return { backgroundColor: "#F6EFE6" };
     }
-  }
-
-  // Scaling factors for high-res export (1080x1920)
-  const padding = isHighRes ? "160px 100px" : "48px 24px";
-  const gap = isHighRes ? "56px" : "20px";
-  const badgeTextSize = isHighRes ? "22px" : "10px";
-  const badgePadding = isHighRes ? "16px 40px" : "6px 14px";
-  const badgeGap = isHighRes ? "12px" : "6px";
-  const quoteFontSize = isHighRes ? "240px" : "80px";
-  const quoteMarginBottom = isHighRes ? "-100px" : "-36px";
-  const textFontSize = isHighRes ? "54px" : "18px";
-  const textLineHeight = "1.85";
-  const dividerLine = isHighRes ? "100px" : "32px";
-  const dividerHeight = isHighRes ? "3px" : "1.5px";
-  const dividerGap = isHighRes ? "20px" : "8px";
+  };
 
   return (
     <div
       style={{
+        ...getBackgroundStyle(),
         width: "100%",
-        aspectRatio: "9 / 16",
-        background: cardBg,
-        borderRadius: isHighRes ? 0 : 28,
+        height: "100%",
+        aspectRatio: "9/16",
         position: "relative",
         overflow: "hidden",
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
         justifyContent: "space-between",
-        padding: padding,
-        boxShadow: isHighRes
-          ? "none"
-          : "0 20px 60px -12px rgba(0,0,0,0.15), 0 4px 12px -4px rgba(0,0,0,0.08)",
+        padding: `${24 * scale}px ${16 * scale}px`,
         boxSizing: "border-box",
-        ...style,
       }}
     >
-      {/* Dynamic Font Sheet for Canva templates */}
-      <link 
-        rel="stylesheet" 
-        href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Fredoka:wght@500;600&family=Playfair+Display:ital,wght@0,600;1,500&display=swap" 
-      />
+      {/* Dynamic Font Loading */}
+      <style>
+        {`
+          @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=Inter:wght@400;600;700&family=Fredoka:wght@600;700&display=swap');
+        `}
+      </style>
 
-      {/* Background Blobs (only for botanical) */}
+      {/* ── Background illustrations & curves based on layout ── */}
+      
+      {/* Layout 1: Cozy Journal */}
+      {layout === "journal" && (
+        <>
+          <svg
+            style={{ position: "absolute", bottom: 0, left: 0, width: "55%", height: "45%", zIndex: 1 }}
+            viewBox="0 0 100 100"
+            preserveAspectRatio="none"
+          >
+            <path d="M 0 100 L 0 25 C 35 35 65 70 100 100 Z" fill="#8F9F8F" opacity="0.8" />
+          </svg>
+          {/* Notebook thin grid lines backdrop */}
+          <div 
+            style={{
+              position: "absolute",
+              inset: 0,
+              backgroundImage: "linear-gradient(rgba(0,0,0,0.03) 1px, transparent 1px)",
+              backgroundSize: `100% ${18 * scale}px`,
+              zIndex: 1,
+              pointerEvents: "none"
+            }}
+          />
+          <LeafSprig color="#6D7E6D" style={{ position: "absolute", bottom: "4%", left: "4%", transform: "rotate(45deg)", zIndex: 2 }} scale={scale} />
+          <LeafSprig color="#6D7E6D" style={{ position: "absolute", top: "14%", left: "2%", transform: "rotate(-30deg)", zIndex: 2 }} scale={scale} />
+          <JournalBook size={46 * scale} style={{ position: "absolute", top: "12%", right: "6%", transform: "rotate(-10deg)", zIndex: 2 }} />
+        </>
+      )}
+
+      {/* Layout 2: Leafy Fresh */}
       {layout === "botanical" && (
         <>
-          <div
-            style={{
-              position: "absolute",
-              width: "70%",
-              aspectRatio: "1",
-              borderRadius: "50%",
-              background: theme.blobA,
-              filter: isHighRes ? "blur(180px)" : "blur(64px)",
-              top: "-10%",
-              right: "-10%",
-            }}
-          />
-          <div
-            style={{
-              position: "absolute",
-              width: "60%",
-              aspectRatio: "1",
-              borderRadius: "50%",
-              background: theme.blobB,
-              filter: isHighRes ? "blur(150px)" : "blur(50px)",
-              bottom: "-5%",
-              left: "-10%",
-            }}
-          />
+          <LeafSprig color="#4A5F4E" style={{ position: "absolute", top: "12%", left: "4%", transform: "rotate(-20deg)", zIndex: 2 }} scale={scale} />
+          <LeafSprig color="#4A5F4E" style={{ position: "absolute", bottom: "10%", right: "4%", transform: "rotate(160deg) scaleX(-1)", zIndex: 2 }} scale={scale} />
         </>
       )}
 
-      {/* Notebook lined paper grid (only for cozy journal) */}
-      {layout === "journal" && (
-        <div
-          style={{
-            position: "absolute",
-            inset: 0,
-            opacity: 0.05,
-            pointerEvents: "none",
-            backgroundImage: `linear-gradient(${cardTextColor} 1px, transparent 1px)`,
-            backgroundSize: `100% ${isHighRes ? "64px" : "22px"}`,
-          }}
-        />
-      )}
-
-      {/* Cozy Washi Tape at the top (only for cozy journal) */}
-      {layout === "journal" && (
-        <div
-          style={{
-            position: "absolute",
-            top: isHighRes ? "75px" : "24px",
-            width: isHighRes ? "240px" : "75px",
-            height: isHighRes ? "60px" : "20px",
-            background: "rgba(255, 255, 255, 0.7)",
-            borderLeft: "1px dashed rgba(0,0,0,0.12)",
-            borderRight: "1px dashed rgba(0,0,0,0.12)",
-            transform: "rotate(-2deg)",
-            boxShadow: "0 2px 6px rgba(0,0,0,0.02)",
-            backdropFilter: "blur(2px)",
-            WebkitBackdropFilter: "blur(2px)",
-            zIndex: 4,
-          }}
-        />
-      )}
-
-      {/* Decorative Botanical Branches (only for botanical) */}
-      {layout === "botanical" && (
+      {/* Layout 3: Warm Aesthetic */}
+      {layout === "aesthetic" && (
         <>
-          <div
-            style={{
-              position: "absolute",
-              top: isHighRes ? "40px" : "12px",
-              left: isHighRes ? "40px" : "12px",
-              width: isHighRes ? "400px" : "130px",
-              height: isHighRes ? "400px" : "130px",
-              transform: "rotate(-15deg)",
-            }}
+          <svg
+            style={{ position: "absolute", top: "16%", left: "10%", width: "80%", height: "68%", zIndex: 1 }}
+            viewBox="0 0 100 100"
+            preserveAspectRatio="none"
           >
-            <PremiumLeafBranch color={cardTextColor} opacity={0.15} />
-          </div>
-          <div
-            style={{
-              position: "absolute",
-              bottom: isHighRes ? "40px" : "12px",
-              right: isHighRes ? "40px" : "12px",
-              width: isHighRes ? "400px" : "130px",
-              height: isHighRes ? "400px" : "130px",
-              transform: "rotate(165deg) scaleX(-1)",
-            }}
-          >
-            <PremiumLeafBranch color={cardTextColor} opacity={0.15} />
-          </div>
+            <path d="M 10 100 A 40 40 0 0 1 90 100 Z" fill="none" stroke="#EFE6DC" strokeWidth="1.5" />
+            <path d="M 15 100 A 35 35 0 0 1 85 100 Z" fill="none" stroke="#EFE6DC" strokeWidth="0.8" />
+          </svg>
+          <PampasVase size={75 * scale} style={{ position: "absolute", bottom: "16%", right: "2%", zIndex: 2 }} />
+          <ScentedCandle size={36 * scale} style={{ position: "absolute", bottom: "14%", left: "4%", zIndex: 2 }} />
         </>
       )}
 
-      {/* Vintage Daisy Flowers (only for retro groovy) */}
-      {layout === "retro" && (
+      {/* Layout 4: Mountain Landscape */}
+      {layout === "landscape" && (
         <>
-          <div
-            style={{
-              position: "absolute",
-              top: isHighRes ? "80px" : "24px",
-              left: isHighRes ? "80px" : "24px",
-            }}
+          <svg
+            style={{ position: "absolute", bottom: 0, left: 0, width: "100%", height: "45%", zIndex: 1 }}
+            viewBox="0 0 100 100"
+            preserveAspectRatio="none"
           >
-            <RetroDaisy color={accentColor} size={isHighRes ? 110 : 36} />
-          </div>
-          <div
-            style={{
-              position: "absolute",
-              bottom: isHighRes ? "80px" : "24px",
-              right: isHighRes ? "80px" : "24px",
-            }}
-          >
-            <RetroDaisy color={accentColor} size={isHighRes ? 110 : 36} />
-          </div>
+            <path d="M 0 100 L 0 50 Q 25 35 50 55 Q 75 75 100 45 L 100 100 Z" fill="#D3DFD6" />
+            <path d="M 0 100 L 0 65 Q 30 55 60 70 Q 80 50 100 70 L 100 100 Z" fill="#B4C9BA" />
+            <path d="M 0 100 L 0 80 Q 40 70 70 85 Q 85 80 100 90 L 100 100 Z" fill="#90A896" />
+            <path d="M 30 100 C 40 85 55 85 65 100 Z" fill="#E8F4F8" opacity="0.6" />
+          </svg>
+          <LeafSprig color="#5E7864" style={{ position: "absolute", top: "8%", left: "4%", transform: "rotate(-10deg)", zIndex: 2 }} scale={scale} />
         </>
       )}
 
-      {/* Scrapbook Heart Doodles (only for cozy journal) */}
-      {layout === "journal" && (
+      {/* Layout 5: Midnight Lantern */}
+      {layout === "midnight" && (
         <>
-          <JournalHeart
-            color={cardTextColor}
-            size={isHighRes ? 56 : 18}
-            style={{ position: "absolute", top: "15%", left: "15%", opacity: 0.2 }}
-          />
-          <JournalHeart
-            color={cardTextColor}
-            size={isHighRes ? 48 : 16}
-            style={{ position: "absolute", bottom: "20%", right: "15%", opacity: 0.2, transform: "rotate(15deg)" }}
-          />
+          <svg
+            viewBox="0 0 24 24"
+            width={34 * scale}
+            height={34 * scale}
+            style={{ position: "absolute", top: "10%", left: "8%", zIndex: 2 }}
+          >
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" fill="#FFEAA7" opacity="0.9" />
+          </svg>
+          <HangingLantern size={65 * scale} style={{ position: "absolute", top: "8%", right: "8%", zIndex: 2 }} />
+          <span style={{ position: "absolute", top: "35%", left: "5%", fontSize: 10 * scale, color: "#FFEAA7", opacity: 0.6 }}>✦</span>
+          <span style={{ position: "absolute", bottom: "35%", right: "5%", fontSize: 12 * scale, color: "#FFEAA7", opacity: 0.5 }}>✦</span>
+          <span style={{ position: "absolute", top: "20%", right: "25%", fontSize: 8 * scale, color: "#FFEAA7", opacity: 0.7 }}>✦</span>
         </>
       )}
 
-      {/* Retro Groovy Inset Wavy Frame (only for retro groovy) */}
-      {layout === "retro" && (
-        <div
-          style={{
-            position: "absolute",
-            inset: isHighRes ? "45px" : "14px",
-            border: `2px dashed ${cardTextColor}25`,
-            borderRadius: isHighRes ? "48px" : "18px",
-            pointerEvents: "none",
-          }}
-        />
-      )}
-
-      {/* Cozy Journal Scrapbook Frame (only for cozy journal) */}
-      {layout === "journal" && (
-        <div
-          style={{
-            position: "absolute",
-            inset: isHighRes ? "45px" : "14px",
-            border: `1.5px solid ${cardTextColor}15`,
-            borderRadius: isHighRes ? "36px" : "14px",
-            pointerEvents: "none",
-          }}
-        />
-      )}
-
-      {/* Top Header/Badge */}
-      {layout === "botanical" && (
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: badgeGap,
-            background: "rgba(255, 255, 255, 0.4)",
-            border: isHighRes ? "2px solid rgba(255,255,255,0.65)" : "1px solid rgba(255, 255, 255, 0.5)",
-            backdropFilter: "blur(12px)",
-            WebkitBackdropFilter: "blur(12px)",
-            borderRadius: "999px",
-            padding: isHighRes ? "16px 40px" : "6px 14px",
-            boxShadow: "0 8px 32px 0 rgba(0, 0, 0, 0.04)",
-            zIndex: 3,
-          }}
-        >
-          <CardBrandLogo size={20} isHighRes={isHighRes} src={logoSrc} />
-          <span
-            style={{
-              fontFamily: "'Inter', sans-serif",
-              fontSize: badgeTextSize,
-              fontWeight: 800,
-              color: cardTextColor,
-              letterSpacing: "0.15em",
-              textTransform: "uppercase",
-            }}
+      {/* Layout 6: Flower Meadow */}
+      {layout === "meadow" && (
+        <>
+          <svg
+            viewBox="0 0 100 50"
+            width={40 * scale}
+            height={20 * scale}
+            style={{ position: "absolute", top: "12%", right: "12%", zIndex: 2, opacity: 0.6 }}
           >
-            JN-CALM
-          </span>
-        </div>
-      )}
-
-      {layout === "journal" && (
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: isHighRes ? "16px" : "6px", zIndex: 3 }}>
-          <span
-            style={{
-              fontFamily: "'Caveat', cursive",
-              fontSize: isHighRes ? "48px" : "17px",
-              fontWeight: 700,
-              color: cardTextColor,
-              opacity: 0.85,
-            }}
+            <path d="M 5 15 Q 12 5 20 15 Q 28 5 35 15" stroke="#7EA8BE" strokeWidth="1.5" fill="none" />
+            <path d="M 50 25 Q 55 18 60 25 Q 65 18 70 25" stroke="#7EA8BE" strokeWidth="1" fill="none" />
+          </svg>
+          <svg
+            style={{ position: "absolute", bottom: 0, left: 0, width: "100%", height: "25%", zIndex: 1 }}
+            viewBox="0 0 100 100"
+            preserveAspectRatio="none"
           >
-            Daily Calm
-          </span>
-        </div>
+            <path d="M 0 100 L 0 50 Q 50 70 100 50 L 100 100 Z" fill="#A8D5B9" opacity="0.8" />
+            <path d="M 0 100 L 0 70 Q 50 60 100 70 L 100 100 Z" fill="#8AC79E" />
+          </svg>
+          <MeadowFlowers size={110 * scale} style={{ position: "absolute", bottom: 0, left: "4%", zIndex: 2 }} />
+          <MeadowFlowers size={90 * scale} style={{ position: "absolute", bottom: 0, right: "4%", transform: "scaleX(-1)", zIndex: 2 }} />
+        </>
       )}
 
-      {layout === "retro" && (
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: isHighRes ? "16px" : "6px", zIndex: 3 }}>
-          <CardBrandLogo size={22} isHighRes={isHighRes} src={logoSrc} />
-          <span
-            style={{
-              fontFamily: "'Fredoka', sans-serif",
-              fontSize: isHighRes ? "22px" : "9px",
-              fontWeight: 600,
-              color: cardTextColor,
-              letterSpacing: "0.25em",
-              textTransform: "uppercase",
-              paddingLeft: "0.25em",
-            }}
-          >
-            JN-CALM
-          </span>
-        </div>
-      )}
+      {/* ── Brand Header ── */}
+      <BrandHeader color={theme.accentColor} scale={scale} isMidnight={isMidnight} />
 
-      {/* Main Content (Quote) */}
+      {/* ── Title Section ── */}
+      <TitleSection scale={scale} isMidnight={isMidnight} />
+
+      {/* ── Quote Card Container ── */}
       <div
         style={{
+          width: "86%",
+          backgroundColor: "rgba(255, 255, 255, 0.94)",
+          borderRadius: 22 * scale,
+          padding: `${26 * scale}px ${20 * scale}px`,
+          boxShadow: isHighRes ? "none" : "0 8px 30px rgba(0, 0, 0, 0.03)",
+          border: "1px solid rgba(255, 255, 255, 0.8)",
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
-          width: "100%",
           textAlign: "center",
-          gap: gap,
+          position: "relative",
           zIndex: 3,
-          flex: 1,
+          minHeight: 160 * scale,
+          boxSizing: "border-box",
         }}
       >
-        {/* Serif quote icon (only for botanical) */}
-        {layout === "botanical" && (
-          <span
+        {/* Layout 1 Cozy tape */}
+        {layout === "journal" && (
+          <div
             style={{
-              fontFamily: "'Playfair Display', serif",
-              fontSize: quoteFontSize,
-              lineHeight: 1,
-              color: cardTextColor,
-              opacity: 0.22,
-              marginBottom: quoteMarginBottom,
-              userSelect: "none",
+              position: "absolute",
+              top: -10 * scale,
+              left: "50%",
+              transform: "translateX(-50%) rotate(-1deg)",
+              width: 70 * scale,
+              height: 18 * scale,
+              backgroundColor: "rgba(224, 218, 206, 0.75)",
+              borderLeft: "1px dashed rgba(0,0,0,0.08)",
+              borderRight: "1px dashed rgba(0,0,0,0.08)",
+              boxShadow: "0 1px 3px rgba(0,0,0,0.02)",
+              zIndex: 10,
             }}
-            aria-hidden="true"
-          >
-            “
-          </span>
+          />
         )}
 
-        {/* Body quote text */}
+        {/* Top elements inside Card container based on design */}
+        {layout === "journal" && (
+          <div
+            style={{
+              width: 24 * scale,
+              height: 24 * scale,
+              borderRadius: "50%",
+              backgroundColor: "#8F9F8F",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              marginBottom: 10 * scale,
+            }}
+          >
+            <svg viewBox="0 0 24 24" width={12 * scale} height={12 * scale} fill="none" stroke="#FFF" strokeWidth="2">
+              <circle cx="12" cy="12" r="4" />
+              <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" />
+            </svg>
+          </div>
+        )}
+
+        {layout === "botanical" && (
+          <div
+            style={{
+              position: "absolute",
+              top: 6 * scale,
+              left: 14 * scale,
+              fontFamily: "'Playfair Display', serif",
+              fontSize: 48 * scale,
+              color: "rgba(96, 118, 102, 0.15)",
+              lineHeight: 1.0,
+              fontWeight: 900,
+            }}
+          >
+            “
+          </div>
+        )}
+
+        {layout === "aesthetic" && (
+          <svg
+            viewBox="0 0 24 24"
+            width={18 * scale}
+            height={18 * scale}
+            fill="none"
+            stroke="#E5C3B3"
+            strokeWidth="1.5"
+            style={{ marginBottom: 8 * scale }}
+          >
+            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+          </svg>
+        )}
+
+        {(layout === "landscape" || layout === "meadow") && (
+          <span style={{ fontSize: 16 * scale, marginBottom: 8 * scale }}>🍃</span>
+        )}
+        {layout === "midnight" && (
+          <span style={{ fontSize: 16 * scale, marginBottom: 8 * scale }}>✨</span>
+        )}
+
+        {/* The Quote text */}
         <p
           style={{
-            fontFamily: 
-              layout === "journal" 
-                ? "'Caveat', cursive" 
-                : layout === "retro"
-                  ? "'Fredoka', sans-serif"
-                  : "'Playfair Display', serif",
-            fontSize: 
-              layout === "journal"
-                ? (isHighRes ? "76px" : "25px")
-                : textFontSize,
-            fontWeight: 
-              layout === "journal" 
-                ? 700 
-                : layout === "retro"
-                  ? 600
-                  : 600,
-            color: cardTextColor,
-            lineHeight: textLineHeight,
-            textAlign: "center",
-            letterSpacing: layout === "retro" ? "-0.01em" : "0",
+            fontFamily: "'Playfair Display', Georgia, serif",
+            fontSize: 14 * scale,
+            fontWeight: 600,
+            color: "#2D3748",
             margin: 0,
-            padding: "0 8%",
+            lineHeight: 1.55,
+            letterSpacing: "0.01em",
+            zIndex: 4,
+            padding: `0 ${8 * scale}px`,
           }}
         >
           {text}
         </p>
 
-        {/* Divider */}
-        {layout === "botanical" && (
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: dividerGap,
-              width: "100%",
-            }}
-          >
-            <div
-              style={{
-                width: dividerLine,
-                height: dividerHeight,
-                background: `linear-gradient(90deg, transparent, ${cardTextColor}35)`,
-              }}
-            />
-            <div
-              style={{
-                width: isHighRes ? 8 : 4,
-                height: isHighRes ? 8 : 4,
-                borderRadius: "50%",
-                background: cardTextColor,
-                opacity: 0.5,
-              }}
-            />
-            <div
-              style={{
-                width: dividerLine,
-                height: dividerHeight,
-                background: `linear-gradient(270deg, transparent, ${cardTextColor}35)`,
-              }}
-            />
-          </div>
-        )}
+        {/* Small Heart Spacer */}
+        <span
+          style={{
+            fontFamily: "'Caveat', cursive",
+            fontSize: 18 * scale,
+            color: "rgba(0,0,0,0.3)",
+            marginTop: 8 * scale,
+            marginBottom: 6 * scale,
+          }}
+        >
+          ♡
+        </span>
 
-        {layout === "journal" && (
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: dividerGap,
-            }}
-          >
-            <JournalHeart color={cardTextColor} size={isHighRes ? 24 : 8} style={{ opacity: 0.3 }} />
-          </div>
-        )}
+        {/* Bottom card message */}
+        <p
+          style={{
+            fontFamily: "'Inter', sans-serif",
+            fontSize: 8 * scale,
+            fontWeight: 500,
+            color: "rgba(0,0,0,0.5)",
+            margin: 0,
+          }}
+        >
+          Tenanglah, kamu sedang bertumbuh dengan cara yang indah.
+        </p>
 
-        {layout === "retro" && (
+        {/* Pill Badge */}
+        {["journal", "landscape", "midnight", "meadow"].includes(layout) && (
           <div
             style={{
-              display: "flex",
+              marginTop: 10 * scale,
+              backgroundColor:
+                layout === "journal"
+                  ? "#8F9F8F"
+                  : layout === "midnight"
+                    ? "#4A455A"
+                    : layout === "meadow"
+                      ? "#7EA8BE"
+                      : "#6E8C75",
+              borderRadius: "999px",
+              padding: `${4 * scale}px ${12 * scale}px`,
+              display: "inline-flex",
               alignItems: "center",
-              justifyContent: "center",
-              gap: dividerGap,
-              width: "100%",
+              gap: 4 * scale,
+              boxShadow: "0 2px 6px rgba(0,0,0,0.03)",
             }}
           >
-            <div
+            <span style={{ fontSize: 7 * scale, color: "#FFF" }}>🧘</span>
+            <span
               style={{
-                width: dividerLine,
-                height: dividerHeight,
-                background: `linear-gradient(90deg, transparent, ${cardTextColor}35)`,
+                fontFamily: "'Inter', sans-serif",
+                fontSize: 7 * scale,
+                fontWeight: 700,
+                color: "#FFF",
+                letterSpacing: "0.04em",
+                textTransform: "uppercase",
               }}
-            />
-            <div
-              style={{
-                width: isHighRes ? 12 : 5,
-                height: isHighRes ? 12 : 5,
-                borderRadius: "50%",
-                background: cardTextColor,
-                opacity: 0.6,
-              }}
-            />
-            <div
-              style={{
-                width: dividerLine,
-                height: dividerHeight,
-                background: `linear-gradient(270deg, transparent, ${cardTextColor}35)`,
-              }}
-            />
+            >
+              Tarik napas. Fokus. Kamu mampu.
+            </span>
           </div>
         )}
       </div>
 
-      {/* Bottom branding: JNCALM custom speech bubble QR code */}
+      {/* ── Bottom outlined icons row ── */}
+      <BottomIconsRow color={theme.accentColor} scale={scale} isMidnight={isMidnight} />
+
+      {/* ── Footer Row (QR and tag text) ── */}
       <div
         style={{
+          width: "86%",
           display: "flex",
-          flexDirection: "column",
           alignItems: "center",
-          justifyContent: "center",
+          justifyContent: "space-between",
+          marginTop: 12 * scale,
           zIndex: 3,
+          boxSizing: "border-box",
         }}
       >
+        <div style={{ flex: 1, paddingRight: 12 * scale }}>
+          <p
+            style={{
+              fontFamily: "'Inter', sans-serif",
+              fontSize: 7 * scale,
+              fontWeight: 600,
+              color: isMidnight ? "#C3BEDA" : "rgba(0, 0, 0, 0.45)",
+              margin: 0,
+              lineHeight: 1.4,
+              letterSpacing: "0.02em",
+            }}
+          >
+            Scan untuk inspirasi dan latihan mindfulness
+          </p>
+        </div>
         <div
           style={{
             backgroundColor: "white",
-            padding: isHighRes ? "24px" : "8px",
-            borderRadius: isHighRes ? "42px" : "14px",
-            boxShadow: isHighRes ? "none" : "0 6px 20px rgba(0,0,0,0.04)",
-            border: `1px solid rgba(0,0,0,0.05)`,
+            padding: 5 * scale,
+            borderRadius: 10 * scale,
+            boxShadow: isHighRes ? "none" : "0 4px 14px rgba(0,0,0,0.04)",
+            border: "1px solid rgba(0,0,0,0.05)",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
@@ -762,9 +911,8 @@ function AffirmationCardPreview({
             src={qrSrc || getAbsoluteUrl("/qr-code.png")}
             alt="JN-CALM QR Code"
             style={{
-              height: isHighRes ? "340px" : "105px",
-              width: "auto",
-              mixBlendMode: "normal",
+              height: 52 * scale,
+              width: 52 * scale,
               display: "block",
             }}
           />
@@ -783,7 +931,7 @@ interface ShareModalProps {
 
 export function ShareAffirmationModal({ open, onClose, affirmation }: ShareModalProps) {
   const [selectedTheme, setSelectedTheme] = useState(0);
-  const [selectedLayout, setSelectedLayout] = useState<"botanical" | "journal" | "retro">("botanical");
+  const [selectedLayout, setSelectedLayout] = useState<"journal" | "botanical" | "aesthetic" | "landscape" | "midnight" | "meadow">("journal");
   const [sharing, setSharing] = useState(false);
   const [downloading, setDownloading] = useState(false);
   const [logoBase64, setLogoBase64] = useState<string>("");
@@ -987,18 +1135,28 @@ export function ShareAffirmationModal({ open, onClose, affirmation }: ShareModal
               <p className="text-[9px] font-bold uppercase tracking-[0.12em] text-muted-foreground mb-1.5 text-center">
                 Gaya Desain
               </p>
-              <div className="flex bg-cream-deep/60 p-1.5 rounded-2xl gap-1">
-                {(["botanical", "journal", "retro"] as const).map((lay) => (
+              <div className="grid grid-cols-3 gap-1.5 bg-cream-deep/60 p-1.5 rounded-2xl">
+                {(["journal", "botanical", "aesthetic", "landscape", "midnight", "meadow"] as const).map((lay) => (
                   <button
                     key={lay}
                     onClick={() => setSelectedLayout(lay)}
-                    className={`flex-1 py-1.5 text-[11px] font-bold rounded-xl transition-all duration-250 ${
+                    className={`py-1.5 text-[9.5px] font-bold rounded-xl transition-all duration-250 ${
                       selectedLayout === lay
                         ? "bg-background text-foreground shadow-sm"
                         : "text-muted-foreground hover:text-foreground"
                     }`}
                   >
-                    {lay === "botanical" ? "Botanical" : lay === "journal" ? "Cozy Journal" : "Retro Groovy"}
+                    {lay === "journal" 
+                      ? "1. Cozy Journal" 
+                      : lay === "botanical" 
+                        ? "2. Leafy Fresh" 
+                        : lay === "aesthetic" 
+                          ? "3. Warm Aesthetic" 
+                          : lay === "landscape" 
+                            ? "4. Landscape" 
+                            : lay === "midnight" 
+                              ? "5. Midnight" 
+                              : "6. Meadow"}
                   </button>
                 ))}
               </div>

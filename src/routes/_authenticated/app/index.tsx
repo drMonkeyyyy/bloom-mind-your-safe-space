@@ -218,10 +218,24 @@ function StatCard({
   );
 }
 
+// Seed index generator based on the date to make it consistent throughout the day
+const getDailyAffirmationIndex = (arrayLength: number): number => {
+  if (typeof window === "undefined" || arrayLength === 0) return 0;
+  const today = new Date();
+  const dateString = `${today.getFullYear()}-${today.getMonth()}-${today.getDate()}`;
+  
+  let hash = 0;
+  for (let i = 0; i < dateString.length; i++) {
+    hash = dateString.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  
+  return Math.abs(hash) % arrayLength;
+};
+
 function Dashboard() {
   const { user } = useAuth();
   const { data: profile, isLoading: pLoading } = useProfile(user?.id);
-  const [affIdx, setAffIdx] = useState(0);
+  const [affIdx, setAffIdx] = useState(() => getDailyAffirmationIndex(AFFIRMATIONS.length));
   const [flip, setFlip] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
 
