@@ -211,9 +211,11 @@ function CelestialMoon({ color, size = 20 }: { color: string; size?: number }) {
       fill="currentColor"
       width={size}
       height={size}
+      style={{ filter: "drop-shadow(0 0 5px currentColor)" }}
       aria-hidden="true"
     >
       <path d="M12 3a9 9 0 1 0 9 9 7 7 0 1 1-9-9z" />
+      <path d="M15 8.5a1.5 1.5 0 0 0 1.5-1.5 1.5 1.5 0 0 0-1.5-1.5 1.5 1.5 0 0 0-1.5 1.5 1.5 1.5 0 0 0 1.5 1.5z" transform="scale(0.8) translate(5, 2)" />
     </svg>
   );
 }
@@ -225,16 +227,48 @@ function ZenLotus({ color, size = 20 }: { color: string; size?: number }) {
       viewBox="0 0 24 24"
       fill="none"
       stroke={color}
-      strokeWidth="1.8"
+      strokeWidth="1.5"
       width={size}
       height={size}
       strokeLinecap="round"
       strokeLinejoin="round"
       aria-hidden="true"
     >
-      <path d="M12 2c1.5 4 4.5 6 7 7-2.5 1-5.5 3-7 7-1.5-4-4.5-6-7-7 2.5-1 5.5-3 7-7z" />
-      <circle cx="12" cy="12" r="2" fill={color} />
+      <path d="M12 3c1 3.5 3 5 5.5 5.5-2.5.5-4.5 2-5.5 5.5-1-3.5-3-5-5.5-5.5 2.5-.5 4.5-2 5.5-5.5z" />
+      <path d="M12 9c.5 1.5 1.5 2 2.5 2.2-1 .2-2 .7-2.5 2.2-.5-1.5-1.5-2-2.5-2.2 1-.2 2-.7 2.5-2.2z" fill={color} opacity="0.3" stroke="none" />
+      <circle cx="12" cy="9" r="1.5" fill={color} />
     </svg>
+  );
+}
+
+/* ── App Brand Logo Image Container ───────────────────────────── */
+function CardBrandLogo({ size = 20, isHighRes = false }: { size?: number; isHighRes?: boolean }) {
+  const containerSize = isHighRes ? size * 3.5 : size;
+  const radius = isHighRes ? "18px" : "6px";
+  return (
+    <div
+      style={{
+        width: `${containerSize}px`,
+        height: `${containerSize}px`,
+        borderRadius: radius,
+        backgroundColor: "white",
+        boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
+        border: "1px solid rgba(0,0,0,0.06)",
+        overflow: "hidden",
+        display: "grid",
+        placeItems: "center",
+      }}
+    >
+      <img
+        src="/logo.png"
+        alt="JN-CALM Logo"
+        style={{
+          width: "100%",
+          height: "100%",
+          objectFit: "cover",
+        }}
+      />
+    </div>
   );
 }
 
@@ -254,13 +288,42 @@ function AffirmationCardPreview({
   isHighRes = false,
   layout = "botanical",
 }: AffirmationCardPreviewProps) {
+  // Dynamic layout colors and backgrounds
+  let cardBg = theme.bg;
+  let cardTextColor = theme.textColor;
+  let accentColor = theme.accentColor;
+  
+  if (layout === "minimalist") {
+    const baseColor = theme.bg.match(/oklch\([^)]+\)/)?.[0] || "oklch(0.96 0.02 160)";
+    cardBg = `radial-gradient(circle at center, rgba(255, 255, 255, 0.98) 0%, ${baseColor} 100%)`;
+    cardTextColor = theme.textColor;
+    accentColor = theme.accentColor;
+  } else if (layout === "celestial") {
+    if (theme.id === "sage") {
+      cardBg = "linear-gradient(145deg, oklch(0.22 0.03 165) 0%, oklch(0.11 0.02 160) 100%)";
+      cardTextColor = "oklch(0.93 0.03 165)";
+      accentColor = "oklch(0.85 0.12 85)";
+    } else if (theme.id === "peach") {
+      cardBg = "linear-gradient(145deg, oklch(0.24 0.04 40) 0%, oklch(0.12 0.02 35) 100%)";
+      cardTextColor = "oklch(0.94 0.03 45)";
+      accentColor = "oklch(0.85 0.12 85)";
+    } else if (theme.id === "lavender") {
+      cardBg = "linear-gradient(145deg, oklch(0.22 0.04 285) 0%, oklch(0.11 0.02 280) 100%)";
+      cardTextColor = "oklch(0.93 0.02 285)";
+      accentColor = "oklch(0.85 0.12 85)";
+    } else {
+      cardBg = "linear-gradient(145deg, oklch(0.20 0.03 200) 0%, oklch(0.10 0.02 195) 100%)";
+      cardTextColor = "oklch(0.92 0.02 195)";
+      accentColor = "oklch(0.85 0.12 85)";
+    }
+  }
+
   // Scaling factors for high-res export (1080x1920)
   const padding = isHighRes ? "160px 100px" : "48px 24px";
   const gap = isHighRes ? "56px" : "20px";
   const badgeTextSize = isHighRes ? "22px" : "10px";
-  const badgePadding = isHighRes ? "12px 36px" : "6px 14px";
+  const badgePadding = isHighRes ? "16px 40px" : "6px 14px";
   const badgeGap = isHighRes ? "12px" : "6px";
-  const logoSize = isHighRes ? 36 : 14;
   const quoteFontSize = isHighRes ? "240px" : "80px";
   const quoteMarginBottom = isHighRes ? "-100px" : "-36px";
   const textFontSize = isHighRes ? "54px" : "18px";
@@ -274,7 +337,7 @@ function AffirmationCardPreview({
       style={{
         width: "100%",
         aspectRatio: "9 / 16",
-        background: theme.bg,
+        background: cardBg,
         borderRadius: isHighRes ? 0 : 28,
         position: "relative",
         overflow: "hidden",
@@ -322,12 +385,12 @@ function AffirmationCardPreview({
 
       {/* Background Stars/Sparkles (only for celestial) */}
       {layout === "celestial" && (
-        <div style={{ position: "absolute", inset: 0, opacity: 0.2, pointerEvents: "none" }}>
-          <CelestialSparkle color={theme.textColor} size={isHighRes ? 48 : 16} style={{ position: "absolute", top: "15%", left: "20%" }} />
-          <CelestialSparkle color={theme.textColor} size={isHighRes ? 36 : 12} style={{ position: "absolute", top: "25%", right: "15%" }} />
-          <CelestialSparkle color={theme.textColor} size={isHighRes ? 42 : 14} style={{ position: "absolute", top: "45%", left: "10%" }} />
-          <CelestialSparkle color={theme.textColor} size={isHighRes ? 30 : 10} style={{ position: "absolute", top: "60%", right: "20%" }} />
-          <CelestialSparkle color={theme.textColor} size={isHighRes ? 48 : 16} style={{ position: "absolute", bottom: "20%", left: "25%" }} />
+        <div style={{ position: "absolute", inset: 0, opacity: 0.35, pointerEvents: "none" }}>
+          <CelestialSparkle color={accentColor} size={isHighRes ? 48 : 16} style={{ position: "absolute", top: "15%", left: "20%", filter: `drop-shadow(0 0 6px ${accentColor}70)` }} />
+          <CelestialSparkle color={accentColor} size={isHighRes ? 36 : 12} style={{ position: "absolute", top: "28%", right: "15%", filter: `drop-shadow(0 0 4px ${accentColor}50)` }} />
+          <CelestialSparkle color={accentColor} size={isHighRes ? 42 : 14} style={{ position: "absolute", top: "45%", left: "10%", filter: `drop-shadow(0 0 5px ${accentColor}60)` }} />
+          <CelestialSparkle color={accentColor} size={isHighRes ? 30 : 10} style={{ position: "absolute", top: "60%", right: "20%", filter: `drop-shadow(0 0 4px ${accentColor}50)` }} />
+          <CelestialSparkle color={accentColor} size={isHighRes ? 48 : 16} style={{ position: "absolute", bottom: "22%", left: "25%", filter: `drop-shadow(0 0 6px ${accentColor}70)` }} />
         </div>
       )}
 
@@ -344,7 +407,7 @@ function AffirmationCardPreview({
               transform: "rotate(-15deg)",
             }}
           >
-            <PremiumLeafBranch color={theme.textColor} opacity={0.15} />
+            <PremiumLeafBranch color={cardTextColor} opacity={0.15} />
           </div>
           <div
             style={{
@@ -356,7 +419,7 @@ function AffirmationCardPreview({
               transform: "rotate(165deg) scaleX(-1)",
             }}
           >
-            <PremiumLeafBranch color={theme.textColor} opacity={0.15} />
+            <PremiumLeafBranch color={cardTextColor} opacity={0.15} />
           </div>
         </>
       )}
@@ -366,12 +429,19 @@ function AffirmationCardPreview({
         <div
           style={{
             position: "absolute",
-            inset: isHighRes ? "40px" : "12px",
-            border: `1.5px solid ${theme.textColor}25`,
-            borderRadius: isHighRes ? "40px" : "16px",
+            inset: isHighRes ? "45px" : "15px",
+            border: `1px solid ${accentColor}28`,
+            borderRadius: isHighRes ? "36px" : "14px",
             pointerEvents: "none",
+            boxShadow: `inset 0 0 16px ${accentColor}05`,
           }}
-        />
+        >
+          {/* Constellation corner markers */}
+          <div style={{ position: "absolute", top: "-5px", left: "-5px", width: "10px", height: "10px", borderRadius: "50%", background: accentColor, border: `2px solid ${cardBg}` }} />
+          <div style={{ position: "absolute", top: "-5px", right: "-5px", width: "10px", height: "10px", borderRadius: "50%", background: accentColor, border: `2px solid ${cardBg}` }} />
+          <div style={{ position: "absolute", bottom: "-5px", left: "-5px", width: "10px", height: "10px", borderRadius: "50%", background: accentColor, border: `2px solid ${cardBg}` }} />
+          <div style={{ position: "absolute", bottom: "-5px", right: "-5px", width: "10px", height: "10px", borderRadius: "50%", background: accentColor, border: `2px solid ${cardBg}` }} />
+        </div>
       )}
 
       {/* Minimalist Inset Frame (only for minimalist) */}
@@ -379,9 +449,9 @@ function AffirmationCardPreview({
         <div
           style={{
             position: "absolute",
-            inset: isHighRes ? "30px" : "10px",
-            border: `2px solid ${theme.textColor}15`,
-            borderRadius: isHighRes ? "40px" : "18px",
+            inset: isHighRes ? "40px" : "14px",
+            border: `1.5px solid ${cardTextColor}12`,
+            borderRadius: isHighRes ? "32px" : "12px",
             pointerEvents: "none",
           }}
         />
@@ -394,23 +464,24 @@ function AffirmationCardPreview({
             display: "flex",
             alignItems: "center",
             gap: badgeGap,
-            background: "rgba(255, 255, 255, 0.45)",
-            border: isHighRes ? "2px solid rgba(255,255,255,0.7)" : "1px solid rgba(255, 255, 255, 0.5)",
-            backdropFilter: "blur(8px)",
-            WebkitBackdropFilter: "blur(8px)",
-            borderRadius: 999,
-            padding: badgePadding,
+            background: "rgba(255, 255, 255, 0.4)",
+            border: isHighRes ? "2px solid rgba(255,255,255,0.65)" : "1px solid rgba(255, 255, 255, 0.5)",
+            backdropFilter: "blur(12px)",
+            WebkitBackdropFilter: "blur(12px)",
+            borderRadius: "999px",
+            padding: isHighRes ? "16px 40px" : "6px 14px",
+            boxShadow: "0 8px 32px 0 rgba(0, 0, 0, 0.04)",
             zIndex: 3,
           }}
         >
-          <BloomLogo color={theme.textColor} size={logoSize} />
+          <CardBrandLogo size={20} isHighRes={isHighRes} />
           <span
             style={{
               fontFamily: "'Inter', sans-serif",
               fontSize: badgeTextSize,
               fontWeight: 800,
-              color: theme.textColor,
-              letterSpacing: "0.1em",
+              color: cardTextColor,
+              letterSpacing: "0.15em",
               textTransform: "uppercase",
             }}
           >
@@ -420,17 +491,18 @@ function AffirmationCardPreview({
       )}
 
       {layout === "minimalist" && (
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "6px", zIndex: 3 }}>
-          <ZenLotus color={theme.textColor} size={isHighRes ? 36 : 14} />
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: isHighRes ? "16px" : "6px", zIndex: 3 }}>
+          <CardBrandLogo size={24} isHighRes={isHighRes} />
           <span
             style={{
               fontFamily: "'Inter', sans-serif",
-              fontSize: isHighRes ? "18px" : "8px",
-              fontWeight: 700,
-              color: theme.textColor,
-              opacity: 0.6,
-              letterSpacing: "0.2em",
+              fontSize: isHighRes ? "22px" : "9px",
+              fontWeight: 600,
+              color: cardTextColor,
+              opacity: 0.8,
+              letterSpacing: "0.35em",
               textTransform: "uppercase",
+              paddingLeft: "0.35em",
             }}
           >
             JN-CALM
@@ -439,17 +511,17 @@ function AffirmationCardPreview({
       )}
 
       {layout === "celestial" && (
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "6px", zIndex: 3 }}>
-          <CelestialMoon color={theme.textColor} size={isHighRes ? 36 : 14} />
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: isHighRes ? "16px" : "6px", zIndex: 3 }}>
+          <CelestialMoon color={accentColor} size={isHighRes ? 36 : 22} />
           <span
             style={{
               fontFamily: "'Inter', sans-serif",
-              fontSize: isHighRes ? "18px" : "8px",
+              fontSize: isHighRes ? "22px" : "9px",
               fontWeight: 700,
-              color: theme.textColor,
-              opacity: 0.6,
-              letterSpacing: "0.2em",
+              color: accentColor,
+              letterSpacing: "0.25em",
               textTransform: "uppercase",
+              paddingLeft: "0.25em",
             }}
           >
             JN-CALM
@@ -478,8 +550,8 @@ function AffirmationCardPreview({
               fontFamily: "'Playfair Display', serif",
               fontSize: quoteFontSize,
               lineHeight: 1,
-              color: theme.textColor,
-              opacity: 0.18,
+              color: cardTextColor,
+              opacity: 0.22,
               marginBottom: quoteMarginBottom,
               userSelect: "none",
             }}
@@ -495,12 +567,13 @@ function AffirmationCardPreview({
             fontFamily: layout === "minimalist" ? "'Inter', sans-serif" : "'Playfair Display', serif",
             fontSize: textFontSize,
             fontWeight: layout === "minimalist" ? 500 : 600,
-            color: theme.textColor,
+            color: cardTextColor,
             lineHeight: textLineHeight,
             textAlign: "center",
-            letterSpacing: layout === "minimalist" ? "0" : "-0.01em",
+            letterSpacing: layout === "minimalist" ? "-0.01em" : "-0.01em",
             margin: 0,
             padding: "0 8%",
+            textShadow: layout === "celestial" ? `0 2px 10px rgba(0,0,0,0.15)` : "none",
           }}
         >
           {text}
@@ -521,7 +594,7 @@ function AffirmationCardPreview({
               style={{
                 width: dividerLine,
                 height: dividerHeight,
-                background: `linear-gradient(90deg, transparent, ${theme.textColor}35)`,
+                background: `linear-gradient(90deg, transparent, ${cardTextColor}35)`,
               }}
             />
             <div
@@ -529,7 +602,7 @@ function AffirmationCardPreview({
                 width: isHighRes ? 8 : 4,
                 height: isHighRes ? 8 : 4,
                 borderRadius: "50%",
-                background: theme.textColor,
+                background: cardTextColor,
                 opacity: 0.5,
               }}
             />
@@ -537,7 +610,7 @@ function AffirmationCardPreview({
               style={{
                 width: dividerLine,
                 height: dividerHeight,
-                background: `linear-gradient(270deg, transparent, ${theme.textColor}35)`,
+                background: `linear-gradient(270deg, transparent, ${cardTextColor}35)`,
               }}
             />
           </div>
@@ -546,10 +619,10 @@ function AffirmationCardPreview({
         {layout === "minimalist" && (
           <div
             style={{
-              width: isHighRes ? "60px" : "20px",
+              width: isHighRes ? "80px" : "28px",
               height: isHighRes ? "2px" : "1px",
-              background: theme.textColor,
-              opacity: 0.35,
+              background: cardTextColor,
+              opacity: 0.25,
             }}
           />
         )}
@@ -568,15 +641,15 @@ function AffirmationCardPreview({
               style={{
                 width: dividerLine,
                 height: dividerHeight,
-                background: `linear-gradient(90deg, transparent, ${theme.textColor}25)`,
+                background: `linear-gradient(90deg, transparent, ${accentColor}25)`,
               }}
             />
-            <CelestialSparkle color={theme.textColor} size={isHighRes ? 24 : 8} style={{ opacity: 0.6 }} />
+            <CelestialSparkle color={accentColor} size={isHighRes ? 24 : 10} style={{ opacity: 0.8, filter: `drop-shadow(0 0 3px ${accentColor})` }} />
             <div
               style={{
                 width: dividerLine,
                 height: dividerHeight,
-                background: `linear-gradient(270deg, transparent, ${theme.textColor}25)`,
+                background: `linear-gradient(270deg, transparent, ${accentColor}25)`,
               }}
             />
           </div>
@@ -593,16 +666,33 @@ function AffirmationCardPreview({
           zIndex: 3,
         }}
       >
-        <img
-          src="/qr-code.png"
-          alt="JN-CALM QR Code"
+        <div
           style={{
-            height: isHighRes ? "180px" : "60px",
-            width: "auto",
-            mixBlendMode: "multiply",
-            borderRadius: isHighRes ? "20px" : "6px",
+            backgroundColor: "white",
+            padding: isHighRes ? "24px" : "8px",
+            borderRadius: isHighRes ? "42px" : "14px",
+            boxShadow: layout === "celestial" 
+              ? "0 12px 36px rgba(0,0,0,0.3), 0 2px 8px rgba(0,0,0,0.2)" 
+              : "0 12px 36px rgba(0,0,0,0.06), 0 2px 8px rgba(0,0,0,0.02)",
+            border: layout === "celestial" 
+              ? `1.5px solid ${accentColor}30` 
+              : `1px solid rgba(0,0,0,0.05)`,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
           }}
-        />
+        >
+          <img
+            src="/qr-code.png"
+            alt="JN-CALM QR Code"
+            style={{
+              height: isHighRes ? "340px" : "105px",
+              width: "auto",
+              mixBlendMode: "normal",
+              display: "block",
+            }}
+          />
+        </div>
       </div>
     </div>
   );
