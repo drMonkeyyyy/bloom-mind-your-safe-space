@@ -65,6 +65,7 @@ interface PreviewProps {
   layout?: "journal" | "botanical" | "aesthetic" | "landscape" | "midnight" | "meadow";
   logoSrc?: string;
   qrSrc?: string;
+  bgSrc?: string;
 }
 
 export function AffirmationCardPreview({
@@ -74,45 +75,64 @@ export function AffirmationCardPreview({
   layout = "journal",
   logoSrc,
   qrSrc,
+  bgSrc,
 }: PreviewProps) {
   const scale = isHighRes ? 3.375 : 1;
   
-  // Mapping layout to grid positions for the 3x2 sprite sheet (canva-layouts-grid.jpg)
-  const getBackgroundPosition = () => {
+  // Mapping layout to pixel offset coordinates for the 3x2 grid image (canva-layouts-grid.jpg)
+  // Instead of using CSS background-image (which breaks html-to-image), we use an absolute <img> tag shifted inside a clip container.
+  const getBackgroundOffsets = () => {
     switch (layout) {
-      case "journal": return "0% 0%";
-      case "botanical": return "50% 0%";
-      case "aesthetic": return "100% 0%";
-      case "landscape": return "0% 100%";
-      case "midnight": return "50% 100%";
-      case "meadow": return "100% 100%";
-      default: return "0% 0%";
+      case "journal":
+        return { left: "0%", top: "0%" };
+      case "botanical":
+        return { left: "-100%", top: "0%" };
+      case "aesthetic":
+        return { left: "-200%", top: "0%" };
+      case "landscape":
+        return { left: "0%", top: "-100%" };
+      case "midnight":
+        return { left: "-100%", top: "-100%" };
+      case "meadow":
+        return { left: "-200%", top: "-100%" };
+      default:
+        return { left: "0%", top: "0%" };
     }
   };
 
-  // Layout specific coordinates to perfectly align the text in the blank spaces and the QR code over the dummy
   const getLayoutConfig = () => {
     switch (layout) {
       case "journal":
-        return { textTop: "30%", textHeight: "44%", qrBottom: "6%", qrRight: "6%", textLeft: "14%", textWidth: "72%" };
+        return { textTop: "33%", textHeight: "42%", textLeft: "14%", textWidth: "72%" };
       case "botanical":
-        // Adjusted to fit the blank space and perfectly hide the dummy QR
-        return { textTop: "27%", textHeight: "44%", qrBottom: "11%", qrRight: "14%", textLeft: "12%", textWidth: "76%" };
+        return { textTop: "30%", textHeight: "42%", textLeft: "14%", textWidth: "72%" };
       case "aesthetic":
-        return { textTop: "28%", textHeight: "48%", qrBottom: "6%", qrRight: "6%", textLeft: "14%", textWidth: "72%" };
+        return { textTop: "31%", textHeight: "42%", textLeft: "14%", textWidth: "72%" };
       case "landscape":
-        return { textTop: "32%", textHeight: "44%", qrBottom: "6%", qrRight: "6%", textLeft: "14%", textWidth: "72%" };
+        return { textTop: "33%", textHeight: "40%", textLeft: "14%", textWidth: "72%" };
       case "midnight":
-        return { textTop: "32%", textHeight: "44%", qrBottom: "6%", qrRight: "6%", textLeft: "14%", textWidth: "72%" };
+        return { textTop: "33%", textHeight: "40%", textLeft: "14%", textWidth: "72%" };
       case "meadow":
-        return { textTop: "30%", textHeight: "44%", qrBottom: "6%", qrRight: "6%", textLeft: "14%", textWidth: "72%" };
+        return { textTop: "31%", textHeight: "42%", textLeft: "14%", textWidth: "72%" };
       default:
-        return { textTop: "30%", textHeight: "44%", qrBottom: "6%", qrRight: "6%", textLeft: "14%", textWidth: "72%" };
+        return { textTop: "33%", textHeight: "42%", textLeft: "14%", textWidth: "72%" };
     }
   };
 
-  const bgImageUrl = getAbsoluteUrl("/canva-layouts-grid.jpg");
+  const bgImageUrl = bgSrc || getAbsoluteUrl("/canva-layouts-grid.jpg");
+  const offsets = getBackgroundOffsets();
   const config = getLayoutConfig();
+
+  // Dynamic font sizing based on length of text to prevent any overlap
+  const getDynamicFontSize = (str: string) => {
+    const len = str.length;
+    if (len > 120) return 9.5; // Very small font for long paragraphs
+    if (len > 90) return 11;
+    if (len > 60) return 13;
+    return 15;
+  };
+
+  const fontSize = getDynamicFontSize(text);
 
   return (
     <div
@@ -122,12 +142,24 @@ export function AffirmationCardPreview({
         aspectRatio: "1 / 1",
         position: "relative",
         overflow: "hidden",
-        backgroundImage: `url(${bgImageUrl})`,
-        backgroundSize: "300% 200%",
-        backgroundPosition: getBackgroundPosition(),
         backgroundColor: "#FFF",
       }}
     >
+      {/* Absolute Image Tag Sprite Sheet (Flawless html-to-image render) */}
+      <img
+        src={bgImageUrl}
+        alt="Background Template"
+        style={{
+          position: "absolute",
+          width: "300%",
+          height: "200%",
+          left: offsets.left,
+          top: offsets.top,
+          objectFit: "fill",
+          zIndex: 1,
+        }}
+      />
+
       {/* Dynamic Font Loading */}
       <style>
         {`
@@ -135,7 +167,7 @@ export function AffirmationCardPreview({
         `}
       </style>
 
-      {/* Overlay for dynamic text (NO WHITE BOX, pure text directly on the blank Canva template) */}
+      {/* Transparent Text Overlay (NO WHITE BOX to preserve original Canva layouts) */}
       <div
         style={{
           position: "absolute",
@@ -154,11 +186,11 @@ export function AffirmationCardPreview({
         <p
           style={{
             fontFamily: "'Playfair Display', Georgia, serif",
-            fontSize: 16 * scale,
+            fontSize: fontSize * scale,
             fontWeight: 600,
             color: "#2D3748",
             margin: 0,
-            lineHeight: 1.5,
+            lineHeight: 1.45,
             letterSpacing: "0.01em",
             padding: `0 ${8 * scale}px`,
           }}
@@ -169,8 +201,8 @@ export function AffirmationCardPreview({
           style={{
             fontSize: 14 * scale,
             color: "rgba(0,0,0,0.3)",
-            marginTop: 10 * scale,
-            marginBottom: 6 * scale,
+            marginTop: 8 * scale,
+            marginBottom: 4 * scale,
           }}
         >
           ♡
@@ -188,22 +220,22 @@ export function AffirmationCardPreview({
         </p>
       </div>
 
-      {/* Overlay to inject the dynamic QR Code */}
+      {/* Overlay to inject the dynamic QR Code exactly over the dummy Canva QR */}
       <div
         style={{
           position: "absolute",
-          bottom: config.qrBottom,
-          right: config.qrRight,
-          width: "18%",
-          height: "18%",
+          bottom: "5.5%",
+          right: "5.5%",
+          width: "17%",
+          height: "17%",
           backgroundColor: "#FFFFFF",
-          borderRadius: 8 * scale,
+          borderRadius: 6 * scale,
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
           zIndex: 10,
-          boxShadow: `0 0 ${8 * scale}px ${4 * scale}px #FFFFFF`,
-          padding: 4 * scale,
+          boxShadow: `0 0 ${4 * scale}px ${2 * scale}px #FFFFFF`,
+          padding: 3 * scale,
         }}
       >
         {qrSrc ? (
@@ -246,6 +278,7 @@ export function ShareAffirmationModal({ open, onClose, affirmation }: ShareModal
   const [downloading, setDownloading] = useState(false);
   const [logoBase64, setLogoBase64] = useState<string>("");
   const [qrBase64, setQrBase64] = useState<string>("");
+  const [bgBase64, setBgBase64] = useState<string>("");
   const exportRef = useRef<HTMLDivElement>(null);
   const theme = CARD_THEMES[selectedTheme];
 
@@ -269,6 +302,7 @@ export function ShareAffirmationModal({ open, onClose, affirmation }: ShareModal
 
     convertToBase64("/logo.png", setLogoBase64);
     convertToBase64("/qr-code.png", setQrBase64);
+    convertToBase64("/canva-layouts-grid.jpg", setBgBase64);
 
     return () => {
       isMounted = false;
@@ -382,6 +416,7 @@ export function ShareAffirmationModal({ open, onClose, affirmation }: ShareModal
             layout={selectedLayout}
             logoSrc={logoBase64}
             qrSrc={qrBase64}
+            bgSrc={bgBase64}
           />
         </div>
       </div>
@@ -423,7 +458,7 @@ export function ShareAffirmationModal({ open, onClose, affirmation }: ShareModal
             className="w-full max-w-[200px] mx-auto"
             style={{ animation: "scale-in 0.4s cubic-bezier(0.16, 1, 0.3, 1) both" }}
           >
-            <AffirmationCardPreview text={affirmation} theme={theme} layout={selectedLayout} logoSrc={logoBase64} qrSrc={qrBase64} />
+            <AffirmationCardPreview text={affirmation} theme={theme} layout={selectedLayout} logoSrc={logoBase64} qrSrc={qrBase64} bgSrc={bgBase64} />
           </div>
 
           {/* Selector section */}
