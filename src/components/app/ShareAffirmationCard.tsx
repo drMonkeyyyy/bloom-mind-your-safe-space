@@ -118,16 +118,18 @@ export function AffirmationCardPreview({
         style={{
           position: "absolute",
           top: "33%",
-          left: "14%",
-          width: "72%",
-          height: "40%",
+          left: "12%",
+          width: "76%",
+          minHeight: "35%",
+          paddingTop: `${16 * scale}px`,
+          paddingBottom: `${16 * scale}px`,
           backgroundColor: "#FFFFFF",
           // Feather edges to blend seamlessly into the image's white card
-          boxShadow: `0 0 ${14 * scale}px ${10 * scale}px #FFFFFF`,
+          boxShadow: `0 0 ${16 * scale}px ${16 * scale}px #FFFFFF`,
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
-          justifyContent: "center",
+          justifyContent: "flex-start",
           textAlign: "center",
           zIndex: 10,
         }}
@@ -173,17 +175,18 @@ export function AffirmationCardPreview({
       <div
         style={{
           position: "absolute",
-          bottom: "6%",
-          right: "6%",
-          width: "16%",
-          height: "16%",
+          bottom: "9%",
+          right: "12%",
+          width: "18%",
+          height: "18%",
           backgroundColor: "#FFFFFF",
-          borderRadius: 6 * scale,
+          borderRadius: 8 * scale,
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
           zIndex: 10,
-          boxShadow: `0 0 ${6 * scale}px ${3 * scale}px #FFFFFF`,
+          boxShadow: `0 0 ${12 * scale}px ${8 * scale}px #FFFFFF`,
+          padding: 4 * scale,
         }}
       >
         {qrSrc ? (
