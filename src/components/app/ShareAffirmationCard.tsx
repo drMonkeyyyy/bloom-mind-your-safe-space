@@ -194,41 +194,8 @@ const getAbsoluteUrl = (path: string) => {
   return `${window.location.origin}${path}`;
 };
 
-/* ── Delicate Sparkle SVG for Celestial theme ─────────────────── */
-function CelestialSparkle({ color, size = 18, style = {} }: { color: string; size?: number; style?: React.CSSProperties }) {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="currentColor"
-      width={size}
-      height={size}
-      style={style}
-      aria-hidden="true"
-    >
-      <path d="M12 3a9 9 0 0 0 9 9 9 9 0 0 0-9 9 9 9 0 0 0-9-9 9 9 0 0 0 9-9z" />
-    </svg>
-  );
-}
-
-/* ── Crescent Moon SVG for Celestial theme ────────────────────── */
-function CelestialMoon({ color, size = 20 }: { color: string; size?: number }) {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="currentColor"
-      width={size}
-      height={size}
-      style={{ filter: "drop-shadow(0 0 5px currentColor)" }}
-      aria-hidden="true"
-    >
-      <path d="M12 3a9 9 0 1 0 9 9 7 7 0 1 1-9-9z" />
-      <path d="M15 8.5a1.5 1.5 0 0 0 1.5-1.5 1.5 1.5 0 0 0-1.5-1.5 1.5 1.5 0 0 0-1.5 1.5 1.5 1.5 0 0 0 1.5 1.5z" transform="scale(0.8) translate(5, 2)" />
-    </svg>
-  );
-}
-
-/* ── Zen Flower SVG for Minimalist theme ──────────────────────── */
-function ZenLotus({ color, size = 20 }: { color: string; size?: number }) {
+/* ── Cozy Journal Heart Doodle ───────────────────────────────── */
+function JournalHeart({ color, size = 20, style = {} }: { color: string; size?: number; style?: React.CSSProperties }) {
   return (
     <svg
       viewBox="0 0 24 24"
@@ -237,13 +204,34 @@ function ZenLotus({ color, size = 20 }: { color: string; size?: number }) {
       strokeWidth="1.5"
       width={size}
       height={size}
-      strokeLinecap="round"
-      strokeLinejoin="round"
+      style={style}
       aria-hidden="true"
     >
-      <path d="M12 3c1 3.5 3 5 5.5 5.5-2.5.5-4.5 2-5.5 5.5-1-3.5-3-5-5.5-5.5 2.5-.5 4.5-2 5.5-5.5z" />
-      <path d="M12 9c.5 1.5 1.5 2 2.5 2.2-1 .2-2 .7-2.5 2.2-.5-1.5-1.5-2-2.5-2.2 1-.2 2-.7 2.5-2.2z" fill={color} opacity="0.3" stroke="none" />
-      <circle cx="12" cy="9" r="1.5" fill={color} />
+      <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" strokeDasharray="2,2" />
+    </svg>
+  );
+}
+
+/* ── Retro Daisy Flower for Vintage style ─────────────────────── */
+function RetroDaisy({ color, size = 32, style = {} }: { color: string; size?: number; style?: React.CSSProperties }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      width={size}
+      height={size}
+      style={style}
+      aria-hidden="true"
+    >
+      <circle cx="12" cy="6" r="3.2" fill="#FFFFFF" />
+      <circle cx="12" cy="18" r="3.2" fill="#FFFFFF" />
+      <circle cx="6" cy="12" r="3.2" fill="#FFFFFF" />
+      <circle cx="18" cy="12" r="3.2" fill="#FFFFFF" />
+      <circle cx="7.8" cy="7.8" r="3.2" fill="#FFFFFF" />
+      <circle cx="16.2" cy="16.2" r="3.2" fill="#FFFFFF" />
+      <circle cx="7.8" cy="16.2" r="3.2" fill="#FFFFFF" />
+      <circle cx="16.2" cy="7.8" r="3.2" fill="#FFFFFF" />
+      <circle cx="12" cy="12" r="3.5" fill={color} />
     </svg>
   );
 }
@@ -286,7 +274,7 @@ interface AffirmationCardPreviewProps {
   theme: typeof CARD_THEMES[0];
   style?: React.CSSProperties;
   isHighRes?: boolean;
-  layout?: "botanical" | "minimalist" | "celestial";
+  layout?: "botanical" | "journal" | "retro";
   logoSrc?: string;
   qrSrc?: string;
 }
@@ -305,28 +293,28 @@ function AffirmationCardPreview({
   let cardTextColor = theme.textColor;
   let accentColor = theme.accentColor;
   
-  if (layout === "minimalist") {
+  if (layout === "journal") {
     const baseColor = theme.bg.match(/oklch\([^)]+\)/)?.[0] || "oklch(0.96 0.02 160)";
-    cardBg = `radial-gradient(circle at center, rgba(255, 255, 255, 0.98) 0%, ${baseColor} 100%)`;
-    cardTextColor = theme.textColor;
+    cardBg = `linear-gradient(180deg, #FAF8F5 0%, ${baseColor} 100%)`;
+    cardTextColor = "oklch(0.26 0.03 70)";
     accentColor = theme.accentColor;
-  } else if (layout === "celestial") {
+  } else if (layout === "retro") {
     if (theme.id === "sage") {
-      cardBg = "linear-gradient(145deg, oklch(0.22 0.03 165) 0%, oklch(0.11 0.02 160) 100%)";
-      cardTextColor = "oklch(0.93 0.03 165)";
-      accentColor = "oklch(0.85 0.12 85)";
+      cardBg = "linear-gradient(135deg, oklch(0.90 0.05 140) 0%, oklch(0.83 0.07 120) 100%)";
+      cardTextColor = "oklch(0.25 0.05 120)";
+      accentColor = "oklch(0.45 0.08 120)";
     } else if (theme.id === "peach") {
-      cardBg = "linear-gradient(145deg, oklch(0.24 0.04 40) 0%, oklch(0.12 0.02 35) 100%)";
-      cardTextColor = "oklch(0.94 0.03 45)";
-      accentColor = "oklch(0.85 0.12 85)";
+      cardBg = "linear-gradient(135deg, oklch(0.89 0.10 50) 0%, oklch(0.81 0.12 35) 100%)";
+      cardTextColor = "oklch(0.30 0.08 30)";
+      accentColor = "oklch(0.50 0.12 35)";
     } else if (theme.id === "lavender") {
-      cardBg = "linear-gradient(145deg, oklch(0.22 0.04 285) 0%, oklch(0.11 0.02 280) 100%)";
-      cardTextColor = "oklch(0.93 0.02 285)";
-      accentColor = "oklch(0.85 0.12 85)";
+      cardBg = "linear-gradient(135deg, oklch(0.89 0.06 320) 0%, oklch(0.81 0.08 300) 100%)";
+      cardTextColor = "oklch(0.28 0.06 300)";
+      accentColor = "oklch(0.48 0.08 300)";
     } else {
-      cardBg = "linear-gradient(145deg, oklch(0.20 0.03 200) 0%, oklch(0.10 0.02 195) 100%)";
-      cardTextColor = "oklch(0.92 0.02 195)";
-      accentColor = "oklch(0.85 0.12 85)";
+      cardBg = "linear-gradient(135deg, oklch(0.87 0.06 220) 0%, oklch(0.77 0.10 180) 100%)";
+      cardTextColor = "oklch(0.22 0.06 180)";
+      accentColor = "oklch(0.42 0.08 180)";
     }
   }
 
@@ -365,6 +353,12 @@ function AffirmationCardPreview({
         ...style,
       }}
     >
+      {/* Dynamic Font Sheet for Canva templates */}
+      <link 
+        rel="stylesheet" 
+        href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Fredoka:wght@500;600&family=Playfair+Display:ital,wght@0,600;1,500&display=swap" 
+      />
+
       {/* Background Blobs (only for botanical) */}
       {layout === "botanical" && (
         <>
@@ -395,15 +389,38 @@ function AffirmationCardPreview({
         </>
       )}
 
-      {/* Background Stars/Sparkles (only for celestial) */}
-      {layout === "celestial" && (
-        <div style={{ position: "absolute", inset: 0, opacity: 0.35, pointerEvents: "none" }}>
-          <CelestialSparkle color={accentColor} size={isHighRes ? 48 : 16} style={{ position: "absolute", top: "15%", left: "20%", filter: `drop-shadow(0 0 6px ${accentColor}70)` }} />
-          <CelestialSparkle color={accentColor} size={isHighRes ? 36 : 12} style={{ position: "absolute", top: "28%", right: "15%", filter: `drop-shadow(0 0 4px ${accentColor}50)` }} />
-          <CelestialSparkle color={accentColor} size={isHighRes ? 42 : 14} style={{ position: "absolute", top: "45%", left: "10%", filter: `drop-shadow(0 0 5px ${accentColor}60)` }} />
-          <CelestialSparkle color={accentColor} size={isHighRes ? 30 : 10} style={{ position: "absolute", top: "60%", right: "20%", filter: `drop-shadow(0 0 4px ${accentColor}50)` }} />
-          <CelestialSparkle color={accentColor} size={isHighRes ? 48 : 16} style={{ position: "absolute", bottom: "22%", left: "25%", filter: `drop-shadow(0 0 6px ${accentColor}70)` }} />
-        </div>
+      {/* Notebook lined paper grid (only for cozy journal) */}
+      {layout === "journal" && (
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            opacity: 0.05,
+            pointerEvents: "none",
+            backgroundImage: `linear-gradient(${cardTextColor} 1px, transparent 1px)`,
+            backgroundSize: `100% ${isHighRes ? "64px" : "22px"}`,
+          }}
+        />
+      )}
+
+      {/* Cozy Washi Tape at the top (only for cozy journal) */}
+      {layout === "journal" && (
+        <div
+          style={{
+            position: "absolute",
+            top: isHighRes ? "75px" : "24px",
+            width: isHighRes ? "240px" : "75px",
+            height: isHighRes ? "60px" : "20px",
+            background: "rgba(255, 255, 255, 0.7)",
+            borderLeft: "1px dashed rgba(0,0,0,0.12)",
+            borderRight: "1px dashed rgba(0,0,0,0.12)",
+            transform: "rotate(-2deg)",
+            boxShadow: "0 2px 6px rgba(0,0,0,0.02)",
+            backdropFilter: "blur(2px)",
+            WebkitBackdropFilter: "blur(2px)",
+            zIndex: 4,
+          }}
+        />
       )}
 
       {/* Decorative Botanical Branches (only for botanical) */}
@@ -436,34 +453,67 @@ function AffirmationCardPreview({
         </>
       )}
 
-      {/* Celestial corner frames (only for celestial) */}
-      {layout === "celestial" && (
-        <div
-          style={{
-            position: "absolute",
-            inset: isHighRes ? "45px" : "15px",
-            border: `1px solid ${accentColor}28`,
-            borderRadius: isHighRes ? "36px" : "14px",
-            pointerEvents: "none",
-            boxShadow: `inset 0 0 16px ${accentColor}05`,
-          }}
-        >
-          {/* Constellation corner markers */}
-          <div style={{ position: "absolute", top: "-5px", left: "-5px", width: "10px", height: "10px", borderRadius: "50%", background: accentColor, border: `2px solid ${cardBg}` }} />
-          <div style={{ position: "absolute", top: "-5px", right: "-5px", width: "10px", height: "10px", borderRadius: "50%", background: accentColor, border: `2px solid ${cardBg}` }} />
-          <div style={{ position: "absolute", bottom: "-5px", left: "-5px", width: "10px", height: "10px", borderRadius: "50%", background: accentColor, border: `2px solid ${cardBg}` }} />
-          <div style={{ position: "absolute", bottom: "-5px", right: "-5px", width: "10px", height: "10px", borderRadius: "50%", background: accentColor, border: `2px solid ${cardBg}` }} />
-        </div>
+      {/* Vintage Daisy Flowers (only for retro groovy) */}
+      {layout === "retro" && (
+        <>
+          <div
+            style={{
+              position: "absolute",
+              top: isHighRes ? "80px" : "24px",
+              left: isHighRes ? "80px" : "24px",
+            }}
+          >
+            <RetroDaisy color={accentColor} size={isHighRes ? 110 : 36} />
+          </div>
+          <div
+            style={{
+              position: "absolute",
+              bottom: isHighRes ? "80px" : "24px",
+              right: isHighRes ? "80px" : "24px",
+            }}
+          >
+            <RetroDaisy color={accentColor} size={isHighRes ? 110 : 36} />
+          </div>
+        </>
       )}
 
-      {/* Minimalist Inset Frame (only for minimalist) */}
-      {layout === "minimalist" && (
+      {/* Scrapbook Heart Doodles (only for cozy journal) */}
+      {layout === "journal" && (
+        <>
+          <JournalHeart
+            color={cardTextColor}
+            size={isHighRes ? 56 : 18}
+            style={{ position: "absolute", top: "15%", left: "15%", opacity: 0.2 }}
+          />
+          <JournalHeart
+            color={cardTextColor}
+            size={isHighRes ? 48 : 16}
+            style={{ position: "absolute", bottom: "20%", right: "15%", opacity: 0.2, transform: "rotate(15deg)" }}
+          />
+        </>
+      )}
+
+      {/* Retro Groovy Inset Wavy Frame (only for retro groovy) */}
+      {layout === "retro" && (
         <div
           style={{
             position: "absolute",
-            inset: isHighRes ? "40px" : "14px",
-            border: `1.5px solid ${cardTextColor}12`,
-            borderRadius: isHighRes ? "32px" : "12px",
+            inset: isHighRes ? "45px" : "14px",
+            border: `2px dashed ${cardTextColor}25`,
+            borderRadius: isHighRes ? "48px" : "18px",
+            pointerEvents: "none",
+          }}
+        />
+      )}
+
+      {/* Cozy Journal Scrapbook Frame (only for cozy journal) */}
+      {layout === "journal" && (
+        <div
+          style={{
+            position: "absolute",
+            inset: isHighRes ? "45px" : "14px",
+            border: `1.5px solid ${cardTextColor}15`,
+            borderRadius: isHighRes ? "36px" : "14px",
             pointerEvents: "none",
           }}
         />
@@ -502,35 +552,31 @@ function AffirmationCardPreview({
         </div>
       )}
 
-      {layout === "minimalist" && (
+      {layout === "journal" && (
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: isHighRes ? "16px" : "6px", zIndex: 3 }}>
-          <CardBrandLogo size={24} isHighRes={isHighRes} src={logoSrc} />
           <span
             style={{
-              fontFamily: "'Inter', sans-serif",
-              fontSize: isHighRes ? "22px" : "9px",
-              fontWeight: 600,
+              fontFamily: "'Caveat', cursive",
+              fontSize: isHighRes ? "48px" : "17px",
+              fontWeight: 700,
               color: cardTextColor,
-              opacity: 0.8,
-              letterSpacing: "0.35em",
-              textTransform: "uppercase",
-              paddingLeft: "0.35em",
+              opacity: 0.85,
             }}
           >
-            JN-CALM
+            Daily Calm
           </span>
         </div>
       )}
 
-      {layout === "celestial" && (
+      {layout === "retro" && (
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: isHighRes ? "16px" : "6px", zIndex: 3 }}>
-          <CelestialMoon color={accentColor} size={isHighRes ? 36 : 22} />
+          <CardBrandLogo size={22} isHighRes={isHighRes} src={logoSrc} />
           <span
             style={{
-              fontFamily: "'Inter', sans-serif",
+              fontFamily: "'Fredoka', sans-serif",
               fontSize: isHighRes ? "22px" : "9px",
-              fontWeight: 700,
-              color: accentColor,
+              fontWeight: 600,
+              color: cardTextColor,
               letterSpacing: "0.25em",
               textTransform: "uppercase",
               paddingLeft: "0.25em",
@@ -576,16 +622,28 @@ function AffirmationCardPreview({
         {/* Body quote text */}
         <p
           style={{
-            fontFamily: layout === "minimalist" ? "'Inter', sans-serif" : "'Playfair Display', serif",
-            fontSize: textFontSize,
-            fontWeight: layout === "minimalist" ? 500 : 600,
+            fontFamily: 
+              layout === "journal" 
+                ? "'Caveat', cursive" 
+                : layout === "retro"
+                  ? "'Fredoka', sans-serif"
+                  : "'Playfair Display', serif",
+            fontSize: 
+              layout === "journal"
+                ? (isHighRes ? "76px" : "25px")
+                : textFontSize,
+            fontWeight: 
+              layout === "journal" 
+                ? 700 
+                : layout === "retro"
+                  ? 600
+                  : 600,
             color: cardTextColor,
             lineHeight: textLineHeight,
             textAlign: "center",
-            letterSpacing: layout === "minimalist" ? "-0.01em" : "-0.01em",
+            letterSpacing: layout === "retro" ? "-0.01em" : "0",
             margin: 0,
             padding: "0 8%",
-            textShadow: layout === "celestial" ? `0 2px 10px rgba(0,0,0,0.15)` : "none",
           }}
         >
           {text}
@@ -628,18 +686,20 @@ function AffirmationCardPreview({
           </div>
         )}
 
-        {layout === "minimalist" && (
+        {layout === "journal" && (
           <div
             style={{
-              width: isHighRes ? "80px" : "28px",
-              height: isHighRes ? "2px" : "1px",
-              background: cardTextColor,
-              opacity: 0.25,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: dividerGap,
             }}
-          />
+          >
+            <JournalHeart color={cardTextColor} size={isHighRes ? 24 : 8} style={{ opacity: 0.3 }} />
+          </div>
         )}
 
-        {layout === "celestial" && (
+        {layout === "retro" && (
           <div
             style={{
               display: "flex",
@@ -653,15 +713,23 @@ function AffirmationCardPreview({
               style={{
                 width: dividerLine,
                 height: dividerHeight,
-                background: `linear-gradient(90deg, transparent, ${accentColor}25)`,
+                background: `linear-gradient(90deg, transparent, ${cardTextColor}35)`,
               }}
             />
-            <CelestialSparkle color={accentColor} size={isHighRes ? 24 : 10} style={{ opacity: 0.8, filter: `drop-shadow(0 0 3px ${accentColor})` }} />
+            <div
+              style={{
+                width: isHighRes ? 12 : 5,
+                height: isHighRes ? 12 : 5,
+                borderRadius: "50%",
+                background: cardTextColor,
+                opacity: 0.6,
+              }}
+            />
             <div
               style={{
                 width: dividerLine,
                 height: dividerHeight,
-                background: `linear-gradient(270deg, transparent, ${accentColor}25)`,
+                background: `linear-gradient(270deg, transparent, ${cardTextColor}35)`,
               }}
             />
           </div>
@@ -683,12 +751,8 @@ function AffirmationCardPreview({
             backgroundColor: "white",
             padding: isHighRes ? "24px" : "8px",
             borderRadius: isHighRes ? "42px" : "14px",
-            boxShadow: layout === "celestial" 
-              ? "0 12px 36px rgba(0,0,0,0.3), 0 2px 8px rgba(0,0,0,0.2)" 
-              : "0 12px 36px rgba(0,0,0,0.06), 0 2px 8px rgba(0,0,0,0.02)",
-            border: layout === "celestial" 
-              ? `1.5px solid ${accentColor}30` 
-              : `1px solid rgba(0,0,0,0.05)`,
+            boxShadow: isHighRes ? "none" : "0 6px 20px rgba(0,0,0,0.04)",
+            border: `1px solid rgba(0,0,0,0.05)`,
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
@@ -719,7 +783,7 @@ interface ShareModalProps {
 
 export function ShareAffirmationModal({ open, onClose, affirmation }: ShareModalProps) {
   const [selectedTheme, setSelectedTheme] = useState(0);
-  const [selectedLayout, setSelectedLayout] = useState<"botanical" | "minimalist" | "celestial">("botanical");
+  const [selectedLayout, setSelectedLayout] = useState<"botanical" | "journal" | "retro">("botanical");
   const [sharing, setSharing] = useState(false);
   const [downloading, setDownloading] = useState(false);
   const [logoBase64, setLogoBase64] = useState<string>("");
@@ -914,7 +978,7 @@ export function ShareAffirmationModal({ open, onClose, affirmation }: ShareModal
                 Gaya Desain
               </p>
               <div className="flex bg-cream-deep/60 p-1.5 rounded-2xl gap-1">
-                {(["botanical", "minimalist", "celestial"] as const).map((lay) => (
+                {(["botanical", "journal", "retro"] as const).map((lay) => (
                   <button
                     key={lay}
                     onClick={() => setSelectedLayout(lay)}
@@ -924,7 +988,7 @@ export function ShareAffirmationModal({ open, onClose, affirmation }: ShareModal
                         : "text-muted-foreground hover:text-foreground"
                     }`}
                   >
-                    {lay === "botanical" ? "Botanical" : lay === "minimalist" ? "Minimal" : "Celestial"}
+                    {lay === "botanical" ? "Botanical" : lay === "journal" ? "Cozy Journal" : "Retro Groovy"}
                   </button>
                 ))}
               </div>
