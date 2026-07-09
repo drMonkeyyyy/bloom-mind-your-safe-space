@@ -90,29 +90,7 @@ export function AffirmationCardPreview({
     }
   };
 
-  // Layout specific coordinates to perfectly cover dummy text and dummy QR codes
-  const getLayoutConfig = () => {
-    switch (layout) {
-      case "journal":
-        return { textTop: "33%", qrBottom: "6%", qrRight: "6%", textLeft: "14%", textWidth: "72%" };
-      case "botanical":
-        // Adjusted from screenshot to perfectly hide the dummy QR and start text below the title
-        return { textTop: "29%", qrBottom: "11%", qrRight: "14%", textLeft: "12%", textWidth: "76%" };
-      case "aesthetic":
-        return { textTop: "33%", qrBottom: "6%", qrRight: "6%", textLeft: "14%", textWidth: "72%" };
-      case "landscape":
-        return { textTop: "33%", qrBottom: "6%", qrRight: "6%", textLeft: "14%", textWidth: "72%" };
-      case "midnight":
-        return { textTop: "33%", qrBottom: "6%", qrRight: "6%", textLeft: "14%", textWidth: "72%" };
-      case "meadow":
-        return { textTop: "33%", qrBottom: "6%", qrRight: "6%", textLeft: "14%", textWidth: "72%" };
-      default:
-        return { textTop: "33%", qrBottom: "6%", qrRight: "6%", textLeft: "14%", textWidth: "72%" };
-    }
-  };
-
   const bgImageUrl = getAbsoluteUrl("/canva-layouts-grid.jpg");
-  const config = getLayoutConfig();
 
   return (
     <div
@@ -139,19 +117,17 @@ export function AffirmationCardPreview({
       <div
         style={{
           position: "absolute",
-          top: config.textTop,
-          left: config.textLeft,
-          width: config.textWidth,
-          // Using padding instead of fixed height so long text grows downwards without overlapping the title above
-          paddingTop: `${20 * scale}px`,
-          paddingBottom: `${24 * scale}px`,
+          top: "33%",
+          left: "14%",
+          width: "72%",
+          height: "40%",
           backgroundColor: "#FFFFFF",
-          // Heavy feathered edges to blend seamlessly into the image's white card and hide dummy text
-          boxShadow: `0 0 ${18 * scale}px ${18 * scale}px #FFFFFF`,
+          // Feather edges to blend seamlessly into the image's white card
+          boxShadow: `0 0 ${14 * scale}px ${10 * scale}px #FFFFFF`,
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
-          justifyContent: "flex-start",
+          justifyContent: "center",
           textAlign: "center",
           zIndex: 10,
         }}
@@ -197,18 +173,17 @@ export function AffirmationCardPreview({
       <div
         style={{
           position: "absolute",
-          bottom: config.qrBottom,
-          right: config.qrRight,
-          width: "18%",
-          height: "18%",
+          bottom: "6%",
+          right: "6%",
+          width: "16%",
+          height: "16%",
           backgroundColor: "#FFFFFF",
-          borderRadius: 8 * scale,
+          borderRadius: 6 * scale,
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
           zIndex: 10,
-          boxShadow: `0 0 ${8 * scale}px ${4 * scale}px #FFFFFF`,
-          padding: 4 * scale,
+          boxShadow: `0 0 ${6 * scale}px ${3 * scale}px #FFFFFF`,
         }}
       >
         {qrSrc ? (
@@ -216,8 +191,8 @@ export function AffirmationCardPreview({
             src={qrSrc}
             alt="JN-CALM QR Code"
             style={{
-              width: "100%",
-              height: "100%",
+              width: "88%",
+              height: "88%",
               objectFit: "contain",
             }}
           />
@@ -226,8 +201,8 @@ export function AffirmationCardPreview({
             src={getAbsoluteUrl("/qr-code.png")}
             alt="JN-CALM QR Code"
             style={{
-              width: "100%",
-              height: "100%",
+              width: "88%",
+              height: "88%",
               objectFit: "contain",
             }}
           />
