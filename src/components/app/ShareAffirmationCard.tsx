@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { toast } from "sonner";
 import * as htmlToImage from "html-to-image";
@@ -187,6 +187,13 @@ function PremiumQRCode({ color, size = 32 }: { color: string; size?: number }) {
   );
 }
 
+/* ── Helper to resolve absolute URLs for html-to-image compatibility ── */
+const getAbsoluteUrl = (path: string) => {
+  if (typeof window === "undefined") return path;
+  if (path.startsWith("http://") || path.startsWith("https://")) return path;
+  return `${window.location.origin}${path}`;
+};
+
 /* ── Delicate Sparkle SVG for Celestial theme ─────────────────── */
 function CelestialSparkle({ color, size = 18, style = {} }: { color: string; size?: number; style?: React.CSSProperties }) {
   return (
@@ -242,9 +249,10 @@ function ZenLotus({ color, size = 20 }: { color: string; size?: number }) {
 }
 
 /* ── App Brand Logo Image Container ───────────────────────────── */
-function CardBrandLogo({ size = 20, isHighRes = false }: { size?: number; isHighRes?: boolean }) {
+function CardBrandLogo({ size = 20, isHighRes = false, src }: { size?: number; isHighRes?: boolean; src?: string }) {
   const containerSize = isHighRes ? size * 3.5 : size;
   const radius = isHighRes ? "18px" : "6px";
+  const imageSrc = src || getAbsoluteUrl("/logo.png");
   return (
     <div
       style={{
@@ -260,7 +268,7 @@ function CardBrandLogo({ size = 20, isHighRes = false }: { size?: number; isHigh
       }}
     >
       <img
-        src="/logo.png"
+        src={imageSrc}
         alt="JN-CALM Logo"
         style={{
           width: "100%",
@@ -279,6 +287,8 @@ interface AffirmationCardPreviewProps {
   style?: React.CSSProperties;
   isHighRes?: boolean;
   layout?: "botanical" | "minimalist" | "celestial";
+  logoSrc?: string;
+  qrSrc?: string;
 }
 
 function AffirmationCardPreview({
@@ -287,6 +297,8 @@ function AffirmationCardPreview({
   style = {},
   isHighRes = false,
   layout = "botanical",
+  logoSrc,
+  qrSrc,
 }: AffirmationCardPreviewProps) {
   // Dynamic layout colors and backgrounds
   let cardBg = theme.bg;
@@ -474,7 +486,7 @@ function AffirmationCardPreview({
             zIndex: 3,
           }}
         >
-          <CardBrandLogo size={20} isHighRes={isHighRes} />
+          <CardBrandLogo size={20} isHighRes={isHighRes} src={logoSrc} />
           <span
             style={{
               fontFamily: "'Inter', sans-serif",
@@ -492,7 +504,7 @@ function AffirmationCardPreview({
 
       {layout === "minimalist" && (
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: isHighRes ? "16px" : "6px", zIndex: 3 }}>
-          <CardBrandLogo size={24} isHighRes={isHighRes} />
+          <CardBrandLogo size={24} isHighRes={isHighRes} src={logoSrc} />
           <span
             style={{
               fontFamily: "'Inter', sans-serif",
@@ -683,7 +695,7 @@ function AffirmationCardPreview({
           }}
         >
           <img
-            src="/qr-code.png"
+            src={qrSrc || getAbsoluteUrl("/qr-code.png")}
             alt="JN-CALM QR Code"
             style={{
               height: isHighRes ? "340px" : "105px",
@@ -710,8 +722,38 @@ export function ShareAffirmationModal({ open, onClose, affirmation }: ShareModal
   const [selectedLayout, setSelectedLayout] = useState<"botanical" | "minimalist" | "celestial">("botanical");
   const [sharing, setSharing] = useState(false);
   const [downloading, setDownloading] = useState(false);
+  const [logoBase64, setLogoBase64] = useState<string>("");
+  const [qrBase64, setQrBase64] = useState<string>("");
   const exportRef = useRef<HTMLDivElement>(null);
   const theme = CARD_THEMES[selectedTheme];
+
+  useEffect(() => {
+    if (!open) return;
+    
+    let isMounted = true;
+    const convertToBase64 = async (url: string, callback: (base64: string) => void) => {
+      try {
+        const response = await fetch(url);
+        const blob = await response.blob();
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          if (isMounted && typeof reader.result === "string") {
+            callback(reader.result);
+          }
+        };
+        reader.readAsDataURL(blob);
+      } catch (error) {
+        console.error("Failed to convert image to base64:", error);
+      }
+    };
+
+    convertToBase64("/logo.png", setLogoBase64);
+    convertToBase64("/qr-code.png", setQrBase64);
+
+    return () => {
+      isMounted = false;
+    };
+  }, [open]);
 
   // Helper function to capture the high-res card offscreen and return standard data
   const capturePng = async (): Promise<string> => {
@@ -818,6 +860,8 @@ export function ShareAffirmationModal({ open, onClose, affirmation }: ShareModal
             theme={theme}
             isHighRes={true}
             layout={selectedLayout}
+            logoSrc={logoBase64}
+            qrSrc={qrBase64}
           />
         </div>
       </div>
@@ -859,7 +903,7 @@ export function ShareAffirmationModal({ open, onClose, affirmation }: ShareModal
             className="w-full max-w-[200px] mx-auto"
             style={{ animation: "scale-in 0.4s cubic-bezier(0.16, 1, 0.3, 1) both" }}
           >
-            <AffirmationCardPreview text={affirmation} theme={theme} layout={selectedLayout} />
+            <AffirmationCardPreview text={affirmation} theme={theme} layout={selectedLayout} logoSrc={logoBase64} qrSrc={qrBase64} />
           </div>
 
           {/* Selector section */}
