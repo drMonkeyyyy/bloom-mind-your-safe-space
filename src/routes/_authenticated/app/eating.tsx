@@ -19,13 +19,20 @@ const HUNGER = [
 
 function parseMarkdownBold(text: string) {
   if (!text) return null;
-  const parts = text.split(/\*\*([\s\S]*?)\*\*/);
+  const parts = text.split(/(\*\*.*?\*\*|\*.*?\*)/g);
   return parts.map((part, idx) => {
-    if (idx % 2 === 1) {
+    if (part.startsWith("**") && part.endsWith("**")) {
       return (
         <strong key={idx} className="font-bold text-primary">
-          {part}
+          {part.slice(2, -2)}
         </strong>
+      );
+    }
+    if (part.startsWith("*") && part.endsWith("*")) {
+      return (
+        <em key={idx} className="italic font-medium text-stone-900">
+          {part.slice(1, -1)}
+        </em>
       );
     }
     return part;

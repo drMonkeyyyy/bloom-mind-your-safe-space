@@ -23,6 +23,28 @@ const TRIGGER_EMOJIS: Record<string, string> = {
   "Lainnya": "🌿"
 };
 
+function parseInlineMarkdown(text: string) {
+  if (!text) return [];
+  const parts = text.split(/(\*\*.*?\*\*|\*.*?\*)/g);
+  return parts.map((part, idx) => {
+    if (part.startsWith("**") && part.endsWith("**")) {
+      return (
+        <strong key={idx} className="font-bold text-stone-900">
+          {part.slice(2, -2)}
+        </strong>
+      );
+    }
+    if (part.startsWith("*") && part.endsWith("*")) {
+      return (
+        <em key={idx} className="italic font-medium text-stone-850">
+          {part.slice(1, -1)}
+        </em>
+      );
+    }
+    return part;
+  });
+}
+
 function parseMarkdown(text: string) {
   if (!text) return null;
   const lines = text.split("\n");
@@ -32,37 +54,55 @@ function parseMarkdown(text: string) {
       return <hr key={idx} className="my-3 border-t border-purple-200/50" />;
     }
 
-    const parts = line.split("**");
-    const formatted = parts.map((part, pIdx) => {
-      if (pIdx % 2 === 1) {
-        return <strong key={pIdx} className="font-bold text-stone-900">{part}</strong>;
-      }
-      return part;
-    });
+    let isH4 = false;
+    let isH3 = false;
+    let isH2 = false;
+    let isBullet = false;
+    let content = line;
 
     if (line.startsWith("### ")) {
+      isH4 = true;
+      content = line.slice(4);
+    } else if (line.startsWith("## ")) {
+      isH3 = true;
+      content = line.slice(3);
+    } else if (line.startsWith("# ")) {
+      isH2 = true;
+      content = line.slice(2);
+    } else if (line.startsWith("* ") || line.startsWith("- ")) {
+      isBullet = true;
+      content = line.slice(2);
+    }
+
+    const formatted = parseInlineMarkdown(content);
+
+    if (isH4) {
       return (
         <h4 key={idx} className="font-display text-sm font-bold text-purple-900 mt-3 mb-1">
-          {formatted.map((part) => {
-            if (typeof part === "string" && part.startsWith("### ")) {
-              return part.slice(4);
-            }
-            return part;
-          })}
+          {formatted}
         </h4>
       );
     }
-
-    if (line.startsWith("## ")) {
+    if (isH3) {
       return (
         <h3 key={idx} className="font-display text-base font-bold text-purple-900 mt-4 mb-2">
-          {formatted.map((part) => {
-            if (typeof part === "string" && part.startsWith("## ")) {
-              return part.slice(3);
-            }
-            return part;
-          })}
+          {formatted}
         </h3>
+      );
+    }
+    if (isH2) {
+      return (
+        <h2 key={idx} className="font-display text-lg font-bold text-purple-900 mt-5 mb-2">
+          {formatted}
+        </h2>
+      );
+    }
+    if (isBullet) {
+      return (
+        <div key={idx} className="flex items-start gap-2 text-sm text-stone-700 leading-relaxed ml-2">
+          <span className="text-purple-500 mt-1 select-none">•</span>
+          <span className="flex-1">{formatted}</span>
+        </div>
       );
     }
 
