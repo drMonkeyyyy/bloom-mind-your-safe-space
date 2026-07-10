@@ -57,7 +57,7 @@ function Page() {
         try {
           const thirtyDaysAgo = getLocalDateString(new Date(Date.now() - 30 * 24 * 60 * 60 * 1000));
           const res = await supabase.from("mood_checkins")
-            .select("user_id, mood_score, stress_score, date")
+            .select("user_id, mood_score, stress_score, date, triggers")
             .gte("date", thirtyDaysAgo);
           return res;
         } catch {
@@ -65,23 +65,77 @@ function Page() {
         }
       };
 
-      const [profilesRes, statsRes, adminsRes, moodStatsRes] = await Promise.all([
+      const fetchJournals = async () => {
+        try {
+          const thirtyDaysAgo = getLocalDateString(new Date(Date.now() - 30 * 24 * 60 * 60 * 1000));
+          const res = await supabase.from("journals")
+            .select("user_id, id")
+            .gte("date", thirtyDaysAgo);
+          return res;
+        } catch {
+          return { data: [] };
+        }
+      };
+
+      const fetchGratitudes = async () => {
+        try {
+          const thirtyDaysAgo = getLocalDateString(new Date(Date.now() - 30 * 24 * 60 * 60 * 1000));
+          const res = await supabase.from("gratitude_entries")
+            .select("user_id, id")
+            .gte("date", thirtyDaysAgo);
+          return res;
+        } catch {
+          return { data: [] };
+        }
+      };
+
+      const fetchEatings = async () => {
+        try {
+          const thirtyDaysAgo = getLocalDateString(new Date(Date.now() - 30 * 24 * 60 * 60 * 1000));
+          const res = await supabase.from("emotional_eating_logs")
+            .select("user_id, id")
+            .gte("date", thirtyDaysAgo);
+          return res;
+        } catch {
+          return { data: [] };
+        }
+      };
+
+      const [profilesRes, statsRes, adminsRes, moodStatsRes, journalsRes, gratitudesRes, eatingsRes] = await Promise.all([
         qb,
         fetchStats(),
         fetchAdmins(),
         fetchMoodStats(),
+        fetchJournals(),
+        fetchGratitudes(),
+        fetchEatings(),
       ]);
 
       const profiles = profilesRes.data ?? [];
       const statsMap = new Map((statsRes.data ?? []).map((s: any) => [s.user_id, s.total_replies]));
       const adminSet = new Set((adminsRes.data ?? []).map((a: any) => a.user_id));
 
-      const moodsMap = new Map<string, Array<{ mood_score: number; stress_score: number; date: string }>>();
+      const moodsMap = new Map<string, Array<{ mood_score: number; stress_score: number; date: string; triggers: string[] | null }>>();
       (moodStatsRes.data ?? []).forEach((m: any) => {
         if (!moodsMap.has(m.user_id)) {
           moodsMap.set(m.user_id, []);
         }
         moodsMap.get(m.user_id)!.push(m);
+      });
+
+      const journalsMap = new Map<string, number>();
+      (journalsRes.data ?? []).forEach((j: any) => {
+        journalsMap.set(j.user_id, (journalsMap.get(j.user_id) ?? 0) + 1);
+      });
+
+      const gratitudesMap = new Map<string, number>();
+      (gratitudesRes.data ?? []).forEach((g: any) => {
+        gratitudesMap.set(g.user_id, (gratitudesMap.get(g.user_id) ?? 0) + 1);
+      });
+
+      const eatingsMap = new Map<string, number>();
+      (eatingsRes.data ?? []).forEach((e: any) => {
+        eatingsMap.set(e.user_id, (eatingsMap.get(e.user_id) ?? 0) + 1);
       });
 
       const sevenDaysAgoStr = getLocalDateString(new Date(Date.now() - 7 * 24 * 60 * 60 * 1000));
@@ -121,6 +175,20 @@ function Page() {
           }
         }
 
+        const userTriggers: Record<string, number> = {};
+        userMoods.forEach((m) => {
+          m.triggers?.forEach((t) => {
+            userTriggers[t] = (userTriggers[t] ?? 0) + 1;
+          });
+        });
+
+        const sortedTriggers = Object.entries(userTriggers)
+          .sort((a, b) => b[1] - a[1])
+          .slice(0, 3)
+          .map(([t, count]) => `${t} (${count}×)`);
+
+        const topTriggersText = sortedTriggers.length > 0 ? sortedTriggers.join(", ") : "Tidak ada";
+
         return {
           ...p,
           total_replies: statsMap.get(p.id) ?? 0,
@@ -129,6 +197,10 @@ function Page() {
           avg_mood_30: avgMood30,
           trend_text: trendText,
           trend_color: trendColor,
+          total_journals: journalsMap.get(p.id) ?? 0,
+          total_gratitudes: gratitudesMap.get(p.id) ?? 0,
+          total_eatings: eatingsMap.get(p.id) ?? 0,
+          top_triggers_text: topTriggersText,
         };
       });
     },
@@ -256,6 +328,22 @@ function Page() {
               <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${u.trend_color}`}>
                 {u.trend_text}
               </span>
+            </div>
+
+            {/* Feature Activities */}
+            <div className="mt-2 pt-2 border-t border-border/20 flex flex-wrap items-center gap-x-6 gap-y-1.5 text-xs text-muted-foreground">
+              <span>✍️ <strong>{u.total_journals || 0}</strong> jurnal</span>
+              <span>🙏 <strong>{u.total_gratitudes || 0}</strong> syukur</span>
+              <span>🍕 <strong>{u.total_eatings || 0}</strong> eating logs</span>
+              {u.last_active_at && (
+                <span>🕒 Aktif: <strong>{new Date(u.last_active_at).toLocaleDateString("id-ID", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}</strong></span>
+              )}
+            </div>
+
+            {/* Top Triggers */}
+            <div className="mt-2 pt-2 border-t border-border/20 text-xs flex flex-wrap items-center gap-1.5">
+              <span className="text-muted-foreground">🎯 Pemicu Terbesar:</span>
+              <span className="font-semibold text-stone-700">{u.top_triggers_text}</span>
             </div>
 
             {/* Action buttons */}
