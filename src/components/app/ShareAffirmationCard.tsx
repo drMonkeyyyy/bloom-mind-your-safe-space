@@ -4,7 +4,7 @@ import { toast } from "sonner";
 import * as htmlToImage from "html-to-image";
 
 /* ── Theme palettes for the share card ─────────────────────────── */
-const CARD_THEMES = [
+export const CARD_THEMES = [
   {
     id: "sage",
     label: "Sage",
@@ -103,19 +103,47 @@ export function AffirmationCardPreview({
   const getLayoutConfig = () => {
     switch (layout) {
       case "journal":
-        return { textTop: "33%", textHeight: "42%", textLeft: "14%", textWidth: "72%" };
+        return { 
+          textTop: "31%", textHeight: "28%", textLeft: "14%", textWidth: "72%",
+          textColor: "#2C3E35",
+          subtextTop: "67%", subtextColor: "#5F7464"
+        };
       case "botanical":
-        return { textTop: "30%", textHeight: "42%", textLeft: "14%", textWidth: "72%" };
+        return { 
+          textTop: "27%", textHeight: "28%", textLeft: "14%", textWidth: "72%",
+          textColor: "#2C3E35",
+          subtextTop: "76.5%", subtextColor: "#5F7464"
+        };
       case "aesthetic":
-        return { textTop: "31%", textHeight: "42%", textLeft: "14%", textWidth: "72%" };
+        return { 
+          textTop: "30%", textHeight: "28%", textLeft: "14%", textWidth: "72%",
+          textColor: "#3C2C20",
+          subtextTop: "66.5%", subtextColor: "#A87C66"
+        };
       case "landscape":
-        return { textTop: "33%", textHeight: "40%", textLeft: "14%", textWidth: "72%" };
+        return { 
+          textTop: "31%", textHeight: "27%", textLeft: "14%", textWidth: "72%",
+          textColor: "#2C3E35",
+          subtextTop: "67%", subtextColor: "#6A7B69"
+        };
       case "midnight":
-        return { textTop: "33%", textHeight: "40%", textLeft: "14%", textWidth: "72%" };
+        return { 
+          textTop: "31%", textHeight: "27%", textLeft: "14%", textWidth: "72%",
+          textColor: "#20253C",
+          subtextTop: "66.5%", subtextColor: "#74719C"
+        };
       case "meadow":
-        return { textTop: "31%", textHeight: "42%", textLeft: "14%", textWidth: "72%" };
+        return { 
+          textTop: "31%", textHeight: "28%", textLeft: "14%", textWidth: "72%",
+          textColor: "#202D3C",
+          subtextTop: "67%", subtextColor: "#5A7080"
+        };
       default:
-        return { textTop: "33%", textHeight: "42%", textLeft: "14%", textWidth: "72%" };
+        return { 
+          textTop: "31%", textHeight: "28%", textLeft: "14%", textWidth: "72%",
+          textColor: "#2C3E35",
+          subtextTop: "67%", subtextColor: "#5F7464"
+        };
     }
   };
 
@@ -167,7 +195,7 @@ export function AffirmationCardPreview({
         `}
       </style>
 
-      {/* Transparent Text Overlay (NO WHITE BOX to preserve original Canva layouts) */}
+      {/* Quote Text Overlay */}
       <div
         style={{
           position: "absolute",
@@ -176,7 +204,6 @@ export function AffirmationCardPreview({
           width: config.textWidth,
           height: config.textHeight,
           display: "flex",
-          flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
           textAlign: "center",
@@ -188,7 +215,7 @@ export function AffirmationCardPreview({
             fontFamily: "'Playfair Display', Georgia, serif",
             fontSize: fontSize * scale,
             fontWeight: 600,
-            color: "#2D3748",
+            color: config.textColor,
             margin: 0,
             lineHeight: 1.45,
             letterSpacing: "0.01em",
@@ -197,22 +224,25 @@ export function AffirmationCardPreview({
         >
           {text}
         </p>
-        <span
-          style={{
-            fontSize: 14 * scale,
-            color: "rgba(0,0,0,0.3)",
-            marginTop: 8 * scale,
-            marginBottom: 4 * scale,
-          }}
-        >
-          ♡
-        </span>
+      </div>
+
+      {/* Subtext Overlay (Perfect static alignment below divider) */}
+      <div
+        style={{
+          position: "absolute",
+          top: config.subtextTop,
+          left: "14%",
+          width: "72%",
+          textAlign: "center",
+          zIndex: 10,
+        }}
+      >
         <p
           style={{
             fontFamily: "'Inter', sans-serif",
             fontSize: 8.5 * scale,
             fontWeight: 500,
-            color: "rgba(0,0,0,0.5)",
+            color: config.subtextColor,
             margin: 0,
           }}
         >

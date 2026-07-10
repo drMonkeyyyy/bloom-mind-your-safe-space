@@ -8,7 +8,7 @@ import { MoodBars } from "@/components/app/MoodSparkline";
 import { SkeletonCard } from "@/components/app/SkeletonCard";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import { ShareAffirmationModal } from "@/components/app/ShareAffirmationCard";
+import { ShareAffirmationModal, AffirmationCardPreview, CARD_THEMES } from "@/components/app/ShareAffirmationCard";
 
 export const Route = createFileRoute("/_authenticated/app/")({
   component: Dashboard,
@@ -499,61 +499,71 @@ function Dashboard() {
       </div>
 
       {/* ── DAILY AFFIRMATION WIDGET ────────────────────────────── */}
-      <div className="relative overflow-hidden rounded-3xl p-6 ring-1 ring-border/60 shadow-card bg-gradient-to-br from-card to-cream-deep/20">
-        {/* Soft decorative gold/amber blobs */}
-        <div className="absolute -right-6 -bottom-6 h-24 w-24 rounded-full bg-amber-200/10 filter blur-xl pointer-events-none" />
-        <div className="absolute left-1/4 -top-8 h-20 w-20 rounded-full bg-primary/10 filter blur-lg pointer-events-none" />
-        
-        <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div className="flex-1 space-y-1">
-            <p className="text-[10px] font-bold uppercase tracking-wider text-amber-700">Afirmasi Hari Ini</p>
-            <div 
-              className="transition-all duration-300"
-              style={{
-                opacity: flip ? 0 : 1,
-                transform: flip ? "translateY(5px) scale(0.98)" : "translateY(0) scale(1)",
-                filter: flip ? "blur(3px)" : "none"
-              }}
-            >
-              <p className="font-display text-lg font-medium leading-relaxed text-foreground/90 italic">
-                "{AFFIRMATIONS[affIdx]}"
-              </p>
-            </div>
-          </div>
-          
-          <div className="flex gap-2 shrink-0 self-end md:self-center">
-            <button
-              onClick={copyAffirmation}
-              className="flex h-9 w-9 items-center justify-center rounded-full bg-background border border-border/60 text-muted-foreground hover:text-foreground transition-all duration-200 active:scale-90"
-              aria-label="Salin afirmasi"
-              title="Salin afirmasi"
-            >
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="h-4.5 w-4.5">
-                <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
-                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
-              </svg>
-            </button>
-            <button
-              id="share-affirmation-btn"
-              onClick={() => setShareOpen(true)}
-              className="flex h-9 w-9 items-center justify-center rounded-full bg-background border border-border/60 text-muted-foreground hover:text-primary hover:border-primary/40 transition-all duration-200 active:scale-90"
-              aria-label="Bagikan afirmasi"
-              title="Bagikan afirmasi"
-            >
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="h-4.5 w-4.5">
-                <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8M16 6l-4-4-4 4M12 2v13" />
-              </svg>
-            </button>
-            <button
-              onClick={nextAffirmation}
-              className="flex h-9 px-4 items-center justify-center gap-1.5 rounded-full bg-accent text-accent-foreground shadow-peach text-xs font-semibold hover:-translate-y-0.5 active:scale-95 transition-all duration-250"
-            >
-              <span>Ganti</span>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`h-3.5 w-3.5 ${flip ? "animate-spin" : ""}`}>
-                <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67" />
-              </svg>
-            </button>
-          </div>
+      {/* ── DAILY AFFIRMATION WIDGET ────────────────────────────── */}
+      <div className="relative overflow-hidden rounded-3xl p-6 ring-1 ring-border/60 shadow-card bg-card flex flex-col items-center">
+        <div className="w-full flex items-center justify-between mb-4 border-b border-border/40 pb-2">
+          <p className="text-[10px] font-bold uppercase tracking-wider text-primary">Afirmasi Hari Ini</p>
+          <span className="text-[10px] font-medium text-muted-foreground">
+            Desain #{(affIdx % 6) + 1}
+          </span>
+        </div>
+
+        <div 
+          className="w-full max-w-[320px] aspect-square rounded-2xl overflow-hidden shadow-md border border-border/40 relative group transition-all duration-300"
+          style={{
+            opacity: flip ? 0 : 1,
+            transform: flip ? "translateY(5px) scale(0.98)" : "translateY(0) scale(1)",
+            filter: flip ? "blur(3px)" : "none"
+          }}
+        >
+          <AffirmationCardPreview 
+            text={AFFIRMATIONS[affIdx]} 
+            theme={CARD_THEMES[affIdx % CARD_THEMES.length]}
+            layout={
+              (affIdx % 6 === 0 ? "journal" :
+               affIdx % 6 === 1 ? "botanical" :
+               affIdx % 6 === 2 ? "aesthetic" :
+               affIdx % 6 === 3 ? "landscape" :
+               affIdx % 6 === 4 ? "midnight" :
+               "meadow") as any
+            }
+          />
+        </div>
+
+        <div className="flex gap-2 mt-4 justify-center w-full max-w-[320px]">
+          <button
+            onClick={copyAffirmation}
+            className="flex-1 flex h-9 items-center justify-center gap-1.5 rounded-full bg-background border border-border/60 text-muted-foreground hover:text-foreground transition-all duration-200 active:scale-95 text-xs font-semibold cursor-pointer"
+            aria-label="Salin afirmasi"
+            title="Salin afirmasi"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4">
+              <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+            </svg>
+            <span>Salin</span>
+          </button>
+          <button
+            id="share-affirmation-btn"
+            onClick={() => setShareOpen(true)}
+            className="flex-1 flex h-9 items-center justify-center gap-1.5 rounded-full bg-background border border-border/60 text-muted-foreground hover:text-primary hover:border-primary/40 transition-all duration-200 active:scale-95 text-xs font-semibold cursor-pointer"
+            aria-label="Bagikan afirmasi"
+            title="Bagikan afirmasi"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4">
+              <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8M16 6l-4-4-4 4M12 2v13" />
+            </svg>
+            <span>Bagikan</span>
+          </button>
+          <button
+            onClick={nextAffirmation}
+            className="flex-1 flex h-9 items-center justify-center gap-1.5 rounded-full bg-accent text-accent-foreground shadow-peach text-xs font-semibold hover:-translate-y-0.5 active:scale-95 transition-all duration-250 cursor-pointer"
+          >
+            <span>Ganti</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`h-3.5 w-3.5 ${flip ? "animate-spin" : ""}`}>
+              <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67" />
+            </svg>
+          </button>
         </div>
       </div>
 
