@@ -5,6 +5,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { useProfile, useIsAdmin } from "@/hooks/use-profile";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
+import { BottomSheet } from "./BottomSheet";
 import { StreakBuddy } from "./StreakBuddy";
 import { AffirmationWidget } from "./AffirmationWidget";
 import { BloomGarden } from "./BloomGarden";
@@ -47,7 +48,14 @@ const bottomNav = [
   { to: "/app/profile", label: "Profil", icon: "M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z" },
 ];
 
-
+const moreNavItems = [
+  { to: "/app/gratitude", label: "Gratitude Journal", icon: "M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z", color: "bg-rose-50 text-rose-500" },
+  { to: "/app/habits", label: "Habit Tracker", icon: "M9 11l3 3L22 4M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11", color: "bg-emerald-50 text-emerald-600" },
+  { to: "/app/eating", label: "Emotional Eating", icon: "M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z", color: "bg-orange-50 text-orange-500" },
+  { to: "/app/calm", label: "Emergency Calm", icon: "M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10zm0-6v-4m0-4h.01", color: "bg-sky-50 text-sky-500" },
+  { to: "/app/growth", label: "Growth Dashboard", icon: "M18 20V10M12 20V4M6 20v-6", color: "bg-violet-50 text-violet-500" },
+  { to: "/app/premium", label: "Premium", icon: "M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z", color: "bg-amber-50 text-amber-500" },
+];
 
 function NavSection({ title, items, path }: { title: string; items: typeof primaryNav; path: string }) {
   return (
@@ -114,6 +122,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const navigate = useNavigate();
   const path = useRouterState({ select: (s) => s.location.pathname });
   const qc = useQueryClient();
+  const [moreOpen, setMoreOpen] = useState(false);
 
   // Force onboarding
   useEffect(() => {
@@ -122,7 +131,10 @@ export function AppShell({ children }: { children: ReactNode }) {
     }
   }, [loading, pLoading, profile, path, navigate]);
 
-
+  // Close more sheet on route change
+  useEffect(() => {
+    setMoreOpen(false);
+  }, [path]);
 
   const signOut = async () => {
     await qc.cancelQueries(); qc.clear();
@@ -330,8 +342,52 @@ export function AppShell({ children }: { children: ReactNode }) {
             );
           })}
 
+          {/* More button */}
+          <button
+            onClick={() => setMoreOpen(true)}
+            className={`flex flex-col items-center gap-1 py-3 text-[10px] font-medium transition-all duration-250 ${moreOpen ? "text-primary" : "text-muted-foreground hover:text-foreground"}`}
+            aria-label="Lebih banyak menu"
+            aria-expanded={moreOpen}
+          >
+            <span className={`relative flex h-7 w-7 items-center justify-center rounded-xl transition-all duration-250 ${moreOpen ? "bg-primary-soft scale-110 shadow-sm" : "hover:bg-cream-deep"}`}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" className="h-4.5 w-4.5" aria-hidden="true">
+                <circle cx="12" cy="5" r="1" /><circle cx="12" cy="12" r="1" /><circle cx="12" cy="19" r="1" />
+              </svg>
+            </span>
+            Lainnya
+          </button>
         </div>
       </nav>
+
+      {/* ── MORE SHEET ───────────────────────────────────── */}
+      <BottomSheet open={moreOpen} onClose={() => setMoreOpen(false)} title="Menu Lainnya">
+        <div className="grid grid-cols-3 gap-3">
+          {moreNavItems.map((item) => (
+            <Link
+              key={item.to}
+              to={item.to}
+              className="group flex flex-col items-center gap-2 rounded-2xl bg-cream-deep/60 p-4 text-center text-xs font-medium text-foreground transition-all duration-200 hover:bg-cream-deep hover:scale-105 hover:shadow-card active:scale-95"
+            >
+              <span className={`grid h-12 w-12 place-items-center rounded-2xl transition-all duration-200 group-hover:scale-110 ${item.color}`}>
+                <Icon d={item.icon} className="h-5 w-5" />
+              </span>
+              {item.label}
+            </Link>
+          ))}
+        </div>
+
+        <div className="mt-6 border-t border-border pt-5">
+          <button
+            onClick={signOut}
+            className="flex w-full items-center justify-center gap-2 rounded-2xl border border-destructive/30 py-3 text-sm font-medium text-destructive transition-all duration-200 hover:bg-destructive/5 hover:scale-[1.01]"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4" aria-hidden="true">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9" />
+            </svg>
+            Keluar dari akun
+          </button>
+        </div>
+      </BottomSheet>
     </div>
   );
 }

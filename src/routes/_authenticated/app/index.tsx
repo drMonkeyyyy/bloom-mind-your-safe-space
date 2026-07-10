@@ -120,59 +120,6 @@ const generateAffirmationsList = (): string[] => {
 
 const AFFIRMATIONS = generateAffirmationsList();
 
-const CORE_FEATURES = [
-  {
-    to: "/app/gratitude",
-    label: "Gratitude Journal",
-    desc: "Tulis rasa syukur harian",
-    icon: "M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z",
-    color: "bg-rose-50 text-rose-500",
-  },
-  {
-    to: "/app/habits",
-    label: "Habit Tracker",
-    desc: "Latih kebiasaan sehat",
-    icon: "M9 11l3 3L22 4M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11",
-    color: "bg-emerald-50 text-emerald-600",
-  },
-  {
-    to: "/app/eating",
-    label: "Emotional Eating",
-    desc: "Deteksi dorongan makan",
-    icon: "M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z",
-    color: "bg-orange-50 text-orange-500",
-  },
-  {
-    to: "/app/calm",
-    label: "Emergency Calm",
-    desc: "Grounding & pernapasan",
-    icon: "M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10zm0-6v-4m0-4h.01",
-    color: "bg-sky-50 text-sky-500",
-  },
-  {
-    to: "/app/growth",
-    label: "Growth Dashboard",
-    desc: "Pantau progres kesehatan",
-    icon: "M18 20V10M12 20V4M6 20v-6",
-    color: "bg-violet-50 text-violet-500",
-  },
-  {
-    to: "/app/premium",
-    label: "Premium Plan",
-    desc: "Akses semua fitur klinis",
-    icon: "M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z",
-    color: "bg-amber-50 text-amber-500",
-  },
-];
-
-function FeatureIcon({ d, className = "h-4.5 w-4.5" }: { d: string; className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className={className}>
-      <path d={d} />
-    </svg>
-  );
-}
-
 /* ── Animated count-up hook ────────────────────────────────────── */
 function useCountUp(target: number, duration = 800) {
   const [count, setCount] = useState(0);
@@ -650,28 +597,6 @@ function Dashboard() {
           )}
         </div>
       </div>
-
-      {/* ── FITUR UTAMA JN-CALM ─────────────────────────────────── */}
-      <section className="space-y-3">
-        <h3 className="text-sm font-bold tracking-wide text-foreground/90 px-1">Pusat Layanan & Terapi Mandiri</h3>
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-          {CORE_FEATURES.map((item) => (
-            <Link
-              key={item.to}
-              to={item.to}
-              className="group flex flex-col items-start gap-3 rounded-3xl bg-card p-4.5 ring-1 ring-border/60 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-float active:scale-98"
-            >
-              <span className={`grid h-9.5 w-9.5 place-items-center rounded-xl transition-all duration-300 group-hover:scale-105 ${item.color}`}>
-                <FeatureIcon d={item.icon} className="h-4.5 w-4.5" />
-              </span>
-              <div>
-                <h4 className="font-display text-xs font-bold text-foreground leading-tight">{item.label}</h4>
-                <p className="mt-1 text-[10px] leading-normal text-muted-foreground">{item.desc}</p>
-              </div>
-            </Link>
-          ))}
-        </div>
-      </section>
 
       {/* ── DAILY SELF-CARE QUEST ───────────────────────────────── */}
       <div 
