@@ -1058,8 +1058,12 @@ function Page() {
                   <div className="flex items-center justify-between mb-2 pb-2 border-b border-border/40">
                     <span className="font-bold text-stone-500">{formattedDate}</span>
                     <div className="flex items-center gap-2.5">
-                      <button
-                        onClick={() => exportWeeklyInsightPDF(item.date, item.text)}
+                       <button
+                        onClick={() => exportWeeklyInsightPDF(
+                          item.date, 
+                          item.text, 
+                          insightTab === "daily" ? "Analisis Harian AI (Daily Insight)" : "Analisis Mingguan AI (Weekly Insight)"
+                        )}
                         className="text-primary hover:underline text-[10px] font-bold"
                       >
                         Simpan PDF 📄

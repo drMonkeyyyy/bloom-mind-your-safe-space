@@ -20,6 +20,68 @@ function getTimestampIndo(): string {
   });
 }
 
+function markdownToHtml(text: string): string {
+  if (!text) return "";
+  
+  const lines = text.split("\n");
+  
+  const parsedLines = lines.map((line) => {
+    const trimmed = line.trim();
+    
+    if (trimmed === "---" || trimmed === "***") {
+      return '<hr style="margin: 12px 0; border: 0; border-top: 1px dashed #e5e2dc;" />';
+    }
+
+    let isH4 = false;
+    let isH3 = false;
+    let isH2 = false;
+    let isBullet = false;
+    let content = line;
+
+    if (line.startsWith("### ")) {
+      isH4 = true;
+      content = line.slice(4);
+    } else if (line.startsWith("## ")) {
+      isH3 = true;
+      content = line.slice(3);
+    } else if (line.startsWith("# ")) {
+      isH2 = true;
+      content = line.slice(2);
+    } else if (line.startsWith("* ") || line.startsWith("- ")) {
+      isBullet = true;
+      content = line.slice(2);
+    }
+
+    // Replace bold (**) and italics (*)
+    let formatted = content
+      .replace(/\*\*(.*?)\*\*/g, '<strong style="font-weight: bold; color: #18181b;">$1</strong>')
+      .replace(/\*(.*?)\*/g, '<em style="font-style: italic;">$1</em>');
+
+    if (isH4) {
+      return `<h4 style="font-size: 13px; font-weight: bold; color: #581c87; margin-top: 12px; margin-bottom: 4px; font-family: system-ui, -apple-system, sans-serif;">${formatted}</h4>`;
+    }
+    if (isH3) {
+      return `<h3 style="font-size: 14px; font-weight: bold; color: #581c87; margin-top: 16px; margin-bottom: 8px; font-family: system-ui, -apple-system, sans-serif;">${formatted}</h3>`;
+    }
+    if (isH2) {
+      return `<h2 style="font-size: 16px; font-weight: bold; color: #581c87; margin-top: 20px; margin-bottom: 8px; font-family: system-ui, -apple-system, sans-serif;">${formatted}</h2>`;
+    }
+    if (isBullet) {
+      return `<div style="display: flex; align-items: flex-start; gap: 8px; margin-left: 8px; margin-bottom: 4px; font-family: system-ui, -apple-system, sans-serif;">
+        <span style="color: #a855f7; user-select: none;">•</span>
+        <span style="flex: 1;">${formatted}</span>
+      </div>`;
+    }
+
+    if (trimmed === "") {
+      return '<div style="height: 8px;"></div>';
+    }
+    return `<p style="margin: 0 0 8px 0; font-family: system-ui, -apple-system, sans-serif;">${formatted}</p>`;
+  });
+
+  return parsedLines.join("");
+}
+
 function triggerPrint(htmlContent: string) {
   // Create an iframe to prevent changing current page layouts
   const iframe = document.createElement("iframe");
@@ -586,14 +648,14 @@ export function exportJournalPDF(journal: any) {
   triggerPrint(html);
 }
 
-export function exportWeeklyInsightPDF(dateStr: string, text: string) {
+export function exportWeeklyInsightPDF(dateStr: string, text: string, title = "Analisis Mingguan AI (Weekly Insight)") {
   const formattedDate = formatDateIndo(dateStr);
   const printTimestamp = getTimestampIndo();
 
   const html = `
     <html>
     <head>
-      <title>JN-CALM - Weekly AI Insight</title>
+      <title>JN-CALM - AI Insight</title>
       <style>
         body {
           font-family: 'system-ui', -apple-system, sans-serif;
@@ -668,12 +730,12 @@ export function exportWeeklyInsightPDF(dateStr: string, text: string) {
         <div class="header">
           <div class="logo">🌿 JN-CALM</div>
           <div class="subtitle">Your Safe Space</div>
-          <div class="title">Analisis Mingguan AI (Weekly Insight)</div>
+          <div class="title">${title}</div>
           <div class="date">${formattedDate}</div>
         </div>
 
         <div class="content-box">
-          ${text}
+          ${markdownToHtml(text)}
         </div>
 
         <div class="footer">
