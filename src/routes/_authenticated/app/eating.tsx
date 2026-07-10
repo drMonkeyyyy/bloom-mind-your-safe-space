@@ -17,6 +17,21 @@ const HUNGER = [
   { key: "mindless_eating" as const, label: "Mindless Eating", icon: "📱", desc: "Makan tanpa sadar" },
 ];
 
+function parseMarkdownBold(text: string) {
+  if (!text) return null;
+  const parts = text.split(/\*\*([\s\S]*?)\*\*/);
+  return parts.map((part, idx) => {
+    if (idx % 2 === 1) {
+      return (
+        <strong key={idx} className="font-bold text-primary">
+          {part}
+        </strong>
+      );
+    }
+    return part;
+  });
+}
+
 export const Route = createFileRoute("/_authenticated/app/eating")({
   component: Page,
 });
@@ -252,11 +267,11 @@ function Page() {
             </div>
             <p className="text-xs font-bold uppercase tracking-wider text-primary">Insight JN-CALM</p>
           </div>
-          <p className="text-sm leading-relaxed text-foreground italic">{result.insight}</p>
+          <p className="text-sm leading-relaxed text-foreground italic">{parseMarkdownBold(result.insight)}</p>
           <div className="rounded-2xl bg-card/80 backdrop-blur-sm p-4 ring-1 ring-border/60 space-y-3.5">
             <div>
               <p className="text-xs font-bold text-primary mb-1.5">💡 Coba lakukan ini:</p>
-              <p className="text-sm text-foreground leading-relaxed whitespace-pre-wrap">{result.action}</p>
+              <p className="text-sm text-foreground leading-relaxed whitespace-pre-wrap">{parseMarkdownBold(result.action)}</p>
             </div>
             <div className="pt-3 border-t border-border/30 flex flex-wrap gap-2">
               <Link
