@@ -342,8 +342,35 @@ export function ShareAffirmationModal({ open, onClose, affirmation }: ShareModal
   // Helper function to capture the high-res card offscreen and return standard data
   const capturePng = async (): Promise<string> => {
     if (!exportRef.current) throw new Error("Export container not ready");
-    // Wait tiny bit for rendering styles/fonts to paint correctly
-    await new Promise((resolve) => setTimeout(resolve, 300));
+
+    // Wait for bgBase64 to be populated (max 4 seconds)
+    let waited = 0;
+    while (!bgBase64 && waited < 4000) {
+      await new Promise((r) => setTimeout(r, 100));
+      waited += 100;
+    }
+
+    // Wait for all <img> tags inside the export container to fully load
+    const imgs = Array.from(exportRef.current.querySelectorAll("img"));
+    await Promise.all(
+      imgs.map(
+        (img) =>
+          new Promise<void>((resolve) => {
+            if (img.complete && img.naturalWidth > 0) {
+              resolve();
+            } else {
+              img.onload = () => resolve();
+              img.onerror = () => resolve();
+              // Safety timeout
+              setTimeout(() => resolve(), 3000);
+            }
+          })
+      )
+    );
+
+    // Extra paint frame to ensure DOM is fully rendered
+    await new Promise((resolve) => setTimeout(resolve, 400));
+
     return await htmlToImage.toPng(exportRef.current, {
       quality: 0.95,
     });
