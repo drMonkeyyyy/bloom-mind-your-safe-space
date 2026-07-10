@@ -80,7 +80,7 @@ export function Footer() {
 
         {/* Bottom bar */}
         <div className="mt-12 flex flex-col items-center justify-between gap-3 border-t border-border pt-6 text-xs text-muted-foreground sm:flex-row">
-          <p>© {new Date().getFullYear()} JN-CALM. Dibuat dengan 🤍 di Indonesia.</p>
+          <p>© {new Date().getFullYear()} JN-CALM. Built by Doctors. Dibuat dengan 🤍 di Indonesia.</p>
           <p className="max-w-sm text-center sm:text-right">
             JN-CALM hadir sebagai media refleksi diri dan bukan merupakan layanan medis profesional kesehatan mental. Jika dalam kondisi krisis/darurat, hubungi profesional kesehatan terdekat.
           </p>
