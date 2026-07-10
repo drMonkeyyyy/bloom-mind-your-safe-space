@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { useProfile } from "@/hooks/use-profile";
 import { useAuth } from "@/hooks/use-auth";
 import { PaywallCard } from "@/components/app/PaywallCard";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
 const HUNGER = [
@@ -26,6 +26,7 @@ function Page() {
   const { data: profile } = useProfile(user?.id);
   const isPremium = profile?.plan === "premium";
   const analyze = useServerFn(analyzeEmotionalEating);
+  const qc = useQueryClient();
   const [hunger, setHunger] = useState<(typeof HUNGER)[number]["key"] | null>(null);
   const [emotion, setEmotion] = useState("");
   const [food, setFood] = useState("");
@@ -56,7 +57,8 @@ function Page() {
     );
   }
 
-  const showPaywall = !isPremium && (logsCount !== undefined && logsCount > 0);
+  // Only show the general paywall card if user is not premium, has logs, AND does not have a current result on screen
+  const showPaywall = !isPremium && (logsCount !== undefined && logsCount > 0) && !result;
 
   if (showPaywall) {
     return (
@@ -91,6 +93,10 @@ function Page() {
     try {
       const res = await analyze({ data: { hungerType: hunger, emotion, cravingFood: food, trigger } });
       setResult(res);
+      // Invalidate the query cache immediately in the background so that navigating away locks the page
+      if (user) {
+        qc.invalidateQueries({ queryKey: ["emotional-eating-logs-count", user.id] });
+      }
     } catch (e) { toast.error(e instanceof Error ? e.message : "Gagal"); }
     finally { setLoading(false); }
   };
@@ -131,102 +137,104 @@ function Page() {
       )}
 
       {/* ── HUNGER TYPE ─────────────────────────────────────────── */}
-      <section className="rounded-3xl bg-card p-6 ring-1 ring-border/60 shadow-card space-y-5">
-        <div>
-          <p className="text-sm font-semibold text-foreground mb-3">Apa yang sebenarnya kamu rasakan sekarang?</p>
-          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-            {HUNGER.map((h) => {
-              const sel = hunger === h.key;
-              return (
-                <button
-                  key={h.key}
-                  onClick={() => setHunger(h.key)}
-                  aria-pressed={sel}
-                  className={`flex items-center gap-3 rounded-2xl border-2 p-4 text-left transition-all duration-250 ${
-                    sel
-                      ? "border-accent/40 bg-accent-soft/50 shadow-soft scale-[1.01]"
-                      : "border-transparent bg-cream-deep hover:border-accent/20 hover:bg-accent-soft/20 hover:scale-[1.01]"
-                  }`}
-                >
-                  <span
-                    className="shrink-0 text-2xl transition-transform duration-250"
-                    style={{ display: "inline-block", transform: sel ? "scale(1.15)" : "scale(1)" }}
+      {(!result || isPremium) && (
+        <section className="rounded-3xl bg-card p-6 ring-1 ring-border/60 shadow-card space-y-5">
+          <div>
+            <p className="text-sm font-semibold text-foreground mb-3">Apa yang sebenarnya kamu rasakan sekarang?</p>
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+              {HUNGER.map((h) => {
+                const sel = hunger === h.key;
+                return (
+                  <button
+                    key={h.key}
+                    onClick={() => setHunger(h.key)}
+                    aria-pressed={sel}
+                    className={`flex items-center gap-3 rounded-2xl border-2 p-4 text-left transition-all duration-250 ${
+                      sel
+                        ? "border-accent/40 bg-accent-soft/50 shadow-soft scale-[1.01]"
+                        : "border-transparent bg-cream-deep hover:border-accent/20 hover:bg-accent-soft/20 hover:scale-[1.01]"
+                    }`}
                   >
-                    {h.icon}
-                  </span>
-                  <div className="min-w-0">
-                    <p className="text-sm font-semibold text-foreground">{h.label}</p>
-                    <p className="mt-0.5 text-[11px] text-muted-foreground">{h.desc}</p>
-                  </div>
-                  {sel && (
-                    <span className="ml-auto shrink-0 text-accent">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" className="h-4 w-4" aria-hidden="true">
-                        <path d="m5 12 4 4 10-10" />
-                      </svg>
+                    <span
+                      className="shrink-0 text-2xl transition-transform duration-250"
+                      style={{ display: "inline-block", transform: sel ? "scale(1.15)" : "scale(1)" }}
+                    >
+                      {h.icon}
                     </span>
-                  )}
-                </button>
-              );
-            })}
+                    <div className="min-w-0">
+                      <p className="text-sm font-semibold text-foreground">{h.label}</p>
+                      <p className="mt-0.5 text-[11px] text-muted-foreground">{h.desc}</p>
+                    </div>
+                    {sel && (
+                      <span className="ml-auto shrink-0 text-accent">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" className="h-4 w-4" aria-hidden="true">
+                          <path d="m5 12 4 4 10-10" />
+                        </svg>
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
           </div>
-        </div>
 
-        <div className="space-y-3">
-          <div>
-            <label className="mb-1.5 block text-sm font-semibold" htmlFor="emotion-input">
-              💭 Emosi yang sedang kamu rasakan
-            </label>
-            <textarea
-              id="emotion-input"
-              value={emotion}
-              onChange={(e) => setEmotion(e.target.value)}
-              placeholder="Ceritakan perasaanmu sekarang… (contoh: cemas, bosan, marah, sedih)"
-              rows={2}
-              className="w-full rounded-2xl border border-border bg-background px-4 py-3 text-sm resize-none placeholder:text-muted-foreground/60 transition-all duration-200"
-            />
+          <div className="space-y-3">
+            <div>
+              <label className="mb-1.5 block text-sm font-semibold" htmlFor="emotion-input">
+                💭 Emosi yang sedang kamu rasakan
+              </label>
+              <textarea
+                id="emotion-input"
+                value={emotion}
+                onChange={(e) => setEmotion(e.target.value)}
+                placeholder="Ceritakan perasaanmu sekarang… (contoh: cemas, bosan, marah, sedih)"
+                rows={2}
+                className="w-full rounded-2xl border border-border bg-background px-4 py-3 text-sm resize-none placeholder:text-muted-foreground/60 transition-all duration-200"
+              />
+            </div>
+            <div>
+              <label className="mb-1.5 block text-sm font-semibold" htmlFor="food-input">
+                🍽️ Makanan yang ingin kamu makan
+              </label>
+              <input
+                id="food-input"
+                value={food}
+                onChange={(e) => setFood(e.target.value)}
+                placeholder="Makanan apa yang sedang kamu inginkan?"
+                className="w-full rounded-2xl border border-border bg-background px-4 py-3 text-sm transition-all duration-200"
+              />
+            </div>
+            <div>
+              <label className="mb-1.5 block text-sm font-semibold" htmlFor="trigger-input">
+                ⚡ Apa yang memicunya?
+              </label>
+              <input
+                id="trigger-input"
+                value={trigger}
+                onChange={(e) => setTrigger(e.target.value)}
+                placeholder="Kejadian atau situasi yang memicu keinginan ini…"
+                className="w-full rounded-2xl border border-border bg-background px-4 py-3 text-sm transition-all duration-200"
+              />
+            </div>
           </div>
-          <div>
-            <label className="mb-1.5 block text-sm font-semibold" htmlFor="food-input">
-              🍽️ Makanan yang ingin kamu makan
-            </label>
-            <input
-              id="food-input"
-              value={food}
-              onChange={(e) => setFood(e.target.value)}
-              placeholder="Makanan apa yang sedang kamu inginkan?"
-              className="w-full rounded-2xl border border-border bg-background px-4 py-3 text-sm transition-all duration-200"
-            />
-          </div>
-          <div>
-            <label className="mb-1.5 block text-sm font-semibold" htmlFor="trigger-input">
-              ⚡ Apa yang memicunya?
-            </label>
-            <input
-              id="trigger-input"
-              value={trigger}
-              onChange={(e) => setTrigger(e.target.value)}
-              placeholder="Kejadian atau situasi yang memicu keinginan ini…"
-              className="w-full rounded-2xl border border-border bg-background px-4 py-3 text-sm transition-all duration-200"
-            />
-          </div>
-        </div>
 
-        <button
-          onClick={submit}
-          disabled={loading || !hunger}
-          className="w-full rounded-full bg-accent py-3.5 text-sm font-semibold text-accent-foreground shadow-peach transition-all duration-300 btn-spring disabled:opacity-60"
-        >
-          {loading ? (
-            <span className="inline-flex items-center gap-2">
-              <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-              </svg>
-              Menganalisis…
-            </span>
-          ) : "Minta Insight AI 🌿"}
-        </button>
-      </section>
+          <button
+            onClick={submit}
+            disabled={loading || !hunger}
+            className="w-full rounded-full bg-accent py-3.5 text-sm font-semibold text-accent-foreground shadow-peach transition-all duration-300 btn-spring disabled:opacity-60"
+          >
+            {loading ? (
+              <span className="inline-flex items-center gap-2">
+                <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                </svg>
+                Menganalisis…
+              </span>
+            ) : "Minta Insight AI 🌿"}
+          </button>
+        </section>
+      )}
 
       {/* ── AI RESULT ───────────────────────────────────────────── */}
       {result && (
