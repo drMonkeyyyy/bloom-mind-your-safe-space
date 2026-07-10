@@ -251,37 +251,7 @@ function Page() {
         </div>
       )}
 
-      {/* Floating music pill */}
-      <div className="fixed bottom-24 lg:bottom-8 right-6 z-40 animate-fade-in-up">
-        <div className="flex items-center gap-2.5 rounded-full bg-card/85 hover:bg-card border border-border/50 px-4 py-2 shadow-lg backdrop-blur-md transition-all duration-300">
-          <div className={`relative flex h-8 w-8 items-center justify-center rounded-full bg-primary-soft/80 text-primary ${isCanonPlaying ? "animate-pulse" : ""}`}>
-            <Music className={`h-4.5 w-4.5 ${isCanonPlaying ? "animate-spin-slow" : ""}`} />
-            {isCanonPlaying && (
-              <span className="absolute -right-0.5 -top-0.5 flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
-              </span>
-            )}
-          </div>
-          <div className="flex flex-col pr-1">
-            <span className="text-[11px] font-semibold text-foreground leading-none">Canon in D</span>
-            <span className="text-[9px] text-muted-foreground mt-0.5">
-              {isCanonPlaying ? "Diputar" : "Dijeda"}
-            </span>
-          </div>
-          <button
-            onClick={() => toggleAmbientSound("canon")}
-            className="flex h-7 w-7 items-center justify-center rounded-full bg-primary text-primary-foreground hover:bg-primary/90 transition-all active:scale-95 shadow-sm cursor-pointer"
-            title={isCanonPlaying ? "Jeda" : "Putar"}
-          >
-            {isCanonPlaying ? (
-              <Pause className="h-3 w-3 fill-current" />
-            ) : (
-              <Play className="h-3 w-3 fill-current translate-x-0.5" />
-            )}
-          </button>
-        </div>
-      </div>
+
     </div>
   );
 }

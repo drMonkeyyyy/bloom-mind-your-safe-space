@@ -263,6 +263,29 @@ const initYoutubePlayer = (callback: (player: any) => void) => {
         onReady: () => {
           (window as any).__bloomYoutubePlayer = player;
           callback(player);
+        },
+        onStateChange: (event: any) => {
+          const YT = (window as any).YT;
+          if (!YT) return;
+          const isActuallyPlaying = event.data === YT.PlayerState.PLAYING || event.data === YT.PlayerState.BUFFERING;
+          if (!isActuallyPlaying) {
+            const channel = window.__bloomChannels?.["canon"];
+            if (channel) {
+              try { channel.source.stop(); } catch (e) {}
+              if (window.__bloomChannels) {
+                delete window.__bloomChannels["canon"];
+              }
+              notifyListeners();
+            }
+          } else {
+            if (window.__bloomChannels && !window.__bloomChannels["canon"]) {
+              window.__bloomChannels["canon"] = {
+                source: null as any,
+                gainNode: null as any
+              };
+              notifyListeners();
+            }
+          }
         }
       }
     });

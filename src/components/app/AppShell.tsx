@@ -9,6 +9,8 @@ import { BottomSheet } from "./BottomSheet";
 import { StreakBuddy } from "./StreakBuddy";
 import { AffirmationWidget } from "./AffirmationWidget";
 import { BloomGarden } from "./BloomGarden";
+import { subscribeAudioState, toggleAmbientSound } from "@/lib/audio";
+import { Music, Pause, Play } from "lucide-react";
 
 /* ─── SVG Icon helpers ─────────────────────────────────────────── */
 function Icon({ d, className = "h-5 w-5" }: { d: string; className?: string }) {
@@ -123,6 +125,46 @@ export function AppShell({ children }: { children: ReactNode }) {
   const path = useRouterState({ select: (s) => s.location.pathname });
   const qc = useQueryClient();
   const [moreOpen, setMoreOpen] = useState(false);
+
+  const [activeChannels, setActiveChannels] = useState<Record<string, number>>({
+    rain: 0, waves: 0, forest: 0, wind: 0, whitenoise: 0, canon: 0
+  });
+
+  useEffect(() => {
+    const unsubscribe = subscribeAudioState((channels) => {
+      setActiveChannels(channels);
+    });
+    return unsubscribe;
+  }, []);
+
+  const activeSoundList = Object.entries(activeChannels)
+    .filter(([_, vol]) => vol > 0)
+    .map(([id]) => id);
+
+  const isAnySoundPlaying = activeSoundList.length > 0;
+  const isCanonPlaying = activeChannels.canon > 0;
+
+  const getActiveSoundLabel = () => {
+    if (activeSoundList.includes("canon")) return "Canon in D";
+    if (activeSoundList.includes("rain")) return "Suara Hujan";
+    if (activeSoundList.includes("waves")) return "Suara Ombak";
+    if (activeSoundList.includes("forest")) return "Suara Hutan";
+    if (activeSoundList.includes("wind")) return "Suara Angin";
+    if (activeSoundList.includes("whitenoise")) return "White Noise";
+    return "";
+  };
+
+  const handlePillToggle = () => {
+    if (activeSoundList.length > 0) {
+      activeSoundList.forEach((sound) => {
+        toggleAmbientSound(sound as any);
+      });
+    } else {
+      toggleAmbientSound("canon");
+    }
+  };
+
+  const showGlobalPlayer = path === "/app/calm" || isAnySoundPlaying;
 
   // Force onboarding
   useEffect(() => {
@@ -388,6 +430,42 @@ export function AppShell({ children }: { children: ReactNode }) {
           </button>
         </div>
       </BottomSheet>
+
+      {/* Global floating music pill */}
+      {showGlobalPlayer && (
+        <div className="fixed bottom-24 lg:bottom-8 right-6 z-40 animate-fade-in-up">
+          <div className="flex items-center gap-2.5 rounded-full bg-card/85 hover:bg-card border border-border/50 px-4 py-2 shadow-lg backdrop-blur-md transition-all duration-300">
+            <div className={`relative flex h-8 w-8 items-center justify-center rounded-full bg-primary-soft/80 text-primary ${isAnySoundPlaying ? "animate-pulse" : ""}`}>
+              <Music className={`h-4.5 w-4.5 ${isCanonPlaying ? "animate-spin-slow" : ""}`} />
+              {isAnySoundPlaying && (
+                <span className="absolute -right-0.5 -top-0.5 flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+                </span>
+              )}
+            </div>
+            <div className="flex flex-col pr-1">
+              <span className="text-[11px] font-semibold text-foreground leading-none">
+                {isAnySoundPlaying ? getActiveSoundLabel() : "Canon in D"}
+              </span>
+              <span className="text-[9px] text-muted-foreground mt-0.5">
+                {isAnySoundPlaying ? "Diputar" : "Dijeda"}
+              </span>
+            </div>
+            <button
+              onClick={handlePillToggle}
+              className="flex h-7 w-7 items-center justify-center rounded-full bg-primary text-primary-foreground hover:bg-primary/90 transition-all active:scale-95 shadow-sm cursor-pointer"
+              title={isAnySoundPlaying ? "Jeda" : "Putar"}
+            >
+              {isAnySoundPlaying ? (
+                <Pause className="h-3 w-3 fill-current" />
+              ) : (
+                <Play className="h-3 w-3 fill-current translate-x-0.5" />
+              )}
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
