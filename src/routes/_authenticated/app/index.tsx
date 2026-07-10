@@ -349,8 +349,13 @@ function Dashboard() {
     <div className="space-y-5">
       {/* ── HERO GREETING ─────────────────────────────────────────── */}
       <div
-        className="relative overflow-hidden rounded-3xl"
-        style={{ minHeight: 200 }}
+        className="relative overflow-hidden rounded-3xl isolate z-0"
+        style={{ 
+          minHeight: 200,
+          transform: "translateZ(0)",
+          WebkitMaskImage: "-webkit-radial-gradient(white, black)",
+          maskImage: "radial-gradient(white, black)"
+        }}
       >
         {/* Animated ambient background */}
         <div
