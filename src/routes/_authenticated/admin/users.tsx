@@ -28,6 +28,13 @@ function Page() {
       if (filter !== "all") qb = qb.eq("plan", filter);
       if (q) qb = qb.or(`email.ilike.%${q}%,name.ilike.%${q}%`);
 
+      const getLocalDateString = (d: Date) => {
+        const year = d.getFullYear();
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+      };
+
       const fetchStats = async () => {
         try {
           const res = await supabase.from("user_message_stats" as any).select("*");
@@ -46,17 +53,84 @@ function Page() {
         }
       };
 
-      const [profilesRes, statsRes, adminsRes] = await Promise.all([qb, fetchStats(), fetchAdmins()]);
+      const fetchMoodStats = async () => {
+        try {
+          const thirtyDaysAgo = getLocalDateString(new Date(Date.now() - 30 * 24 * 60 * 60 * 1000));
+          const res = await supabase.from("mood_checkins")
+            .select("user_id, mood_score, stress_score, date")
+            .gte("date", thirtyDaysAgo);
+          return res;
+        } catch {
+          return { data: [] };
+        }
+      };
+
+      const [profilesRes, statsRes, adminsRes, moodStatsRes] = await Promise.all([
+        qb,
+        fetchStats(),
+        fetchAdmins(),
+        fetchMoodStats(),
+      ]);
 
       const profiles = profilesRes.data ?? [];
       const statsMap = new Map((statsRes.data ?? []).map((s: any) => [s.user_id, s.total_replies]));
       const adminSet = new Set((adminsRes.data ?? []).map((a: any) => a.user_id));
 
-      return profiles.map((p: any) => ({
-        ...p,
-        total_replies: statsMap.get(p.id) ?? 0,
-        is_admin: adminSet.has(p.id),
-      }));
+      const moodsMap = new Map<string, Array<{ mood_score: number; stress_score: number; date: string }>>();
+      (moodStatsRes.data ?? []).forEach((m: any) => {
+        if (!moodsMap.has(m.user_id)) {
+          moodsMap.set(m.user_id, []);
+        }
+        moodsMap.get(m.user_id)!.push(m);
+      });
+
+      const sevenDaysAgoStr = getLocalDateString(new Date(Date.now() - 7 * 24 * 60 * 60 * 1000));
+
+      return profiles.map((p: any) => {
+        const userMoods = moodsMap.get(p.id) ?? [];
+        const totalCheckins = userMoods.length;
+        let trendText = "Belum cukup data";
+        let trendColor = "text-stone-500 bg-stone-100/60 border border-stone-200/40";
+        let avgMood30 = 0;
+
+        if (totalCheckins > 0) {
+          const sumMood = userMoods.reduce((sum, item) => sum + item.mood_score, 0);
+          avgMood30 = Number((sumMood / totalCheckins).toFixed(1));
+
+          const recentMoods = userMoods.filter((m) => m.date >= sevenDaysAgoStr);
+          const olderMoods = userMoods.filter((m) => m.date < sevenDaysAgoStr);
+
+          if (recentMoods.length > 0 && olderMoods.length > 0) {
+            const avgRecent = recentMoods.reduce((sum, item) => sum + item.mood_score, 0) / recentMoods.length;
+            const avgOlder = olderMoods.reduce((sum, item) => sum + item.mood_score, 0) / olderMoods.length;
+
+            const diff = avgRecent - avgOlder;
+            if (diff >= 0.5) {
+              trendText = `↗️ Membaik (+${diff.toFixed(1)})`;
+              trendColor = "text-emerald-700 bg-emerald-50 border border-emerald-100/60";
+            } else if (diff <= -0.5) {
+              trendText = `↘️ Menurun (${diff.toFixed(1)})`;
+              trendColor = "text-red-700 bg-red-50 border border-red-100/60";
+            } else {
+              trendText = `➡️ Stabil (${diff >= 0 ? "+" : ""}${diff.toFixed(1)})`;
+              trendColor = "text-amber-700 bg-amber-50 border border-amber-100/60";
+            }
+          } else if (recentMoods.length > 0) {
+            trendText = "Baru Check-in (Stabil)";
+            trendColor = "text-blue-700 bg-blue-50 border border-blue-100/60";
+          }
+        }
+
+        return {
+          ...p,
+          total_replies: statsMap.get(p.id) ?? 0,
+          is_admin: adminSet.has(p.id),
+          total_checkins: totalCheckins,
+          avg_mood_30: avgMood30,
+          trend_text: trendText,
+          trend_color: trendColor,
+        };
+      });
     },
   });
 
@@ -170,6 +244,17 @@ function Page() {
               <span>🪙 Est. <strong>{(u.total_replies * 1650).toLocaleString("id-ID")}</strong> token</span>
               <span className="text-emerald-700 font-semibold bg-emerald-50 px-2 py-0.5 rounded-md">
                 Est. Biaya: Rp {(u.total_replies * 2.57).toLocaleString("id-ID", { maximumFractionDigits: 1 })}
+              </span>
+            </div>
+
+            {/* Mental Health Trends */}
+            <div className="mt-2 pt-2 border-t border-border/20 flex flex-wrap items-center gap-x-6 gap-y-1.5 text-xs">
+              <span className="text-muted-foreground">📈 <strong>{u.total_checkins || 0}</strong> check-in (30 hari)</span>
+              {u.total_checkins > 0 && (
+                <span className="text-stone-700">📊 Rata-rata Mood: <strong>{u.avg_mood_30}/10</strong></span>
+              )}
+              <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${u.trend_color}`}>
+                {u.trend_text}
               </span>
             </div>
 
