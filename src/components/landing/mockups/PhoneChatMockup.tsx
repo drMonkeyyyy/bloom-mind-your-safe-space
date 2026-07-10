@@ -55,7 +55,7 @@ export function PhoneChatMockup() {
           <p className="text-xs font-semibold text-foreground">Insight</p>
         </div>
         <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
-          Kamu lebih tenang setelah journaling pagi.
+          Kamu lebih tenang setelah journaling malam.
         </p>
       </div>
 
