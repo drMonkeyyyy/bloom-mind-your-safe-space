@@ -330,9 +330,9 @@ export function ShareAffirmationModal({ open, onClose, affirmation }: ShareModal
       }
     };
 
-    convertToBase64("/logo.png", setLogoBase64);
-    convertToBase64("/qr-code.png", setQrBase64);
-    convertToBase64("/canva-layouts-grid.jpg", setBgBase64);
+    convertToBase64(getAbsoluteUrl("/logo.png"), setLogoBase64);
+    convertToBase64(getAbsoluteUrl("/qr-code.png"), setQrBase64);
+    convertToBase64(getAbsoluteUrl("/canva-layouts-grid.jpg"), setBgBase64);
 
     return () => {
       isMounted = false;
@@ -346,7 +346,6 @@ export function ShareAffirmationModal({ open, onClose, affirmation }: ShareModal
     await new Promise((resolve) => setTimeout(resolve, 300));
     return await htmlToImage.toPng(exportRef.current, {
       quality: 0.95,
-      cacheBust: true,
     });
   };
 
