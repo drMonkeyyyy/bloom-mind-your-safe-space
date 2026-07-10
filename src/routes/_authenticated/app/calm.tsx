@@ -9,6 +9,8 @@ import { CognitiveReframing } from "@/components/calm/CognitiveReframing";
 import { SomaticExercise } from "@/components/calm/SomaticExercise";
 import { AmbientSoundPlayer } from "@/components/calm/AmbientSoundPlayer";
 import { PanicAttackTimer } from "@/components/calm/PanicAttackTimer";
+import { playAmbientSound, toggleAmbientSound, subscribeAudioState } from "@/lib/audio";
+import { Music, Pause, Play } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/app/calm")({
   component: Page,
@@ -21,6 +23,23 @@ function Page() {
   const activeToolRef = useRef<HTMLDivElement>(null);
   const [feedbackSubmitted, setFeedbackSubmitted] = useState<boolean>(false);
   const [submitting, setSubmitting] = useState<boolean>(false);
+  const [isCanonPlaying, setIsCanonPlaying] = useState<boolean>(false);
+
+  useEffect(() => {
+    // Play Canon in D automatically on mount in Emergency Calm Mode
+    try {
+      playAmbientSound("canon");
+    } catch (err) {
+      console.error("Autoplay Canon in D failed:", err);
+    }
+  }, []);
+
+  useEffect(() => {
+    const unsubscribe = subscribeAudioState((channels) => {
+      setIsCanonPlaying(channels.canon > 0);
+    });
+    return unsubscribe;
+  }, []);
 
   useEffect(() => {
     if (tool) {
@@ -139,11 +158,23 @@ function Page() {
           className="absolute bottom-0 left-1/4 h-24 w-24 rounded-full pointer-events-none"
           style={{ background: "oklch(0.70 0.05 270 / 0.12)", filter: "blur(28px)", animation: "blob-drift-alt 18s ease-in-out infinite" }}
         />
-        <div className="relative">
-          <h1 className="font-display text-3xl font-semibold">Emergency Calm Mode</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Tarik napas dalam. Kamu aman di sini. 🌿
-          </p>
+        <div className="relative flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h1 className="font-display text-3xl font-semibold">Emergency Calm Mode</h1>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Tarik napas dalam. Kamu aman di sini. 🌿
+            </p>
+          </div>
+          <button
+            onClick={() => toggleAmbientSound("canon")}
+            className="flex items-center gap-2 self-start sm:self-center rounded-full bg-card/65 hover:bg-card/90 border border-border/40 px-4 py-2 text-xs font-semibold text-foreground backdrop-blur-md transition-all duration-200 shadow-sm active:scale-95 cursor-pointer"
+          >
+            <span className={`text-base ${isCanonPlaying ? "animate-pulse" : ""}`}>🎻</span>
+            <span>Canon in D: {isCanonPlaying ? "Sedang Diputar" : "Dijeda"}</span>
+            <span className="ml-1 text-muted-foreground font-medium">
+              {isCanonPlaying ? "Jeda ⏸️" : "Putar ▶️"}
+            </span>
+          </button>
         </div>
       </div>
 
@@ -219,6 +250,38 @@ function Page() {
           </div>
         </div>
       )}
+
+      {/* Floating music pill */}
+      <div className="fixed bottom-24 lg:bottom-8 right-6 z-40 animate-fade-in-up">
+        <div className="flex items-center gap-2.5 rounded-full bg-card/85 hover:bg-card border border-border/50 px-4 py-2 shadow-lg backdrop-blur-md transition-all duration-300">
+          <div className={`relative flex h-8 w-8 items-center justify-center rounded-full bg-primary-soft/80 text-primary ${isCanonPlaying ? "animate-pulse" : ""}`}>
+            <Music className={`h-4.5 w-4.5 ${isCanonPlaying ? "animate-spin-slow" : ""}`} />
+            {isCanonPlaying && (
+              <span className="absolute -right-0.5 -top-0.5 flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+              </span>
+            )}
+          </div>
+          <div className="flex flex-col pr-1">
+            <span className="text-[11px] font-semibold text-foreground leading-none">Canon in D</span>
+            <span className="text-[9px] text-muted-foreground mt-0.5">
+              {isCanonPlaying ? "Diputar" : "Dijeda"}
+            </span>
+          </div>
+          <button
+            onClick={() => toggleAmbientSound("canon")}
+            className="flex h-7 w-7 items-center justify-center rounded-full bg-primary text-primary-foreground hover:bg-primary/90 transition-all active:scale-95 shadow-sm cursor-pointer"
+            title={isCanonPlaying ? "Jeda" : "Putar"}
+          >
+            {isCanonPlaying ? (
+              <Pause className="h-3 w-3 fill-current" />
+            ) : (
+              <Play className="h-3 w-3 fill-current translate-x-0.5" />
+            )}
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
