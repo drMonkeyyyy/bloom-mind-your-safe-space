@@ -45,9 +45,14 @@ function parseInlineMarkdown(text: string) {
   });
 }
 
-function parseMarkdown(text: string) {
+function parseMarkdown(text: string, isSmall = false) {
   if (!text) return null;
   const lines = text.split("\n");
+  const textSize = isSmall ? "text-xs" : "text-sm";
+  const h4Size = isSmall ? "text-xs" : "text-sm";
+  const h3Size = isSmall ? "text-sm" : "text-base";
+  const h2Size = isSmall ? "text-base" : "text-lg";
+  
   return lines.map((line, idx) => {
     const trimmed = line.trim();
     if (trimmed === "---" || trimmed === "***") {
@@ -78,28 +83,28 @@ function parseMarkdown(text: string) {
 
     if (isH4) {
       return (
-        <h4 key={idx} className="font-display text-sm font-bold text-purple-900 mt-3 mb-1">
+        <h4 key={idx} className={`font-display ${h4Size} font-bold text-purple-900 mt-3 mb-1`}>
           {formatted}
         </h4>
       );
     }
     if (isH3) {
       return (
-        <h3 key={idx} className="font-display text-base font-bold text-purple-900 mt-4 mb-2">
+        <h3 key={idx} className={`font-display ${h3Size} font-bold text-purple-900 mt-4 mb-2`}>
           {formatted}
         </h3>
       );
     }
     if (isH2) {
       return (
-        <h2 key={idx} className="font-display text-lg font-bold text-purple-900 mt-5 mb-2">
+        <h2 key={idx} className={`font-display ${h2Size} font-bold text-purple-900 mt-5 mb-2`}>
           {formatted}
         </h2>
       );
     }
     if (isBullet) {
       return (
-        <div key={idx} className="flex items-start gap-2 text-sm text-stone-700 leading-relaxed ml-2">
+        <div key={idx} className={`flex items-start gap-2 ${textSize} text-stone-700 leading-relaxed ml-2`}>
           <span className="text-purple-500 mt-1 select-none">•</span>
           <span className="flex-1">{formatted}</span>
         </div>
@@ -107,7 +112,7 @@ function parseMarkdown(text: string) {
     }
 
     return (
-      <p key={idx} className={trimmed === "" ? "h-2" : "text-sm text-stone-700 leading-relaxed"}>
+      <p key={idx} className={trimmed === "" ? "h-2" : `${textSize} text-stone-700 leading-relaxed`}>
         {formatted}
       </p>
     );
@@ -1094,7 +1099,9 @@ function Page() {
                       </button>
                     </div>
                   </div>
-                  <p className="whitespace-pre-wrap select-text selection:bg-primary-soft">{item.text}</p>
+                  <div className="select-text selection:bg-primary-soft space-y-2">
+                    {parseMarkdown(item.text, true)}
+                  </div>
                 </div>
               );
             })}
