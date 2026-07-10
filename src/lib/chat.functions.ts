@@ -230,8 +230,14 @@ Detail Input:
 - Jenis lapar yang dirasakan: ${data.hungerType ?? "belum dipilih"}
 
 Tugasmu (Berperanlah sebagai Psikolog atau Psikiater klinis profesional yang hangat dan empatik):
-1. Berikan "insight": Analisis hangat, empatik, berwawasan psikologis mendalam dalam Bahasa Indonesia (sekitar 3-4 kalimat) mengenai akar pemicu emosional mereka dan kaitannya dengan makanan yang mereka inginkan. Jelaskan mengapa emosi tersebut mengarahkan mereka ke makanan spesifik tersebut tanpa memberikan diagnosis medis formal atau resep obat.
-2. Berikan "action": Berikan 2-3 langkah coping mechanism terapeutik yang diuraikan secara detail dan praktis (bukan sekadar daftar pendek, melainkan penjelasan instruktif langkah-per-langkah yang mendalam). Gunakan bahasa psikologi yang mudah dipahami, membimbing, dan mendukung proses regulasi emosi mereka. Gunakan penomoran dan baris baru (\n) untuk memisahkan setiap langkah agar mudah dibaca.`;
+1. Buat "insight": Analisis hangat, empatik, berwawasan psikologis mendalam dalam Bahasa Indonesia (sekitar 3-4 kalimat) mengenai akar pemicu emosional mereka dan kaitannya dengan makanan yang mereka inginkan. Jelaskan mengapa emosi tersebut mengarahkan mereka ke makanan spesifik tersebut tanpa memberikan diagnosis medis formal atau resep obat.
+2. Buat "action": Berikan 2-3 langkah coping mechanism terapeutik yang diuraikan secara detail dan praktis (bukan sekadar daftar pendek, melainkan penjelasan instruktif langkah-per-langkah yang mendalam). Gunakan bahasa psikologi yang mudah dipahami, membimbing, dan mendukung proses regulasi emosi mereka. Gunakan penomoran dan baris baru (\n) untuk memisahkan setiap langkah agar mudah dibaca.
+
+PENTING: Output HARUS berupa JSON valid dengan format berikut (jangan sertakan teks markdown \`\`\`json atau teks lain di luar JSON):
+{
+  "insight": "tulis insight di sini...",
+  "action": "tulis action langkah 1\\n\\ntulis action langkah 2\\n\\ntulis action langkah 3..."
+}`;
 
     let insight = "";
     let action = `1. Jeda & Bernapas (Latihan 4-4-6):
@@ -244,21 +250,26 @@ Minum segelas air putih hangat secara perlahan-lahan. Rasakan aliran airnya masu
 Tuliskan 1 kalimat jujur tentang apa yang paling kamu cemaskan atau rasakan saat ini di lembar jurnal JN-CALM untuk menyalurkan energi emosionalmu.`;
 
     try {
-      const { generateObject } = await import("ai");
-      const r = await generateObject({
-        model: gateway("gemini-2.5-flash-lite"),
-        schema: z.object({
-          insight: z.string().describe("Insight psikologis yang hangat, empatik, tidak menghakimi dalam Bahasa Indonesia (maksimal 4 kalimat)."),
-          action: z.string().describe("Coping mechanism terapeutik terperinci langkah-per-langkah, dipisahkan dengan baris baru untuk setiap langkah.")
-        }),
+      const r = await generateText({
+        model: gateway("gemini-2.5-flash"),
         prompt
       });
-      insight = r.object.insight?.trim() || "";
-      action = r.object.action?.trim() || action;
-    } catch {
+      
+      const m = r.text.match(/\{[\s\S]*\}/);
+      if (m) {
+        const parsed = JSON.parse(m[0]);
+        insight = parsed.insight?.trim() || "";
+        action = parsed.action?.trim() || action;
+      } else {
+        throw new Error("Format JSON tidak ditemukan dalam respon AI");
+      }
+    } catch (e) {
+      console.error("Gagal melakukan generate/parse JSON:", e);
       try {
-        const { generateText } = await import("ai");
-        const rText = await generateText({ model: gateway("gemini-2.5-flash-lite"), prompt });
+        const rText = await generateText({ 
+          model: gateway("gemini-2.5-flash"), 
+          prompt: `Berikan insight psikologis singkat, hangat, empatik (maksimal 3 kalimat) untuk orang yang cemas/stres dan ingin makan ${data.cravingFood || "makanan"} karena dipicu oleh ${data.trigger || "situasi ini"}.` 
+        });
         insight = rText.text?.trim() ?? "Tarik napas dulu 5 menit. Tanyakan: apa yang sebenarnya kamu butuhkan saat ini? Mungkin bukan makanan, tapi rasa nyaman.";
       } catch {
         insight = "Tarik napas dulu 5 menit. Tanyakan: apa yang sebenarnya kamu butuhkan saat ini? Mungkin bukan makanan, tapi rasa nyaman.";
