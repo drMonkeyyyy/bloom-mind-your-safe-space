@@ -9,8 +9,7 @@ import { BottomSheet } from "./BottomSheet";
 import { StreakBuddy } from "./StreakBuddy";
 import { AffirmationWidget } from "./AffirmationWidget";
 import { BloomGarden } from "./BloomGarden";
-import { subscribeAudioState, toggleAmbientSound } from "@/lib/audio";
-import { Music, Pause, Play, X } from "lucide-react";
+
 
 /* ─── SVG Icon helpers ─────────────────────────────────────────── */
 function Icon({ d, className = "h-5 w-5" }: { d: string; className?: string }) {
@@ -126,56 +125,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const qc = useQueryClient();
   const [moreOpen, setMoreOpen] = useState(false);
 
-  const [activeChannels, setActiveChannels] = useState<Record<string, number>>({
-    rain: 0, waves: 0, forest: 0, wind: 0, whitenoise: 0, canon: 0
-  });
 
-  useEffect(() => {
-    const unsubscribe = subscribeAudioState((channels) => {
-      setActiveChannels(channels);
-    });
-    return unsubscribe;
-  }, []);
-
-  const activeSoundList = Object.entries(activeChannels)
-    .filter(([_, vol]) => vol > 0)
-    .map(([id]) => id);
-
-  const isAnySoundPlaying = activeSoundList.length > 0;
-  const isCanonPlaying = activeChannels.canon > 0;
-
-  const getActiveSoundLabel = () => {
-    if (activeSoundList.includes("canon")) return "Canon in D";
-    if (activeSoundList.includes("rain")) return "Suara Hujan";
-    if (activeSoundList.includes("waves")) return "Suara Ombak";
-    if (activeSoundList.includes("forest")) return "Suara Hutan";
-    if (activeSoundList.includes("wind")) return "Suara Angin";
-    if (activeSoundList.includes("whitenoise")) return "White Noise";
-    return "";
-  };
-
-  const handlePillToggle = () => {
-    if (activeSoundList.length > 0) {
-      activeSoundList.forEach((sound) => {
-        toggleAmbientSound(sound as any);
-      });
-    } else {
-      toggleAmbientSound("canon");
-    }
-  };
-
-  const [dismissed, setDismissed] = useState(false);
-  const activeSoundKey = activeSoundList.join(",");
-  const [prevActiveSoundKey, setPrevActiveSoundKey] = useState("");
-
-  useEffect(() => {
-    if (activeSoundKey !== prevActiveSoundKey) {
-      setDismissed(false);
-      setPrevActiveSoundKey(activeSoundKey);
-    }
-  }, [activeSoundKey, prevActiveSoundKey]);
-
-  const showGlobalPlayer = !dismissed && (path === "/app/calm" || isAnySoundPlaying);
 
   // Force onboarding
   useEffect(() => {
@@ -442,50 +392,6 @@ export function AppShell({ children }: { children: ReactNode }) {
         </div>
       </BottomSheet>
 
-      {/* Global floating music pill */}
-      {showGlobalPlayer && (
-        <div className="fixed bottom-32 lg:bottom-8 right-4 lg:right-6 z-40 animate-fade-in-up">
-          <div className="flex items-center gap-2 rounded-full bg-card/90 hover:bg-card border border-border/50 pl-3.5 pr-2 py-1.5 shadow-lg backdrop-blur-md transition-all duration-300">
-            <div className={`relative flex h-7.5 w-7.5 items-center justify-center rounded-full bg-primary-soft/80 text-primary ${isAnySoundPlaying ? "animate-pulse" : ""}`}>
-              <Music className={`h-4 w-4 ${isCanonPlaying ? "animate-spin-slow" : ""}`} />
-              {isAnySoundPlaying && (
-                <span className="absolute -right-0.5 -top-0.5 flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
-                </span>
-              )}
-            </div>
-            <div className="flex flex-col pr-1 min-w-[70px]">
-              <span className="text-[10px] font-semibold text-foreground leading-none">
-                {isAnySoundPlaying ? getActiveSoundLabel() : "Canon in D"}
-              </span>
-              <span className="text-[8px] text-muted-foreground mt-0.5">
-                {isAnySoundPlaying ? "Diputar" : "Dijeda"}
-              </span>
-            </div>
-            <div className="flex items-center gap-1.5 border-l border-border/60 pl-2">
-              <button
-                onClick={handlePillToggle}
-                className="flex h-6.5 w-6.5 items-center justify-center rounded-full bg-primary text-primary-foreground hover:bg-primary/90 transition-all active:scale-95 shadow-sm cursor-pointer"
-                title={isAnySoundPlaying ? "Jeda" : "Putar"}
-              >
-                {isAnySoundPlaying ? (
-                  <Pause className="h-2.5 w-2.5 fill-current" />
-                ) : (
-                  <Play className="h-2.5 w-2.5 fill-current translate-x-0.5" />
-                )}
-              </button>
-              <button
-                onClick={() => setDismissed(true)}
-                className="flex h-6.5 w-6.5 items-center justify-center rounded-full text-muted-foreground hover:text-foreground hover:bg-cream-deep/80 transition-all cursor-pointer"
-                title="Tutup"
-              >
-                <X className="h-3 w-3" />
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

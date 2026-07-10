@@ -191,9 +191,13 @@ function Page() {
               </span>
               <span className="text-base text-muted-foreground">/{packageType === "tahunan" ? "tahun" : "bulan"}</span>
             </div>
-            {packageType === "tahunan" && (
+            {packageType === "tahunan" ? (
               <p className="mt-1 text-xs text-muted-foreground">
                 Pembayaran sekali di depan · Aktif selama 12 bulan penuh
+              </p>
+            ) : (
+              <p className="mt-1 text-xs text-muted-foreground">
+                Langkah kecil untuk kedamaian pikiranmu.
               </p>
             )}
 
