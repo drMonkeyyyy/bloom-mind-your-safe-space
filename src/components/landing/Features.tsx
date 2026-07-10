@@ -1,39 +1,39 @@
 const features = [
   {
-    title: "Teman Curhat",
-    desc: "Curhat kapan saja tanpa takut dihakimi.",
+    title: "Teman Curhat AI 24/7",
+    desc: "Curhat interaktif kapan saja dengan asisten AI yang hangat tanpa dihakimi.",
     icon: (
       <path d="M7 8h10M7 12h6m-9 8 4-4h10a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v14Z" />
     ),
     tone: "primary",
   },
   {
-    title: "Mood Tracker",
-    desc: "Pantau kondisi emosimu setiap hari.",
+    title: "Mood & Stress Tracker",
+    desc: "Pantau emosi, tingkat energi, dan indikator stres Anda secara real-time.",
     icon: <path d="M4 18V8m5 10V4m5 14v-7m5 7v-3" />,
     tone: "accent",
   },
   {
-    title: "AI Journal",
-    desc: "AI membantu merangkum dan merefleksikan harimu.",
+    title: "AI Journal & Gratitude",
+    desc: "Tulis rasa syukur harian, biar AI merangkum dan merefleksikan harimu.",
     icon: <path d="M5 4h11l3 3v13a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1Zm3 7h8m-8 4h6" />,
     tone: "primary",
   },
   {
-    title: "Growth Dashboard",
-    desc: "Lihat perkembangan dirimu dari waktu ke waktu.",
-    icon: <path d="M4 19h16M6 17V9m5 8V5m5 12v-6m5 6V8" />,
+    title: "Emergency Calm Mode",
+    desc: "Latihan somatik, pernapasan, dan grounding darurat saat cemas menyerang.",
+    icon: <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />,
     tone: "accent",
   },
   {
-    title: "Habit Tracker",
-    desc: "Bangun kebiasaan kecil yang berdampak besar.",
-    icon: <path d="m5 12 4 4 10-10M5 19h14" />,
+    title: "Detektor Eating Emosional",
+    desc: "Kenali apakah lapar Anda fisik atau dorongan emosi (Emotional Eating).",
+    icon: <path d="M3 12h18M12 3v9M12 12A9 9 0 0 1 3 21h18a9 9 0 0 1-9-9Z" />,
     tone: "primary",
   },
   {
-    title: "Weekly AI Insight",
-    desc: "Insight personal berdasarkan perjalananmu.",
+    title: "Daily & Weekly AI Insight",
+    desc: "Evaluasi kesehatan mental harian dan mingguan personal dari Gemini.",
     icon: <path d="M12 3v3m0 12v3m9-9h-3M6 12H3m14.5-6.5-2 2m-9 9-2 2m13 0-2-2m-9-9-2-2" />,
     tone: "accent",
   },
