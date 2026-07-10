@@ -185,7 +185,10 @@ function Page() {
         const sortedTriggers = Object.entries(userTriggers)
           .sort((a, b) => b[1] - a[1])
           .slice(0, 3)
-          .map(([t, count]) => `${t} (${count}×)`);
+          .map(([t, count]) => {
+            const pct = totalCheckins ? Math.round((count / totalCheckins) * 100) : 0;
+            return `${t} (${count}× dari ${totalCheckins} [${pct}%])`;
+          });
 
         const topTriggersText = sortedTriggers.length > 0 ? sortedTriggers.join(", ") : "Tidak ada";
 
