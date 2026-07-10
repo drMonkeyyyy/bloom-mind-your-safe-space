@@ -532,6 +532,26 @@ function Page() {
     (item) => getLocalDateString(new Date(item.date)) === todayStr
   );
 
+  const weeklyStatus = (() => {
+    if (weeklyHistory.length === 0) return { canGenerate: true, daysRemaining: 0 };
+    const lastEntry = weeklyHistory[0];
+    const lastDate = new Date(lastEntry.date);
+    const lastDateStr = getLocalDateString(lastDate);
+    
+    if (lastDateStr === todayStr) {
+      return { canGenerate: true, daysRemaining: 0 };
+    }
+    
+    const diffTime = Date.now() - lastDate.getTime();
+    const diffDays = Math.ceil((7 * 24 * 60 * 60 * 1000 - diffTime) / (24 * 60 * 60 * 1000));
+    
+    if (diffDays <= 0) {
+      return { canGenerate: true, daysRemaining: 0 };
+    }
+    
+    return { canGenerate: false, daysRemaining: diffDays };
+  })();
+
   const generateDaily = async () => {
     setDailyInsightLoading(true);
     try {
@@ -776,12 +796,18 @@ function Page() {
               )}
               <button
                 onClick={insightTab === "daily" ? generateDaily : generateWeekly}
-                disabled={insightTab === "daily" ? dailyInsightLoading : weeklyInsightLoading}
-                className="rounded-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 px-5 py-2.5 text-xs font-bold text-white transition-all hover:-translate-y-0.5 hover:shadow-md disabled:opacity-60 flex items-center gap-1.5"
+                disabled={insightTab === "daily" ? dailyInsightLoading : (weeklyInsightLoading || !weeklyStatus.canGenerate)}
+                className="rounded-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 px-5 py-2.5 text-xs font-bold text-white transition-all hover:-translate-y-0.5 hover:shadow-md disabled:opacity-60 flex items-center gap-1.5 shrink-0"
               >
                 {insightTab === "daily" 
                   ? (dailyInsightLoading ? "Memuat…" : hasDailyGeneratedToday ? "🔄 Regenerate" : "Generate")
-                  : (weeklyInsightLoading ? "Memuat…" : hasWeeklyGeneratedToday ? "🔄 Regenerate" : "Generate")
+                  : (weeklyInsightLoading 
+                      ? "Memuat…" 
+                      : !weeklyStatus.canGenerate 
+                        ? `🔒 ${weeklyStatus.daysRemaining} Hari` 
+                        : hasWeeklyGeneratedToday 
+                          ? "🔄 Regenerate" 
+                          : "Generate")
                 }
               </button>
             </div>
@@ -927,13 +953,24 @@ function Page() {
                   </p>
                 )}
 
-                {hasWeeklyGeneratedToday && weeklyInsight && (
-                  <div className="mt-4 text-[10px] text-purple-700 bg-purple-50/50 border border-purple-100/60 rounded-2xl p-3 font-semibold flex items-start gap-2 animate-fade-in shadow-inner">
-                    <span>💡</span>
-                    <p className="leading-normal">
-                      Kamu sudah membuat insight hari ini. Mengklik <strong>Regenerate</strong> akan memperbarui laporan hari ini di riwayat kamu.
-                    </p>
-                  </div>
+                {weeklyInsight && (
+                  <>
+                    {hasWeeklyGeneratedToday ? (
+                      <div className="mt-4 text-[10px] text-purple-700 bg-purple-50/50 border border-purple-100/60 rounded-2xl p-3 font-semibold flex items-start gap-2 animate-fade-in shadow-inner">
+                        <span>💡</span>
+                        <p className="leading-normal">
+                          Kamu sudah membuat insight hari ini. Mengklik <strong>Regenerate</strong> akan memperbarui laporan hari ini di riwayat kamu.
+                        </p>
+                      </div>
+                    ) : !weeklyStatus.canGenerate ? (
+                      <div className="mt-4 text-[10px] text-stone-600 bg-stone-50/80 border border-stone-200/50 rounded-2xl p-3 font-semibold flex items-start gap-2 animate-fade-in shadow-inner">
+                        <span>🔒</span>
+                        <p className="leading-normal">
+                          Insight mingguan dikunci. Kamu bisa men-generate insight baru dalam <strong>{weeklyStatus.daysRemaining} hari</strong> lagi untuk melacak perkembangan terbarumu.
+                        </p>
+                      </div>
+                    ) : null}
+                  </>
                 )}
               </>
             )}
