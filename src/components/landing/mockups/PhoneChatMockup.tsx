@@ -4,11 +4,17 @@ export function PhoneChatMockup() {
   const [step, setStep] = useState(0);
 
   useEffect(() => {
-    let delay = 1800; // Default transition delay
-    if (step === 1) delay = 1500; // User replies, wait before typing
-    if (step === 2) delay = 1800; // Typing indicator displays
-    if (step === 3) delay = 2200; // Aira replies, delay before showing cards
-    if (step === 4) delay = 6000; // Wait at final state before resetting
+    // Optimization for digital marketing:
+    // Step 0 -> Step 1 (User reply): 500ms
+    // Step 1 -> Step 2 (Typing indicator): 400ms
+    // Step 2 -> Step 3 (Aira replies): 1000ms (typing indicator pulses, then reply fades in)
+    // Step 3 -> Step 4 (Floating cards slide in): 700ms
+    // Step 4 -> Reset to Step 0 (Keep full state visible for reading): 8000ms
+    let delay = 500;
+    if (step === 1) delay = 400;
+    if (step === 2) delay = 1000;
+    if (step === 3) delay = 700;
+    if (step === 4) delay = 8000;
 
     const timer = setTimeout(() => {
       setStep((prev) => (prev === 4 ? 0 : prev + 1));
