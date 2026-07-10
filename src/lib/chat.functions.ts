@@ -217,12 +217,16 @@ export const analyzeEmotionalEating = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => EatingInput.parse(d))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
+    const { data: profile } = await supabase.from("profiles").select("name").eq("id", userId).maybeSingle();
+    const userName = profile?.name || "Teman JN-CALM";
+
     const { createGeminiClient, getGeminiApiKey } = await import("./ai-client.server");
     const apiKey = getGeminiApiKey();
     if (!apiKey) throw new Error("GEMINI_API_KEY belum dikonfigurasi");
     const { generateText } = await import("ai");
     const gateway = createGeminiClient(apiKey);
-    const prompt = `User JN-CALM sedang melakukan refleksi emotional eating.
+    const prompt = `Nama User: ${userName}
+User ${userName} sedang melakukan refleksi emotional eating di aplikasi JN-CALM.
 Detail Input:
 - Emosi yang dirasakan: ${data.emotion || "-"}
 - Makanan yang dicraving: ${data.cravingFood || "-"}
@@ -230,7 +234,7 @@ Detail Input:
 - Jenis lapar yang dirasakan: ${data.hungerType ?? "belum dipilih"}
 
 Tugasmu (Berperanlah sebagai Psikolog atau Psikiater klinis profesional yang hangat dan empatik):
-1. Buat "insight": Analisis hangat, empatik, berwawasan psikologis mendalam dalam Bahasa Indonesia (sekitar 3-4 kalimat) mengenai akar pemicu emosional mereka dan kaitannya dengan makanan yang mereka inginkan. Jelaskan mengapa emosi tersebut mengarahkan mereka ke makanan spesifik tersebut tanpa memberikan diagnosis medis formal atau resep obat.
+1. Buat "insight": Sapa user dengan panggilan hangat menggunakan nama mereka (misalnya: "Halo ${userName}," atau "Hai ${userName},"). JANGAN gunakan sebutan formal yang kaku seperti "Saudara ${userName}" atau "Saudara JN-CALM". Berikan analisis hangat, empatik, berwawasan psikologis mendalam dalam Bahasa Indonesia (sekitar 3-4 kalimat) mengenai akar pemicu emosional mereka dan kaitannya dengan makanan yang mereka inginkan. Jelaskan mengapa emosi tersebut mengarahkan mereka ke makanan spesifik tersebut tanpa memberikan diagnosis medis formal atau resep obat.
 2. Buat "action": Berikan 2-3 langkah coping mechanism terapeutik yang diuraikan secara detail dan praktis (bukan sekadar daftar pendek, melainkan penjelasan instruktif langkah-per-langkah yang mendalam). Gunakan bahasa psikologi yang mudah dipahami, membimbing, dan mendukung proses regulasi emosi mereka. Gunakan penomoran dan baris baru (\n) untuk memisahkan setiap langkah agar mudah dibaca. 
    PENTING: Salah satu langkah WAJIB menyarankan mereka untuk masuk ke menu Chat AI di aplikasi JN-CALM untuk melakukan curhat/mengobrol dengan Pendamping AI pilihan mereka guna mendapatkan dukungan emosional langsung.
 
