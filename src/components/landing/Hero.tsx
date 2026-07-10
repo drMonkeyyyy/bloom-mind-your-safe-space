@@ -2,8 +2,8 @@ import { PhoneChatMockup } from "./mockups/PhoneChatMockup";
 import { FloatingBlob } from "./decor/FloatingBlob";
 
 const badges = [
+  { icon: "🩺", label: "Built by Doctors" },
   { icon: "🔒", label: "Aman & Privat" },
-  { icon: "🌐", label: "Bahasa Indonesia" },
   { icon: "⚡", label: "Ruang Curhat 24 Jam" },
   { icon: "🆓", label: "Gratis Dicoba" },
 ];
@@ -22,7 +22,7 @@ export function Hero() {
           <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-card/80 px-4 py-2 ring-1 ring-primary-soft backdrop-blur-sm">
             <span className="flex h-2 w-2 rounded-full bg-primary animate-pulse" />
             <span className="text-xs font-semibold text-primary flex items-center gap-1">
-              🩺 Dirancang oleh Dokter (Built by Doctors)
+              🩺 Built by Doctors
             </span>
             <span className="text-muted-foreground/30 text-xs">•</span>
             <span className="text-xs font-medium text-muted-foreground">Ruang aman untuk hati yang lelah</span>
@@ -39,7 +39,7 @@ export function Hero() {
           </h1>
 
           <p className="mt-6 max-w-xl text-lg leading-relaxed text-muted-foreground">
-            JN-CALM adalah ruang aman interaktif <strong className="text-foreground font-semibold">yang dirancang oleh Dokter</strong> untuk membantu kamu menghadapi overthinking, stres, burnout, emotional eating, dan berbagai tantangan hidup — tanpa rasa takut dihakimi.
+            JN-CALM adalah ruang aman interaktif <strong className="text-foreground font-semibold">yang dirancang oleh Dokter (Built by Doctors)</strong> untuk membantu kamu menghadapi overthinking, stres, burnout, emotional eating, dan berbagai tantangan hidup — tanpa rasa takut dihakimi.
           </p>
 
           {/* CTA buttons */}
