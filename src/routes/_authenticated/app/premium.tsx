@@ -192,7 +192,7 @@ function Page() {
               <span className="text-base text-muted-foreground">/{packageType === "tahunan" ? "tahun" : "bulan"}</span>
             </div>
             <p className="mt-1 text-xs text-muted-foreground">
-              {packageType === "tahunan" ? "Pembayaran sekali di depan · Aktif selama 12 bulan penuh" : "Bisa berhenti & dibatalkan kapan saja"}
+              {packageType === "tahunan" ? "Pembayaran sekali di depan · Aktif selama 12 bulan penuh" : "Bisa berhenti kapan saja"}
             </p>
 
             <ul className="mt-5 grid grid-cols-1 gap-2 sm:grid-cols-2">
