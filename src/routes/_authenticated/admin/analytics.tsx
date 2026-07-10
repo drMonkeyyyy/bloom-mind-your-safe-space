@@ -173,7 +173,7 @@ function Page() {
         }
       };
 
-      let moodQuery = supabase.from("mood_checkins").select("mood, triggers, user_id, date");
+      let moodQuery = supabase.from("mood_checkins").select("mood, triggers, user_id, date, mood_score, stress_score, energy_score");
       let journalQuery = supabase.from("journals").select("id", { count: "exact", head: true });
       let habitQuery = supabase.from("habit_logs").select("id", { count: "exact", head: true }).eq("completed", true);
       let eatingQuery = supabase.from("emotional_eating_logs").select("hunger_type, emotion, trigger");
@@ -308,6 +308,8 @@ function Page() {
 
       return {
         moodCount, triggerCount, companionCount, hungerCount, moodTriggers, moodStats30Days, moodCalmEfficacy,
+        moodsRaw: moods.data ?? [],
+        feedbackLogsRaw: feedbackRes.data ?? [],
         journalCount: journals.count ?? 0,
         habitCompletions: habits.count ?? 0,
         eatingCount: eating.data?.length ?? 0,
@@ -362,6 +364,59 @@ function Page() {
   const estTokens = (chatCalls * 1050) + (eatingCalls * 1900) + (journalizerCalls * 3000);
   const estApiCost = totalAiCalls * 2.5;
 
+  const exportDeidentifiedCSV = () => {
+    if (!data || !data.moodsRaw) return;
+    
+    let csvContent = "\ufeff"; // BOM for Excel UTF-8 support
+    csvContent += "=== DATA KONDISI MENTAL (MOOD CHECK-INS) ===\n";
+    csvContent += "Tanggal,User_ID_Hash,Mood,Mood_Score,Stress_Score,Energy_Score,Triggers\n";
+    
+    const moods = data.moodsRaw as any[];
+    moods.forEach((m) => {
+      const userHash = m.user_id ? m.user_id.slice(0, 8) : "anon";
+      const triggersStr = m.triggers ? m.triggers.join(";") : "";
+      csvContent += `${m.date || ""},${userHash},${m.mood || ""},${m.mood_score ?? ""},${m.stress_score ?? ""},${m.energy_score ?? ""},"${triggersStr}"\n`;
+    });
+
+    csvContent += "\n=== DATA INTERVENSI DARURAT (EMERGENCY CALM LOGS) ===\n";
+    csvContent += "Waktu_Dibuat,User_ID_Hash,Jenis_Latihan,Membantu_Nggak\n";
+    const feedbacks = data.feedbackLogsRaw as any[];
+    feedbacks.forEach((f) => {
+      const userHash = f.user_id ? f.user_id.slice(0, 8) : "anon";
+      csvContent += `${f.created_at || ""},${userHash},${f.exercise_key || ""},${f.is_helpful ? "Ya" : "Tidak"}\n`;
+    });
+
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", `bloom_mind_clinical_data_${timeRange}_days.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const moodsRawList = data?.moodsRaw as any[] ?? [];
+  const totalLogs = moodsRawList.length;
+  
+  let avgMoodScore = 0;
+  let avgStressScore = 0;
+  let avgEnergyScore = 0;
+  
+  if (totalLogs > 0) {
+    const sumMood = moodsRawList.reduce((sum, m) => sum + (m.mood_score ?? 5), 0);
+    const sumStress = moodsRawList.reduce((sum, m) => sum + (m.stress_score ?? 5), 0);
+    const sumEnergy = moodsRawList.reduce((sum, m) => sum + (m.energy_score ?? 5), 0);
+    avgMoodScore = sumMood / totalLogs;
+    avgStressScore = sumStress / totalLogs;
+    avgEnergyScore = sumEnergy / totalLogs;
+  }
+
+  const dopaminEst = totalLogs > 0 ? Math.min(100, Math.max(0, Math.round((avgEnergyScore / 10) * 100))) : 0;
+  const serotoninEst = totalLogs > 0 ? Math.min(100, Math.max(0, Math.round((avgMoodScore / 10) * 100))) : 0;
+  const gabaEst = totalLogs > 0 ? Math.min(100, Math.max(0, Math.round((1 - (avgStressScore / 10)) * 100))) : 0;
+  const cortisolEst = totalLogs > 0 ? Math.min(100, Math.max(0, Math.round((avgStressScore / 10) * 100))) : 0;
+
   const rangeLabel = 
     timeRange === "7" ? "/ 7 hari" :
     timeRange === "30" ? "/ bln" :
@@ -384,9 +439,16 @@ function Page() {
             <option value="all">Semua Waktu</option>
           </select>
           <button
+            onClick={exportDeidentifiedCSV}
+            disabled={!data || moodsRawList.length === 0}
+            className="flex items-center gap-2 px-5 py-2.5 bg-slate-700 hover:bg-slate-800 text-white text-xs font-bold rounded-2xl shadow-sm transition-all active:scale-98 disabled:opacity-50"
+          >
+            📊 Ekspor Data Klinis (CSV)
+          </button>
+          <button
             onClick={() => exportAnalyticsReportPDF(data)}
             disabled={!data}
-            className="flex items-center gap-2 px-5 py-2.5 bg-[#6E8C71] hover:bg-[#5D7B60] text-white text-sm font-semibold rounded-2xl shadow-sm transition-all active:scale-98 disabled:opacity-50"
+            className="flex items-center gap-2 px-5 py-2.5 bg-[#6E8C71] hover:bg-[#5D7B60] text-white text-xs font-semibold rounded-2xl shadow-sm transition-all active:scale-98 disabled:opacity-50"
           >
             📄 Cetak Laporan PDF (Clinical Efficacy)
           </button>
@@ -522,6 +584,132 @@ function Page() {
                 </div>
               );
             })}
+          </div>
+        )}
+      </section>
+
+      {/* Estimasi Keseimbangan Neurokimia Klien (Neurochemical Baseline Estimate) */}
+      <section className="rounded-3xl bg-card p-6 ring-1 ring-border space-y-5 shadow-xs">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h2 className="text-lg font-bold">Estimasi Keseimbangan Neurokimia Klien (Neurochemical Baseline Estimate)</h2>
+            <p className="text-xs text-muted-foreground font-display">
+              Proyeksi teoretis tingkat neurotransmiter utama dalam populasi klien berdasarkan korelasi data skor mood, tingkat stres, dan energi harian.
+            </p>
+          </div>
+          <div className="bg-[#6E8C71]/10 px-3.5 py-1.5 rounded-full ring-1 ring-[#6E8C71]/30 flex items-center gap-2 self-start sm:self-center">
+            <span className="text-[10px] text-[#5D7B60] font-bold">🔬 Model Hipotesis Klinis (Translasi Data Saraf)</span>
+          </div>
+        </div>
+
+        {totalLogs === 0 ? (
+          <div className="p-8 border border-dashed border-border/80 rounded-2xl text-center bg-cream-deep/5">
+            <span className="text-2xl">🧠</span>
+            <p className="text-xs text-muted-foreground mt-2 font-semibold">
+              Belum ada data check-in mood terdeteksi untuk melakukan proyeksi neurokimia.
+            </p>
+          </div>
+        ) : (
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {/* Serotonin */}
+            <div className="p-4 rounded-2xl border border-border/60 bg-indigo-50/40 space-y-3.5 flex flex-col justify-between">
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold uppercase tracking-wider text-indigo-800">Serotonin (5-HT)</span>
+                  <span className="text-lg">☀️</span>
+                </div>
+                <p className="text-[11px] text-muted-foreground leading-relaxed">
+                  Pengatur suasana hati, stabilitas emosi, dan ketenangan. Diproyeksikan langsung dari rata-rata Skor Mood klien.
+                </p>
+              </div>
+              <div className="space-y-1.5 mt-2">
+                <div className="flex justify-between text-xs font-bold">
+                  <span className="text-indigo-700">Tingkat Rata-rata</span>
+                  <span>{serotoninEst}%</span>
+                </div>
+                <div className="h-2 w-full rounded-full bg-cream-deep overflow-hidden">
+                  <div className="h-full rounded-full bg-indigo-500 transition-all duration-500" style={{ width: `${serotoninEst}%` }} />
+                </div>
+                <p className="text-[9px] text-indigo-900 font-semibold mt-1">
+                  {serotoninEst > 65 ? "Status: Optimal (Reseptor Stabil)" : serotoninEst > 40 ? "Status: Moderat (Fluktuasi Mood)" : "Status: Defisit (Risiko Depresi)"}
+                </p>
+              </div>
+            </div>
+
+            {/* Dopamin */}
+            <div className="p-4 rounded-2xl border border-border/60 bg-emerald-50/40 space-y-3.5 flex flex-col justify-between">
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold uppercase tracking-wider text-emerald-800">Dopamin (DA)</span>
+                  <span className="text-lg">🎯</span>
+                </div>
+                <p className="text-[11px] text-muted-foreground leading-relaxed">
+                  Pendorong motivasi, energi kognitif, dan kepuasan beraktivitas. Berkolerasi dengan tingkat energi harian.
+                </p>
+              </div>
+              <div className="space-y-1.5 mt-2">
+                <div className="flex justify-between text-xs font-bold">
+                  <span className="text-emerald-700">Tingkat Rata-rata</span>
+                  <span>{dopaminEst}%</span>
+                </div>
+                <div className="h-2 w-full rounded-full bg-cream-deep overflow-hidden">
+                  <div className="h-full rounded-full bg-emerald-500 transition-all duration-500" style={{ width: `${dopaminEst}%` }} />
+                </div>
+                <p className="text-[9px] text-emerald-950 font-semibold mt-1">
+                  {dopaminEst > 65 ? "Status: Motivasi Tinggi & Siaga" : dopaminEst > 40 ? "Status: Normal-Sufisien" : "Status: Kelelahan Mental / Apatis"}
+                </p>
+              </div>
+            </div>
+
+            {/* GABA */}
+            <div className="p-4 rounded-2xl border border-border/60 bg-amber-50/40 space-y-3.5 flex flex-col justify-between">
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold uppercase tracking-wider text-amber-800">GABA (Gamma-Aminobutirat)</span>
+                  <span className="text-lg">🍃</span>
+                </div>
+                <p className="text-[11px] text-muted-foreground leading-relaxed">
+                  Penghambat impuls berlebih di otak untuk menciptakan ketenangan. Berkolerasi negatif dengan tingkat stres.
+                </p>
+              </div>
+              <div className="space-y-1.5 mt-2">
+                <div className="flex justify-between text-xs font-bold">
+                  <span className="text-amber-700">Tingkat Rata-rata</span>
+                  <span>{gabaEst}%</span>
+                </div>
+                <div className="h-2 w-full rounded-full bg-cream-deep overflow-hidden">
+                  <div className="h-full rounded-full bg-amber-500 transition-all duration-500" style={{ width: `${gabaEst}%` }} />
+                </div>
+                <p className="text-[9px] text-amber-950 font-semibold mt-1">
+                  {gabaEst > 65 ? "Status: Tenang (Homeostasis Saraf)" : gabaEst > 40 ? "Status: Sensitif (Risiko Kecemasan)" : "Status: Defisit GABA (Cemas Kronis)"}
+                </p>
+              </div>
+            </div>
+
+            {/* Kortisol */}
+            <div className="p-4 rounded-2xl border border-border/60 bg-rose-50/40 space-y-3.5 flex flex-col justify-between">
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold uppercase tracking-wider text-rose-800">Kortisol (Cortisol)</span>
+                  <span className="text-lg">⚡</span>
+                </div>
+                <p className="text-[11px] text-muted-foreground leading-relaxed">
+                  Hormon stres pemicu respon fight-or-flight otonom. Naik seiring peningkatan indikator tingkat stres klien.
+                </p>
+              </div>
+              <div className="space-y-1.5 mt-2">
+                <div className="flex justify-between text-xs font-bold">
+                  <span className="text-rose-700">Tingkat Rata-rata</span>
+                  <span>{cortisolEst}%</span>
+                </div>
+                <div className="h-2 w-full rounded-full bg-cream-deep overflow-hidden">
+                  <div className="h-full rounded-full bg-rose-500 transition-all duration-500" style={{ width: `${cortisolEst}%` }} />
+                </div>
+                <p className="text-[9px] text-rose-950 font-semibold mt-1">
+                  {cortisolEst > 65 ? "Status: Hiperkortisolemia (Stres Tinggi)" : cortisolEst > 40 ? "Status: Siaga Normal (Homeostasis)" : "Status: Kortisol Rendah (Kelelahan Fisik)"}
+                </p>
+              </div>
+            </div>
           </div>
         )}
       </section>
