@@ -4,13 +4,14 @@ const freeTier = [
   "Jurnal manual (Maks 2 entri)",
   "Habit tracker (Maks 1 Habit)",
   "Gratitude journal (Maks 2 entri)",
+  "Coba 1x Analisis Emotional Eating",
 ];
 
 const premiumMonthlyFeatures = [
   "Chat AI tanpa batas & semua Companion",
   "Jurnal & Gratitude tanpa batas",
   "Growth Dashboard & Grafik Lengkap",
-  "Weekly AI Insight personal",
+  "Daily & Weekly AI Insight personal",
   "Emotional Eating Analysis",
   "Riwayat 3 bulan terakhir tersimpan",
   "Ekspor PDF Diary bergaya buku harian",
