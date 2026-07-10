@@ -255,7 +255,7 @@ function Page() {
           <p className="text-sm leading-relaxed text-foreground italic">{result.insight}</p>
           <div className="rounded-2xl bg-card/80 backdrop-blur-sm p-4 ring-1 ring-border/60">
             <p className="text-xs font-bold text-primary mb-1.5">💡 Coba lakukan ini:</p>
-            <p className="text-sm text-foreground leading-relaxed">{result.action}</p>
+            <p className="text-sm text-foreground leading-relaxed whitespace-pre-wrap">{result.action}</p>
           </div>
         </section>
       )}

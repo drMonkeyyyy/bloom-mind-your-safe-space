@@ -222,7 +222,6 @@ export const analyzeEmotionalEating = createServerFn({ method: "POST" })
     if (!apiKey) throw new Error("GEMINI_API_KEY belum dikonfigurasi");
     const { generateText } = await import("ai");
     const gateway = createGeminiClient(apiKey);
-
     const prompt = `User JN-CALM sedang melakukan refleksi emotional eating.
 Detail Input:
 - Emosi yang dirasakan: ${data.emotion || "-"}
@@ -230,20 +229,27 @@ Detail Input:
 - Situasi pemicu (trigger): ${data.trigger || "-"}
 - Jenis lapar yang dirasakan: ${data.hungerType ?? "belum dipilih"}
 
-Tugasmu:
-1. Berikan "insight": Analisis hangat, empatik, tidak menghakimi, dan mendalam dalam Bahasa Indonesia (maksimal 4 kalimat) mengenai pemicu emosional mereka dan kaitannya dengan makanan yang mereka inginkan. JANGAN memberikan diagnosis medis atau resep obat.
-2. Berikan "action": Rekomendasi 2-3 langkah coping mechanism konkret jangka pendek (misalnya: jalan kaki 2 menit, minum air hangat, journaling emosi, mendengarkan musik penenang, latihan napas 4-4-6). Formatnya HARUS berupa petunjuk praktis singkat yang dipisahkan dengan tanda "·" (contoh: Tarik napas dalam · Jalan kaki 2 menit · Tulis emosimu).`;
+Tugasmu (Berperanlah sebagai Psikolog atau Psikiater klinis profesional yang hangat dan empatik):
+1. Berikan "insight": Analisis hangat, empatik, berwawasan psikologis mendalam dalam Bahasa Indonesia (sekitar 3-4 kalimat) mengenai akar pemicu emosional mereka dan kaitannya dengan makanan yang mereka inginkan. Jelaskan mengapa emosi tersebut mengarahkan mereka ke makanan spesifik tersebut tanpa memberikan diagnosis medis formal atau resep obat.
+2. Berikan "action": Berikan 2-3 langkah coping mechanism terapeutik yang diuraikan secara detail dan praktis (bukan sekadar daftar pendek, melainkan penjelasan instruktif langkah-per-langkah yang mendalam). Gunakan bahasa psikologi yang mudah dipahami, membimbing, dan mendukung proses regulasi emosi mereka. Gunakan penomoran dan baris baru (\n) untuk memisahkan setiap langkah agar mudah dibaca.`;
 
     let insight = "";
-    let action = "Jeda 5 menit · Minum air hangat · Tarik napas dalam · Tulis emosimu di jurnal";
+    let action = `1. Jeda & Bernapas (Latihan 4-4-6):
+Tarik napas perlahan lewat hidung dalam 4 hitungan, tahan napas selama 4 hitungan, lalu hembuskan lembut lewat mulut selama 6 hitungan. Ulangi 3-5 kali untuk menenangkan sistem saraf cemasmu.
+
+2. Hidrasi Tubuh:
+Minum segelas air putih hangat secara perlahan-lahan. Rasakan aliran airnya masuk ke tubuh untuk memberikan jeda fisik dari dorongan impulsif.
+
+3. Ekspresikan Emosi (Journaling Singkat):
+Tuliskan 1 kalimat jujur tentang apa yang paling kamu cemaskan atau rasakan saat ini di lembar jurnal JN-CALM untuk menyalurkan energi emosionalmu.`;
 
     try {
       const { generateObject } = await import("ai");
       const r = await generateObject({
         model: gateway("gemini-2.5-flash-lite"),
         schema: z.object({
-          insight: z.string().describe("Insight hangat, empatik, tidak menghakimi dalam Bahasa Indonesia (maksimal 4 kalimat)."),
-          action: z.string().describe("Coping mechanism konkret jangka pendek dipisahkan dengan tanda '·' (misal: Jeda 5 menit · Minum air hangat · Tarik napas dalam).")
+          insight: z.string().describe("Insight psikologis yang hangat, empatik, tidak menghakimi dalam Bahasa Indonesia (maksimal 4 kalimat)."),
+          action: z.string().describe("Coping mechanism terapeutik terperinci langkah-per-langkah, dipisahkan dengan baris baru untuk setiap langkah.")
         }),
         prompt
       });
