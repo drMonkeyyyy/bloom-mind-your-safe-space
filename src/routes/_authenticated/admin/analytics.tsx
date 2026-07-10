@@ -148,39 +148,64 @@ export const Route = createFileRoute("/_authenticated/admin/analytics")({
 
 function Page() {
   const [isDeleting, setIsDeleting] = useState(false);
+  const [timeRange, setTimeRange] = useState<"7" | "30" | "90" | "all">("30");
+
   const { data, refetch } = useQuery({
-    queryKey: ["admin-analytics"],
+    queryKey: ["admin-analytics", timeRange],
     queryFn: async () => {
+      let filterDate: string | null = null;
+      if (timeRange !== "all") {
+        const d = new Date();
+        d.setDate(d.getDate() - parseInt(timeRange));
+        filterDate = d.toISOString().slice(0, 10);
+      }
+
       const fetchFeedback = async () => {
         try {
-          const res = await supabase.from("calm_feedback_logs" as any).select("*");
+          let q = supabase.from("calm_feedback_logs" as any).select("*");
+          if (filterDate) {
+            q = q.gte("created_at", filterDate);
+          }
+          const res = await q;
           return res;
         } catch {
           return { data: [] };
         }
       };
 
+      let moodQuery = supabase.from("mood_checkins").select("mood, triggers, user_id, date");
+      let journalQuery = supabase.from("journals").select("id", { count: "exact", head: true });
+      let habitQuery = supabase.from("habit_logs").select("id", { count: "exact", head: true }).eq("completed", true);
+      let eatingQuery = supabase.from("emotional_eating_logs").select("hunger_type, emotion, trigger, date");
+      let chatQuery = supabase.from("chats").select("companion_key, created_at");
+      let msgQuery = supabase.from("messages").select("id, created_at", { count: "exact", head: true }).eq("role", "assistant");
+      let journalizerQuery = supabase.from("journals").select("id", { count: "exact", head: true }).in("source", ["from_chat", "chat"]);
+
+      if (filterDate) {
+        moodQuery = moodQuery.gte("date", filterDate);
+        journalQuery = journalQuery.gte("date", filterDate);
+        habitQuery = habitQuery.gte("date", filterDate);
+        eatingQuery = eatingQuery.gte("date", filterDate);
+        chatQuery = chatQuery.gte("created_at", filterDate);
+        msgQuery = msgQuery.gte("created_at", filterDate);
+        journalizerQuery = journalizerQuery.gte("date", filterDate);
+      }
+
       const [moods, journals, habits, eating, chats, totalMsgs, feedbackRes, chatJournals] = await Promise.all([
-        supabase.from("mood_checkins").select("mood, triggers, user_id, date"),
-        supabase.from("journals").select("id", { count: "exact", head: true }),
-        supabase.from("habit_logs").select("id", { count: "exact", head: true }).eq("completed", true),
-        supabase.from("emotional_eating_logs").select("hunger_type, emotion, trigger"),
-        supabase.from("chats").select("companion_key"),
-        supabase.from("messages").select("id", { count: "exact", head: true }).eq("role", "assistant"),
+        moodQuery,
+        journalQuery,
+        habitQuery,
+        eatingQuery,
+        chatQuery,
+        msgQuery,
         fetchFeedback(),
-        supabase.from("journals").select("id", { count: "exact", head: true }).in("source", ["from_chat", "chat"])
+        journalizerQuery
       ]);
       
       const moodCount: Record<string,number> = {};
       const triggerCount: Record<string,number> = {};
       const moodTriggers: Record<string, Record<string, number>> = {};
       
-      // Calculate 30 days ago to filter clinical stats
-      const thirtyDaysAgo = new Date();
-      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-      const thirtyDaysAgoStr = thirtyDaysAgo.toISOString().split("T")[0];
-      const moods30Days = (moods.data as any[])?.filter((m: any) => m.date >= thirtyDaysAgoStr) ?? [];
-
       const moodUsers: Record<string, Set<string>> = {};
       const moodTotalCount: Record<string, number> = {};
 
@@ -193,8 +218,8 @@ function Page() {
         });
       });
 
-      // Compute statistics for 30-day prevalence
-      moods30Days.forEach((m: any) => {
+      // Compute statistics for prevalence in active selected range
+      (moods.data as any[])?.forEach((m: any) => {
         if (!moodUsers[m.mood]) moodUsers[m.mood] = new Set();
         moodUsers[m.mood].add(m.user_id);
         moodTotalCount[m.mood] = (moodTotalCount[m.mood] ?? 0) + 1;
@@ -303,17 +328,35 @@ function Page() {
   const estTokens = (chatCalls * 1050) + (eatingCalls * 1900) + (journalizerCalls * 3000);
   const estApiCost = totalAiCalls * 2.5;
 
+  const rangeLabel = 
+    timeRange === "7" ? "/ 7 hari" :
+    timeRange === "30" ? "/ bln" :
+    timeRange === "90" ? "/ 90 hari" :
+    "/ semua waktu";
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <h1 className="font-display text-3xl font-semibold">Analytics</h1>
-        <button
-          onClick={() => exportAnalyticsReportPDF(data)}
-          disabled={!data}
-          className="flex items-center gap-2 px-5 py-2.5 bg-[#6E8C71] hover:bg-[#5D7B60] text-white text-sm font-semibold rounded-2xl shadow-sm transition-all active:scale-98 disabled:opacity-50"
-        >
-          📄 Cetak Laporan PDF (Clinical Efficacy)
-        </button>
+        <div className="flex items-center gap-3">
+          <select
+            value={timeRange}
+            onChange={(e) => setTimeRange(e.target.value as any)}
+            className="rounded-2xl border border-border/80 bg-white px-4 py-2.5 text-xs font-semibold shadow-sm focus:outline-none focus:ring-1 focus:ring-[#6E8C71] text-stone-700 cursor-pointer"
+          >
+            <option value="7">7 Hari Terakhir</option>
+            <option value="30">30 Hari Terakhir</option>
+            <option value="90">90 Hari Terakhir</option>
+            <option value="all">Semua Waktu</option>
+          </select>
+          <button
+            onClick={() => exportAnalyticsReportPDF(data)}
+            disabled={!data}
+            className="flex items-center gap-2 px-5 py-2.5 bg-[#6E8C71] hover:bg-[#5D7B60] text-white text-sm font-semibold rounded-2xl shadow-sm transition-all active:scale-98 disabled:opacity-50"
+          >
+            📄 Cetak Laporan PDF (Clinical Efficacy)
+          </button>
+        </div>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
@@ -499,11 +542,11 @@ function Page() {
                       <h3 className="font-bold text-sm truncate leading-snug">{config.name}</h3>
                       <div className="flex items-center gap-2 mt-0.5">
                         <span className="text-[10px] text-muted-foreground">
-                          Prevalensi: <span className="font-bold text-foreground">{stats.uniqueUsers} orang</span> / bln
+                          Prevalensi: <span className="font-bold text-foreground">{stats.uniqueUsers} orang</span> {rangeLabel}
                         </span>
                         <span className="text-[10px] text-muted-foreground">•</span>
                         <span className="text-[10px] text-muted-foreground">
-                          Intensitas: <span className="font-bold text-foreground">{stats.avgFrequency}x</span> / orang / bln
+                          Intensitas: <span className="font-bold text-foreground">{stats.avgFrequency}x</span> / orang {rangeLabel}
                         </span>
                       </div>
                     </div>
