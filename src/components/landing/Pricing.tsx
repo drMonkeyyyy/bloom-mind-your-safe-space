@@ -41,8 +41,8 @@ const FAQ = [
     a: "Tentu! Kamu bisa mengekspor seluruh riwayat chat, mood, dan jurnal syukur ke format PDF Diary bergaya buku harian — lengkap dengan tanggal, emoji, dan tata letak yang rapi, siap dicetak atau disimpan sebagai kenangan. Tersedia juga format JSON untuk arsip digital.",
   },
   {
-    q: "Apakah ada kontrak jangka panjang?",
-    a: "Tidak. Paket Bulanan bisa dihentikan kapan saja tanpa penalti. Paket Tahunan memberikan akses penuh selama 12 bulan dengan harga yang jauh lebih hemat.",
+    q: "Bisakah saya membatalkan langganan kapan saja?",
+    a: "Tentu! Kamu bebas menghentikan perpanjangan langganan untuk periode berikutnya kapan saja. Pembayaran yang sudah berjalan bersifat final (tidak dapat di-refund), tetapi akses Premium kamu akan tetap aktif sepenuhnya hingga masa berlaku paket tersebut selesai.",
   },
   {
     q: "Bagaimana cara pembayaran?",
@@ -155,7 +155,7 @@ export function Pricing() {
                   <span className="font-sans text-4xl font-bold text-foreground">Rp49.000</span>
                   <span className="text-muted-foreground">/bulan</span>
                 </div>
-                <p className="mt-2 text-sm text-muted-foreground">Tanpa kontrak · Bisa berhenti kapan saja.</p>
+                <p className="mt-2 text-sm text-muted-foreground">Bisa dibatalkan & berhenti kapan saja.</p>
               </div>
 
               {/* Storage info badge */}
@@ -258,7 +258,7 @@ export function Pricing() {
           <div className="flex flex-wrap justify-center gap-x-8 gap-y-2 text-sm text-muted-foreground">
             <span className="flex items-center gap-1.5">🔒 Data terenkripsi & pribadi</span>
             <span className="flex items-center gap-1.5">📒 Ekspor PDF Diary bergaya buku harian</span>
-            <span className="flex items-center gap-1.5">🚫 Tidak ada kontrak tersembunyi</span>
+            <span className="flex items-center gap-1.5">✨ Bebas batalkan kapan saja</span>
             <span className="flex items-center gap-1.5">💳 Bayar via GoPay, OVO, QRIS & kartu</span>
           </div>
         </div>
