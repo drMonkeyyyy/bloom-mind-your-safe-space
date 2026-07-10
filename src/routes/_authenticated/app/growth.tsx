@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useAuth } from "@/hooks/use-auth";
 import { useProfile } from "@/hooks/use-profile";
 import { useQuery } from "@tanstack/react-query";
@@ -115,41 +115,88 @@ function StatCard({
   );
 }
 
+/* ── MindPlant Level Mapping & Helpers ───────────────────────────── */
+const LEVEL_STAGES = [
+  { level: 1, range: "0–100 Pts", emoji: "🌱", name: "Benih Harapan", desc: "Awal dari perjalanan barumu untuk menyayangi diri." },
+  { level: 2, range: "101–250 Pts", emoji: "🌱", name: "Tunas Kecil", desc: "Langkah-langkah kecilmu mulai menampakkan pertumbuhan." },
+  { level: 3, range: "251–450 Pts", emoji: "🍃", name: "Tunas Harapan", desc: "Konsistensi mulai mengakar dalam keseharianmu." },
+  { level: 4, range: "451–700 Pts", emoji: "🌿", name: "Daun Rimbun", desc: "Jiwa yang kuat tercermin dari kepedulian harianmu." },
+  { level: 5, range: "701–1000 Pts", emoji: "🌳", name: "Cabang Kuat", desc: "Tantangan hidup dihadapi dengan keteguhan hati." },
+  { level: 6, range: "1001–1400 Pts", emoji: "🌸", name: "Kuncup Pertama", desc: "Kuncup bunga pertama mulai bersiap untuk mekar." },
+  { level: 7, range: "1401–1900 Pts", emoji: "🌹", name: "Bunga Pertama", desc: "Keindahan ketenangan mulai memancarkan pesona jiwamu." },
+  { level: 8, range: "1901–2500 Pts", emoji: "🌷", name: "Warna-Warni Jiwa", desc: "Berbagai emosi diakomodasi dengan penuh penerimaan." },
+  { level: 9, range: "2501–3200 Pts", emoji: "🌺", name: "Kebun Harmoni", desc: "Taman jiwamu memberikan kedamaian untuk dirimu sendiri." },
+  { level: 10, range: "3201–4000 Pts", emoji: "🌳", name: "Pohon Teduh", desc: "Kekuatan mentalmu menjadi tempat bersandar yang kokoh." },
+  { level: 11, range: "4001–5000 Pts", emoji: "🌟", name: "Kebun Rimbun", desc: "Kedamaian sejati mengalir dari kebiasaan mindful harianmu." },
+  { level: 12, range: "> 5000 Pts", emoji: "👑", name: "Taman Mekar Abadi", desc: "Luar biasa! 1 tahun penuh cinta & ketenangan merawat jiwa." }
+];
+
+function getLevelInfo(score: number) {
+  if (score > 5000) return { ...LEVEL_STAGES[11], stageVisual: 5 };
+  if (score > 4000) return { ...LEVEL_STAGES[10], stageVisual: 4 };
+  if (score > 3200) return { ...LEVEL_STAGES[9], stageVisual: 4 };
+  if (score > 2500) return { ...LEVEL_STAGES[8], stageVisual: 4 };
+  if (score > 1900) return { ...LEVEL_STAGES[7], stageVisual: 4 };
+  if (score > 1400) return { ...LEVEL_STAGES[6], stageVisual: 4 };
+  if (score > 1000) return { ...LEVEL_STAGES[5], stageVisual: 3 };
+  if (score > 700) return { ...LEVEL_STAGES[4], stageVisual: 2 };
+  if (score > 450) return { ...LEVEL_STAGES[3], stageVisual: 2 };
+  if (score > 250) return { ...LEVEL_STAGES[2], stageVisual: 2 };
+  if (score > 100) return { ...LEVEL_STAGES[1], stageVisual: 2 };
+  return { ...LEVEL_STAGES[0], stageVisual: 1 };
+}
+
 /* ── MindPlant SVG Plant Renderer ───────────────────────────────── */
-function MindPlant({ score, onClick }: { score: number; onClick?: () => void }) {
-  let stage = 1;
-  let label = "Tunas Baru";
-  let desc = "Tanaman jiwamu baru saja bertunas. Teruskan langkah kecilmu merawat diri! 🌱";
+function MindPlant({ score, isWilted = false, onClick }: { score: number; isWilted?: boolean; onClick?: () => void }) {
+  const navigate = useNavigate();
+  const lvlInfo = getLevelInfo(score);
+  const stage = lvlInfo.stageVisual;
   
-  if (score > 200) {
-    stage = 5;
-    label = "Bunga Emas Abadi";
-    desc = "Luar biasa! Tanaman jiwamu mekar penuh dengan cahaya emas kebahagiaan. 🌟";
-  } else if (score > 120) {
-    stage = 4;
-    label = "Bunga Mekar";
-    desc = "Bunga mekar dengan indah! Jiwamu memancarkan kehangatan dan ketenangan. 🌼";
-  } else if (score > 60) {
-    stage = 3;
-    label = "Kuncup Bunga";
-    desc = "Kuncup bunga telah tumbuh! Keindahan mulai tampak dari konsistensimu. 🌸";
-  } else if (score > 20) {
-    stage = 2;
-    label = "Daun Rimbun";
-    desc = "Tanaman jiwamu mulai berdaun rimbun seiring kepedulianmu pada diri sendiri. 🌿";
-  }
+  const label = isWilted ? "Tanaman Layu" : lvlInfo.name;
+  const desc = isWilted 
+    ? "Tanaman jiwamu layu karena merindukan kepedulianmu. Yuk lakukan check-in mood hari ini untuk menyiramnya!" 
+    : lvlInfo.desc;
+
+  // Wilted vs Healthy Color mappings (OKLCH palette)
+  const stemColor = isWilted ? "oklch(0.52 0.03 55)" : "oklch(0.71 0.045 160)";
+  const leafColor1 = isWilted ? "oklch(0.48 0.025 60)" : "oklch(0.68 0.05 155)";
+  const leafColor2 = isWilted ? "oklch(0.52 0.03 55)" : "oklch(0.71 0.045 160)";
+  const leafColor3 = isWilted ? "oklch(0.58 0.03 65)" : "oklch(0.80 0.05 165)";
+  const flowerColor1 = isWilted ? "oklch(0.52 0.02 70)" : (stage === 5 ? "oklch(0.82 0.14 75)" : "oklch(0.77 0.085 40)");
+  const flowerColor2 = isWilted ? "oklch(0.58 0.01 75)" : (stage === 5 ? "oklch(0.85 0.12 70)" : "oklch(0.77 0.085 40)");
+  const centerColor = isWilted ? "oklch(0.62 0.01 80)" : (stage === 5 ? "oklch(0.92 0.08 80)" : "oklch(0.93 0.04 40)");
 
   return (
     <div 
       onClick={onClick}
       className="rounded-3xl bg-card p-8 ring-1 ring-border/60 shadow-card flex flex-col items-center text-center space-y-4 animate-scale-in cursor-pointer hover:shadow-elevated hover:-translate-y-0.5 transition-all duration-350 active:scale-98 relative overflow-hidden"
     >
+      {/* Wilted Overlay */}
+      {isWilted && (
+        <div className="absolute inset-0 bg-stone-900/60 backdrop-blur-[1px] flex flex-col items-center justify-center p-6 text-center text-white z-10 transition-all duration-300">
+          <span className="text-4xl animate-bounce">🍂</span>
+          <h4 className="mt-3 font-display text-lg font-bold">Tanaman Jiwa Layu</h4>
+          <p className="text-xs text-stone-200 mt-1 max-w-[210px] leading-relaxed">
+            Tanamanmu merindukan dirimu. Yuk isi mood hari ini untuk menyiramnya kembali!
+          </p>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              navigate({ to: "/app/mood" });
+            }}
+            className="mt-4 px-5 py-2 bg-amber-500 hover:bg-amber-600 active:scale-95 text-xs font-bold text-white rounded-full shadow transition-all duration-200"
+          >
+            💧 Siram Sekarang
+          </button>
+        </div>
+      )}
+
       {/* Radial glow greenhouse backdrop */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_rgba(167,_243,_190,_0.2)_0%,_transparent_75%)] pointer-events-none" />
+      <div className={`absolute inset-0 pointer-events-none transition-all duration-500 ${isWilted ? "bg-transparent" : "bg-[radial-gradient(circle_at_center,_rgba(167,_243,_190,_0.2)_0%,_transparent_75%)]"}`} />
 
       <div className="relative w-56 h-60 flex items-center justify-center">
         {/* Sparkle animations for higher levels */}
-        {stage >= 4 && (
+        {!isWilted && stage >= 4 && (
           <div className="absolute inset-0 pointer-events-none">
             <span className="absolute text-yellow-400 text-lg animate-sparkle top-4 left-1/4">✨</span>
             <span className="absolute text-yellow-300 text-sm animate-float top-8 right-1/4">🌟</span>
@@ -159,12 +206,12 @@ function MindPlant({ score, onClick }: { score: number; onClick?: () => void }) 
 
         {/* Floating leaf particles */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden select-none">
-          <span className="absolute bottom-6 left-12 text-sm opacity-60 animate-float-leaf-1">🍃</span>
-          <span className="absolute bottom-8 right-12 text-xs opacity-60 animate-float-leaf-2">🌿</span>
-          <span className="absolute bottom-4 left-1/2 text-sm opacity-60 animate-float-leaf-3">🌱</span>
+          <span className="absolute bottom-6 left-12 text-sm opacity-60 animate-float-leaf-1">{isWilted ? "🍂" : "🍃"}</span>
+          <span className="absolute bottom-8 right-12 text-xs opacity-60 animate-float-leaf-2">{isWilted ? "🍂" : "🌿"}</span>
+          <span className="absolute bottom-4 left-1/2 text-sm opacity-60 animate-float-leaf-3">{isWilted ? "🍂" : "🌱"}</span>
         </div>
         
-        <svg viewBox="0 0 100 120" className="w-full h-full drop-shadow-md select-none">
+        <svg viewBox="0 0 100 120" className={`w-full h-full drop-shadow-md select-none ${isWilted ? "" : "animate-plant-sway"}`}>
           {/* Pot */}
           <path d="M35 90 L65 90 L70 115 L30 115 Z" fill="oklch(0.70 0.08 40)" />
           <ellipse cx="50" cy="90" rx="16" ry="4" fill="oklch(0.60 0.08 40)" />
@@ -180,46 +227,46 @@ function MindPlant({ score, onClick }: { score: number; onClick?: () => void }) 
                   "M50 90 Q50 55 45 35"
                 } 
                 fill="none" 
-                stroke="oklch(0.71 0.045 160)" 
+                stroke={stemColor} 
                 strokeWidth="3.5" 
                 strokeLinecap="round" 
               />
-              <path d="M48 65 Q38 60 40 54 Q47 56 48 65" fill="oklch(0.71 0.045 160)" />
-              <path d="M48 65 Q58 62 56 56 Q50 58 48 65" fill="oklch(0.80 0.05 165)" />
+              <path d="M48 65 Q38 60 40 54 Q47 56 48 65" fill={stemColor} />
+              <path d="M48 65 Q58 62 56 56 Q50 58 48 65" fill={leafColor3} />
             </>
           )}
 
           {stage >= 2 && (
             <>
-              <path d="M49 76 Q35 70 34 62 Q45 66 49 76" fill="oklch(0.68 0.05 155)" />
-              <path d="M50 72 Q64 68 62 60 Q52 64 50 72" fill="oklch(0.71 0.045 160)" />
+              <path d="M49 76 Q35 70 34 62 Q45 66 49 76" fill={leafColor1} />
+              <path d="M50 72 Q64 68 62 60 Q52 64 50 72" fill={leafColor2} />
             </>
           )}
 
           {stage >= 3 && (
             <>
-              <path d="M47 55 Q33 50 32 42 Q42 46 47 55" fill="oklch(0.68 0.05 155)" />
-              <path d="M46 48 Q58 42 56 34 Q48 38 46 48" fill="oklch(0.71 0.045 160)" />
+              <path d="M47 55 Q33 50 32 42 Q42 46 47 55" fill={leafColor1} />
+              <path d="M46 48 Q58 42 56 34 Q48 38 46 48" fill={leafColor2} />
               
               {stage === 3 && (
-                <g className="animate-breathe" style={{ transformOrigin: "45px 35px" }}>
-                  <path d="M45 35 Q40 25 45 20 Q50 25 45 35" fill="oklch(0.77 0.085 40)" />
-                  <path d="M45 35 Q45 26 43 22 Q41 28 45 35" fill="oklch(0.93 0.04 40)" />
+                <g className={isWilted ? "" : "animate-breathe"} style={{ transformOrigin: "45px 35px" }}>
+                  <path d="M45 35 Q40 25 45 20 Q50 25 45 35" fill={flowerColor1} />
+                  <path d="M45 35 Q45 26 43 22 Q41 28 45 35" fill={flowerColor2} />
                 </g>
               )}
             </>
           )}
 
           {stage >= 4 && (
-            <g className="animate-breathe" style={{ transformOrigin: "45px 35px" }}>
-              <circle cx="45" cy="35" r="3" fill="oklch(0.71 0.045 160)" />
-              <circle cx="45" cy="20" r="10" fill={stage === 5 ? "oklch(0.82 0.14 75)" : "oklch(0.77 0.085 40)"} opacity="0.9" />
-              <circle cx="33" cy="30" r="10" fill={stage === 5 ? "oklch(0.85 0.12 70)" : "oklch(0.77 0.085 40)"} opacity="0.9" />
-              <circle cx="57" cy="30" r="10" fill={stage === 5 ? "oklch(0.85 0.12 70)" : "oklch(0.77 0.085 40)"} opacity="0.9" />
-              <circle cx="37" cy="45" r="10" fill={stage === 5 ? "oklch(0.82 0.14 75)" : "oklch(0.77 0.085 40)"} opacity="0.9" />
-              <circle cx="53" cy="45" r="10" fill={stage === 5 ? "oklch(0.82 0.14 75)" : "oklch(0.77 0.085 40)"} opacity="0.9" />
+            <g className={isWilted ? "" : "animate-breathe"} style={{ transformOrigin: "45px 35px" }}>
+              <circle cx="45" cy="35" r="3" fill={leafColor2} />
+              <circle cx="45" cy="20" r="10" fill={flowerColor1} opacity="0.9" />
+              <circle cx="33" cy="30" r="10" fill={flowerColor2} opacity="0.9" />
+              <circle cx="57" cy="30" r="10" fill={flowerColor2} opacity="0.9" />
+              <circle cx="37" cy="45" r="10" fill={flowerColor1} opacity="0.9" />
+              <circle cx="53" cy="45" r="10" fill={flowerColor1} opacity="0.9" />
               
-              <circle cx="45" cy="34" r="8" fill={stage === 5 ? "oklch(0.92 0.08 80)" : "oklch(0.93 0.04 40)"} />
+              <circle cx="45" cy="34" r="8" fill={centerColor} />
               <circle cx="45" cy="34" r="3" fill="white" opacity="0.5" />
             </g>
           )}
@@ -334,6 +381,7 @@ function Page() {
   const { user } = useAuth();
   const { data: profile } = useProfile(user?.id);
   const isPremium = profile?.plan === "premium";
+  const navigate = useNavigate();
   
   const weeklyInsightFn = useServerFn(getWeeklyInsight);
   const dailyInsightFn = useServerFn(getDailyInsight);
@@ -507,6 +555,18 @@ function Page() {
     }
   };
 
+  // Check if plant is wilted (inactive for more than 14 days)
+  const isWilted = (() => {
+    if (growthScore === 0) return false; // New user, not wilted
+    if (!moods || moods.length === 0) return true; // Has points but no check-ins in last 30 days -> wilted
+    
+    // Check time difference of last check-in
+    const lastCheckin = new Date(moods[moods.length - 1].date);
+    const diffTime = Math.abs(Date.now() - lastCheckin.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays > 14; // Inactive for > 14 days -> wilted
+  })();
+
   return (
     <div className="space-y-6">
       <div className="relative">
@@ -515,7 +575,7 @@ function Page() {
       </div>
 
       {/* ── MINDPLANT ────────────────────────────────────────────── */}
-      <MindPlant score={growthScore} onClick={() => setPlantModalOpen(true)} />
+      <MindPlant score={growthScore} isWilted={isWilted} onClick={() => setPlantModalOpen(true)} />
 
       {/* ── STATS ─────────────────────────────────────────────────── */}
       {moodsLoading ? (
@@ -841,15 +901,9 @@ function Page() {
           </p>
 
           <div className="space-y-2.5">
-            {[
-              { level: 1, range: "0–20 Pts", emoji: "🌱", name: "Tunas Baru", desc: "Tanaman jiwamu baru saja bertunas. Teruskan langkah kecilmu merawat diri!" },
-              { level: 2, range: "21–60 Pts", emoji: "🌿", name: "Daun Rimbun", desc: "Tanaman jiwamu mulai berdaun rimbun seiring kepedulianmu pada diri sendiri." },
-              { level: 3, range: "61–120 Pts", emoji: "🌸", name: "Kuncup Bunga", desc: "Kuncup bunga telah tumbuh! Keindahan mulai tampak dari konsistensimu." },
-              { level: 4, range: "121–200 Pts", emoji: "🌼", name: "Bunga Mekar", desc: "Bunga mekar dengan indah! Jiwamu memancarkan kehangatan dan ketenangan." },
-              { level: 5, range: "> 200 Pts", emoji: "🌟", name: "Bunga Emas Abadi", desc: "Luar biasa! Tanaman jiwamu mekar penuh dengan cahaya emas kebahagiaan." }
-            ].map((st) => {
-              const currentStage = growthScore > 200 ? 5 : growthScore > 120 ? 4 : growthScore > 60 ? 3 : growthScore > 20 ? 2 : 1;
-              const isActive = currentStage === st.level;
+            {LEVEL_STAGES.map((st) => {
+              const lvlInfo = getLevelInfo(growthScore);
+              const isActive = lvlInfo.level === st.level;
               return (
                 <div 
                   key={st.level}

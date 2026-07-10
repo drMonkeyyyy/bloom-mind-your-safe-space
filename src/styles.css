@@ -887,3 +887,13 @@
   animation: float-slow 4s ease-in-out infinite;
 }
 
+/* Gentle plant sway animation */
+@keyframes plant-sway {
+  0%, 100% { transform: rotate(0deg); }
+  50% { transform: rotate(1.5deg); }
+}
+
+.animate-plant-sway {
+  animation: plant-sway 6s ease-in-out infinite;
+  transform-origin: bottom center;
+}
