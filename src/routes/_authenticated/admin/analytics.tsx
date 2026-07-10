@@ -176,9 +176,9 @@ function Page() {
       let moodQuery = supabase.from("mood_checkins").select("mood, triggers, user_id, date");
       let journalQuery = supabase.from("journals").select("id", { count: "exact", head: true });
       let habitQuery = supabase.from("habit_logs").select("id", { count: "exact", head: true }).eq("completed", true);
-      let eatingQuery = supabase.from("emotional_eating_logs").select("hunger_type, emotion, trigger, date");
-      let chatQuery = supabase.from("chats").select("companion_key, created_at");
-      let msgQuery = supabase.from("messages").select("id, created_at", { count: "exact", head: true }).eq("role", "assistant");
+      let eatingQuery = supabase.from("emotional_eating_logs").select("hunger_type, emotion, trigger");
+      let chatQuery = supabase.from("chats").select("companion_key");
+      let msgQuery = supabase.from("messages").select("id", { count: "exact", head: true }).eq("role", "assistant");
       let journalizerQuery = supabase.from("journals").select("id", { count: "exact", head: true }).in("source", ["from_chat", "chat"]);
 
       if (filterDate) {
