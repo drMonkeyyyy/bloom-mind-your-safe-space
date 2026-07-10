@@ -272,8 +272,42 @@ function Page() {
         item.pct = item.total > 0 ? Math.round((item.helpful / item.total) * 100) : 0;
       });
 
+      // Calculate correlation between mood and exercise efficacy
+      const moodCalmEfficacy: Record<string, Record<string, { total: number; helpful: number }>> = {};
+      const userMoodByDate: Record<string, Record<string, string>> = {};
+      
+      (moods.data as any[])?.forEach((m: any) => {
+        if (m.user_id && m.date && m.mood) {
+          if (!userMoodByDate[m.user_id]) {
+            userMoodByDate[m.user_id] = {};
+          }
+          userMoodByDate[m.user_id][m.date] = m.mood;
+        }
+      });
+
+      feedbackLogs.forEach((f: any) => {
+        if (f.user_id && f.created_at && f.exercise_key) {
+          const feedbackDateStr = f.created_at.slice(0, 10);
+          const userMood = userMoodByDate[f.user_id]?.[feedbackDateStr];
+          
+          if (userMood) {
+            if (!moodCalmEfficacy[userMood]) {
+              moodCalmEfficacy[userMood] = {};
+            }
+            if (!moodCalmEfficacy[userMood][f.exercise_key]) {
+              moodCalmEfficacy[userMood][f.exercise_key] = { total: 0, helpful: 0 };
+            }
+            const stats = moodCalmEfficacy[userMood][f.exercise_key];
+            stats.total += 1;
+            if (f.is_helpful) {
+              stats.helpful += 1;
+            }
+          }
+        }
+      });
+
       return {
-        moodCount, triggerCount, companionCount, hungerCount, moodTriggers, moodStats30Days,
+        moodCount, triggerCount, companionCount, hungerCount, moodTriggers, moodStats30Days, moodCalmEfficacy,
         journalCount: journals.count ?? 0,
         habitCompletions: habits.count ?? 0,
         eatingCount: eating.data?.length ?? 0,
@@ -429,6 +463,67 @@ function Page() {
             })}
           </div>
         </div>
+      </section>
+
+      {/* Korelasi Klinis: Efikasi Latihan Per Mood (Neurological Matching) */}
+      <section className="rounded-3xl bg-card p-6 ring-1 ring-border space-y-4 shadow-xs">
+        <div>
+          <h2 className="text-lg font-bold">Respon Intervensi Berdasarkan Mood (Neurological Matching)</h2>
+          <p className="text-xs text-muted-foreground">
+            Analisis klinis efektivitas setiap jenis latihan penenang ketika digunakan pada kondisi mood spesifik. Membantu memvalidasi intervensi saraf terbaik untuk tiap emosi.
+          </p>
+        </div>
+
+        {Object.keys(data?.moodCalmEfficacy ?? {}).length === 0 ? (
+          <div className="p-8 border border-dashed border-border/80 rounded-2xl text-center bg-cream-deep/5">
+            <span className="text-2xl">🔬</span>
+            <p className="text-xs text-muted-foreground mt-2 font-semibold">
+              Belum ada data korelasi aktif. Data akan terisi otomatis setelah pengguna melakukan check-in mood dan latihan penenangan di hari yang sama.
+            </p>
+          </div>
+        ) : (
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {Object.entries(data?.moodCalmEfficacy ?? {}).map(([moodKey, exercises]) => {
+              const moodConfig = MOOD_RESOLUTIONS[moodKey] || { name: moodKey, emoji: "🌿" };
+              return (
+                <div key={moodKey} className="p-5 rounded-2xl border border-border/60 bg-cream-deep/5 space-y-3.5 flex flex-col justify-between">
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2">
+                      <span className="text-2xl">{moodConfig.emoji}</span>
+                      <span className="font-bold text-sm text-foreground">{moodConfig.name}</span>
+                    </div>
+                    <div className="space-y-3">
+                      {Object.entries(exercises as Record<string, { total: number; helpful: number }>)
+                        .map(([exKey, stats]) => {
+                          const pct = stats.total > 0 ? Math.round((stats.helpful / stats.total) * 100) : 0;
+                          const toolInfo = CALM_TOOL_NAMES[exKey] || { name: exKey, emoji: "🔧" };
+                          return { exKey, stats, pct, toolInfo };
+                        })
+                        .sort((a, b) => b.pct - a.pct)
+                        .map(({ exKey, stats, pct, toolInfo }) => (
+                          <div key={exKey} className="space-y-1">
+                            <div className="flex justify-between text-[11px] font-semibold text-stone-700">
+                              <span className="flex items-center gap-1 truncate">
+                                <span>{toolInfo.emoji}</span>
+                                <span className="truncate">{toolInfo.name}</span>
+                              </span>
+                              <span className="text-muted-foreground flex-shrink-0">{pct}% <span className="text-[9px] font-normal">({stats.helpful}/{stats.total})</span></span>
+                            </div>
+                            <div className="h-1.5 w-full rounded-full bg-cream-deep overflow-hidden">
+                              <div 
+                                className="h-full rounded-full bg-[#6E8C71] transition-all" 
+                                style={{ width: `${pct}%` }} 
+                              />
+                            </div>
+                          </div>
+                        ))}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
       </section>
 
       <div className="grid gap-6 md:grid-cols-2">
