@@ -340,14 +340,19 @@ export function ShareAffirmationModal({ open, onClose, affirmation }: ShareModal
   }, [open]);
 
   // Helper function to capture the high-res card offscreen and return standard data
-  const capturePng = async (): Promise<string> => {
+  // bgBase64Current is passed explicitly to avoid closure staleness
+  const capturePng = async (bgBase64Current: string): Promise<string> => {
     if (!exportRef.current) throw new Error("Export container not ready");
 
-    // Wait for bgBase64 to be populated (max 4 seconds)
+    // Wait for bgBase64 to be populated (max 5 seconds)
     let waited = 0;
-    while (!bgBase64 && waited < 4000) {
-      await new Promise((r) => setTimeout(r, 100));
-      waited += 100;
+    while (!bgBase64Current && waited < 5000) {
+      await new Promise((r) => setTimeout(r, 150));
+      waited += 150;
+      bgBase64Current = bgBase64; // re-read from outer scope each tick
+    }
+    if (!bgBase64Current) {
+      console.warn("[ShareCard] bgBase64 still empty after timeout - proceeding anyway");
     }
 
     // Wait for all <img> tags inside the export container to fully load
@@ -360,50 +365,56 @@ export function ShareAffirmationModal({ open, onClose, affirmation }: ShareModal
               resolve();
             } else {
               img.onload = () => resolve();
-              img.onerror = () => resolve();
-              // Safety timeout
-              setTimeout(() => resolve(), 3000);
+              img.onerror = () => {
+                console.warn("[ShareCard] img failed to load:", img.src.slice(0, 80));
+                resolve();
+              };
+              setTimeout(() => resolve(), 4000);
             }
           })
       )
     );
 
     // Extra paint frame to ensure DOM is fully rendered
-    await new Promise((resolve) => setTimeout(resolve, 400));
+    await new Promise((resolve) => setTimeout(resolve, 500));
 
     return await htmlToImage.toPng(exportRef.current, {
       quality: 0.95,
+      skipFonts: false,
     });
   };
 
   const handleDownload = useCallback(async () => {
     setDownloading(true);
     try {
-      const dataUrl = await capturePng();
+      const dataUrl = await capturePng(bgBase64);
       const link = document.createElement("a");
       link.download = `jn-calm-affirmation-${Date.now()}.png`;
       link.href = dataUrl;
       link.click();
       toast.success("Gambar kartu afirmasi berhasil diunduh! 📸");
     } catch (err) {
-      console.error(err);
+      console.error("[ShareCard] Download failed:", err);
       toast.error("Gagal mengunduh gambar.");
     } finally {
       setDownloading(false);
     }
-  }, [selectedTheme, selectedLayout]);
+  }, [bgBase64, selectedTheme, selectedLayout]);
 
   const handleShareImage = useCallback(async () => {
     setSharing(true);
     try {
-      const dataUrl = await capturePng();
-      
-      // Convert to file for Web Share API
+      const dataUrl = await capturePng(bgBase64);
+
+      // Convert to Blob/File for Web Share API
       const res = await fetch(dataUrl);
       const blob = await res.blob();
-      const file = new File([blob], "jn-calm-affirmation.png", { type: "image/png" });
+      const file = new File([blob], "jn-calm-affirmasi.png", { type: "image/png" });
 
-      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      const canShareFiles =
+        typeof navigator.canShare === "function" && navigator.canShare({ files: [file] });
+
+      if (canShareFiles) {
         await navigator.share({
           files: [file],
           title: "JN-CALM · Afirmasi Harian",
@@ -411,25 +422,36 @@ export function ShareAffirmationModal({ open, onClose, affirmation }: ShareModal
         });
         toast.success("Berhasil dibagikan! 🌸");
       } else {
-        // Fallback: download image and copy text
+        // Fallback for desktop / browsers that don't support file sharing:
+        // Download the image automatically
         const link = document.createElement("a");
-        link.download = "jn-calm-affirmation.png";
+        link.download = `jn-calm-afirmasi-${Date.now()}.png`;
         link.href = dataUrl;
         link.click();
-
-        const shareText = `"${affirmation}"\n\n🌸 JN-CALM — Ruang Curhat & Refleksi Diri yang Aman\njn-calm.app`;
-        await navigator.clipboard.writeText(shareText);
-        toast.success("Membagikan gambar tidak didukung browser ini. Gambar diunduh & teks disalin ke clipboard! 📋");
+        toast.success("Gambar berhasil diunduh! Silakan bagikan dari Galeri Anda 📲");
       }
     } catch (err) {
-      if ((err as Error)?.name !== "AbortError") {
-        console.error(err);
-        toast.error("Gagal membagikan gambar.");
+      const error = err as Error;
+      if (error?.name === "AbortError") {
+        // User cancelled the share sheet — no toast needed
+        return;
+      }
+      console.error("[ShareCard] Share failed:", error?.name, error?.message, err);
+      // Last resort: try downloading instead
+      try {
+        const dataUrl = await capturePng(bgBase64);
+        const link = document.createElement("a");
+        link.download = `jn-calm-afirmasi-${Date.now()}.png`;
+        link.href = dataUrl;
+        link.click();
+        toast.success("Bagikan tidak berhasil. Gambar diunduh — silakan bagikan dari Galeri Anda 📲");
+      } catch {
+        toast.error("Gagal memproses gambar. Coba lagi setelah halaman dimuat ulang.");
       }
     } finally {
       setSharing(false);
     }
-  }, [affirmation, selectedTheme, selectedLayout]);
+  }, [affirmation, bgBase64, selectedTheme, selectedLayout]);
 
   if (!open) return null;
 
