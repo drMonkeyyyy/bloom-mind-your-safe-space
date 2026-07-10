@@ -8,7 +8,6 @@ import { MoodBars } from "@/components/app/MoodSparkline";
 import { SkeletonCard } from "@/components/app/SkeletonCard";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import { ShareAffirmationModal, AffirmationCardPreview, CARD_THEMES } from "@/components/app/ShareAffirmationCard";
 
 export const Route = createFileRoute("/_authenticated/app/")({
   component: Dashboard,
@@ -237,7 +236,6 @@ function Dashboard() {
   const { data: profile, isLoading: pLoading } = useProfile(user?.id);
   const [affIdx, setAffIdx] = useState(() => getDailyAffirmationIndex(AFFIRMATIONS.length));
   const [flip, setFlip] = useState(false);
-  const [shareOpen, setShareOpen] = useState(false);
 
   const copyAffirmation = () => {
     navigator.clipboard.writeText(AFFIRMATIONS[affIdx]);
@@ -534,17 +532,6 @@ function Dashboard() {
               </svg>
             </button>
             <button
-              id="share-affirmation-btn"
-              onClick={() => setShareOpen(true)}
-              className="flex h-9 w-9 items-center justify-center rounded-full bg-background border border-border/60 text-muted-foreground hover:text-primary hover:border-primary/40 transition-all duration-200 active:scale-90"
-              aria-label="Bagikan afirmasi"
-              title="Bagikan afirmasi"
-            >
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="h-4.5 w-4.5">
-                <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8M16 6l-4-4-4 4M12 2v13" />
-              </svg>
-            </button>
-            <button
               onClick={nextAffirmation}
               className="flex h-9 px-4 items-center justify-center gap-1.5 rounded-full bg-accent text-accent-foreground shadow-peach text-xs font-semibold hover:-translate-y-0.5 active:scale-95 transition-all duration-250"
             >
@@ -733,12 +720,6 @@ function Dashboard() {
         </section>
       )}
 
-      {/* ── AFFIRMATION SHARE MODAL ─────────────────────────────── */}
-      <ShareAffirmationModal
-        open={shareOpen}
-        onClose={() => setShareOpen(false)}
-        affirmation={AFFIRMATIONS[affIdx]}
-      />
     </div>
   );
 }
