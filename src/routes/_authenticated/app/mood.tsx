@@ -403,7 +403,7 @@ function MoodPage() {
 
         {/* Sliders */}
         <div className="space-y-4">
-          <MoodSlider label="Tingkat Mood" value={moodScore} onChange={setMoodScore} color="var(--color-primary)" />
+          <MoodSlider label="Kondisi Suasana Hati (1: Buruk - 10: Baik)" value={moodScore} onChange={setMoodScore} color="var(--color-primary)" />
           <MoodSlider label="Tingkat Stres" value={stress} onChange={setStress} color="oklch(0.75 0.08 20)" />
           <MoodSlider label="Tingkat Energi" value={energy} onChange={setEnergy} color="oklch(0.70 0.08 200)" />
         </div>
@@ -727,7 +727,7 @@ function MoodPage() {
               <div className="space-y-3 bg-cream-deep/20 p-4 rounded-2xl border border-border/40">
                 <div>
                   <div className="flex justify-between text-xs font-semibold mb-1">
-                    <span>Tingkat Mood</span>
+                    <span>Kondisi Suasana Hati</span>
                     <span className="text-primary font-bold">{selectedCheckIn.mood_score}/10</span>
                   </div>
                   <div className="h-2 w-full bg-stone-100 rounded-full overflow-hidden">
