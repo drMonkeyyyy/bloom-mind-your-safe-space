@@ -757,7 +757,9 @@ function Page() {
                       style={{ width: `${(c / maxTrigger) * 100}%` }}
                     />
                   </div>
-                  <span className="w-8 shrink-0 text-right text-xs font-semibold text-muted-foreground">{c}×</span>
+                  <span className="w-20 shrink-0 text-right text-[11px] font-semibold text-muted-foreground">
+                    {moods?.length ? Math.round((c / moods.length) * 100) : 0}% ({c}×)
+                  </span>
                 </div>
               );
             })}
