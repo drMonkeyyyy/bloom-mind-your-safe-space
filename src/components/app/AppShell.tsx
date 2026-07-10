@@ -10,7 +10,7 @@ import { StreakBuddy } from "./StreakBuddy";
 import { AffirmationWidget } from "./AffirmationWidget";
 import { BloomGarden } from "./BloomGarden";
 import { subscribeAudioState, toggleAmbientSound } from "@/lib/audio";
-import { Music, Pause, Play } from "lucide-react";
+import { Music, Pause, Play, X } from "lucide-react";
 
 /* ─── SVG Icon helpers ─────────────────────────────────────────── */
 function Icon({ d, className = "h-5 w-5" }: { d: string; className?: string }) {
@@ -164,7 +164,18 @@ export function AppShell({ children }: { children: ReactNode }) {
     }
   };
 
-  const showGlobalPlayer = path === "/app/calm" || isAnySoundPlaying;
+  const [dismissed, setDismissed] = useState(false);
+  const activeSoundKey = activeSoundList.join(",");
+  const [prevActiveSoundKey, setPrevActiveSoundKey] = useState("");
+
+  useEffect(() => {
+    if (activeSoundKey !== prevActiveSoundKey) {
+      setDismissed(false);
+      setPrevActiveSoundKey(activeSoundKey);
+    }
+  }, [activeSoundKey, prevActiveSoundKey]);
+
+  const showGlobalPlayer = !dismissed && (path === "/app/calm" || isAnySoundPlaying);
 
   // Force onboarding
   useEffect(() => {
@@ -433,10 +444,10 @@ export function AppShell({ children }: { children: ReactNode }) {
 
       {/* Global floating music pill */}
       {showGlobalPlayer && (
-        <div className="fixed bottom-24 lg:bottom-8 right-6 z-40 animate-fade-in-up">
-          <div className="flex items-center gap-2.5 rounded-full bg-card/85 hover:bg-card border border-border/50 px-4 py-2 shadow-lg backdrop-blur-md transition-all duration-300">
-            <div className={`relative flex h-8 w-8 items-center justify-center rounded-full bg-primary-soft/80 text-primary ${isAnySoundPlaying ? "animate-pulse" : ""}`}>
-              <Music className={`h-4.5 w-4.5 ${isCanonPlaying ? "animate-spin-slow" : ""}`} />
+        <div className="fixed bottom-32 lg:bottom-8 right-4 lg:right-6 z-40 animate-fade-in-up">
+          <div className="flex items-center gap-2 rounded-full bg-card/90 hover:bg-card border border-border/50 pl-3.5 pr-2 py-1.5 shadow-lg backdrop-blur-md transition-all duration-300">
+            <div className={`relative flex h-7.5 w-7.5 items-center justify-center rounded-full bg-primary-soft/80 text-primary ${isAnySoundPlaying ? "animate-pulse" : ""}`}>
+              <Music className={`h-4 w-4 ${isCanonPlaying ? "animate-spin-slow" : ""}`} />
               {isAnySoundPlaying && (
                 <span className="absolute -right-0.5 -top-0.5 flex h-2 w-2">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
@@ -444,25 +455,34 @@ export function AppShell({ children }: { children: ReactNode }) {
                 </span>
               )}
             </div>
-            <div className="flex flex-col pr-1">
-              <span className="text-[11px] font-semibold text-foreground leading-none">
+            <div className="flex flex-col pr-1 min-w-[70px]">
+              <span className="text-[10px] font-semibold text-foreground leading-none">
                 {isAnySoundPlaying ? getActiveSoundLabel() : "Canon in D"}
               </span>
-              <span className="text-[9px] text-muted-foreground mt-0.5">
+              <span className="text-[8px] text-muted-foreground mt-0.5">
                 {isAnySoundPlaying ? "Diputar" : "Dijeda"}
               </span>
             </div>
-            <button
-              onClick={handlePillToggle}
-              className="flex h-7 w-7 items-center justify-center rounded-full bg-primary text-primary-foreground hover:bg-primary/90 transition-all active:scale-95 shadow-sm cursor-pointer"
-              title={isAnySoundPlaying ? "Jeda" : "Putar"}
-            >
-              {isAnySoundPlaying ? (
-                <Pause className="h-3 w-3 fill-current" />
-              ) : (
-                <Play className="h-3 w-3 fill-current translate-x-0.5" />
-              )}
-            </button>
+            <div className="flex items-center gap-1.5 border-l border-border/60 pl-2">
+              <button
+                onClick={handlePillToggle}
+                className="flex h-6.5 w-6.5 items-center justify-center rounded-full bg-primary text-primary-foreground hover:bg-primary/90 transition-all active:scale-95 shadow-sm cursor-pointer"
+                title={isAnySoundPlaying ? "Jeda" : "Putar"}
+              >
+                {isAnySoundPlaying ? (
+                  <Pause className="h-2.5 w-2.5 fill-current" />
+                ) : (
+                  <Play className="h-2.5 w-2.5 fill-current translate-x-0.5" />
+                )}
+              </button>
+              <button
+                onClick={() => setDismissed(true)}
+                className="flex h-6.5 w-6.5 items-center justify-center rounded-full text-muted-foreground hover:text-foreground hover:bg-cream-deep/80 transition-all cursor-pointer"
+                title="Tutup"
+              >
+                <X className="h-3 w-3" />
+              </button>
+            </div>
           </div>
         </div>
       )}

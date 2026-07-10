@@ -155,7 +155,6 @@ export function Pricing() {
                   <span className="font-sans text-4xl font-bold text-foreground">Rp49.000</span>
                   <span className="text-muted-foreground">/bulan</span>
                 </div>
-                <p className="mt-2 text-sm text-muted-foreground">Bisa berhenti kapan saja.</p>
               </div>
 
               {/* Storage info badge */}
