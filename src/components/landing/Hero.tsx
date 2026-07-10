@@ -50,7 +50,7 @@ export function Hero() {
               </svg>
             </a>
             <a
-              href="#cara-kerja"
+              href="#pernah-merasa"
               className="inline-flex items-center gap-2 rounded-full bg-card px-7 py-3.5 text-sm font-semibold text-foreground ring-1 ring-border transition-all duration-300 hover:bg-cream-deep"
             >
               <span className="grid h-5 w-5 place-items-center rounded-full bg-primary-soft text-primary">
