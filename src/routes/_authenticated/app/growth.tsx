@@ -736,9 +736,13 @@ function Page() {
         )}
       </section>
 
-      {/* ── TOP TRIGGERS ─────────────────────────────────────────── */}
       <section className="rounded-3xl bg-card p-6 ring-1 ring-border">
-        <p className="mb-4 text-sm font-semibold">Top Trigger</p>
+        <div className="mb-4">
+          <p className="text-sm font-semibold text-stone-900">Pemicu Utama Mood-mu (Top Triggers)</p>
+          <p className="text-[10px] text-muted-foreground mt-0.5 leading-normal">
+            Menampilkan seberapa sering pemicu ini muncul dari seluruh catatan suasana hatimu dalam 30 hari terakhir.
+          </p>
+        </div>
         {topTriggers.length === 0 ? (
           <p className="text-sm text-muted-foreground">Belum cukup data. Lanjutkan check-in mood harian.</p>
         ) : (
@@ -757,8 +761,8 @@ function Page() {
                       style={{ width: `${(c / maxTrigger) * 100}%` }}
                     />
                   </div>
-                  <span className="w-20 shrink-0 text-right text-[11px] font-semibold text-muted-foreground">
-                    {moods?.length ? Math.round((c / moods.length) * 100) : 0}% ({c}×)
+                  <span className="w-28 shrink-0 text-right text-[11px] font-semibold text-muted-foreground">
+                    {c}× dari {moods?.length || 0} ({moods?.length ? Math.round((c / moods.length) * 100) : 0}%)
                   </span>
                 </div>
               );
