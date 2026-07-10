@@ -117,32 +117,32 @@ function StatCard({
 
 /* ── MindPlant Level Mapping & Helpers ───────────────────────────── */
 const LEVEL_STAGES = [
-  { level: 1, range: "0–100 Pts", emoji: "🌱", name: "Benih Harapan", desc: "Awal dari perjalanan barumu untuk menyayangi diri." },
-  { level: 2, range: "101–250 Pts", emoji: "🌱", name: "Tunas Kecil", desc: "Langkah-langkah kecilmu mulai menampakkan pertumbuhan." },
-  { level: 3, range: "251–450 Pts", emoji: "🍃", name: "Tunas Harapan", desc: "Konsistensi mulai mengakar dalam keseharianmu." },
-  { level: 4, range: "451–700 Pts", emoji: "🌿", name: "Daun Rimbun", desc: "Jiwa yang kuat tercermin dari kepedulian harianmu." },
-  { level: 5, range: "701–1000 Pts", emoji: "🌳", name: "Cabang Kuat", desc: "Tantangan hidup dihadapi dengan keteguhan hati." },
-  { level: 6, range: "1001–1400 Pts", emoji: "🌸", name: "Kuncup Pertama", desc: "Kuncup bunga pertama mulai bersiap untuk mekar." },
-  { level: 7, range: "1401–1900 Pts", emoji: "🌹", name: "Bunga Pertama", desc: "Keindahan ketenangan mulai memancarkan pesona jiwamu." },
-  { level: 8, range: "1901–2500 Pts", emoji: "🌷", name: "Warna-Warni Jiwa", desc: "Berbagai emosi diakomodasi dengan penuh penerimaan." },
-  { level: 9, range: "2501–3200 Pts", emoji: "🌺", name: "Kebun Harmoni", desc: "Taman jiwamu memberikan kedamaian untuk dirimu sendiri." },
-  { level: 10, range: "3201–4000 Pts", emoji: "🌳", name: "Pohon Teduh", desc: "Kekuatan mentalmu menjadi tempat bersandar yang kokoh." },
-  { level: 11, range: "4001–5000 Pts", emoji: "🌟", name: "Kebun Rimbun", desc: "Kedamaian sejati mengalir dari kebiasaan mindful harianmu." },
-  { level: 12, range: "> 5000 Pts", emoji: "👑", name: "Taman Mekar Abadi", desc: "Luar biasa! 1 tahun penuh cinta & ketenangan merawat jiwa." }
+  { level: 1, range: "0–150 Pts", emoji: "🌱", name: "Benih Harapan", desc: "Awal dari perjalanan barumu untuk menyayangi diri." },
+  { level: 2, range: "151–400 Pts", emoji: "🌱", name: "Tunas Kecil", desc: "Langkah-langkah kecilmu mulai menampakkan pertumbuhan." },
+  { level: 3, range: "401–800 Pts", emoji: "🍃", name: "Tunas Harapan", desc: "Konsistensi mulai mengakar dalam keseharianmu." },
+  { level: 4, range: "801–1400 Pts", emoji: "🌿", name: "Daun Rimbun", desc: "Jiwa yang kuat tercermin dari kepedulian harianmu." },
+  { level: 5, range: "1401–2200 Pts", emoji: "🌳", name: "Cabang Kuat", desc: "Tantangan hidup dihadapi dengan keteguhan hati." },
+  { level: 6, range: "2201–3200 Pts", emoji: "🌸", name: "Kuncup Pertama", desc: "Kuncup bunga pertama mulai bersiap untuk mekar." },
+  { level: 7, range: "3201–4400 Pts", emoji: "🌹", name: "Bunga Pertama", desc: "Keindahan ketenangan mulai memancarkan pesona jiwamu." },
+  { level: 8, range: "4401–5800 Pts", emoji: "🌷", name: "Warna-Warni Jiwa", desc: "Berbagai emosi diakomodasi dengan penuh penerimaan." },
+  { level: 9, range: "5801–7200 Pts", emoji: "🌺", name: "Kebun Harmoni", desc: "Taman jiwamu memberikan kedamaian untuk dirimu sendiri." },
+  { level: 10, range: "7201–8600 Pts", emoji: "🌳", name: "Pohon Teduh", desc: "Kekuatan mentalmu menjadi tempat bersandar yang kokoh." },
+  { level: 11, range: "8601–10000 Pts", emoji: "🌟", name: "Kebun Rimbun", desc: "Kedamaian sejati mengalir dari kebiasaan mindful harianmu." },
+  { level: 12, range: "> 10000 Pts", emoji: "👑", name: "Taman Mekar Abadi", desc: "Luar biasa! Dedikasi penuh cinta & ketenangan dalam merawat indahnya jiwamu." }
 ];
 
 function getLevelInfo(score: number) {
-  if (score > 5000) return { ...LEVEL_STAGES[11], stageVisual: 5 };
-  if (score > 4000) return { ...LEVEL_STAGES[10], stageVisual: 4 };
-  if (score > 3200) return { ...LEVEL_STAGES[9], stageVisual: 4 };
-  if (score > 2500) return { ...LEVEL_STAGES[8], stageVisual: 4 };
-  if (score > 1900) return { ...LEVEL_STAGES[7], stageVisual: 4 };
-  if (score > 1400) return { ...LEVEL_STAGES[6], stageVisual: 4 };
-  if (score > 1000) return { ...LEVEL_STAGES[5], stageVisual: 3 };
-  if (score > 700) return { ...LEVEL_STAGES[4], stageVisual: 2 };
-  if (score > 450) return { ...LEVEL_STAGES[3], stageVisual: 2 };
-  if (score > 250) return { ...LEVEL_STAGES[2], stageVisual: 2 };
-  if (score > 100) return { ...LEVEL_STAGES[1], stageVisual: 2 };
+  if (score > 10000) return { ...LEVEL_STAGES[11], stageVisual: 5 };
+  if (score > 8600) return { ...LEVEL_STAGES[10], stageVisual: 4 };
+  if (score > 7200) return { ...LEVEL_STAGES[9], stageVisual: 4 };
+  if (score > 5800) return { ...LEVEL_STAGES[8], stageVisual: 4 };
+  if (score > 4400) return { ...LEVEL_STAGES[7], stageVisual: 4 };
+  if (score > 3200) return { ...LEVEL_STAGES[6], stageVisual: 4 };
+  if (score > 2200) return { ...LEVEL_STAGES[5], stageVisual: 3 };
+  if (score > 1400) return { ...LEVEL_STAGES[4], stageVisual: 2 };
+  if (score > 800) return { ...LEVEL_STAGES[3], stageVisual: 2 };
+  if (score > 400) return { ...LEVEL_STAGES[2], stageVisual: 2 };
+  if (score > 150) return { ...LEVEL_STAGES[1], stageVisual: 2 };
   return { ...LEVEL_STAGES[0], stageVisual: 1 };
 }
 
