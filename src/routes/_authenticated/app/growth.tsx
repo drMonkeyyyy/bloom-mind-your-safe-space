@@ -240,6 +240,87 @@ function MindPlant({ score, onClick }: { score: number; onClick?: () => void }) 
   );
 }
 
+function ActionRecommendationCard({
+  avgMood,
+  avgStress,
+  avgEnergy
+}: {
+  avgMood: string | number;
+  avgStress: string | number;
+  avgEnergy: string | number;
+}) {
+  const parseNum = (val: string | number) => {
+    const n = typeof val === "string" ? parseFloat(val) : val;
+    return isNaN(n) ? null : n;
+  };
+
+  const scoreMood = parseNum(avgMood);
+  const scoreStress = parseNum(avgStress);
+  const scoreEnergy = parseNum(avgEnergy);
+
+  let recType: "burnout" | "sadness" | "stable" = "stable";
+  
+  if (scoreStress !== null && scoreEnergy !== null && (scoreStress >= 7.0 || scoreEnergy <= 3.5)) {
+    recType = "burnout";
+  } else if (scoreMood !== null && scoreMood <= 4.5) {
+    recType = "sadness";
+  }
+
+  const configs = {
+    burnout: {
+      bg: "bg-gradient-to-br from-rose-50/75 via-orange-50/50 to-cream-deep/20 border-rose-200/50",
+      accent: "text-rose-700",
+      icon: "⚠️",
+      title: "Peringatan Dini Burnout",
+      desc: `Suhu stresmu saat ini sangat tinggi (${avgStress}/10) dan energimu berada di titik rendah (${avgEnergy}/10). Tubuh dan pikiranmu sedang mengirimkan sinyal kelelahan ekstrem.`,
+      btnText: "Tenangkan Diri di Emergency Calm 🍃",
+      link: "/app/calm"
+    },
+    sadness: {
+      bg: "bg-gradient-to-br from-blue-50/70 via-indigo-50/50 to-cream-deep/20 border-blue-200/50",
+      accent: "text-blue-700",
+      icon: "😰",
+      title: "Kondisi Hati Sedang Redup",
+      desc: `Rata-rata kondisi suasana hatimu sedang berada di angka (${avgMood}/10). Sangat wajar untuk merasa lelah atau sedih. Ingatlah bahwa kamu tidak harus memikulnya sendirian.`,
+      btnText: "Curhat dengan Pendamping AI 💬",
+      link: "/app/chat"
+    },
+    stable: {
+      bg: "bg-gradient-to-br from-emerald-50/70 via-teal-50/50 to-cream-deep/20 border-emerald-200/50",
+      accent: "text-emerald-700",
+      icon: "✨",
+      title: "Kondisi Jiwamu Sedang Seimbang",
+      desc: `Luar biasa! Tren kesehatan mentalmu stabil dengan tingkat stres rendah (${avgStress}/10) dan energi yang baik (${avgEnergy}/10). Mari rawat kebahagiaan ini.`,
+      btnText: "Tulis Jurnal Gratitude 📝",
+      link: "/app/gratitude"
+    }
+  };
+
+  const config = configs[recType];
+
+  return (
+    <div className={`rounded-3xl p-6 border transition-all duration-350 shadow-soft relative overflow-hidden flex flex-col md:flex-row items-start md:items-center justify-between gap-5 animate-scale-in ${config.bg}`}>
+      <div className="flex items-start gap-4">
+        <div className="grid h-12 w-12 place-items-center rounded-2xl bg-white shadow-soft text-2xl select-none shrink-0">
+          {config.icon}
+        </div>
+        <div className="space-y-1">
+          <p className={`text-[10px] font-bold uppercase tracking-wider ${config.accent}`}>Detektor Kesejahteraan Jiwa</p>
+          <h3 className="font-display text-base font-bold text-stone-900">{config.title}</h3>
+          <p className="text-xs text-stone-600 leading-relaxed max-w-2xl">{config.desc}</p>
+        </div>
+      </div>
+      
+      <Link
+        to={config.link}
+        className="w-full md:w-auto shrink-0 text-center rounded-full bg-stone-900 text-white hover:bg-stone-800 active:scale-97 px-5 py-3 text-xs font-bold transition-all shadow-sm"
+      >
+        {config.btnText}
+      </Link>
+    </div>
+  );
+}
+
 function Page() {
   const { user } = useAuth();
   const { data: profile } = useProfile(user?.id);
@@ -468,6 +549,15 @@ function Page() {
             })}
           />
         </div>
+      )}
+
+      {/* ── RECOMMENDED ACTION CARD ────────────────────────────── */}
+      {!moodsLoading && moods && moods.length > 0 && (
+        <ActionRecommendationCard
+          avgMood={avgMood}
+          avgStress={avgStress}
+          avgEnergy={avgEnergy}
+        />
       )}
 
       {/* ── MOOD TREND ───────────────────────────────────────────── */}
