@@ -598,6 +598,94 @@ ${summary}`,
     return { text: r.text };
   });
 
+export const getDailyInsight = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { supabase, userId } = context;
+    const today = new Date().toLocaleDateString("sv-SE", { timeZone: "Asia/Jakarta" });
+    
+    const [
+      { data: moods },
+      { data: eating },
+      { data: chat },
+      { data: journals },
+      { data: gratitude },
+      { data: habits },
+      { data: profile }
+    ] = await Promise.all([
+      supabase.from("mood_checkins").select("mood, mood_score, stress_score, energy_score, triggers, date")
+        .eq("user_id", userId).eq("date", today).order("date"),
+      supabase.from("emotional_eating_logs").select("hunger_type, emotion, trigger, date")
+        .eq("user_id", userId).eq("date", today),
+      supabase.from("chats").select("companion_key, custom_companion_id").eq("user_id", userId).order("updated_at", { ascending: false }).limit(1).maybeSingle(),
+      supabase.from("journals").select("main_emotion, main_trigger, summary, lesson, date")
+        .eq("user_id", userId).eq("date", today),
+      supabase.from("gratitude_entries").select("gratitude1, gratitude2, gratitude3, date")
+        .eq("user_id", userId).eq("date", today),
+      supabase.from("habit_logs").select("completed, date, habits!inner(name, is_active)")
+        .eq("user_id", userId).eq("habits.is_active", true).eq("date", today),
+      supabase.from("profiles").select("name").eq("id", userId).maybeSingle(),
+    ]);
+
+    if (!moods || moods.length === 0) {
+      return { text: "BELUM_ADA_DATA_HARI_INI" };
+    }
+
+    const userName = profile?.name || "Teman";
+    const companionKey = chat?.companion_key;
+    let companionRole = "Sahabat";
+
+    if (chat?.custom_companion_id) {
+      const { data: customComp } = await supabase
+        .from("custom_companions")
+        .select("name")
+        .eq("id", chat.custom_companion_id)
+        .maybeSingle();
+      companionRole = customComp?.name || "Pendamping Kustom";
+    } else if (companionKey) {
+      companionRole = COMPANION_ROLES[companionKey] || "Sahabat";
+    }
+
+    const { createGeminiClient, getGeminiApiKey } = await import("./ai-client.server");
+    const apiKey = getGeminiApiKey();
+    if (!apiKey) return { text: "Data terkumpul, namun layanan insight sedang tidak tersedia." };
+    const { generateText } = await import("ai");
+    const gateway = createGeminiClient(apiKey);
+
+    const completedHabits = habits?.filter(h => h.completed).map(h => (h.habits as any)?.name).filter(Boolean) || [];
+    const habitDetails = completedHabits.join(", ");
+
+    const summary = `
+Aktivitas user HARI INI (${today}):
+1. Mood harian: ${JSON.stringify(moods || [])}
+2. Pola makan emosional (emotional eating): ${JSON.stringify(eating || [])}
+3. Jurnal refleksi pribadi: ${JSON.stringify(journals || [])}
+4. Catatan syukur (gratitude): ${JSON.stringify(gratitude || [])}
+5. Kebiasaan (habits) yang berhasil diselesaikan hari ini: ${habitDetails || "tidak ada"}
+`;
+
+    let r;
+    try {
+      r = await generateText({
+        model: gateway("gemini-2.5-flash"),
+        prompt: `Sebagai pendamping ${companionRole} JN-CALM, buat insight harian dalam Bahasa Indonesia yang hangat, tulus, dan tidak menghakimi berdasarkan seluruh aktivitas user hari ini (mood, jurnal, rasa syukur, kebiasaan/habit tracker, dan pola makan emosional hari ini).
+
+Sapa dan panggillah user menggunakan nama aslinya yaitu "${userName}" (misalnya: "Halo ${userName}", "Hari ini ${userName}...", dll). Jangan panggil dengan sebutan formal seperti "Saudara" atau "User".
+
+Format output wajib terbagi menjadi 3 bagian yang jelas dipisahkan baris kosong:
+1. 🔍 Refleksi Hangat Harimu: Ulasan singkat (2-3 kalimat) mengenai kondisi emosional, tingkat stres/energi, dan trigger yang dominan dirasakan hari ini.
+2. 🧭 Langkah Damai Malam Ini: Tuliskan 2 langkah kecil atau afirmasi penenang praktis yang bisa dilakukan malam ini sebelum tidur atau besok pagi untuk menyegarkan pikiran. Gunakan nomor 1, 2 dan emoji yang menarik di awal setiap langkah.
+3. ✨ Afirmasi Positif: 1 kalimat pesan penyemangat/afirmasi penutup yang indah untuk melepas lelah hari ini.
+
+Data aktivitas user hari ini:
+${summary}`,
+      });
+    } catch (e) {
+      handleAiError(e);
+    }
+    return { text: r.text };
+  });
+
 export const initStorageBuckets = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async () => {

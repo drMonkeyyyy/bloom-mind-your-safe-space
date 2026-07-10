@@ -4,7 +4,7 @@ import { useProfile } from "@/hooks/use-profile";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
-import { getWeeklyInsight } from "@/lib/chat.functions";
+import { getWeeklyInsight, getDailyInsight } from "@/lib/chat.functions";
 import { PaywallCard } from "@/components/app/PaywallCard";
 import { useState, useEffect } from "react";
 import { MoodSparkline } from "@/components/app/MoodSparkline";
@@ -244,24 +244,40 @@ function Page() {
   const { user } = useAuth();
   const { data: profile } = useProfile(user?.id);
   const isPremium = profile?.plan === "premium";
-  const insightFn = useServerFn(getWeeklyInsight);
-  const [insight, setInsight] = useState<string | null>(null);
-  const [insightLoading, setInsightLoading] = useState(false);
+  
+  const weeklyInsightFn = useServerFn(getWeeklyInsight);
+  const dailyInsightFn = useServerFn(getDailyInsight);
+  
+  const [insightTab, setInsightTab] = useState<"daily" | "weekly">("daily");
+  
+  // Weekly Insight states
+  const [weeklyInsight, setWeeklyInsight] = useState<string | null>(null);
+  const [weeklyInsightLoading, setWeeklyInsightLoading] = useState(false);
+  const [weeklyHistory, setWeeklyHistory] = useState<Array<{ id: string; date: string; text: string }>>([]);
+  
+  // Daily Insight states
+  const [dailyInsight, setDailyInsight] = useState<string | null>(null);
+  const [dailyInsightLoading, setDailyInsightLoading] = useState(false);
+  const [dailyHistory, setDailyHistory] = useState<Array<{ id: string; date: string; text: string }>>([]);
+
   const [plantModalOpen, setPlantModalOpen] = useState(false);
   const [selectedStat, setSelectedStat] = useState<{ title: string; desc: string } | null>(null);
   const [historyModalOpen, setHistoryModalOpen] = useState(false);
-  const [insightHistory, setInsightHistory] = useState<Array<{ id: string; date: string; text: string }>>([]);
 
   useEffect(() => {
     if (!user) return;
-    const saved = localStorage.getItem(`bloom_weekly_insight_${user.id}`);
-    if (saved) {
-      setInsight(saved);
-    }
-    const savedHistory = localStorage.getItem(`bloom_weekly_insights_history_${user.id}`);
-    if (savedHistory) {
-      setInsightHistory(JSON.parse(savedHistory));
-    }
+    
+    // Load weekly
+    const savedWeekly = localStorage.getItem(`bloom_weekly_insight_${user.id}`);
+    if (savedWeekly) setWeeklyInsight(savedWeekly);
+    const savedWeeklyHistory = localStorage.getItem(`bloom_weekly_insights_history_${user.id}`);
+    if (savedWeeklyHistory) setWeeklyHistory(JSON.parse(savedWeeklyHistory));
+    
+    // Load daily
+    const savedDaily = localStorage.getItem(`bloom_daily_insight_${user.id}`);
+    if (savedDaily) setDailyInsight(savedDaily);
+    const savedDailyHistory = localStorage.getItem(`bloom_daily_insights_history_${user.id}`);
+    if (savedDailyHistory) setDailyHistory(JSON.parse(savedDailyHistory));
   }, [user]);
 
   const since = new Date(Date.now() - 29 * 86400000).toISOString().slice(0, 10);
@@ -316,50 +332,89 @@ function Page() {
   };
 
   const todayStr = getLocalDateString();
-  const hasGeneratedToday = insightHistory.some(
+  const hasDailyGeneratedToday = dailyHistory.some(
+    (item) => getLocalDateString(new Date(item.date)) === todayStr
+  );
+  const hasWeeklyGeneratedToday = weeklyHistory.some(
     (item) => getLocalDateString(new Date(item.date)) === todayStr
   );
 
-  const generate = async () => {
-    setInsightLoading(true);
-    try { 
-      const r = await insightFn({ data: undefined }); 
-      setInsight(r.text); 
+  const generateDaily = async () => {
+    setDailyInsightLoading(true);
+    try {
+      const r = await dailyInsightFn({ data: undefined });
+      setDailyInsight(r.text);
       if (user) {
-        localStorage.setItem(`bloom_weekly_insight_${user.id}`, r.text);
+        localStorage.setItem(`bloom_daily_insight_${user.id}`, r.text);
         
-        // Check if there is already an entry generated today to overwrite
-        const existingIdx = insightHistory.findIndex(
+        const existingIdx = dailyHistory.findIndex(
           (item) => getLocalDateString(new Date(item.date)) === todayStr
         );
-
+        
         let updatedHistory;
         if (existingIdx !== -1) {
-          // Overwrite existing today's entry
-          updatedHistory = [...insightHistory];
+          updatedHistory = [...dailyHistory];
           updatedHistory[existingIdx] = {
             ...updatedHistory[existingIdx],
             text: r.text,
-            date: new Date().toISOString() // Update timestamp to latest generate time
+            date: new Date().toISOString()
           };
         } else {
-          // Insert new entry
           const newEntry = {
             id: Math.random().toString(36).substring(2, 9),
             date: new Date().toISOString(),
             text: r.text,
           };
-          updatedHistory = [newEntry, ...insightHistory];
+          updatedHistory = [newEntry, ...dailyHistory];
         }
-
-        // Keep max 50 entries in history to prevent storage exhaustion
         updatedHistory = updatedHistory.slice(0, 50);
-        setInsightHistory(updatedHistory);
+        setDailyHistory(updatedHistory);
+        localStorage.setItem(`bloom_daily_insights_history_${user.id}`, JSON.stringify(updatedHistory));
+      }
+    } catch {
+      setDailyInsight("Gagal memuat insight harian. Coba lagi.");
+    } finally {
+      setDailyInsightLoading(false);
+    }
+  };
+
+  const generateWeekly = async () => {
+    setWeeklyInsightLoading(true);
+    try {
+      const r = await weeklyInsightFn({ data: undefined });
+      setWeeklyInsight(r.text);
+      if (user) {
+        localStorage.setItem(`bloom_weekly_insight_${user.id}`, r.text);
+        
+        const existingIdx = weeklyHistory.findIndex(
+          (item) => getLocalDateString(new Date(item.date)) === todayStr
+        );
+        
+        let updatedHistory;
+        if (existingIdx !== -1) {
+          updatedHistory = [...weeklyHistory];
+          updatedHistory[existingIdx] = {
+            ...updatedHistory[existingIdx],
+            text: r.text,
+            date: new Date().toISOString()
+          };
+        } else {
+          const newEntry = {
+            id: Math.random().toString(36).substring(2, 9),
+            date: new Date().toISOString(),
+            text: r.text,
+          };
+          updatedHistory = [newEntry, ...weeklyHistory];
+        }
+        updatedHistory = updatedHistory.slice(0, 50);
+        setWeeklyHistory(updatedHistory);
         localStorage.setItem(`bloom_weekly_insights_history_${user.id}`, JSON.stringify(updatedHistory));
       }
+    } catch {
+      setWeeklyInsight("Gagal memuat insight mingguan. Coba lagi.");
+    } finally {
+      setWeeklyInsightLoading(false);
     }
-    catch { setInsight("Gagal memuat insight. Coba lagi."); }
-    finally { setInsightLoading(false); }
   };
 
   return (
@@ -480,17 +535,24 @@ function Page() {
       <section className="rounded-3xl p-6 border border-purple-200/50 relative overflow-hidden bg-gradient-to-br from-indigo-50/50 via-purple-50/45 to-pink-50/35 shadow-soft">
         <div className="flex items-center justify-between gap-3 flex-wrap">
           <div>
-            <div className="flex items-center gap-2">
-              <span className="rounded-full bg-purple-100/80 border border-purple-200 px-2 py-0.5 text-[9px] font-bold text-purple-700 select-none animate-pulse">
+            <div className="flex items-center gap-2 animate-fade-in">
+              <span className="rounded-full bg-purple-100/80 border border-purple-200 px-2.5 py-0.5 text-[9px] font-bold text-purple-700 select-none animate-pulse">
                 ✨ AI Premium
               </span>
             </div>
-            <p className="font-display text-lg font-bold text-foreground mt-1">Weekly AI Insight</p>
-            <p className="text-xs text-muted-foreground">Analisis perkembangan diri personal berdasarkan datamu</p>
+            <p className="font-display text-lg font-bold text-foreground mt-1">
+              {insightTab === "daily" ? "Daily AI Insight" : "Weekly AI Insight"}
+            </p>
+            <p className="text-xs text-muted-foreground">
+              {insightTab === "daily" 
+                ? "Evaluasi & afirmasi personal harianmu hari ini" 
+                : "Analisis perkembangan diri personal berdasarkan datamu"}
+            </p>
           </div>
+          
           {isPremium && (
             <div className="flex items-center gap-2">
-              {insightHistory.length > 0 && (
+              {(insightTab === "daily" ? dailyHistory : weeklyHistory).length > 0 && (
                 <button
                   onClick={() => setHistoryModalOpen(true)}
                   className="rounded-full border border-purple-200/40 bg-white/90 hover:bg-white px-3.5 py-2 text-xs font-bold text-purple-700 transition-all duration-200 active:scale-95 shadow-sm"
@@ -499,14 +561,41 @@ function Page() {
                 </button>
               )}
               <button
-                onClick={generate}
-                disabled={insightLoading}
+                onClick={insightTab === "daily" ? generateDaily : generateWeekly}
+                disabled={insightTab === "daily" ? dailyInsightLoading : weeklyInsightLoading}
                 className="rounded-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 px-5 py-2.5 text-xs font-bold text-white transition-all hover:-translate-y-0.5 hover:shadow-md disabled:opacity-60 flex items-center gap-1.5"
               >
-                {insightLoading ? "Memuat…" : hasGeneratedToday ? "🔄 Regenerate" : "Generate"}
+                {insightTab === "daily" 
+                  ? (dailyInsightLoading ? "Memuat…" : hasDailyGeneratedToday ? "🔄 Regenerate" : "Generate")
+                  : (weeklyInsightLoading ? "Memuat…" : hasWeeklyGeneratedToday ? "🔄 Regenerate" : "Generate")
+                }
               </button>
             </div>
           )}
+        </div>
+
+        {/* ── INSIGHT TAB SELECTOR ─────────────────────────────────── */}
+        <div className="flex bg-purple-100/40 p-0.5 rounded-full border border-purple-200/20 max-w-[210px] mt-4 shadow-inner">
+          <button
+            onClick={() => setInsightTab("daily")}
+            className={`flex-1 py-1.5 px-3 rounded-full text-[10px] font-bold transition-all duration-350 ${
+              insightTab === "daily"
+                ? "bg-white text-purple-700 shadow-sm"
+                : "text-purple-600/70 hover:text-purple-800"
+            }`}
+          >
+            Harian
+          </button>
+          <button
+            onClick={() => setInsightTab("weekly")}
+            className={`flex-1 py-1.5 px-3 rounded-full text-[10px] font-bold transition-all duration-350 ${
+              insightTab === "weekly"
+                ? "bg-white text-purple-700 shadow-sm"
+                : "text-purple-600/70 hover:text-purple-800"
+            }`}
+          >
+            Mingguan
+          </button>
         </div>
 
         {!isPremium ? (
@@ -529,9 +618,13 @@ function Page() {
                   <path d="M7 11V7a5 5 0 0 1 10 0v4" />
                 </svg>
               </div>
-              <p className="text-sm font-bold text-purple-950">Buka Laporan Mingguan AI</p>
+              <p className="text-sm font-bold text-purple-950">
+                {insightTab === "daily" ? "Buka Laporan Harian AI" : "Buka Laporan Mingguan AI"}
+              </p>
               <p className="text-[11px] text-muted-foreground max-w-xs mt-1 mb-3">
-                Dapatkan evaluasi emosi mingguan, rekomendasi koping personal, dan deteksi dini stres berdasarkan datamu.
+                {insightTab === "daily"
+                  ? "Dapatkan afirmasi penenang, evaluasi mood, dan rekomendasi langkah damai malam ini untuk tidur yang lebih nyenyak."
+                  : "Dapatkan evaluasi emosi mingguan, rekomendasi koping personal, dan deteksi dini stres berdasarkan datamu."}
               </p>
               <Link
                 to="/app/premium"
@@ -543,7 +636,8 @@ function Page() {
           </div>
         ) : (
           <>
-            {insightLoading && (
+            {/* DAILY INSIGHT LOADING */}
+            {insightTab === "daily" && dailyInsightLoading && (
               <div className="mt-4 space-y-2">
                 <div className="skeleton h-3 w-full rounded-full" />
                 <div className="skeleton h-3 w-5/6 rounded-full" />
@@ -551,28 +645,83 @@ function Page() {
               </div>
             )}
 
-            {insight && !insightLoading && (
-              <div className="mt-4 animate-slide-up rounded-2xl bg-white/80 border border-primary/10 p-5 shadow-sm relative overflow-hidden select-text selection:bg-primary-soft">
-                <div className="absolute left-3 top-0 bottom-0 w-[1px] bg-primary/30" />
-                <div className="pl-4 space-y-2">
-                  {parseMarkdown(insight)}
-                </div>
+            {/* WEEKLY INSIGHT LOADING */}
+            {insightTab === "weekly" && weeklyInsightLoading && (
+              <div className="mt-4 space-y-2">
+                <div className="skeleton h-3 w-full rounded-full" />
+                <div className="skeleton h-3 w-5/6 rounded-full" />
+                <div className="skeleton h-3 w-4/5 rounded-full" />
               </div>
             )}
 
-            {!insight && !insightLoading && (
-              <p className="mt-4 text-sm text-muted-foreground">
-                Klik "Generate" untuk mendapatkan insight personal minggu ini.
-              </p>
+            {/* DAILY INSIGHT CONTENT */}
+            {insightTab === "daily" && !dailyInsightLoading && (
+              <>
+                {dailyInsight === "BELUM_ADA_DATA_HARI_INI" ? (
+                  <div className="mt-4 text-center p-6 rounded-2xl bg-white/60 border border-amber-200/50 shadow-sm">
+                    <span className="text-3xl select-none">📝</span>
+                    <p className="text-xs font-bold text-amber-900 mt-2.5">Belum ada evaluasi mood hari ini</p>
+                    <p className="text-[10px] text-muted-foreground mt-1 max-w-xs mx-auto leading-relaxed">
+                      Silakan lakukan check-in mood harian terlebih dahulu agar AI dapat menyusun analisis mentalmu hari ini.
+                    </p>
+                    <div className="mt-4">
+                      <Link 
+                        to="/app/mood" 
+                        className="inline-block rounded-full bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 text-[10px] font-bold shadow-soft transition-all duration-200 hover:-translate-y-0.5 active:scale-95"
+                      >
+                        Check-in Mood Sekarang →
+                      </Link>
+                    </div>
+                  </div>
+                ) : dailyInsight ? (
+                  <div className="mt-4 animate-slide-up rounded-2xl bg-white/80 border border-primary/10 p-5 shadow-sm relative overflow-hidden select-text selection:bg-primary-soft">
+                    <div className="absolute left-3 top-0 bottom-0 w-[1px] bg-primary/30" />
+                    <div className="pl-4 space-y-2">
+                      {parseMarkdown(dailyInsight)}
+                    </div>
+                  </div>
+                ) : (
+                  <p className="mt-4 text-sm text-muted-foreground">
+                    Klik "Generate" untuk mendapatkan insight personal hari ini.
+                  </p>
+                )}
+
+                {hasDailyGeneratedToday && dailyInsight && dailyInsight !== "BELUM_ADA_DATA_HARI_INI" && (
+                  <div className="mt-4 text-[10px] text-purple-700 bg-purple-50/50 border border-purple-100/60 rounded-2xl p-3 font-semibold flex items-start gap-2 animate-fade-in shadow-inner">
+                    <span>💡</span>
+                    <p className="leading-normal">
+                      Kamu sudah membuat insight hari ini. Mengklik <strong>Regenerate</strong> akan memperbarui laporan hari ini di riwayat kamu.
+                    </p>
+                  </div>
+                )}
+              </>
             )}
 
-            {hasGeneratedToday && !insightLoading && (
-              <div className="mt-4 text-[10px] text-purple-700 bg-purple-50/50 border border-purple-100/60 rounded-2xl p-3 font-semibold flex items-start gap-2 animate-fade-in shadow-inner">
-                <span>💡</span>
-                <p className="leading-normal">
-                  Kamu sudah membuat insight hari ini. Mengklik <strong>Regenerate</strong> akan memperbarui laporan hari ini di riwayat kamu tanpa membuat entri ganda.
-                </p>
-              </div>
+            {/* WEEKLY INSIGHT CONTENT */}
+            {insightTab === "weekly" && !weeklyInsightLoading && (
+              <>
+                {weeklyInsight ? (
+                  <div className="mt-4 animate-slide-up rounded-2xl bg-white/80 border border-primary/10 p-5 shadow-sm relative overflow-hidden select-text selection:bg-primary-soft">
+                    <div className="absolute left-3 top-0 bottom-0 w-[1px] bg-primary/30" />
+                    <div className="pl-4 space-y-2">
+                      {parseMarkdown(weeklyInsight)}
+                    </div>
+                  </div>
+                ) : (
+                  <p className="mt-4 text-sm text-muted-foreground">
+                    Klik "Generate" untuk mendapatkan insight personal minggu ini.
+                  </p>
+                )}
+
+                {hasWeeklyGeneratedToday && weeklyInsight && (
+                  <div className="mt-4 text-[10px] text-purple-700 bg-purple-50/50 border border-purple-100/60 rounded-2xl p-3 font-semibold flex items-start gap-2 animate-fade-in shadow-inner">
+                    <span>💡</span>
+                    <p className="leading-normal">
+                      Kamu sudah membuat insight hari ini. Mengklik <strong>Regenerate</strong> akan memperbarui laporan hari ini di riwayat kamu.
+                    </p>
+                  </div>
+                )}
+              </>
             )}
           </>
         )}
@@ -663,15 +812,17 @@ function Page() {
       <ModalDialog
         open={historyModalOpen}
         onClose={() => setHistoryModalOpen(false)}
-        title="🕒 Riwayat Analisis Mingguan AI"
+        title={insightTab === "daily" ? "🕒 Riwayat Analisis Harian AI" : "🕒 Riwayat Analisis Mingguan AI"}
       >
         <div className="space-y-4 max-h-[70vh] overflow-y-auto pr-1">
           <p className="text-xs text-muted-foreground leading-normal">
-            Berikut adalah catatan analisis mingguan AI Anda dari minggu-minggu sebelumnya untuk melacak progress Anda.
+            {insightTab === "daily" 
+              ? "Berikut adalah catatan analisis harian AI Anda untuk melacak progress harian Anda."
+              : "Berikut adalah catatan analisis mingguan AI Anda dari minggu-minggu sebelumnya untuk melacak progress Anda."}
           </p>
 
           <div className="space-y-3.5">
-            {insightHistory.map((item) => {
+            {(insightTab === "daily" ? dailyHistory : weeklyHistory).map((item) => {
               const formattedDate = new Date(item.date).toLocaleDateString("id-ID", {
                 weekday: "long",
                 day: "numeric",
@@ -692,15 +843,29 @@ function Page() {
                       </button>
                       <button 
                         onClick={() => {
-                          const updated = insightHistory.filter(x => x.id !== item.id);
-                          setInsightHistory(updated);
-                          localStorage.setItem(`bloom_weekly_insights_history_${user!.id}`, JSON.stringify(updated));
-                          if (insight === item.text) {
-                            setInsight(updated[0]?.text ?? null);
-                            if (updated[0]?.text) {
-                              localStorage.setItem(`bloom_weekly_insight_${user!.id}`, updated[0].text);
-                            } else {
-                              localStorage.removeItem(`bloom_weekly_insight_${user!.id}`);
+                          if (insightTab === "daily") {
+                            const updated = dailyHistory.filter(x => x.id !== item.id);
+                            setDailyHistory(updated);
+                            localStorage.setItem(`bloom_daily_insights_history_${user!.id}`, JSON.stringify(updated));
+                            if (dailyInsight === item.text) {
+                              setDailyInsight(updated[0]?.text ?? null);
+                              if (updated[0]?.text) {
+                                localStorage.setItem(`bloom_daily_insight_${user!.id}`, updated[0].text);
+                              } else {
+                                localStorage.removeItem(`bloom_daily_insight_${user!.id}`);
+                              }
+                            }
+                          } else {
+                            const updated = weeklyHistory.filter(x => x.id !== item.id);
+                            setWeeklyHistory(updated);
+                            localStorage.setItem(`bloom_weekly_insights_history_${user!.id}`, JSON.stringify(updated));
+                            if (weeklyInsight === item.text) {
+                              setWeeklyInsight(updated[0]?.text ?? null);
+                              if (updated[0]?.text) {
+                                localStorage.setItem(`bloom_weekly_insight_${user!.id}`, updated[0].text);
+                              } else {
+                                localStorage.removeItem(`bloom_weekly_insight_${user!.id}`);
+                              }
                             }
                           }
                         }}
