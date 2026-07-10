@@ -309,6 +309,7 @@ function Page() {
     setG({ gratitude1: "", gratitude2: "", gratitude3: "", best_moment: "", lesson: "" });
     setTimeout(() => setHeart(false), 1200);
     qc.invalidateQueries({ queryKey: ["gratitude", user.id] });
+    qc.invalidateQueries({ queryKey: ["profile", user.id] });
   };
 
   const monthCount = list?.filter((e) => {

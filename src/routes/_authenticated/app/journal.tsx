@@ -688,6 +688,7 @@ function JournalPage() {
     setTimeout(() => setSavedAnim(false), 1000);
     qc.invalidateQueries({ queryKey: ["journals", user.id] });
     qc.invalidateQueries({ queryKey: ["last-journal", user.id] });
+    qc.invalidateQueries({ queryKey: ["profile", user.id] });
   };
 
   const remove = async (id: string) => {

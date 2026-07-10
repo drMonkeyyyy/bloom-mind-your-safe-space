@@ -470,40 +470,7 @@ function Page() {
     },
   });
 
-  const { data: uniqueMoodDays = 0 } = useQuery({
-    queryKey: ["moods-unique-days", user?.id],
-    enabled: !!user,
-    queryFn: async () => {
-      const { data } = await supabase.from("mood_checkins").select("date").eq("user_id", user!.id);
-      if (!data) return 0;
-      const uniqueDates = new Set(data.map(d => d.date));
-      return uniqueDates.size;
-    },
-  });
-
-  const { data: uniqueJournalDays = 0 } = useQuery({
-    queryKey: ["journals-unique-days", user?.id],
-    enabled: !!user,
-    queryFn: async () => {
-      const { data } = await supabase.from("journals").select("date").eq("user_id", user!.id);
-      if (!data) return 0;
-      const uniqueDates = new Set(data.map(d => d.date));
-      return uniqueDates.size;
-    },
-  });
-
-  const { data: uniqueGratitudeDays = 0 } = useQuery({
-    queryKey: ["gratitude-unique-days", user?.id],
-    enabled: !!user,
-    queryFn: async () => {
-      const { data } = await supabase.from("gratitude_entries").select("date").eq("user_id", user!.id);
-      if (!data) return 0;
-      const uniqueDates = new Set(data.map(d => d.date));
-      return uniqueDates.size;
-    },
-  });
-
-  const growthScore = uniqueMoodDays * 8 + uniqueJournalDays * 12 + uniqueGratitudeDays * 12;
+  const growthScore = profile?.lifetime_points ?? 0;
 
   const avgMood = moods?.length ? (moods.reduce((a, b) => a + b.mood_score, 0) / moods.length).toFixed(1) : "—";
   const avgStress = moods?.length ? (moods.reduce((a, b) => a + b.stress_score, 0) / moods.length).toFixed(1) : "—";

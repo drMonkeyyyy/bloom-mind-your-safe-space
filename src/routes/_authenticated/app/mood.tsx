@@ -292,6 +292,7 @@ function MoodPage() {
     setTimeout(() => setSaved(false), 2000);
     qc.invalidateQueries({ queryKey: ["mood-list", user.id] });
     qc.invalidateQueries({ queryKey: ["moods-week", user.id] });
+    qc.invalidateQueries({ queryKey: ["profile", user.id] });
     if (data) {
       setSelectedCheckIn(data);
     }
