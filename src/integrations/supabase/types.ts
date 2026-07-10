@@ -500,6 +500,7 @@ export type Database = {
             | null
           suspended: boolean
           updated_at: string
+          last_active_at: string | null
         }
         Insert: {
           age?: number | null
@@ -520,6 +521,7 @@ export type Database = {
             | null
           suspended?: boolean
           updated_at?: string
+          last_active_at?: string | null
         }
         Update: {
           age?: number | null
@@ -540,6 +542,7 @@ export type Database = {
             | null
           suspended?: boolean
           updated_at?: string
+          last_active_at?: string | null
         }
         Relationships: []
       }
