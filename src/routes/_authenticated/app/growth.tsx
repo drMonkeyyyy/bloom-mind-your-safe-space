@@ -268,30 +268,33 @@ function ActionRecommendationCard({
 
   const configs = {
     burnout: {
-      bg: "bg-gradient-to-br from-rose-50/75 via-orange-50/50 to-cream-deep/20 border-rose-200/50",
+      bg: "bg-gradient-to-br from-rose-50/70 via-orange-50/50 to-cream-deep/10 border-rose-200/50",
       accent: "text-rose-700",
       icon: "⚠️",
+      iconClass: "animate-warning-wobble",
       title: "Peringatan Dini Burnout",
       desc: `Suhu stresmu saat ini sangat tinggi (${avgStress}/10) dan energimu berada di titik rendah (${avgEnergy}/10). Tubuh dan pikiranmu sedang mengirimkan sinyal kelelahan ekstrem.`,
-      btnText: "Tenangkan Diri di Emergency Calm 🍃",
+      btnText: "Tenangkan Diri di Emergency Calm",
       link: "/app/calm"
     },
     sadness: {
       bg: "bg-gradient-to-br from-blue-50/70 via-indigo-50/50 to-cream-deep/20 border-blue-200/50",
       accent: "text-blue-700",
       icon: "😰",
+      iconClass: "animate-float-slow",
       title: "Kondisi Hati Sedang Redup",
       desc: `Rata-rata kondisi suasana hatimu sedang berada di angka (${avgMood}/10). Sangat wajar untuk merasa lelah atau sedih. Ingatlah bahwa kamu tidak harus memikulnya sendirian.`,
-      btnText: "Curhat dengan Pendamping AI 💬",
+      btnText: "Curhat dengan Pendamping AI",
       link: "/app/chat"
     },
     stable: {
       bg: "bg-gradient-to-br from-emerald-50/70 via-teal-50/50 to-cream-deep/20 border-emerald-200/50",
       accent: "text-emerald-700",
       icon: "✨",
+      iconClass: "animate-breathe",
       title: "Kondisi Jiwamu Sedang Seimbang",
       desc: `Luar biasa! Tren kesehatan mentalmu stabil dengan tingkat stres rendah (${avgStress}/10) dan energi yang baik (${avgEnergy}/10). Mari rawat kebahagiaan ini.`,
-      btnText: "Tulis Jurnal Gratitude 📝",
+      btnText: "Tulis Jurnal Gratitude",
       link: "/app/gratitude"
     }
   };
@@ -299,13 +302,16 @@ function ActionRecommendationCard({
   const config = configs[recType];
 
   return (
-    <div className={`rounded-3xl p-6 border transition-all duration-350 shadow-soft relative overflow-hidden flex flex-col md:flex-row items-start md:items-center justify-between gap-5 animate-scale-in ${config.bg}`}>
+    <div className={`rounded-3xl p-6 border transition-all duration-350 shadow-soft relative overflow-hidden flex flex-col md:flex-row items-start md:items-center justify-between gap-5 animate-alert-pulse ${config.bg}`}>
       <div className="flex items-start gap-4">
-        <div className="grid h-12 w-12 place-items-center rounded-2xl bg-white shadow-soft text-2xl select-none shrink-0">
+        <div className={`grid h-12 w-12 place-items-center rounded-2xl bg-white shadow-soft text-2xl select-none shrink-0 ${config.iconClass}`}>
           {config.icon}
         </div>
         <div className="space-y-1">
-          <p className={`text-[10px] font-bold uppercase tracking-wider ${config.accent}`}>Detektor Kesejahteraan Jiwa</p>
+          <div className="flex items-center gap-1.5">
+            <span className="h-1.5 w-1.5 rounded-full bg-red-500 animate-ping inline-block shrink-0" />
+            <p className={`text-[10px] font-bold uppercase tracking-wider ${config.accent}`}>Detektor Kesejahteraan Jiwa</p>
+          </div>
           <h3 className="font-display text-base font-bold text-stone-900">{config.title}</h3>
           <p className="text-xs text-stone-600 leading-relaxed max-w-2xl">{config.desc}</p>
         </div>
@@ -313,9 +319,12 @@ function ActionRecommendationCard({
       
       <Link
         to={config.link}
-        className="w-full md:w-auto shrink-0 text-center rounded-full bg-stone-900 text-white hover:bg-stone-800 active:scale-97 px-5 py-3 text-xs font-bold transition-all shadow-sm"
+        className="w-full md:w-auto shrink-0 text-center rounded-full bg-stone-900 text-white hover:bg-stone-850 hover:scale-103 active:scale-97 px-5 py-3 text-xs font-bold transition-all duration-300 shadow-md hover:shadow-elevated flex items-center justify-center gap-2 group"
       >
-        {config.btnText}
+        <span>{config.btnText}</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="h-4 w-4 transform transition-transform duration-300 group-hover:translate-x-1 shrink-0">
+          <path d="M5 12h14M12 5l7 7-7 7" />
+        </svg>
       </Link>
     </div>
   );
