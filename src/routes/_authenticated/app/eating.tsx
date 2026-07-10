@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { analyzeEmotionalEating } from "@/lib/chat.functions";
@@ -6,6 +6,8 @@ import { toast } from "sonner";
 import { useProfile } from "@/hooks/use-profile";
 import { useAuth } from "@/hooks/use-auth";
 import { PaywallCard } from "@/components/app/PaywallCard";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 const HUNGER = [
   { key: "lapar_fisik" as const, label: "Lapar Fisik", icon: "🍽️", desc: "Perut kosong, butuh energi" },
@@ -31,7 +33,32 @@ function Page() {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<{ insight: string; action: string } | null>(null);
 
-  if (!isPremium) {
+  const { data: logsCount, isLoading: logsCountLoading } = useQuery({
+    queryKey: ["emotional-eating-logs-count", user?.id],
+    enabled: !!user,
+    queryFn: async () => {
+      const { count } = await supabase
+        .from("emotional_eating_logs")
+        .select("*", { count: "exact", head: true })
+        .eq("user_id", user!.id);
+      return count ?? 0;
+    },
+  });
+
+  if (logsCountLoading) {
+    return (
+      <div className="flex h-[50vh] items-center justify-center">
+        <svg className="animate-spin h-8 w-8 text-accent" viewBox="0 0 24 24" fill="none">
+          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+        </svg>
+      </div>
+    );
+  }
+
+  const showPaywall = !isPremium && (logsCount !== undefined && logsCount > 0);
+
+  if (showPaywall) {
     return (
       <div className="space-y-6">
         {/* Coral gradient header */}
@@ -90,6 +117,18 @@ function Page() {
           </p>
         </div>
       </div>
+
+      {!isPremium && logsCount === 0 && (
+        <div className="rounded-3xl bg-amber-50/60 border border-amber-200/60 p-5 text-xs text-amber-800 leading-relaxed flex items-start gap-3 shadow-soft animate-scale-in">
+          <span className="text-lg">💡</span>
+          <div>
+            <p className="font-bold">Uji Coba Gratis</p>
+            <p className="mt-0.5 opacity-90">
+              Kamu memiliki <strong>1 kesempatan gratis</strong> untuk menganalisis pola makan emosionalmu menggunakan AI khusus JN-CALM. Gunakan formulir di bawah ini untuk memulai.
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* ── HUNGER TYPE ─────────────────────────────────────────── */}
       <section className="rounded-3xl bg-card p-6 ring-1 ring-border/60 shadow-card space-y-5">
@@ -209,6 +248,25 @@ function Page() {
           <div className="rounded-2xl bg-card/80 backdrop-blur-sm p-4 ring-1 ring-border/60">
             <p className="text-xs font-bold text-primary mb-1.5">💡 Coba lakukan ini:</p>
             <p className="text-sm text-foreground leading-relaxed">{result.action}</p>
+          </div>
+        </section>
+      )}
+
+      {/* ── PREMIUM UPSELL CARD FOR TRIAL USERS ─────────────────── */}
+      {result && !isPremium && (
+        <section className="rounded-3xl bg-gradient-to-br from-purple-600 via-indigo-600 to-indigo-700 p-6 text-white text-center space-y-4 shadow-elevated animate-scale-in relative overflow-hidden">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_rgba(255,255,255,0.15)_0%,_transparent_60%)] pointer-events-none" />
+          <p className="text-base font-bold">🎉 Analisis Uji Coba Gratismu Selesai!</p>
+          <p className="text-xs opacity-90 leading-relaxed max-w-md mx-auto">
+            Ingin memahami pola makan emosionalmu secara jangka panjang? Dapatkan akses analisis AI tanpa batas dan lacak riwayat perkembanganmu kapan saja dengan beralih ke Premium.
+          </p>
+          <div className="pt-2">
+            <Link
+              to="/app/premium"
+              className="inline-block rounded-full bg-white px-7 py-3 text-xs font-bold text-indigo-700 shadow-soft hover:bg-stone-50 active:scale-95 transition-all duration-200 hover:-translate-y-0.5"
+            >
+              Mulai JN-CALM Premium ✨
+            </Link>
           </div>
         </section>
       )}

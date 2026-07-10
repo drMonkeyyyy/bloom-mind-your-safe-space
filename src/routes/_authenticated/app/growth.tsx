@@ -267,7 +267,7 @@ function Page() {
   const since = new Date(Date.now() - 29 * 86400000).toISOString().slice(0, 10);
   const { data: moods, isLoading: moodsLoading } = useQuery({
     queryKey: ["moods-30", user?.id],
-    enabled: !!user && isPremium,
+    enabled: !!user,
     queryFn: async () => {
       const { data } = await supabase.from("mood_checkins")
         .select("date, mood, mood_score, stress_score, energy_score, triggers")
@@ -278,7 +278,7 @@ function Page() {
 
   const { data: journalsCount } = useQuery({
     queryKey: ["journals-count", user?.id],
-    enabled: !!user && isPremium,
+    enabled: !!user,
     queryFn: async () => {
       const { count } = await supabase.from("journals").select("*", { count: "exact", head: true }).eq("user_id", user!.id);
       return count ?? 0;
@@ -287,7 +287,7 @@ function Page() {
 
   const { data: gratitudeCount } = useQuery({
     queryKey: ["gratitude-count", user?.id],
-    enabled: !!user && isPremium,
+    enabled: !!user,
     queryFn: async () => {
       const { count } = await supabase.from("gratitude_entries").select("*", { count: "exact", head: true }).eq("user_id", user!.id);
       return count ?? 0;
@@ -295,18 +295,6 @@ function Page() {
   });
 
   const growthScore = (moods?.length || 0) * 8 + (journalsCount || 0) * 12 + (gratitudeCount || 0) * 12;
-
-  if (!isPremium) {
-    return (
-      <div className="space-y-6">
-        <div>
-          <h1 className="font-display text-3xl font-semibold">Growth Dashboard</h1>
-          <p className="mt-1 text-sm text-muted-foreground">Pantau perkembangan dirimu dari waktu ke waktu.</p>
-        </div>
-        <PaywallCard desc="Lihat analytics mood, stress, energy, habit consistency, dan insight mingguan AI." />
-      </div>
-    );
-  }
 
   const avgMood = moods?.length ? (moods.reduce((a, b) => a + b.mood_score, 0) / moods.length).toFixed(1) : "—";
   const avgStress = moods?.length ? (moods.reduce((a, b) => a + b.stress_score, 0) / moods.length).toFixed(1) : "—";
@@ -500,55 +488,93 @@ function Page() {
             <p className="font-display text-lg font-bold text-foreground mt-1">Weekly AI Insight</p>
             <p className="text-xs text-muted-foreground">Analisis perkembangan diri personal berdasarkan datamu</p>
           </div>
-          <div className="flex items-center gap-2">
-            {insightHistory.length > 0 && (
+          {isPremium && (
+            <div className="flex items-center gap-2">
+              {insightHistory.length > 0 && (
+                <button
+                  onClick={() => setHistoryModalOpen(true)}
+                  className="rounded-full border border-purple-200/40 bg-white/90 hover:bg-white px-3.5 py-2 text-xs font-bold text-purple-700 transition-all duration-200 active:scale-95 shadow-sm"
+                >
+                  🕒 Riwayat
+                </button>
+              )}
               <button
-                onClick={() => setHistoryModalOpen(true)}
-                className="rounded-full border border-purple-200/40 bg-white/90 hover:bg-white px-3.5 py-2 text-xs font-bold text-purple-700 transition-all duration-200 active:scale-95 shadow-sm"
+                onClick={generate}
+                disabled={insightLoading}
+                className="rounded-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 px-5 py-2.5 text-xs font-bold text-white transition-all hover:-translate-y-0.5 hover:shadow-md disabled:opacity-60 flex items-center gap-1.5"
               >
-                🕒 Riwayat
+                {insightLoading ? "Memuat…" : hasGeneratedToday ? "🔄 Regenerate" : "Generate"}
               </button>
-            )}
-            <button
-              onClick={generate}
-              disabled={insightLoading}
-              className="rounded-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 px-5 py-2.5 text-xs font-bold text-white transition-all hover:-translate-y-0.5 hover:shadow-md disabled:opacity-60 flex items-center gap-1.5"
-            >
-              {insightLoading ? "Memuat…" : hasGeneratedToday ? "🔄 Regenerate" : "Generate"}
-            </button>
-          </div>
+            </div>
+          )}
         </div>
 
-        {insightLoading && (
-          <div className="mt-4 space-y-2">
-            <div className="skeleton h-3 w-full rounded-full" />
-            <div className="skeleton h-3 w-5/6 rounded-full" />
-            <div className="skeleton h-3 w-4/5 rounded-full" />
-          </div>
-        )}
-
-        {insight && !insightLoading && (
-          <div className="mt-4 animate-slide-up rounded-2xl bg-white/80 border border-primary/10 p-5 shadow-sm relative overflow-hidden select-text selection:bg-primary-soft">
-            <div className="absolute left-3 top-0 bottom-0 w-[1px] bg-primary/30" />
-            <div className="pl-4 space-y-2">
-              {parseMarkdown(insight)}
+        {!isPremium ? (
+          <div className="mt-5 relative rounded-2xl border border-dashed border-purple-200 p-5 bg-white/60 overflow-hidden">
+            {/* Blurred placeholder text */}
+            <div className="space-y-3 blur-[4px] select-none pointer-events-none opacity-40">
+              <div className="h-4 bg-purple-200 rounded w-1/3"></div>
+              <div className="h-3 bg-purple-200 rounded w-full"></div>
+              <div className="h-3 bg-purple-200 rounded w-5/6"></div>
+              <div className="h-3 bg-purple-200 rounded w-4/5"></div>
+              <div className="h-4 bg-purple-200 rounded w-1/4 pt-2"></div>
+              <div className="h-3 bg-purple-200 rounded w-full"></div>
+            </div>
+            
+            {/* Paywall Overlay */}
+            <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-4 bg-white/30 backdrop-blur-[1px]">
+              <div className="rounded-full bg-purple-100 p-3 text-purple-600 mb-2">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="h-5 w-5">
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                </svg>
+              </div>
+              <p className="text-sm font-bold text-purple-950">Buka Laporan Mingguan AI</p>
+              <p className="text-[11px] text-muted-foreground max-w-xs mt-1 mb-3">
+                Dapatkan evaluasi emosi mingguan, rekomendasi koping personal, dan deteksi dini stres berdasarkan datamu.
+              </p>
+              <Link
+                to="/app/premium"
+                className="rounded-full bg-gradient-to-r from-purple-600 to-indigo-600 px-5 py-2 text-xs font-bold text-white shadow-soft transition-all duration-200 hover:-translate-y-0.5 active:scale-95"
+              >
+                Upgrade ke Premium ✨
+              </Link>
             </div>
           </div>
-        )}
+        ) : (
+          <>
+            {insightLoading && (
+              <div className="mt-4 space-y-2">
+                <div className="skeleton h-3 w-full rounded-full" />
+                <div className="skeleton h-3 w-5/6 rounded-full" />
+                <div className="skeleton h-3 w-4/5 rounded-full" />
+              </div>
+            )}
 
-        {!insight && !insightLoading && (
-          <p className="mt-4 text-sm text-muted-foreground">
-            Klik "Generate" untuk mendapatkan insight personal minggu ini.
-          </p>
-        )}
+            {insight && !insightLoading && (
+              <div className="mt-4 animate-slide-up rounded-2xl bg-white/80 border border-primary/10 p-5 shadow-sm relative overflow-hidden select-text selection:bg-primary-soft">
+                <div className="absolute left-3 top-0 bottom-0 w-[1px] bg-primary/30" />
+                <div className="pl-4 space-y-2">
+                  {parseMarkdown(insight)}
+                </div>
+              </div>
+            )}
 
-        {hasGeneratedToday && !insightLoading && (
-          <div className="mt-4 text-[10px] text-purple-700 bg-purple-50/50 border border-purple-100/60 rounded-2xl p-3 font-semibold flex items-start gap-2 animate-fade-in shadow-inner">
-            <span>💡</span>
-            <p className="leading-normal">
-              Kamu sudah membuat insight hari ini. Mengklik <strong>Regenerate</strong> akan memperbarui laporan hari ini di riwayat kamu tanpa membuat entri ganda.
-            </p>
-          </div>
+            {!insight && !insightLoading && (
+              <p className="mt-4 text-sm text-muted-foreground">
+                Klik "Generate" untuk mendapatkan insight personal minggu ini.
+              </p>
+            )}
+
+            {hasGeneratedToday && !insightLoading && (
+              <div className="mt-4 text-[10px] text-purple-700 bg-purple-50/50 border border-purple-100/60 rounded-2xl p-3 font-semibold flex items-start gap-2 animate-fade-in shadow-inner">
+                <span>💡</span>
+                <p className="leading-normal">
+                  Kamu sudah membuat insight hari ini. Mengklik <strong>Regenerate</strong> akan memperbarui laporan hari ini di riwayat kamu tanpa membuat entri ganda.
+                </p>
+              </div>
+            )}
+          </>
         )}
       </section>
 
