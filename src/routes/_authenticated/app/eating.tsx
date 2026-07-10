@@ -253,9 +253,25 @@ function Page() {
             <p className="text-xs font-bold uppercase tracking-wider text-primary">Insight JN-CALM</p>
           </div>
           <p className="text-sm leading-relaxed text-foreground italic">{result.insight}</p>
-          <div className="rounded-2xl bg-card/80 backdrop-blur-sm p-4 ring-1 ring-border/60">
-            <p className="text-xs font-bold text-primary mb-1.5">💡 Coba lakukan ini:</p>
-            <p className="text-sm text-foreground leading-relaxed whitespace-pre-wrap">{result.action}</p>
+          <div className="rounded-2xl bg-card/80 backdrop-blur-sm p-4 ring-1 ring-border/60 space-y-3.5">
+            <div>
+              <p className="text-xs font-bold text-primary mb-1.5">💡 Coba lakukan ini:</p>
+              <p className="text-sm text-foreground leading-relaxed whitespace-pre-wrap">{result.action}</p>
+            </div>
+            <div className="pt-3 border-t border-border/30 flex flex-wrap gap-2">
+              <Link
+                to="/app/chat"
+                className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 hover:bg-primary/20 active:scale-95 text-primary px-3 py-1.5 text-xs font-bold transition-all duration-200"
+              >
+                💬 Mulai Chat Pendamping
+              </Link>
+              <Link
+                to="/app/journal"
+                className="inline-flex items-center gap-1.5 rounded-full bg-stone-100 hover:bg-stone-200 active:scale-95 text-stone-700 px-3 py-1.5 text-xs font-bold transition-all duration-200"
+              >
+                📝 Tulis di Jurnal
+              </Link>
+            </div>
           </div>
         </section>
       )}

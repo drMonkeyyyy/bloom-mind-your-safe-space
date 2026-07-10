@@ -81,10 +81,26 @@ function ChatRoom() {
     },
   });
 
+  const today = new Date().toISOString().slice(0, 10);
+  const { data: chatUsage } = useQuery({
+    queryKey: ["daily-chat-usage", user?.id, today],
+    enabled: !!user && profile?.plan === "free",
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("daily_chat_usage")
+        .select("ai_reply_count")
+        .eq("user_id", user!.id)
+        .eq("date", today)
+        .maybeSingle();
+      return data?.ai_reply_count ?? 0;
+    },
+  });
+
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
   const [generatingJournal, setGeneratingJournal] = useState(false);
   const [panicMode, setPanicMode] = useState(false);
+  const isLimitReached = profile?.plan === "free" && ((chatUsage ?? 0) >= 3 || panicMode);
   const [cleanupModalOpen, setCleanupModalOpen] = useState(false);
   const [cleaning, setCleaning] = useState(false);
   const [cleanupSnoozed, setCleanupSnoozed] = useState(() => {
@@ -251,7 +267,7 @@ function ChatRoom() {
   const submit = async (e?: React.FormEvent, override?: string) => {
     e?.preventDefault();
     const text = override ?? input.trim();
-    if (!text || sending) return;
+    if (!text || sending || isLimitReached) return;
     setInput(""); setSending(true);
     try {
       const companionKeyInput = chat?.custom_companion_id || customCompanionIdParam ? null : (activeCompanion as any);
@@ -264,9 +280,13 @@ function ChatRoom() {
       } else {
         refetch();
       }
+      qc.invalidateQueries({ queryKey: ["daily-chat-usage", user?.id, today] });
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
-      if (msg.includes("DAILY_LIMIT")) toast.error("Limit chat harian gratis tercapai. Upgrade ke Premium untuk unlimited.");
+      if (msg.includes("DAILY_LIMIT")) {
+        toast.error("Limit chat harian gratis tercapai. Upgrade ke Premium untuk unlimited.");
+        setPanicMode(true);
+      }
       else if (msg.includes("PREMIUM_REQUIRED")) toast.error("Pendamping ini khusus Premium.");
       else if (msg.includes("RATE_LIMIT")) toast.error("Permintaan terlalu cepat, coba lagi sebentar.");
       else if (msg.includes("AI_CREDITS")) toast.error("Kredit AI habis. Hubungi admin.");
@@ -412,20 +432,56 @@ function ChatRoom() {
             </div>
           </div>
         )}
-        {panicMode && <PaywallCard title="Limit harian gratis tercapai" desc="Kamu sudah menggunakan jatah balasan AI hari ini. Upgrade untuk lanjut tanpa batas." />}
+        {isLimitReached && (
+          <PaywallCard 
+            title="Limit Harian Gratis Tercapai" 
+            desc="Kamu sudah menggunakan jatah 3 balasan AI gratis hari ini. Buka pendamping kustom dan chat tanpa batas dengan berlangganan Premium." 
+          />
+        )}
       </div>
 
       <div className="border-t border-border pt-3">
         <div className="mb-2 flex gap-2">
-          <button onClick={()=>submit(undefined, "Aku sedang cemas/panik. Tolong bantu aku menenangkan diri.")} className="rounded-full border border-red-200/50 bg-red-50/70 hover:bg-red-50 text-red-700 px-3 py-1.5 text-xs font-semibold shadow-sm transition-all duration-200 active:scale-95 cursor-pointer">🚨 Aku panik/cemas</button>
-          {showLimitWarning && <span className="ml-auto text-[10px] text-muted-foreground self-center">Free: 3 balasan/hari</span>}
+          <button 
+            disabled={isLimitReached} 
+            onClick={()=>submit(undefined, "Aku sedang cemas/panik. Tolong bantu aku menenangkan diri.")} 
+            className="rounded-full border border-red-200/50 bg-red-50/70 hover:bg-red-50 text-red-700 px-3 py-1.5 text-xs font-semibold shadow-sm transition-all duration-200 active:scale-95 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            🚨 Aku panik/cemas
+          </button>
+          {showLimitWarning && (
+            <span className="ml-auto text-[10px] font-semibold text-muted-foreground self-center flex items-center gap-1.5 bg-cream-deep/60 px-3 py-1 rounded-full border border-border/40">
+              {isLimitReached ? (
+                <>
+                  <span className="h-2 w-2 rounded-full bg-red-500 inline-block" />
+                  Kuota hari ini: 0/3 tersisa
+                </>
+              ) : (
+                <>
+                  <span className="h-2 w-2 rounded-full bg-amber-500 animate-pulse inline-block" />
+                  Kuota chat hari ini: {Math.max(0, 3 - (chatUsage ?? 0))}/3 tersisa
+                </>
+              )}
+            </span>
+          )}
         </div>
         <form onSubmit={submit} className="flex gap-2">
-          <textarea value={input} onChange={(e)=>setInput(e.target.value)} rows={2} placeholder="Tulis perasaanmu…"
+          <textarea 
+            value={input} 
+            onChange={(e)=>setInput(e.target.value)} 
+            rows={2} 
+            placeholder={isLimitReached ? "🔒 Kuota gratis hari ini habis. Upgrade ke Premium untuk melanjutkan." : "Tulis perasaanmu…"}
+            disabled={sending || isLimitReached}
             maxLength={2000}
-            onKeyDown={(e)=>{ if (e.key==="Enter" && !e.shiftKey) { e.preventDefault(); submit(); } }}
-            className="flex-1 resize-none rounded-2xl border border-border bg-card px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
-          <button disabled={sending || !input.trim()} className="self-end rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-accent-foreground shadow-peach disabled:opacity-50 cursor-pointer">Kirim</button>
+            onKeyDown={(e)=>{ if (e.key==="Enter" && !e.shiftKey) { e.preventDefault(); if (!isLimitReached) submit(); } }}
+            className="flex-1 resize-none rounded-2xl border border-border bg-card px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-75 disabled:bg-stone-50/40" 
+          />
+          <button 
+            disabled={sending || isLimitReached || !input.trim()} 
+            className="self-end rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-accent-foreground shadow-peach disabled:opacity-50 cursor-pointer"
+          >
+            Kirim
+          </button>
         </form>
       </div>
 
