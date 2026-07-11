@@ -286,7 +286,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               <Link
                 key={n.to}
                 to={n.to}
-                className={`flex flex-col items-center gap-1 py-3 text-[10px] font-medium transition-all duration-250 ${active ? "text-primary" : "text-muted-foreground hover:text-foreground"}`}
+                className={`flex flex-col items-center gap-1 py-3 text-[9.5px] tracking-wide font-semibold transition-all duration-250 ${active ? "text-primary font-bold" : "text-muted-foreground hover:text-foreground"}`}
               >
                 <span className={`relative flex h-7 w-7 items-center justify-center rounded-xl transition-all duration-250 ${active ? "bg-primary-soft scale-110 shadow-sm" : "hover:bg-cream-deep"}`}>
                   <Icon d={n.icon} className="h-4.5 w-4.5" />
@@ -322,7 +322,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                 </svg>
               </Link>
             </div>
-            <span className={`-mt-0.5 text-[10px] font-medium ${path.startsWith("/app/chat") ? "text-primary" : "text-muted-foreground"}`}>Chat</span>
+            <span className={`-mt-0.5 text-[9.5px] tracking-wide font-semibold ${path.startsWith("/app/chat") ? "text-primary font-bold" : "text-muted-foreground"}`}>Chat</span>
           </div>
 
           {/* Items 3–4 */}
@@ -332,7 +332,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               <Link
                 key={n.to}
                 to={n.to}
-                className={`flex flex-col items-center gap-1 py-3 text-[10px] font-medium transition-all duration-250 ${active ? "text-primary" : "text-muted-foreground hover:text-foreground"}`}
+                className={`flex flex-col items-center gap-1 py-3 text-[9.5px] tracking-wide font-semibold transition-all duration-250 ${active ? "text-primary font-bold" : "text-muted-foreground hover:text-foreground"}`}
               >
                 <span className={`relative flex h-7 w-7 items-center justify-center rounded-xl transition-all duration-250 ${active ? "bg-primary-soft scale-110 shadow-sm" : "hover:bg-cream-deep"}`}>
                   <Icon d={n.icon} className="h-4.5 w-4.5" />
@@ -348,7 +348,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           {/* More button */}
           <button
             onClick={() => setMoreOpen(true)}
-            className={`flex flex-col items-center gap-1 py-3 text-[10px] font-medium transition-all duration-250 ${moreOpen ? "text-primary" : "text-muted-foreground hover:text-foreground"}`}
+            className={`flex flex-col items-center gap-1 py-3 text-[9.5px] tracking-wide font-semibold transition-all duration-250 ${moreOpen ? "text-primary font-bold" : "text-muted-foreground hover:text-foreground"}`}
             aria-label="Lebih banyak menu"
             aria-expanded={moreOpen}
           >

@@ -348,8 +348,8 @@ function MoodPage() {
           style={{ background: "oklch(0.71 0.045 160 / 0.15)", filter: "blur(35px)", animation: "blob-drift 18s ease-in-out infinite" }}
         />
         <div className="relative">
-          <h1 className="font-display text-3xl font-semibold">Bagaimana perasaanmu?</h1>
-          <p className="mt-1 text-sm text-muted-foreground">Pilih yang paling mendekati kondisimu sekarang</p>
+          <h1 className="font-display text-2xl font-bold tracking-tight text-[#2F4F37] sm:text-3xl">Bagaimana perasaanmu?</h1>
+          <p className="mt-1.5 text-xs font-semibold text-[#5A7E62] opacity-90">Pilih yang paling mendekati kondisimu sekarang</p>
         </div>
       </div>
 
