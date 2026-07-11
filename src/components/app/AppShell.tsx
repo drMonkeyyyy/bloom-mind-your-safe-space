@@ -278,7 +278,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         style={{ boxShadow: "var(--shadow-nav)" }}
         aria-label="Navigasi utama"
       >
-        <div className="glass-strong grid grid-cols-5 items-end pb-safe">
+        <div className="glass-strong grid grid-cols-6 items-end pb-safe">
           {/* Items 1–2 */}
           {bottomNav.slice(0, 2).map((n) => {
             const active = (n as any).exact ? path === n.to : path === n.to || path.startsWith(n.to);

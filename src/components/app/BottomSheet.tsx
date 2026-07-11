@@ -14,6 +14,11 @@ interface BottomSheetProps {
 export function BottomSheet({ open, onClose, title, children, className = "" }: BottomSheetProps) {
   const panelRef = useRef<HTMLDivElement>(null);
 
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   // Close on Escape key
   useEffect(() => {
     if (!open) return;
@@ -34,9 +39,9 @@ export function BottomSheet({ open, onClose, title, children, className = "" }: 
     return () => { document.body.style.overflow = ""; };
   }, [open]);
 
-  if (!open) return null;
+  if (!mounted || !open) return null;
 
-  return (
+  return createPortal(
     <div
       className="fixed inset-0 z-50 flex flex-col justify-end"
       role="dialog"
@@ -83,7 +88,8 @@ export function BottomSheet({ open, onClose, title, children, className = "" }: 
           {children}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
 
