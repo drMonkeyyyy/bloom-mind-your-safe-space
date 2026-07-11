@@ -278,11 +278,13 @@ function MoodPage() {
   const save = async () => {
     if (!user) return;
     setSaving(true);
+    const localDateStr = new Date().toLocaleDateString("sv-SE", { timeZone: "Asia/Jakarta" });
     const { data, error } = await supabase.from("mood_checkins").insert({
       user_id: user.id,
       mood: mood as "bahagia",
       mood_score: moodScore, stress_score: stress, energy_score: energy,
       triggers, note: note || null,
+      date: localDateStr,
     }).select("*").single();
     setSaving(false);
     if (error) { toast.error(error.message); return; }
