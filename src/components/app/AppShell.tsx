@@ -23,7 +23,7 @@ function Icon({ d, className = "h-5 w-5" }: { d: string; className?: string }) {
 /* ─── Nav definitions ─────────────────────────────────────────── */
 const primaryNav = [
   { to: "/app", label: "Beranda", icon: "M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z", exact: true },
-  { to: "/app/chat", label: "Chat AI", icon: "M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 0 1-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" },
+  { to: "/app/chat", label: "Teman Curhat", icon: "M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 0 1-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" },
   { to: "/app/mood", label: "Mood", icon: "M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" },
   { to: "/app/journal", label: "Journal", icon: "M4 19.5A2.5 2.5 0 0 1 6.5 17H20M4 19.5V5A2.5 2.5 0 0 1 6.5 2.5H20v19H6.5A2.5 2.5 0 0 1 4 19.5z" },
 ];
@@ -315,14 +315,14 @@ export function AppShell({ children }: { children: ReactNode }) {
               <Link
                 to="/app/chat"
                 className="group flex h-14 w-14 -translate-y-3 items-center justify-center rounded-full bg-gradient-to-br from-primary to-accent shadow-float transition-all duration-300 hover:scale-110 hover:shadow-glow-sage active:scale-95"
-                aria-label="Buka Chat AI"
+                aria-label="Buka Teman Curhat"
               >
                 <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="h-6 w-6" aria-hidden="true">
                   <path d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 0 1-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                 </svg>
               </Link>
             </div>
-            <span className={`-mt-0.5 text-[9.5px] tracking-wide font-semibold ${path.startsWith("/app/chat") ? "text-primary font-bold" : "text-muted-foreground"}`}>Chat</span>
+            <span className={`-mt-0.5 text-[9.5px] tracking-wide font-semibold ${path.startsWith("/app/chat") ? "text-primary font-bold" : "text-muted-foreground"}`}>Curhat</span>
           </div>
 
           {/* Items 3–4 */}

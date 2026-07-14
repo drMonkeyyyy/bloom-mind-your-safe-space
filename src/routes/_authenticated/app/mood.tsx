@@ -794,7 +794,7 @@ function MoodPage() {
                   <span className="text-2xl select-none">💆‍♀️</span>
                   <div className="text-xs leading-relaxed">
                     <p className="font-bold text-rose-900 mb-0.5">Tingkat Stresmu Cukup Tinggi</p>
-                    <p>Coba luangkan waktu sejenak untuk menenangkan pikiran. Kamu bisa mencoba bernapas perlahan di halaman <Link to="/app/calm" className="font-bold underline hover:text-rose-800">Emergency Calm</Link> atau bagikan perasaanmu dengan Companion-mu di <Link to="/app/chat" className="font-bold underline hover:text-rose-800">Chat AI</Link>.</p>
+                    <p>Coba luangkan waktu sejenak untuk menenangkan pikiran. Kamu bisa mencoba bernapas perlahan di halaman <Link to="/app/calm" className="font-bold underline hover:text-rose-800">Emergency Calm</Link> atau bagikan perasaanmu dengan Sahabatmu di <Link to="/app/chat" className="font-bold underline hover:text-rose-800">Teman Curhat</Link>.</p>
                   </div>
                 </div>
               )}
@@ -804,7 +804,7 @@ function MoodPage() {
                   <span className="text-2xl select-none">🤗</span>
                   <div className="text-xs leading-relaxed">
                     <p className="font-bold text-amber-900 mb-0.5">Kami Ada di Sini untuk Mendengar</p>
-                    <p>Ingatlah bahwa kamu tidak sendirian. Jika kamu butuh teman cerita yang aman dan tanpa penghakiman, Companion virtualmu di <Link to="/app/chat" className="font-bold underline hover:text-amber-800">Chat AI</Link> selalu siap mendengarkan.</p>
+                    <p>Ingatlah bahwa kamu tidak sendirian. Jika kamu butuh teman cerita yang aman dan tanpa penghakiman, Sahabat virtualmu di <Link to="/app/chat" className="font-bold underline hover:text-amber-800">Teman Curhat</Link> selalu siap mendengarkan.</p>
                   </div>
                 </div>
               )}

@@ -29,7 +29,7 @@ export function Footer() {
               </div>
             </div>
             <p className="mt-5 max-w-xs text-sm leading-relaxed text-muted-foreground">
-              Pendamping AI untuk hati yang lelah. JN-CALM hadir agar kamu tidak pernah merasa sendirian dalam perjalananmu.
+              Sahabat setia untuk hati yang lelah. JN-CALM hadir agar kamu tidak pernah merasa sendirian dalam perjalananmu.
             </p>
             <p className="mt-4 font-display text-base italic text-primary">Your Safe Place to Grow. 🌿</p>
           </div>

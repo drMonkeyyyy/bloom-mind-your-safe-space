@@ -376,7 +376,7 @@ function ActionRecommendationCard({
       iconClass: "animate-float-slow",
       title: "Kondisi Hati Sedang Redup",
       desc: `Rata-rata kondisi suasana hatimu sedang berada di angka (${avgMood}/10). Sangat wajar untuk merasa lelah atau sedih. Ingatlah bahwa kamu tidak harus memikulnya sendirian.`,
-      btnText: "Curhat dengan Pendamping AI",
+      btnText: "Bercerita dengan Sahabat",
       link: "/app/chat"
     },
     stable: {

@@ -588,7 +588,7 @@ export function exportJournalPDF(journal: any) {
         <div class="tag-container">
           ${journal.main_emotion ? `<div class="tag">😊 Emosi: ${journal.main_emotion}</div>` : ""}
           ${journal.main_trigger ? `<div class="tag">🎯 Pemicu: ${journal.main_trigger}</div>` : ""}
-          ${journal.source === "from_chat" ? '<div class="tag">🤖 Sumber: Chat AI</div>' : '<div class="tag">✍️ Sumber: Diary Mandiri</div>'}
+          ${journal.source === "from_chat" ? '<div class="tag">💬 Sumber: Teman Curhat</div>' : '<div class="tag">✍️ Sumber: Diary Mandiri</div>'}
         </div>
 
         <div class="paper-lines">
@@ -854,7 +854,7 @@ export function exportChatPDF(companionName: string, companionEmoji: string, mes
       <div class="card">
         <div class="header">
           <img src="${window.location.origin}/logo.png" alt="JN-CALM Logo" class="brand-logo-img" />
-          <div class="title">Transkrip Percakapan Pendamping AI</div>
+          <div class="title">Transkrip Percakapan Pendamping</div>
           <div class="companion-info">${companionEmoji} ${companionName}</div>
         </div>
 
