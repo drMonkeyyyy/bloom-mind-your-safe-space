@@ -548,56 +548,64 @@ function Dashboard() {
       </div>
 
       {/* ── STATS STRIP ───────────────────────────────────────────── */}
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-3 gap-2 sm:gap-3.5">
         {/* Mood stat */}
-        <div className="rounded-3xl bg-card p-4 ring-1 ring-border/60 shadow-card card-hover">
-          <p className="text-[11px] font-medium text-muted-foreground">Mood minggu ini</p>
-          {moodsLoading ? (
-            <div className="mt-2 skeleton h-7 w-12 rounded-lg" />
-          ) : (
-            <p className="mt-1.5 font-display text-2xl font-bold text-foreground">
-              {moods?.length ?? 0}
-              <span className="ml-1 text-xs font-normal text-muted-foreground">check-in</span>
-            </p>
-          )}
-          <div className="mt-2.5">
-            <MoodBars data={moodChartData} height={28} />
+        <div className="rounded-2xl sm:rounded-3xl bg-card p-3 sm:p-4.5 ring-1 ring-border/60 shadow-card card-hover flex flex-col justify-between min-h-[105px] sm:min-h-0">
+          <div>
+            <p className="text-[10px] sm:text-xs font-semibold text-muted-foreground leading-tight">Mood minggu ini</p>
+            {moodsLoading ? (
+              <div className="mt-2 skeleton h-5 sm:h-7 w-12 rounded-lg" />
+            ) : (
+              <p className="mt-1 font-display text-lg sm:text-2xl font-bold text-foreground leading-none">
+                {moods?.length ?? 0}
+                <span className="ml-0.5 text-[9px] sm:text-[11px] font-normal text-muted-foreground"> check-in</span>
+              </p>
+            )}
+          </div>
+          <div className="mt-2">
+            <MoodBars data={moodChartData} height={24} />
           </div>
         </div>
 
         {/* Habit streak */}
-        <div className="rounded-3xl bg-card p-4 ring-1 ring-border/60 shadow-card card-hover">
-          <p className="text-[11px] font-medium text-muted-foreground">Habit streak</p>
-          <p className="mt-1.5 font-display text-2xl font-bold text-foreground">
-            {habitStreak ?? 0}
-            <span className="ml-1 text-xs font-normal text-muted-foreground">hari</span>
-          </p>
-          {habitsToday && habitsToday.total > 0 && (
-            <p className="mt-1.5 text-[11px] text-muted-foreground">
-              {habitsToday.done}/{habitsToday.total} hari ini
+        <div className="rounded-2xl sm:rounded-3xl bg-card p-3 sm:p-4.5 ring-1 ring-border/60 shadow-card card-hover flex flex-col justify-between min-h-[105px] sm:min-h-0">
+          <div>
+            <p className="text-[10px] sm:text-xs font-semibold text-muted-foreground leading-tight">Habit streak</p>
+            <p className="mt-1 font-display text-lg sm:text-2xl font-bold text-foreground leading-none">
+              {habitStreak ?? 0}
+              <span className="ml-0.5 text-[9px] sm:text-[11px] font-normal text-muted-foreground"> hari</span>
             </p>
-          )}
-          <Link to="/app/habits" className="mt-1 inline-block text-[11px] font-medium text-primary hover:text-primary/80 transition-colors">
+            {habitsToday && habitsToday.total > 0 && (
+              <p className="mt-1 text-[9px] sm:text-[11px] text-muted-foreground leading-tight">
+                {habitsToday.done}/{habitsToday.total} selesai
+              </p>
+            )}
+          </div>
+          <Link to="/app/habits" className="mt-1.5 inline-block text-[9px] sm:text-[11px] font-bold text-primary hover:text-primary/80 transition-colors">
             Lihat habit →
           </Link>
         </div>
 
         {/* Plan */}
-        <div className={`rounded-3xl p-4 ring-1 card-hover ${isPremium ? "bg-gradient-to-br from-amber-50 to-orange-50 ring-amber-200/60" : "bg-card ring-border/60 shadow-card"}`}>
-          <p className="text-[11px] font-medium text-muted-foreground">Paket</p>
-          <p className={`mt-1.5 font-display text-lg font-bold ${isPremium ? "text-amber-700" : "text-foreground"}`}>
-            {isPremium ? "✨ Premium" : "Free"}
-          </p>
-          {!isPremium && (
-            <Link to="/app/premium" className="mt-1.5 inline-block text-[11px] font-semibold text-accent hover:text-accent/80 transition-colors">
-              Upgrade →
-            </Link>
-          )}
-          {isPremium && profile?.premium_end_date && (
-            <p className="mt-1 text-[11px] text-amber-600/80">
-              Aktif hingga {new Date(profile.premium_end_date).toLocaleDateString("id-ID", { day: "numeric", month: "short" })}
+        <div className={`rounded-2xl sm:rounded-3xl p-3 sm:p-4.5 ring-1 card-hover flex flex-col justify-between min-h-[105px] sm:min-h-0 ${isPremium ? "bg-gradient-to-br from-amber-50 to-orange-50 ring-amber-200/60" : "bg-card ring-border/60 shadow-card"}`}>
+          <div>
+            <p className="text-[10px] sm:text-xs font-semibold text-muted-foreground leading-tight">Paket</p>
+            <p className={`mt-1 font-display text-sm sm:text-lg font-bold leading-none ${isPremium ? "text-amber-700" : "text-foreground"}`}>
+              {isPremium ? "✨ Premium" : "Free"}
             </p>
-          )}
+          </div>
+          <div>
+            {!isPremium && (
+              <Link to="/app/premium" className="mt-1.5 inline-block text-[9px] sm:text-[11px] font-bold text-accent hover:text-accent/80 transition-colors">
+                Upgrade →
+              </Link>
+            )}
+            {isPremium && profile?.premium_end_date && (
+              <p className="mt-1 text-[9px] sm:text-[11px] text-amber-600/80 font-medium leading-tight">
+                Hingga {new Date(profile.premium_end_date).toLocaleDateString("id-ID", { day: "numeric", month: "short" })}
+              </p>
+            )}
+          </div>
         </div>
       </div>
 
@@ -682,17 +690,21 @@ function Dashboard() {
                   {lastJournal.summary}
                 </p>
               )}
-              <div className="mt-2 flex flex-wrap gap-1.5">
+              <div className="mt-2.5 flex flex-wrap gap-1.5">
                 {lastJournal.main_emotion && (
-                  <span className="rounded-full bg-primary-soft px-2.5 py-0.5 text-[11px] font-medium">
+                  <span className="rounded-full bg-primary-soft px-2.5 py-0.5 text-[11px] font-bold text-primary select-none">
                     {lastJournal.main_emotion}
                   </span>
                 )}
-                {lastJournal.main_trigger && (
-                  <span className="rounded-full bg-accent-soft px-2.5 py-0.5 text-[11px] font-medium">
-                    {lastJournal.main_trigger}
-                  </span>
-                )}
+                {lastJournal.main_trigger && lastJournal.main_trigger.split(",").map((stick: string, sIdx: number) => {
+                  const cleaned = stick.trim();
+                  if (!cleaned) return null;
+                  return (
+                    <span key={sIdx} className="rounded-full bg-accent-soft px-2.5 py-0.5 text-[10px] font-medium text-accent-foreground select-none">
+                      {cleaned}
+                    </span>
+                  );
+                })}
               </div>
             </div>
             <Link

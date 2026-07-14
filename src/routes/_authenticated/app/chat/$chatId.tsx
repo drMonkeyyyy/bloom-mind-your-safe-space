@@ -313,7 +313,7 @@ function ChatRoom() {
   const showLimitWarning = profile?.plan === "free";
 
   return (
-    <div className="flex h-[calc(100vh-10rem)] flex-col lg:h-[calc(100vh-6rem)]">
+    <div className="flex h-[calc(100dvh-11.5rem)] flex-col lg:h-[calc(100dvh-6rem)]">
       <div className="flex items-center justify-between gap-3 border-b border-border pb-3">
         <Link to="/app/chat" className="text-xs text-muted-foreground">← Semua chat</Link>
         <div className="flex items-center gap-2">
