@@ -749,16 +749,16 @@ function Page() {
           <div>
             <div className="flex items-center gap-2 animate-fade-in">
               <span className="rounded-full bg-purple-100/80 border border-purple-200 px-2.5 py-0.5 text-[9px] font-bold text-purple-700 select-none animate-pulse">
-                ✨ AI Premium
+                ✨ Premium Insight
               </span>
             </div>
             <p className="font-display text-lg font-bold text-foreground mt-1">
-              {insightTab === "daily" ? "Daily AI Insight" : "Weekly AI Insight"}
+              {insightTab === "daily" ? "Daily Reflection" : "Weekly Reflection"}
             </p>
             <p className="text-xs text-muted-foreground">
               {insightTab === "daily" 
                 ? "Evaluasi & afirmasi personal harianmu hari ini" 
-                : "Analisis perkembangan diri personal berdasarkan datamu"}
+                : "Rangkuman perkembangan diri personal berdasarkan datamu"}
             </p>
           </div>
           
@@ -880,7 +880,7 @@ function Page() {
                     <span className="text-3xl select-none">📝</span>
                     <p className="text-xs font-bold text-amber-900 mt-2.5">Belum ada evaluasi mood hari ini</p>
                     <p className="text-[10px] text-muted-foreground mt-1 max-w-xs mx-auto leading-relaxed">
-                      Silakan lakukan check-in mood harian terlebih dahulu agar AI dapat menyusun analisis mentalmu hari ini.
+                      Silakan lakukan check-in mood harian terlebih dahulu agar sistem dapat menyusun refleksi mentalmu hari ini.
                     </p>
                     <div className="mt-4">
                       <Link 
@@ -1035,13 +1035,13 @@ function Page() {
       <ModalDialog
         open={historyModalOpen}
         onClose={() => setHistoryModalOpen(false)}
-        title={insightTab === "daily" ? "🕒 Riwayat Analisis Harian AI" : "🕒 Riwayat Analisis Mingguan AI"}
+        title={insightTab === "daily" ? "🕒 Riwayat Refleksi Harian" : "🕒 Riwayat Refleksi Mingguan"}
       >
         <div className="space-y-4 max-h-[70vh] overflow-y-auto pr-1">
           <p className="text-xs text-muted-foreground leading-normal">
             {insightTab === "daily" 
-              ? "Berikut adalah catatan analisis harian AI Anda untuk melacak progress harian Anda."
-              : "Berikut adalah catatan analisis mingguan AI Anda dari minggu-minggu sebelumnya untuk melacak progress Anda."}
+              ? "Berikut adalah catatan refleksi harian Anda untuk melacak progress harian Anda."
+              : "Berikut adalah catatan refleksi mingguan Anda dari minggu-minggu sebelumnya untuk melacak progress Anda."}
           </p>
 
           <div className="space-y-3.5">
@@ -1062,7 +1062,7 @@ function Page() {
                         onClick={() => exportWeeklyInsightPDF(
                           item.date, 
                           item.text, 
-                          insightTab === "daily" ? "Analisis Harian AI (Daily Insight)" : "Analisis Mingguan AI (Weekly Insight)"
+                          insightTab === "daily" ? "Refleksi Harian (Daily Insight)" : "Refleksi Mingguan (Weekly Insight)"
                         )}
                         className="text-primary hover:underline text-[10px] font-bold"
                       >

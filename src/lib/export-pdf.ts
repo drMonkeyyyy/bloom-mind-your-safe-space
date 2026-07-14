@@ -156,10 +156,10 @@ export function exportMoodPDF(checkIn: any) {
           margin-bottom: 25px;
         }
         .brand-logo-img {
-          height: 75px;
+          height: 110px;
           width: auto;
           display: block;
-          margin: 0 auto 12px auto;
+          margin: 0 auto 15px auto;
         }
         .title {
           font-size: 18px;
@@ -339,10 +339,10 @@ export function exportGratitudePDF(entry: any) {
           margin-bottom: 25px;
         }
         .brand-logo-img {
-          height: 75px;
+          height: 110px;
           width: auto;
           display: block;
-          margin: 0 auto 12px auto;
+          margin: 0 auto 15px auto;
         }
         .title {
           font-size: 18px;
@@ -490,10 +490,10 @@ export function exportJournalPDF(journal: any) {
           margin-bottom: 25px;
         }
         .brand-logo-img {
-          height: 75px;
+          height: 110px;
           width: auto;
           display: block;
-          margin: 0 auto 12px auto;
+          margin: 0 auto 15px auto;
         }
         .title {
           font-size: 18px;
@@ -627,14 +627,14 @@ export function exportJournalPDF(journal: any) {
   triggerPrint(html);
 }
 
-export function exportWeeklyInsightPDF(dateStr: string, text: string, title = "Analisis Mingguan AI (Weekly Insight)") {
+export function exportWeeklyInsightPDF(dateStr: string, text: string, title = "Refleksi Mingguan (Weekly Insight)") {
   const formattedDate = formatDateIndo(dateStr);
   const printTimestamp = getTimestampIndo();
 
   const html = `
     <html>
     <head>
-      <title>JN-CALM - AI Insight</title>
+      <title>JN-CALM - Refleksi</title>
       <style>
         body {
           font-family: 'system-ui', -apple-system, sans-serif;
@@ -661,10 +661,10 @@ export function exportWeeklyInsightPDF(dateStr: string, text: string, title = "A
           margin-bottom: 25px;
         }
         .brand-logo-img {
-          height: 75px;
+          height: 110px;
           width: auto;
           display: block;
-          margin: 0 auto 12px auto;
+          margin: 0 auto 15px auto;
         }
         .title {
           font-size: 18px;
@@ -771,10 +771,10 @@ export function exportChatPDF(companionName: string, companionEmoji: string, mes
           margin-bottom: 25px;
         }
         .brand-logo-img {
-          height: 75px;
+          height: 110px;
           width: auto;
           display: block;
-          margin: 0 auto 12px auto;
+          margin: 0 auto 15px auto;
         }
         .title {
           font-size: 18px;
@@ -923,10 +923,10 @@ export function exportMoodsReportPDF(moods: any[]) {
           margin-bottom: 20px;
         }
         .brand-logo-img {
-          height: 65px;
+          height: 95px;
           width: auto;
           display: block;
-          margin: 0 auto 10px auto;
+          margin: 0 auto 12px auto;
         }
         .title {
           font-size: 16px;
@@ -1036,10 +1036,10 @@ export function exportGratitudesReportPDF(entries: any[]) {
           margin-bottom: 20px;
         }
         .brand-logo-img {
-          height: 65px;
+          height: 95px;
           width: auto;
           display: block;
-          margin: 0 auto 10px auto;
+          margin: 0 auto 12px auto;
         }
         .title {
           font-size: 16px;
@@ -1178,10 +1178,10 @@ export function exportAnalyticsReportPDF(data: any) {
           margin-bottom: 25px;
         }
         .brand-logo-img {
-          height: 65px;
+          height: 95px;
           width: auto;
           display: block;
-          margin: 0 auto 10px auto;
+          margin: 0 auto 12px auto;
         }
         .title {
           font-size: 16px;
