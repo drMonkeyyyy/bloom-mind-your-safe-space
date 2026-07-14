@@ -42,34 +42,34 @@ function Stars({ count }: { count: number }) {
 
 export function Testimonials() {
   return (
-    <section className="relative py-24 sm:py-32">
+    <section className="relative py-14 sm:py-32">
       <div className="absolute inset-0 bg-cream-deep/40" />
       <div className="relative mx-auto max-w-7xl px-5 sm:px-8">
         <div data-reveal className="mx-auto max-w-2xl text-center">
           <p className="text-sm font-semibold uppercase tracking-[0.2em] text-primary">Testimoni</p>
-          <h2 className="mt-3 font-display text-4xl font-semibold leading-tight text-foreground sm:text-5xl">
+          <h2 className="mt-3 font-display text-2xl sm:text-5xl font-semibold leading-tight text-foreground">
             Cerita Mereka yang{" "}
             <span className="italic text-primary">Sudah Bertumbuh</span>
           </h2>
 
           {/* Aggregate rating */}
-          <div className="mt-6 inline-flex items-center gap-2 rounded-full bg-card px-5 py-2.5 ring-1 ring-border">
+          <div className="mt-5 inline-flex items-center gap-2 rounded-full bg-card px-4 py-2 sm:px-5 sm:py-2.5 ring-1 ring-border">
             <Stars count={5} />
-            <span className="text-sm font-semibold text-foreground">4.9/5</span>
-            <span className="text-xs text-muted-foreground">dari 1.000+ pengguna aktif</span>
+            <span className="text-xs sm:text-sm font-semibold text-foreground">4.9/5</span>
+            <span className="text-[10px] sm:text-xs text-muted-foreground">dari 1.000+ pengguna aktif</span>
           </div>
         </div>
 
-        <div className="mt-14 grid gap-5 lg:grid-cols-3">
+        <div className="mt-10 sm:mt-14 grid gap-5 lg:grid-cols-3">
           {testimonials.map((t, i) => (
             <figure
               key={t.name}
               data-reveal
               style={{ transitionDelay: `${i * 90}ms` }}
-              className="relative flex flex-col gap-5 rounded-3xl bg-card p-7 ring-1 ring-border transition-all duration-300 hover:-translate-y-1 hover:shadow-float"
+              className="relative flex flex-col gap-4 sm:gap-5 rounded-3xl bg-card p-5 sm:p-7 ring-1 ring-border transition-all duration-300 hover:-translate-y-1 hover:shadow-float"
             >
               <Stars count={t.stars} />
-              <blockquote className="font-display text-lg italic leading-relaxed text-foreground flex-1">
+              <blockquote className="font-display text-base sm:text-lg italic leading-relaxed text-foreground flex-1">
                 "{t.quote}"
               </blockquote>
               <figcaption className="flex items-center gap-3 border-t border-border pt-5">

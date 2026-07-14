@@ -8,30 +8,30 @@ export function GrowthDashboard() {
   ];
 
   return (
-    <section className="relative py-24 sm:py-32">
+    <section className="relative py-14 sm:py-32">
       <div className="mx-auto max-w-7xl px-5 sm:px-8">
         <div data-reveal className="mx-auto max-w-2xl text-center">
           <p className="text-sm font-medium uppercase tracking-[0.2em] text-primary">
             Growth Dashboard
           </p>
-          <h2 className="mt-3 font-display text-4xl font-semibold leading-tight text-foreground sm:text-5xl">
+          <h2 className="mt-3 font-display text-2xl sm:text-5xl font-semibold leading-tight text-foreground">
             Lihat Perjalanan dan{" "}
             <span className="italic text-primary">Perkembangan Dirimu</span>
           </h2>
         </div>
 
-        <div data-reveal className="relative mt-14 overflow-hidden rounded-[2.5rem] bg-card p-6 shadow-float ring-1 ring-border sm:p-10">
+        <div data-reveal className="relative mt-10 sm:mt-14 overflow-hidden rounded-3xl bg-card p-5 shadow-float ring-1 ring-border sm:p-10">
           {/* header row */}
           <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4 sm:flex sm:justify-between">
             <div className="min-w-0">
               <p className="truncate text-xs font-medium uppercase tracking-wider text-muted-foreground">
                 Ringkasan Mingguan
               </p>
-              <h3 className="mt-1 truncate font-display text-2xl font-semibold text-foreground">
+              <h3 className="mt-1 truncate font-display text-lg sm:text-2xl font-semibold text-foreground">
                 Halo, hari ini kamu lebih tenang 🌿
               </h3>
             </div>
-            <span className="shrink-0 rounded-full bg-primary-soft px-3.5 py-1.5 text-xs font-medium text-primary">
+            <span className="shrink-0 rounded-full bg-primary-soft px-2.5 py-1 sm:px-3.5 sm:py-1.5 text-[10px] sm:text-xs font-medium text-primary">
               +12% lebih baik
             </span>
           </div>

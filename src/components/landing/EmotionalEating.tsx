@@ -14,41 +14,41 @@ const types = [
 
 export function EmotionalEating() {
   return (
-    <section className="relative bg-cream-deep/60 py-24 sm:py-32">
+    <section className="relative bg-cream-deep/60 py-14 sm:py-32">
       <div className="mx-auto max-w-7xl px-5 sm:px-8">
         <div data-reveal className="mx-auto max-w-2xl text-center">
           <p className="text-sm font-medium uppercase tracking-[0.2em] text-primary">
             Emotional Eating
           </p>
-          <h2 className="mt-3 font-display text-4xl font-semibold leading-tight text-foreground sm:text-5xl">
+          <h2 className="mt-3 font-display text-2xl sm:text-5xl font-semibold leading-tight text-foreground">
             Pahami Hubungan Antara{" "}
             <span className="italic text-primary">Emosi dan Makan</span>
           </h2>
-          <p className="mx-auto mt-6 max-w-xl font-display text-2xl italic text-foreground/80">
+          <p className="mx-auto mt-4 max-w-xl font-display text-lg sm:text-2xl italic text-foreground/80">
             "Tidak semua rasa lapar berasal dari perut."
           </p>
         </div>
 
-        <div className="mt-16 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-10 sm:mt-16 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {types.map((t, i) => (
             <div
               key={t.title}
               data-reveal
               style={{ transitionDelay: `${i * 60}ms` }}
-              className="rounded-3xl bg-card p-6 ring-1 ring-border transition-all hover:-translate-y-1 hover:shadow-soft"
+              className="rounded-3xl bg-card p-5 sm:p-6 ring-1 ring-border transition-all hover:-translate-y-1 hover:shadow-soft"
             >
               <span className="h-1.5 w-10 rounded-full bg-accent block" />
-              <h3 className="mt-4 font-display text-xl font-semibold text-foreground">
+              <h3 className="mt-4 font-display text-lg sm:text-xl font-semibold text-foreground">
                 {t.title}
               </h3>
-              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{t.desc}</p>
+              <p className="mt-2 text-xs sm:text-sm leading-relaxed text-muted-foreground">{t.desc}</p>
             </div>
           ))}
         </div>
 
         {/* Flow */}
-        <div data-reveal className="mt-14 rounded-[2rem] bg-card p-6 ring-1 ring-border sm:p-10">
-          <p className="text-center text-xs font-medium uppercase tracking-wider text-muted-foreground">
+        <div data-reveal className="mt-10 sm:mt-14 rounded-3xl bg-card p-5 sm:p-10 ring-1 ring-border">
+          <p className="text-center text-[10px] sm:text-xs font-medium uppercase tracking-wider text-muted-foreground">
             JN-CALM memetakan pola ini
           </p>
           <div className="mt-6 grid items-center gap-4 lg:grid-cols-[1fr_auto_1fr_auto_1fr_auto_1fr]">
