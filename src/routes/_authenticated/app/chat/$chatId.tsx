@@ -314,39 +314,46 @@ function ChatRoom() {
 
   return (
     <div className="flex h-[calc(100dvh-11.5rem)] flex-col lg:h-[calc(100dvh-6rem)]">
-      <div className="flex items-center justify-between gap-3 border-b border-border pb-3">
-        <Link to="/app/chat" className="text-xs text-muted-foreground">← Semua chat</Link>
-        <div className="flex items-center gap-2">
+      <div className="flex items-center justify-between gap-2.5 border-b border-border pb-2.5">
+        <Link to="/app/chat" className="text-[10px] sm:text-xs text-muted-foreground shrink-0">← Semua</Link>
+        <div className="flex items-center gap-2 min-w-0">
           {comp?.avatar_url ? (
-            <img src={comp.avatar_url} alt={comp.name} className="w-8 h-8 rounded-full object-cover shrink-0" />
+            <img src={comp.avatar_url} alt={comp.name} className="w-7 h-7 sm:w-8 sm:h-8 rounded-full object-cover shrink-0" />
           ) : (
-            <span className="text-2xl">{comp?.emoji}</span>
+            <span className="text-xl sm:text-2xl shrink-0">{comp?.emoji}</span>
           )}
-          <div>
-            <p className="text-sm font-semibold">{comp?.name}</p>
-            <p className="text-[10px] text-muted-foreground">{comp?.tone}</p>
+          <div className="min-w-0">
+            <p className="text-xs sm:text-sm font-semibold truncate">{comp?.name}</p>
+            <p className="text-[9px] sm:text-[10px] text-muted-foreground truncate">{comp?.tone}</p>
           </div>
         </div>
         {!isNew && (
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 shrink-0">
             <button
               onClick={() => exportChatPDF(comp?.name ?? "Pendamping", comp?.emoji ?? "🌿", messages ?? [])}
-              className="rounded-full border border-border px-3 py-1.5 text-xs hover:bg-cream-deep flex items-center gap-1.5 transition-all duration-200 active:scale-95 shadow-sm"
+              className="rounded-full border border-border px-2 py-1 sm:px-3 sm:py-1.5 text-[10px] sm:text-xs hover:bg-cream-deep flex items-center gap-1 transition-all duration-200 active:scale-95 shadow-sm"
             >
-              📄 Simpan PDF
+              <span>📄</span>
+              <span className="hidden sm:inline">Simpan PDF</span>
+              <span className="inline sm:hidden">PDF</span>
             </button>
             <button 
               disabled={generatingJournal} 
               onClick={makeJournal} 
-              className="rounded-full border border-border px-3 py-1.5 text-xs hover:bg-cream-deep disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5 transition-all duration-200 active:scale-95 shadow-sm"
+              className="rounded-full border border-border px-2 py-1 sm:px-3 sm:py-1.5 text-[10px] sm:text-xs hover:bg-cream-deep disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1 transition-all duration-200 active:scale-95 shadow-sm"
             >
               {generatingJournal ? (
                 <>
                   <span className="h-1.5 w-1.5 animate-ping rounded-full bg-primary" />
-                  Memproses Jurnal...
+                  <span className="hidden sm:inline">Memproses...</span>
+                  <span className="inline sm:hidden">Proses...</span>
                 </>
               ) : (
-                "📓 Jadikan Journal"
+                <>
+                  <span>📓</span>
+                  <span className="hidden sm:inline">Jadikan Journal</span>
+                  <span className="inline sm:hidden">Jurnal</span>
+                </>
               )}
             </button>
           </div>
@@ -391,13 +398,13 @@ function ChatRoom() {
         )}
 
         {isNew && (
-          <div className="rounded-2xl bg-primary-soft/50 p-4 text-sm text-foreground">
+          <div className="rounded-2xl bg-primary-soft/50 p-3.5 sm:p-4 text-xs sm:text-sm text-foreground">
             Halo 🌿 Aku <strong>{comp?.name}</strong>. Apa pun yang kamu rasakan sekarang, aku siap mendengarkan. Mulai dari mana saja.
           </div>
         )}
         {messages?.map((m) => (
           <div key={m.id} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
-            <div className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed whitespace-pre-wrap ${m.role === "user" ? "bg-foreground text-cream" : "bg-card ring-1 ring-border"}`}>
+            <div className={`max-w-[85%] rounded-2xl px-3 py-2 sm:px-4 sm:py-2.5 text-[13px] sm:text-sm leading-relaxed whitespace-pre-wrap ${m.role === "user" ? "bg-foreground text-cream" : "bg-card ring-1 ring-border"}`}>
               {m.content}
             </div>
           </div>
@@ -438,26 +445,26 @@ function ChatRoom() {
         )}
       </div>
 
-      <div className="border-t border-border pt-3">
-        <div className="mb-2 flex gap-2">
+      <div className="border-t border-border pt-2.5">
+        <div className="mb-2 flex items-center justify-between gap-2">
           <button 
             disabled={isLimitReached} 
             onClick={()=>submit(undefined, "Aku sedang cemas/panik. Tolong bantu aku menenangkan diri.")} 
-            className="rounded-full border border-red-200/50 bg-red-50/70 hover:bg-red-50 text-red-700 px-3 py-1.5 text-xs font-semibold shadow-sm transition-all duration-200 active:scale-95 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            className="rounded-full border border-red-200/50 bg-red-50/70 hover:bg-red-50 text-red-700 px-2.5 py-1 text-[10px] sm:px-3 sm:py-1.5 sm:text-xs font-semibold shadow-sm transition-all duration-200 active:scale-95 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
           >
-            🚨 Aku panik/cemas
+            🚨 Aku panik
           </button>
           {showLimitWarning && (
-            <span className="ml-auto text-[10px] font-semibold text-muted-foreground self-center flex items-center gap-1.5 bg-cream-deep/60 px-3 py-1 rounded-full border border-border/40">
+            <span className="text-[9px] sm:text-[10px] font-semibold text-muted-foreground self-center flex items-center gap-1.5 bg-cream-deep/60 px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-full border border-border/40 truncate">
               {isLimitReached ? (
                 <>
-                  <span className="h-2 w-2 rounded-full bg-red-500 inline-block" />
-                  Sisa kuota chat gratis: 0/10
+                  <span className="h-1.5 w-1.5 rounded-full bg-red-500 inline-block shrink-0" />
+                  Sisa: 0/10
                 </>
               ) : (
                 <>
-                  <span className="h-2 w-2 rounded-full bg-amber-500 animate-pulse inline-block" />
-                  Sisa kuota chat gratis: {Math.max(0, 10 - (chatUsage ?? 0))}/10
+                  <span className="h-1.5 w-1.5 rounded-full bg-amber-500 animate-pulse inline-block shrink-0" />
+                  Sisa chat: {Math.max(0, 10 - (chatUsage ?? 0))}/10
                 </>
               )}
             </span>
@@ -468,15 +475,15 @@ function ChatRoom() {
             value={input} 
             onChange={(e)=>setInput(e.target.value)} 
             rows={2} 
-            placeholder={isLimitReached ? "🔒 Kuota chat gratis sudah habis. Upgrade ke Premium untuk melanjutkan." : "Tulis perasaanmu…"}
+            placeholder={isLimitReached ? "🔒 Kuota gratis habis. Upgrade ke Premium." : "Tulis perasaanmu…"}
             disabled={sending || isLimitReached}
             maxLength={2000}
             onKeyDown={(e)=>{ if (e.key==="Enter" && !e.shiftKey) { e.preventDefault(); if (!isLimitReached) submit(); } }}
-            className="flex-1 resize-none rounded-2xl border border-border bg-card px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-75 disabled:bg-stone-50/40" 
+            className="flex-1 resize-none rounded-2xl border border-border bg-card px-3 py-2 sm:px-4 sm:py-2.5 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-75 disabled:bg-stone-50/40" 
           />
           <button 
             disabled={sending || isLimitReached || !input.trim()} 
-            className="self-end rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-accent-foreground shadow-peach disabled:opacity-50 cursor-pointer"
+            className="self-end rounded-full bg-accent px-4 py-2 sm:px-5 sm:py-2.5 text-xs sm:text-sm font-semibold text-accent-foreground shadow-peach disabled:opacity-50 cursor-pointer"
           >
             Kirim
           </button>
