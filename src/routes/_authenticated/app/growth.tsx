@@ -143,17 +143,17 @@ function StatCard({
   return (
     <div 
       onClick={onClick}
-      className={`rounded-3xl p-5 border transition-all duration-350 hover:shadow-elevated hover:-translate-y-0.5 cursor-pointer active:scale-97 flex items-center justify-between gap-4 ${bgClass} ${accentClass}`}
+      className={`rounded-3xl p-4 sm:p-5 border transition-all duration-350 hover:shadow-elevated hover:-translate-y-0.5 cursor-pointer active:scale-97 flex items-center justify-between gap-3 sm:gap-4 ${bgClass} ${accentClass}`}
     >
       <div className="min-w-0">
-        <p className="text-[11px] font-bold text-stone-500 uppercase tracking-wider">{label}</p>
-        <div className="mt-2.5 flex items-baseline gap-1">
-          <p className="font-display text-3xl font-extrabold text-foreground">{value}</p>
-          <p className="text-xs font-medium text-muted-foreground">{suffix}</p>
+        <p className="text-[10px] sm:text-[11px] font-bold text-stone-500 uppercase tracking-wider">{label}</p>
+        <div className="mt-1.5 sm:mt-2.5 flex items-baseline gap-1">
+          <p className="font-display text-2xl sm:text-3xl font-extrabold text-foreground">{value}</p>
+          <p className="text-[10px] sm:text-xs font-medium text-muted-foreground">{suffix}</p>
         </div>
       </div>
       
-      <div className="grid h-12 w-12 place-items-center rounded-2xl bg-white shadow-soft text-2xl select-none shrink-0">
+      <div className="grid h-10 w-10 sm:h-12 sm:w-12 place-items-center rounded-2xl bg-white shadow-soft text-xl sm:text-2xl select-none shrink-0">
         {icon}
       </div>
     </div>
@@ -214,14 +214,14 @@ function MindPlant({ score, isWilted = false, onClick }: { score: number; isWilt
   return (
     <div 
       onClick={onClick}
-      className="rounded-3xl bg-card p-8 ring-1 ring-border/60 shadow-card flex flex-col items-center text-center space-y-4 animate-scale-in cursor-pointer hover:shadow-elevated hover:-translate-y-0.5 transition-all duration-350 active:scale-98 relative overflow-hidden"
+      className="rounded-3xl bg-card p-5 sm:p-8 ring-1 ring-border/60 shadow-card flex flex-col items-center text-center space-y-3 sm:space-y-4 animate-scale-in cursor-pointer hover:shadow-elevated hover:-translate-y-0.5 transition-all duration-350 active:scale-98 relative overflow-hidden"
     >
       {/* Wilted Overlay */}
       {isWilted && (
-        <div className="absolute inset-0 bg-stone-900/60 backdrop-blur-[1px] flex flex-col items-center justify-center p-6 text-center text-white z-10 transition-all duration-300">
-          <span className="text-4xl animate-bounce">🍂</span>
-          <h4 className="mt-3 font-display text-lg font-bold">Tanaman Jiwa Layu</h4>
-          <p className="text-xs text-stone-200 mt-1 max-w-[210px] leading-relaxed">
+        <div className="absolute inset-0 bg-stone-900/60 backdrop-blur-[1px] flex flex-col items-center justify-center p-5 sm:p-6 text-center text-white z-10 transition-all duration-300">
+          <span className="text-3xl sm:text-4xl animate-bounce">🍂</span>
+          <h4 className="mt-2.5 sm:mt-3 font-display text-base sm:text-lg font-bold">Tanaman Jiwa Layu</h4>
+          <p className="text-[11px] sm:text-xs text-stone-200 mt-1 max-w-[210px] leading-relaxed">
             Tanamanmu merindukan dirimu. Yuk isi mood hari ini untuk menyiramnya kembali!
           </p>
           <button
@@ -229,7 +229,7 @@ function MindPlant({ score, isWilted = false, onClick }: { score: number; isWilt
               e.stopPropagation();
               navigate({ to: "/app/mood" });
             }}
-            className="mt-4 px-5 py-2 bg-amber-500 hover:bg-amber-600 active:scale-95 text-xs font-bold text-white rounded-full shadow transition-all duration-200"
+            className="mt-3.5 px-4.5 py-1.5 sm:px-5 sm:py-2 bg-amber-500 hover:bg-amber-600 active:scale-95 text-[11px] sm:text-xs font-bold text-white rounded-full shadow transition-all duration-200"
           >
             💧 Siram Sekarang
           </button>
@@ -239,7 +239,7 @@ function MindPlant({ score, isWilted = false, onClick }: { score: number; isWilt
       {/* Radial glow greenhouse backdrop */}
       <div className={`absolute inset-0 pointer-events-none transition-all duration-500 ${isWilted ? "bg-transparent" : "bg-[radial-gradient(circle_at_center,_rgba(167,_243,_190,_0.2)_0%,_transparent_75%)]"}`} />
 
-      <div className="relative w-56 h-60 flex items-center justify-center">
+      <div className="relative w-44 h-48 sm:w-56 sm:h-60 flex items-center justify-center">
         {/* Sparkle animations for higher levels */}
         {!isWilted && stage >= 4 && (
           <div className="absolute inset-0 pointer-events-none">
@@ -319,12 +319,12 @@ function MindPlant({ score, isWilted = false, onClick }: { score: number; isWilt
       </div>
 
       <div className="space-y-1">
-        <p className="text-[10px] font-bold uppercase tracking-wider text-primary">Level Tanaman Jiwa</p>
-        <h3 className="font-display text-xl font-bold text-foreground">{label}</h3>
-        <p className="text-sm text-muted-foreground leading-relaxed max-w-sm">
+        <p className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-primary">Level Tanaman Jiwa</p>
+        <h3 className="font-display text-lg sm:text-xl font-bold text-foreground">{label}</h3>
+        <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed max-w-sm">
           {desc}
         </p>
-        <div className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-primary-soft/60 px-3 py-1 text-xs font-semibold text-primary">
+        <div className="mt-1.5 inline-flex items-center gap-1.5 rounded-full bg-primary-soft/60 px-2.5 py-0.5 text-[11px] sm:text-xs font-semibold text-primary">
           Skor Jiwa: {score} Pts
         </div>
       </div>
@@ -394,24 +394,24 @@ function ActionRecommendationCard({
   const config = configs[recType];
 
   return (
-    <div className={`rounded-3xl p-6 border transition-all duration-350 shadow-soft relative overflow-hidden flex flex-col md:flex-row items-start md:items-center justify-between gap-5 animate-alert-pulse ${config.bg}`}>
-      <div className="flex items-start gap-4">
-        <div className={`grid h-12 w-12 place-items-center rounded-2xl bg-white shadow-soft text-2xl select-none shrink-0 ${config.iconClass}`}>
+    <div className={`rounded-3xl p-5 sm:p-6 border transition-all duration-350 shadow-soft relative overflow-hidden flex flex-col md:flex-row items-start md:items-center justify-between gap-4 sm:gap-5 animate-alert-pulse ${config.bg}`}>
+      <div className="flex items-start gap-3 sm:gap-4">
+        <div className={`grid h-10 w-10 sm:h-12 sm:w-12 place-items-center rounded-2xl bg-white shadow-soft text-xl sm:text-2xl select-none shrink-0 ${config.iconClass}`}>
           {config.icon}
         </div>
-        <div className="space-y-1">
+        <div className="space-y-0.5">
           <div className="flex items-center gap-1.5">
             <span className="h-1.5 w-1.5 rounded-full bg-red-500 animate-ping inline-block shrink-0" />
-            <p className={`text-[10px] font-bold uppercase tracking-wider ${config.accent}`}>Detektor Kesejahteraan Jiwa</p>
+            <p className={`text-[9px] sm:text-[10px] font-bold uppercase tracking-wider ${config.accent}`}>Detektor Kesejahteraan Jiwa</p>
           </div>
-          <h3 className="font-display text-base font-bold text-stone-900">{config.title}</h3>
-          <p className="text-xs text-stone-600 leading-relaxed max-w-2xl">{config.desc}</p>
+          <h3 className="font-display text-sm sm:text-base font-bold text-stone-900">{config.title}</h3>
+          <p className="text-[11px] sm:text-xs text-stone-600 leading-relaxed max-w-2xl">{config.desc}</p>
         </div>
       </div>
       
       <Link
         to={config.link}
-        className="w-full md:w-auto shrink-0 text-center rounded-full bg-stone-900 text-white hover:bg-stone-850 hover:scale-103 active:scale-97 px-5 py-3 text-xs font-bold transition-all duration-300 shadow-md hover:shadow-elevated flex items-center justify-center gap-2 group"
+        className="w-full md:w-auto shrink-0 text-center rounded-full bg-stone-900 text-white hover:bg-stone-850 hover:scale-103 active:scale-97 px-4 py-2.5 sm:px-5 sm:py-3 text-[11px] sm:text-xs font-bold transition-all duration-300 shadow-md hover:shadow-elevated flex items-center justify-center gap-2 group"
       >
         <span>{config.btnText}</span>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="h-4 w-4 transform transition-transform duration-300 group-hover:translate-x-1 shrink-0">
@@ -615,10 +615,10 @@ function Page() {
   })();
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       <div className="relative">
-        <h1 className="font-display text-3xl font-semibold">Growth Dashboard</h1>
-        <p className="mt-1 text-sm text-muted-foreground">30 hari terakhir · Data personalmu</p>
+        <h1 className="font-display text-xl sm:text-3xl font-semibold">Growth Dashboard</h1>
+        <p className="mt-0.5 text-[11px] sm:text-sm text-muted-foreground">30 hari terakhir · Data personalmu</p>
       </div>
 
       {/* ── MINDPLANT ────────────────────────────────────────────── */}
@@ -677,10 +677,10 @@ function Page() {
       )}
 
       {/* ── MOOD TREND ───────────────────────────────────────────── */}
-      <section className="rounded-3xl bg-card p-6 ring-1 ring-border">
-        <div className="mb-4 flex items-center justify-between">
-          <p className="text-sm font-semibold">Tren Mood 30 Hari</p>
-          <div className="flex items-center gap-3 text-[11px] text-muted-foreground">
+      <section className="rounded-3xl bg-card p-4 sm:p-6 ring-1 ring-border">
+        <div className="mb-3 flex items-center justify-between">
+          <p className="text-xs sm:text-sm font-semibold">Tren Mood 30 Hari</p>
+          <div className="flex items-center gap-3 text-[10px] sm:text-[11px] text-muted-foreground">
             <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-primary inline-block" />Mood</span>
             <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full inline-block" style={{ background: "oklch(0.75 0.08 20)" }} />Stres</span>
           </div>
@@ -708,22 +708,22 @@ function Page() {
         )}
       </section>
 
-      <section className="rounded-3xl bg-card p-6 ring-1 ring-border">
-        <div className="mb-4">
-          <p className="text-sm font-semibold text-stone-900">Pemicu Utama Mood-mu (Top Triggers)</p>
-          <p className="text-[10px] text-muted-foreground mt-0.5 leading-normal">
+      <section className="rounded-3xl bg-card p-4 sm:p-6 ring-1 ring-border">
+        <div className="mb-3.5">
+          <p className="text-xs sm:text-sm font-semibold text-stone-900">Pemicu Utama Mood-mu (Top Triggers)</p>
+          <p className="text-[9px] sm:text-[10px] text-muted-foreground mt-0.5 leading-normal">
             Menampilkan seberapa sering pemicu ini muncul dari seluruh catatan suasana hatimu dalam 30 hari terakhir.
           </p>
         </div>
         {topTriggers.length === 0 ? (
-          <p className="text-sm text-muted-foreground">Belum cukup data. Lanjutkan check-in mood harian.</p>
+          <p className="text-xs sm:text-sm text-muted-foreground">Belum cukup data. Lanjutkan check-in mood harian.</p>
         ) : (
-          <div className="space-y-3">
+          <div className="space-y-2.5">
             {topTriggers.map(([t, c]) => {
               const emoji = TRIGGER_EMOJIS[t] ?? "🌿";
               return (
-                <div key={t} className="flex items-center gap-3">
-                  <span className="w-32 shrink-0 text-sm font-semibold text-stone-700 flex items-center gap-1.5">
+                <div key={t} className="flex items-center gap-2.5 sm:gap-3">
+                  <span className="w-24 sm:w-32 shrink-0 text-xs sm:text-sm font-semibold text-stone-700 flex items-center gap-1.5">
                     <span className="text-base select-none">{emoji}</span>
                     {t}
                   </span>
@@ -733,8 +733,8 @@ function Page() {
                       style={{ width: `${(c / maxTrigger) * 100}%` }}
                     />
                   </div>
-                  <span className="w-28 shrink-0 text-right text-[11px] font-semibold text-muted-foreground">
-                    {c}× dari {moods?.length || 0} ({moods?.length ? Math.round((c / moods.length) * 100) : 0}%)
+                  <span className="w-20 sm:w-28 shrink-0 text-right text-[10px] sm:text-[11px] font-semibold text-muted-foreground">
+                    {c}× ({moods?.length ? Math.round((c / moods.length) * 100) : 0}%)
                   </span>
                 </div>
               );
@@ -744,18 +744,18 @@ function Page() {
       </section>
 
       {/* ── WEEKLY AI INSIGHT ────────────────────────────────────── */}
-      <section className="rounded-3xl p-6 border border-purple-200/50 relative overflow-hidden bg-gradient-to-br from-indigo-50/50 via-purple-50/45 to-pink-50/35 shadow-soft">
+      <section className="rounded-3xl p-4.5 sm:p-6 border border-purple-200/50 relative overflow-hidden bg-gradient-to-br from-indigo-50/50 via-purple-50/45 to-pink-50/35 shadow-soft">
         <div className="flex items-center justify-between gap-3 flex-wrap">
           <div>
             <div className="flex items-center gap-2 animate-fade-in">
-              <span className="rounded-full bg-purple-100/80 border border-purple-200 px-2.5 py-0.5 text-[9px] font-bold text-purple-700 select-none animate-pulse">
+              <span className="rounded-full bg-purple-100/80 border border-purple-200 px-2 py-0.5 text-[8px] sm:px-2.5 sm:py-0.5 sm:text-[9px] font-bold text-purple-700 select-none animate-pulse">
                 ✨ Premium Insight
               </span>
             </div>
-            <p className="font-display text-lg font-bold text-foreground mt-1">
+            <p className="font-display text-base sm:text-lg font-bold text-foreground mt-1">
               {insightTab === "daily" ? "Daily Reflection" : "Weekly Reflection"}
             </p>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-[11px] sm:text-xs text-muted-foreground">
               {insightTab === "daily" 
                 ? "Evaluasi & afirmasi personal harianmu hari ini" 
                 : "Rangkuman perkembangan diri personal berdasarkan datamu"}
