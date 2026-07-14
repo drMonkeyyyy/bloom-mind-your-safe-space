@@ -99,8 +99,8 @@ function Page() {
             style={{ background: "oklch(0.77 0.085 40 / 0.18)", filter: "blur(35px)", animation: "blob-drift 18s ease-in-out infinite" }}
           />
           <div className="relative">
-            <h1 className="font-display text-3xl font-semibold">Emotional Eating</h1>
-            <p className="mt-1 text-sm text-muted-foreground italic">
+            <h1 className="font-display text-xl sm:text-3xl font-semibold">Emotional Eating</h1>
+            <p className="mt-0.5 text-[11px] sm:text-sm text-muted-foreground italic">
               "Tidak semua rasa lapar berasal dari perut."
             </p>
           </div>
@@ -127,7 +127,7 @@ function Page() {
     <div className="space-y-6">
       {/* Coral gradient header */}
       <div
-        className="relative overflow-hidden rounded-3xl px-6 pt-6 pb-5"
+        className="relative overflow-hidden rounded-3xl px-5 py-5 sm:px-6 sm:pt-6 sm:pb-5"
         style={{
           background: "linear-gradient(135deg, oklch(0.977 0.008 85) 0%, oklch(0.96 0.04 25) 40%, oklch(0.97 0.03 40) 100%)",
           backgroundSize: "300% 300%",
@@ -139,8 +139,8 @@ function Page() {
           style={{ background: "oklch(0.77 0.085 40 / 0.18)", filter: "blur(35px)", animation: "blob-drift 18s ease-in-out infinite" }}
         />
         <div className="relative">
-          <h1 className="font-display text-3xl font-semibold">Emotional Eating</h1>
-          <p className="mt-1 text-sm text-muted-foreground italic">
+          <h1 className="font-display text-xl sm:text-3xl font-semibold">Emotional Eating</h1>
+          <p className="mt-0.5 text-[11px] sm:text-sm text-muted-foreground italic">
             "Tidak semua rasa lapar berasal dari perut."
           </p>
         </div>
@@ -160,9 +160,9 @@ function Page() {
 
       {/* ── HUNGER TYPE ─────────────────────────────────────────── */}
       {(!result || isPremium) && (
-        <section className="rounded-3xl bg-card p-6 ring-1 ring-border/60 shadow-card space-y-5">
+        <section className="rounded-3xl bg-card p-4 sm:p-6 ring-1 ring-border/60 shadow-card space-y-4 sm:space-y-5">
           <div>
-            <p className="text-sm font-semibold text-foreground mb-3">Apa yang sebenarnya kamu rasakan sekarang?</p>
+            <p className="text-xs sm:text-sm font-semibold text-foreground mb-2.5">Apa yang sebenarnya kamu rasakan sekarang?</p>
             <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
               {HUNGER.map((h) => {
                 const sel = hunger === h.key;
@@ -171,21 +171,21 @@ function Page() {
                     key={h.key}
                     onClick={() => setHunger(h.key)}
                     aria-pressed={sel}
-                    className={`flex items-center gap-3 rounded-2xl border-2 p-4 text-left transition-all duration-250 ${
+                    className={`flex items-center gap-3 rounded-2xl border-2 p-3 sm:p-4 text-left transition-all duration-250 ${
                       sel
                         ? "border-accent/40 bg-accent-soft/50 shadow-soft scale-[1.01]"
                         : "border-transparent bg-cream-deep hover:border-accent/20 hover:bg-accent-soft/20 hover:scale-[1.01]"
                     }`}
                   >
                     <span
-                      className="shrink-0 text-2xl transition-transform duration-250"
+                      className="shrink-0 text-xl sm:text-2xl transition-transform duration-250"
                       style={{ display: "inline-block", transform: sel ? "scale(1.15)" : "scale(1)" }}
                     >
                       {h.icon}
                     </span>
                     <div className="min-w-0">
-                      <p className="text-sm font-semibold text-foreground">{h.label}</p>
-                      <p className="mt-0.5 text-[11px] text-muted-foreground">{h.desc}</p>
+                      <p className="text-xs sm:text-sm font-semibold text-foreground">{h.label}</p>
+                      <p className="mt-0.5 text-[10px] sm:text-[11px] text-muted-foreground">{h.desc}</p>
                     </div>
                     {sel && (
                       <span className="ml-auto shrink-0 text-accent">
@@ -202,7 +202,7 @@ function Page() {
 
           <div className="space-y-3">
             <div>
-              <label className="mb-1.5 block text-sm font-semibold" htmlFor="emotion-input">
+              <label className="mb-1 block text-xs sm:text-sm font-semibold" htmlFor="emotion-input">
                 💭 Emosi yang sedang kamu rasakan
               </label>
               <textarea
@@ -211,11 +211,11 @@ function Page() {
                 onChange={(e) => setEmotion(e.target.value)}
                 placeholder="Ceritakan perasaanmu sekarang… (contoh: cemas, bosan, marah, sedih)"
                 rows={2}
-                className="w-full rounded-2xl border border-border bg-background px-4 py-3 text-sm resize-none placeholder:text-muted-foreground/60 transition-all duration-200"
+                className="w-full rounded-2xl border border-border bg-background px-4 py-2.5 text-xs sm:text-sm resize-none placeholder:text-muted-foreground/60 transition-all duration-200"
               />
             </div>
             <div>
-              <label className="mb-1.5 block text-sm font-semibold" htmlFor="food-input">
+              <label className="mb-1 block text-xs sm:text-sm font-semibold" htmlFor="food-input">
                 🍽️ Makanan yang ingin kamu makan
               </label>
               <input
@@ -223,11 +223,11 @@ function Page() {
                 value={food}
                 onChange={(e) => setFood(e.target.value)}
                 placeholder="Makanan apa yang sedang kamu inginkan?"
-                className="w-full rounded-2xl border border-border bg-background px-4 py-3 text-sm transition-all duration-200"
+                className="w-full rounded-2xl border border-border bg-background px-4 py-2.5 text-xs sm:text-sm transition-all duration-200"
               />
             </div>
             <div>
-              <label className="mb-1.5 block text-sm font-semibold" htmlFor="trigger-input">
+              <label className="mb-1 block text-xs sm:text-sm font-semibold" htmlFor="trigger-input">
                 ⚡ Apa yang memicunya?
               </label>
               <input
@@ -235,7 +235,7 @@ function Page() {
                 value={trigger}
                 onChange={(e) => setTrigger(e.target.value)}
                 placeholder="Kejadian atau situasi yang memicu keinginan ini…"
-                className="w-full rounded-2xl border border-border bg-background px-4 py-3 text-sm transition-all duration-200"
+                className="w-full rounded-2xl border border-border bg-background px-4 py-2.5 text-xs sm:text-sm transition-all duration-200"
               />
             </div>
           </div>
@@ -243,7 +243,7 @@ function Page() {
           <button
             onClick={submit}
             disabled={loading || !hunger}
-            className="w-full rounded-full bg-accent py-3.5 text-sm font-semibold text-accent-foreground shadow-peach transition-all duration-300 btn-spring disabled:opacity-60"
+            className="w-full rounded-full bg-accent py-3 sm:py-3.5 text-xs sm:text-sm font-semibold text-accent-foreground shadow-peach transition-all duration-300 btn-spring disabled:opacity-60"
           >
             {loading ? (
               <span className="inline-flex items-center gap-2">
