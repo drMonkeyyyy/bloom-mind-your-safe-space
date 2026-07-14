@@ -155,17 +155,11 @@ export function exportMoodPDF(checkIn: any) {
           padding-bottom: 20px;
           margin-bottom: 25px;
         }
-        .logo {
-          font-size: 24px;
-          font-weight: bold;
-          color: #7b8e72;
-          margin-bottom: 4px;
-        }
-        .subtitle {
-          font-size: 11px;
-          color: #888888;
-          text-transform: uppercase;
-          letter-spacing: 1.5px;
+        .brand-logo-img {
+          height: 75px;
+          width: auto;
+          display: block;
+          margin: 0 auto 12px auto;
         }
         .title {
           font-size: 18px;
@@ -266,8 +260,7 @@ export function exportMoodPDF(checkIn: any) {
     <body>
       <div class="card">
         <div class="header">
-          <div class="logo">🌿 JN-CALM</div>
-          <div class="subtitle">Your Safe Space</div>
+          <img src="${window.location.origin}/logo.png" alt="JN-CALM Logo" class="brand-logo-img" />
           <div class="title">Catatan Suasana Hati (Mood Check-in)</div>
           <div class="date">${formattedDate}</div>
         </div>
@@ -345,17 +338,11 @@ export function exportGratitudePDF(entry: any) {
           padding-bottom: 20px;
           margin-bottom: 25px;
         }
-        .logo {
-          font-size: 24px;
-          font-weight: bold;
-          color: #7b8e72;
-          margin-bottom: 4px;
-        }
-        .subtitle {
-          font-size: 11px;
-          color: #888888;
-          text-transform: uppercase;
-          letter-spacing: 1.5px;
+        .brand-logo-img {
+          height: 75px;
+          width: auto;
+          display: block;
+          margin: 0 auto 12px auto;
         }
         .title {
           font-size: 18px;
@@ -437,8 +424,7 @@ export function exportGratitudePDF(entry: any) {
     <body>
       <div class="card">
         <div class="header">
-          <div class="logo">🌿 JN-CALM</div>
-          <div class="subtitle">Your Safe Space</div>
+          <img src="${window.location.origin}/logo.png" alt="JN-CALM Logo" class="brand-logo-img" />
           <div class="title">Lembar Syukur Harian (Gratitude Journal)</div>
           <div class="date">${formattedDate}</div>
         </div>
@@ -503,17 +489,11 @@ export function exportJournalPDF(journal: any) {
           padding-bottom: 20px;
           margin-bottom: 25px;
         }
-        .logo {
-          font-size: 24px;
-          font-weight: bold;
-          color: #7b8e72;
-          margin-bottom: 4px;
-        }
-        .subtitle {
-          font-size: 11px;
-          color: #888888;
-          text-transform: uppercase;
-          letter-spacing: 1.5px;
+        .brand-logo-img {
+          height: 75px;
+          width: auto;
+          display: block;
+          margin: 0 auto 12px auto;
         }
         .title {
           font-size: 18px;
@@ -600,8 +580,7 @@ export function exportJournalPDF(journal: any) {
     <body>
       <div class="card">
         <div class="header">
-          <div class="logo">🌿 JN-CALM</div>
-          <div class="subtitle">Your Safe Space</div>
+          <img src="${window.location.origin}/logo.png" alt="JN-CALM Logo" class="brand-logo-img" />
           <div class="title">Lembar Catatan Diary</div>
           <div class="date">${formattedDate}</div>
         </div>
@@ -681,17 +660,11 @@ export function exportWeeklyInsightPDF(dateStr: string, text: string, title = "A
           padding-bottom: 20px;
           margin-bottom: 25px;
         }
-        .logo {
-          font-size: 24px;
-          font-weight: bold;
-          color: #7b8e72;
-          margin-bottom: 4px;
-        }
-        .subtitle {
-          font-size: 11px;
-          color: #888888;
-          text-transform: uppercase;
-          letter-spacing: 1.5px;
+        .brand-logo-img {
+          height: 75px;
+          width: auto;
+          display: block;
+          margin: 0 auto 12px auto;
         }
         .title {
           font-size: 18px;
@@ -728,8 +701,7 @@ export function exportWeeklyInsightPDF(dateStr: string, text: string, title = "A
     <body>
       <div class="card">
         <div class="header">
-          <div class="logo">🌿 JN-CALM</div>
-          <div class="subtitle">Your Safe Space</div>
+          <img src="${window.location.origin}/logo.png" alt="JN-CALM Logo" class="brand-logo-img" />
           <div class="title">${title}</div>
           <div class="date">${formattedDate}</div>
         </div>
@@ -798,17 +770,11 @@ export function exportChatPDF(companionName: string, companionEmoji: string, mes
           padding-bottom: 20px;
           margin-bottom: 25px;
         }
-        .logo {
-          font-size: 24px;
-          font-weight: bold;
-          color: #7b8e72;
-          margin-bottom: 4px;
-        }
-        .subtitle {
-          font-size: 11px;
-          color: #888888;
-          text-transform: uppercase;
-          letter-spacing: 1.5px;
+        .brand-logo-img {
+          height: 75px;
+          width: auto;
+          display: block;
+          margin: 0 auto 12px auto;
         }
         .title {
           font-size: 18px;
@@ -887,8 +853,7 @@ export function exportChatPDF(companionName: string, companionEmoji: string, mes
     <body>
       <div class="card">
         <div class="header">
-          <div class="logo">🌿 JN-CALM</div>
-          <div class="subtitle">Your Safe Space</div>
+          <img src="${window.location.origin}/logo.png" alt="JN-CALM Logo" class="brand-logo-img" />
           <div class="title">Transkrip Percakapan Pendamping AI</div>
           <div class="companion-info">${companionEmoji} ${companionName}</div>
         </div>
@@ -957,10 +922,11 @@ export function exportMoodsReportPDF(moods: any[]) {
           padding-bottom: 15px;
           margin-bottom: 20px;
         }
-        .logo {
-          font-size: 20px;
-          font-weight: bold;
-          color: #7b8e72;
+        .brand-logo-img {
+          height: 65px;
+          width: auto;
+          display: block;
+          margin: 0 auto 10px auto;
         }
         .title {
           font-size: 16px;
@@ -995,7 +961,7 @@ export function exportMoodsReportPDF(moods: any[]) {
     <body>
       <div class="container">
         <div class="header">
-          <div class="logo">🌿 JN-CALM</div>
+          <img src="${window.location.origin}/logo.png" alt="JN-CALM Logo" class="brand-logo-img" />
           <div class="title">Laporan Riwayat Mood (Mood Check-ins)</div>
         </div>
         <table>
@@ -1069,10 +1035,11 @@ export function exportGratitudesReportPDF(entries: any[]) {
           padding-bottom: 15px;
           margin-bottom: 20px;
         }
-        .logo {
-          font-size: 20px;
-          font-weight: bold;
-          color: #7b8e72;
+        .brand-logo-img {
+          height: 65px;
+          width: auto;
+          display: block;
+          margin: 0 auto 10px auto;
         }
         .title {
           font-size: 16px;
@@ -1107,7 +1074,7 @@ export function exportGratitudesReportPDF(entries: any[]) {
     <body>
       <div class="container">
         <div class="header">
-          <div class="logo">🌿 JN-CALM</div>
+          <img src="${window.location.origin}/logo.png" alt="JN-CALM Logo" class="brand-logo-img" />
           <div class="title">Laporan Riwayat Jurnal Syukur (Gratitude Journal)</div>
         </div>
         <table>
@@ -1210,10 +1177,11 @@ export function exportAnalyticsReportPDF(data: any) {
           padding-bottom: 15px;
           margin-bottom: 25px;
         }
-        .logo {
-          font-size: 20px;
-          font-weight: bold;
-          color: #7b8e72;
+        .brand-logo-img {
+          height: 65px;
+          width: auto;
+          display: block;
+          margin: 0 auto 10px auto;
         }
         .title {
           font-size: 16px;
@@ -1290,9 +1258,9 @@ export function exportAnalyticsReportPDF(data: any) {
     <body>
       <div class="container">
         <div class="header">
-          <div class="logo">🧠 JN-CALM RESEARCH DIVISION</div>
+          <img src="${window.location.origin}/logo.png" alt="JN-CALM Logo" class="brand-logo-img" />
           <div class="title">Laporan Analisis Klinis & Efektivitas Intervensi Neurologi</div>
-          <div class="subtitle">Data Prevalensi Pengguna & Efikasi Intervensi Darurat</div>
+          <div class="subtitle" style="font-size: 10px; color: #71717a; text-transform: uppercase; letter-spacing: 1px; margin-top: 3px;">JN-CALM Research Division</div>
         </div>
 
         <div class="stats-grid">
