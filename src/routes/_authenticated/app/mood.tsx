@@ -43,10 +43,10 @@ interface SliderProps {
 function MoodSlider({ label, value, onChange, color }: SliderProps) {
   return (
     <div>
-      <div className="mb-2 flex items-center justify-between">
-        <span className="text-sm font-medium text-foreground">{label}</span>
+      <div className="mb-1.5 flex items-center justify-between">
+        <span className="text-xs sm:text-sm font-medium text-foreground">{label}</span>
         <span
-          className="rounded-full px-2.5 py-0.5 text-xs font-bold text-white shadow-sm transition-all duration-300"
+          className="rounded-full px-2 py-0.5 text-[10px] sm:text-xs font-bold text-white shadow-sm transition-all duration-300"
           style={{ background: color }}
         >
           {value}/10
@@ -333,10 +333,10 @@ function MoodPage() {
   const currentGradient = MOOD_GRADIENTS[mood] ?? MOOD_GRADIENTS["tenang"];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Page header with ambient background */}
       <div
-        className="relative overflow-hidden rounded-3xl px-6 pt-6 pb-5"
+        className="relative overflow-hidden rounded-3xl px-5 py-5 sm:px-6 sm:pt-6 sm:pb-5"
         style={{
           background: currentGradient,
           backgroundSize: "300% 300%",
@@ -350,16 +350,16 @@ function MoodPage() {
           style={{ background: "oklch(0.71 0.045 160 / 0.15)", filter: "blur(35px)", animation: "blob-drift 18s ease-in-out infinite" }}
         />
         <div className="relative">
-          <h1 className="font-display text-2xl font-bold tracking-tight text-[#2F4F37] sm:text-3xl">Bagaimana perasaanmu?</h1>
-          <p className="mt-1.5 text-xs font-semibold text-[#5A7E62] opacity-90">Pilih yang paling mendekati kondisimu sekarang</p>
+          <h1 className="font-display text-xl sm:text-3xl font-bold tracking-tight text-[#2F4F37]">Bagaimana perasaanmu?</h1>
+          <p className="mt-1 text-[11px] sm:text-xs font-semibold text-[#5A7E62] opacity-90">Pilih yang paling mendekati kondisimu sekarang</p>
         </div>
       </div>
 
       {/* ── CHECK-IN CARD ──────────────────────────────────────── */}
-      <section className="rounded-3xl bg-card p-6 ring-1 ring-border/60 shadow-card space-y-6">
+      <section className="rounded-3xl bg-card p-4 sm:p-6 ring-1 ring-border/60 shadow-card space-y-4 sm:space-y-6">
         {/* Mood grid */}
         <div>
-          <p className="mb-3 text-sm font-semibold text-foreground">Pilih mood</p>
+          <p className="mb-2 text-xs sm:text-sm font-semibold text-foreground">Pilih mood</p>
           <div className="grid grid-cols-3 gap-2 sm:grid-cols-5">
             {MOOD_OPTIONS.map((m) => {
               const selected = mood === m.key;
@@ -368,7 +368,7 @@ function MoodPage() {
                 <button
                   key={m.key}
                   onClick={() => selectMood(m.key)}
-                  className={`relative flex flex-col items-center gap-1.5 rounded-2xl border-2 px-2 py-3 text-center transition-all duration-250 ${
+                  className={`relative flex flex-col items-center gap-1 px-1.5 py-2.5 sm:px-2 sm:py-3 text-center transition-all duration-250 ${
                     selected
                       ? "border-primary bg-primary-soft shadow-soft scale-105"
                       : "border-transparent bg-cream-deep hover:bg-primary-soft/50 hover:scale-102 hover:border-primary/20"
@@ -377,7 +377,7 @@ function MoodPage() {
                   aria-label={m.label}
                 >
                   <span
-                    className="text-2xl leading-none transition-transform duration-250"
+                    className="text-xl sm:text-2xl leading-none transition-transform duration-250"
                     style={{
                       display: "inline-block",
                       transform: selected ? "scale(1.15) translateY(-2px)" : "scale(1)",
@@ -385,7 +385,7 @@ function MoodPage() {
                   >
                     {m.emoji}
                   </span>
-                  <span className={`text-[11px] font-medium ${selected ? "text-foreground" : "text-muted-foreground"}`}>
+                  <span className={`text-[10px] sm:text-[11px] font-medium ${selected ? "text-foreground" : "text-muted-foreground"}`}>
                     {m.label}
                   </span>
                   {/* Sparkle on select */}

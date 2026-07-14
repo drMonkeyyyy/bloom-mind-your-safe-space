@@ -209,7 +209,7 @@ function Page() {
       {/* Active tool wrapper with scroll target */}
       {tool && (
         <div ref={activeToolRef} className="pt-2 scroll-mt-20 space-y-6">
-          <div className="bg-card rounded-3xl p-5 ring-1 ring-border/50">
+          <div className="w-full">
             {tool === "breath" && <BreathingExercise />}
             {tool === "ground" && <GroundingExercise />}
             {tool === "selftalk" && <SelfTalkCarousel />}

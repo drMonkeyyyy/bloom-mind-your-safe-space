@@ -125,42 +125,37 @@ export function BreathingExercise() {
   /* ── INTRO ─────────────────────────────────────── */
   if (phase === "intro") {
     return (
-      <section className="rounded-3xl bg-card p-6 ring-1 ring-border/60 shadow-card space-y-5 animate-scale-in">
+      <section className="rounded-3xl bg-card p-4 sm:p-6 ring-1 ring-border/60 shadow-card space-y-4 animate-scale-in">
         {/* Header */}
         <div className="flex items-center gap-3">
           <div
-            className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl text-2xl"
+            className="grid h-10 w-10 sm:h-12 sm:w-12 shrink-0 place-items-center rounded-2xl text-xl sm:text-2xl"
             style={{ background: "oklch(0.93 0.03 160)" }}
           >
             🌬️
           </div>
           <div>
-            <h2 className="font-display text-xl font-semibold text-foreground">Breathing Exercise</h2>
-            <p className="text-xs text-muted-foreground">Latihan napas terpandu dengan ritme visual</p>
+            <h2 className="font-display text-lg sm:text-xl font-semibold text-foreground">Breathing Exercise</h2>
+            <p className="text-[11px] sm:text-xs text-muted-foreground">Latihan napas terpandu dengan ritme visual</p>
           </div>
         </div>
 
         {/* Education block */}
-        <div className="rounded-2xl bg-sky-50 ring-1 ring-sky-200 p-4 space-y-3">
-          <p className="text-sm font-semibold text-sky-800">Mengapa Napas Bisa Menenangkan?</p>
-          <p className="text-sm text-sky-700 leading-relaxed">
-            Napas dalam mengaktifkan <strong>saraf vagus</strong> — jalur utama sistem parasimpatis yang bertanggung jawab
-            atas respons "tenang dan pulih". Saat kamu bernapas perlahan, tubuh secara harfiah menerima sinyal
-            bahwa <strong>kamu aman.</strong>
-          </p>
-          <p className="text-sm text-sky-700 leading-relaxed">
-            Teknik ini digunakan dalam terapi CBT, mindfulness, dan pelatihan militer untuk mengelola stres akut dalam hitungan menit.
+        <div className="rounded-2xl bg-sky-50 ring-1 ring-sky-200 p-3.5 space-y-1.5 text-xs">
+          <p className="font-semibold text-sky-800 text-[13px]">Mengapa Napas Bisa Menenangkan?</p>
+          <p className="text-sky-700 leading-relaxed">
+            Napas dalam merangsang <strong>saraf vagus</strong> untuk mengaktifkan respons tenang & pulih. Tubuh menerima sinyal bahwa <strong>kamu aman</strong>, menurunkan cemas dan tingkat stres dalam hitungan menit.
           </p>
         </div>
 
         {/* Pattern selector */}
         <div className="space-y-2">
-          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground/60">Pilih Pola Napas</p>
+          <p className="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-muted-foreground/60">Pilih Pola Napas</p>
           {PATTERNS.map((p, i) => (
             <button
               key={p.id}
               onClick={() => setSelectedPattern(i)}
-              className={`w-full text-left rounded-2xl p-4 ring-1 transition-all duration-200 flex items-start gap-3 ${
+              className={`w-full text-left rounded-2xl p-3 sm:p-4 ring-1 transition-all duration-200 flex items-start gap-3 ${
                 selectedPattern === i
                   ? "bg-primary-soft ring-primary/30"
                   : "bg-card ring-border/60 hover:bg-cream-deep"
@@ -177,7 +172,7 @@ export function BreathingExercise() {
                     {p.badge}
                   </span>
                 </div>
-                <p className="text-xs text-muted-foreground mt-0.5">{p.desc}</p>
+                <p className="text-[11px] sm:text-xs text-muted-foreground mt-0.5">{p.desc}</p>
                 <div className="flex gap-1.5 mt-2">
                   {p.phases.map((ph, pi) => (
                     <span

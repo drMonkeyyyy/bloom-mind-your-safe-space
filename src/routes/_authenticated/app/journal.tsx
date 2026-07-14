@@ -762,7 +762,7 @@ function JournalPage() {
 
       {/* Diary Canvas Binder Cover Header */}
       <div
-        className="relative overflow-hidden rounded-[2rem] px-7 py-7 shadow-elevated border-2 border-amber-950/10"
+        className="relative overflow-hidden rounded-3xl px-5 py-5 sm:px-7 sm:py-7 shadow-elevated border-2 border-amber-950/10"
         style={{
           background: "linear-gradient(135deg, oklch(0.35 0.06 65) 0%, oklch(0.25 0.04 60) 100%)",
         }}
@@ -771,12 +771,14 @@ function JournalPage() {
         <div className="absolute left-4 top-0 bottom-0 w-3 border-r border-dashed border-white/20" />
         <div className="absolute right-6 -top-6 h-36 w-36 rounded-full pointer-events-none bg-white/5 blur-3xl animate-pulse" />
 
-        <div className="relative pl-6 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <CozyDiaryBook size="sm" />
-            <div>
-              <h1 className="font-display text-2xl font-bold text-white tracking-wide">My Personal Diary</h1>
-              <p className="mt-1 text-xs text-stone-300 font-medium">Buku harian rahasiamu, aman & menenangkan.</p>
+        <div className="relative pl-4 sm:pl-6 flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3 sm:gap-4 min-w-0">
+            <div className="hidden sm:block">
+              <CozyDiaryBook size="sm" />
+            </div>
+            <div className="min-w-0">
+              <h1 className="font-display text-lg sm:text-2xl font-bold text-white tracking-wide truncate">My Personal Diary</h1>
+              <p className="mt-0.5 text-[10px] sm:text-xs text-stone-300 font-medium leading-tight">Rahasia, aman & menenangkan.</p>
             </div>
           </div>
           <button
@@ -798,53 +800,47 @@ function JournalPage() {
               }
               setSheetOpen(true);
             }}
-            className={`relative overflow-hidden rounded-full px-5 py-2.5 text-xs font-bold shadow-soft transition-all duration-350 btn-spring ${
+            className={`relative shrink-0 overflow-hidden rounded-full px-4 py-2 sm:px-5 sm:py-2.5 text-[11px] sm:text-xs font-bold shadow-soft transition-all duration-350 btn-spring ${
               savedAnim ? "bg-emerald-500 text-white" : "bg-cream-deep hover:bg-white text-stone-900 border border-stone-200"
             }`}
             aria-label="Tulis lembar baru"
           >
-            {savedAnim ? "✓ Tersimpan!" : "✍️ Tulis Diary"}
+            {savedAnim ? "✓ Simpan" : "✍️ Tulis"}
           </button>
         </div>
       </div>
 
 
 
-      {/* Cozy Reflection Banner (Permanent) */}
-      <EmptyState
-        icon={<CozyDiaryBook />}
-        title={items?.length === 0 ? "Buku Diary Masih Kosong" : "Ruang Refleksi Diri"}
-        description={
-          items?.length === 0
-            ? "Mulailah mengukir cerita hari ini. Setiap momen adalah lembaran berharga."
-            : "Tuangkan perasaanmu, keluh kesah, atau momen bahagia hari ini untuk ketenangan jiwamu."
-        }
-        action={
-          items?.length === 0
-            ? {
-                label: "Tulis Lembaran Pertama",
-                onClick: () => {
-                  const todayStr = getLocalDateString();
-                  const todayJournal = items?.find((j) => j.date === todayStr);
-                  if (todayJournal) {
-                    setEditId(todayJournal.id);
-                    setForm({
-                      summary: todayJournal.summary ?? "",
-                      main_emotion: todayJournal.main_emotion ?? "",
-                      main_trigger: todayJournal.main_trigger ?? "",
-                      lesson: todayJournal.lesson ?? "",
-                      gratitude: todayJournal.gratitude ?? "",
-                      tomorrow_focus: todayJournal.tomorrow_focus ?? ""
-                    });
-                  } else {
-                    reset();
-                  }
-                  setSheetOpen(true);
-                }
+      {/* Cozy Reflection Banner — Only when empty */}
+      {items?.length === 0 && (
+        <EmptyState
+          icon={<CozyDiaryBook />}
+          title="Buku Diary Masih Kosong"
+          description="Mulailah mengukir cerita hari ini. Setiap momen adalah lembaran berharga."
+          action={{
+            label: "Tulis Lembaran Pertama",
+            onClick: () => {
+              const todayStr = getLocalDateString();
+              const todayJournal = items?.find((j) => j.date === todayStr);
+              if (todayJournal) {
+                setEditId(todayJournal.id);
+                setForm({
+                  summary: todayJournal.summary ?? "",
+                  main_emotion: todayJournal.main_emotion ?? "",
+                  main_trigger: todayJournal.main_trigger ?? "",
+                  lesson: todayJournal.lesson ?? "",
+                  gratitude: todayJournal.gratitude ?? "",
+                  tomorrow_focus: todayJournal.tomorrow_focus ?? ""
+                });
+              } else {
+                reset();
               }
-            : undefined
-        }
-      />
+              setSheetOpen(true);
+            }
+          }}
+        />
+      )}
 
       {/* ── TIME CAPSULE WIDGET ─────────────────────────────────── */}
       <div className="rounded-3xl bg-card p-5 ring-1 ring-border/60 shadow-card space-y-4 relative overflow-hidden">
