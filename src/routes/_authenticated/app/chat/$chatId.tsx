@@ -81,18 +81,16 @@ function ChatRoom() {
     },
   });
 
-  const today = new Date().toISOString().slice(0, 10);
   const { data: chatUsage } = useQuery({
-    queryKey: ["daily-chat-usage", user?.id, today],
+    queryKey: ["total-chat-usage", user?.id],
     enabled: !!user && profile?.plan === "free",
     queryFn: async () => {
-      const { data } = await supabase
-        .from("daily_chat_usage")
-        .select("ai_reply_count")
+      const { count } = await supabase
+        .from("messages")
+        .select("id", { count: "exact", head: true })
         .eq("user_id", user!.id)
-        .eq("date", today)
-        .maybeSingle();
-      return data?.ai_reply_count ?? 0;
+        .eq("role", "assistant");
+      return count ?? 0;
     },
   });
 
@@ -100,7 +98,7 @@ function ChatRoom() {
   const [sending, setSending] = useState(false);
   const [generatingJournal, setGeneratingJournal] = useState(false);
   const [panicMode, setPanicMode] = useState(false);
-  const isLimitReached = profile?.plan === "free" && ((chatUsage ?? 0) >= 3 || panicMode);
+  const isLimitReached = profile?.plan === "free" && ((chatUsage ?? 0) >= 10 || panicMode);
   const [cleanupModalOpen, setCleanupModalOpen] = useState(false);
   const [cleaning, setCleaning] = useState(false);
   const [cleanupSnoozed, setCleanupSnoozed] = useState(() => {
@@ -280,11 +278,11 @@ function ChatRoom() {
       } else {
         refetch();
       }
-      qc.invalidateQueries({ queryKey: ["daily-chat-usage", user?.id, today] });
+      qc.invalidateQueries({ queryKey: ["total-chat-usage", user?.id] });
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
       if (msg.includes("DAILY_LIMIT")) {
-        toast.error("Limit chat harian gratis tercapai. Upgrade ke Premium untuk unlimited.");
+        toast.error("Batas chat gratis Anda sudah habis. Upgrade ke Premium untuk chat tanpa batas.");
         setPanicMode(true);
       }
       else if (msg.includes("PREMIUM_REQUIRED")) toast.error("Pendamping ini khusus Premium.");
@@ -434,8 +432,8 @@ function ChatRoom() {
         )}
         {isLimitReached && (
           <PaywallCard 
-            title="Limit Harian Gratis Tercapai" 
-            desc="Kamu sudah menggunakan jatah 3 balasan AI gratis hari ini. Buka pendamping kustom dan chat tanpa batas dengan berlangganan Premium." 
+            title="Batas Chat Gratis Tercapai" 
+            desc="Kamu sudah menggunakan jatah 10 balasan gratis selama masa uji coba. Buka pendamping kustom dan chat tanpa batas dengan berlangganan Premium." 
           />
         )}
       </div>
@@ -454,12 +452,12 @@ function ChatRoom() {
               {isLimitReached ? (
                 <>
                   <span className="h-2 w-2 rounded-full bg-red-500 inline-block" />
-                  Kuota hari ini: 0/3 tersisa
+                  Sisa kuota chat gratis: 0/10
                 </>
               ) : (
                 <>
                   <span className="h-2 w-2 rounded-full bg-amber-500 animate-pulse inline-block" />
-                  Kuota chat hari ini: {Math.max(0, 3 - (chatUsage ?? 0))}/3 tersisa
+                  Sisa kuota chat gratis: {Math.max(0, 10 - (chatUsage ?? 0))}/10
                 </>
               )}
             </span>
@@ -470,7 +468,7 @@ function ChatRoom() {
             value={input} 
             onChange={(e)=>setInput(e.target.value)} 
             rows={2} 
-            placeholder={isLimitReached ? "🔒 Kuota gratis hari ini habis. Upgrade ke Premium untuk melanjutkan." : "Tulis perasaanmu…"}
+            placeholder={isLimitReached ? "🔒 Kuota chat gratis sudah habis. Upgrade ke Premium untuk melanjutkan." : "Tulis perasaanmu…"}
             disabled={sending || isLimitReached}
             maxLength={2000}
             onKeyDown={(e)=>{ if (e.key==="Enter" && !e.shiftKey) { e.preventDefault(); if (!isLimitReached) submit(); } }}

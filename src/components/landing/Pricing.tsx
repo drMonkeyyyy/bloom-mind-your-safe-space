@@ -1,5 +1,5 @@
 const freeTier = [
-  "3 sesi chat AI / hari (Sahabat saja)",
+  "10 chat selama masa gratis (Sahabat saja)",
   "Mood tracker harian (Tanpa Grafik)",
   "Jurnal manual (Maks 2 entri)",
   "Habit tracker (Maks 1 Habit)",
@@ -11,7 +11,7 @@ const premiumMonthlyFeatures = [
   "Chat AI tanpa batas & semua Companion",
   "Jurnal & Gratitude tanpa batas",
   "Growth Dashboard & Grafik Lengkap",
-  "Daily & Weekly AI Insight personal",
+  "Refleksi Harian & Mingguan",
   "Emotional Eating Analysis",
   "Riwayat 3 bulan terakhir tersimpan",
   "Ekspor PDF Diary bergaya buku harian",

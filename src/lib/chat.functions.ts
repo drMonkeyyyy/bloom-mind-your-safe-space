@@ -66,7 +66,7 @@ export const sendChatMessage = createServerFn({ method: "POST" })
     ]);
 
     const plan = profile?.plan ?? "free";
-    const limit = plan === "free" ? 3 : (settings?.free_chat_limit ?? 10);
+    const limit = settings?.free_chat_limit ?? 10;
 
     // Premium gate for custom companions
     if (data.customCompanionId && plan !== "premium") {
@@ -114,12 +114,14 @@ export const sendChatMessage = createServerFn({ method: "POST" })
       throw new Error("PREMIUM_REQUIRED");
     }
 
-    // Daily limit for free
-    const today = new Date().toISOString().slice(0, 10);
+    // Total limit for free plan (lifetime limit)
     if (plan === "free") {
-      const { data: usage } = await supabase
-        .from("daily_chat_usage").select("ai_reply_count").eq("user_id", userId).eq("date", today).maybeSingle();
-      if ((usage?.ai_reply_count ?? 0) >= limit) {
+      const { count } = await supabase
+        .from("messages")
+        .select("id", { count: "exact", head: true })
+        .eq("user_id", userId)
+        .eq("role", "assistant");
+      if ((count ?? 0) >= limit) {
         throw new Error("DAILY_LIMIT");
       }
     }
@@ -191,6 +193,7 @@ export const sendChatMessage = createServerFn({ method: "POST" })
     // Bump usage for free users
     if (plan === "free") {
       try {
+        const today = new Date().toISOString().slice(0, 10);
         const { data: u } = await supabase
           .from("daily_chat_usage").select("ai_reply_count").eq("user_id", userId).eq("date", today).maybeSingle();
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
