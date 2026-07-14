@@ -347,12 +347,11 @@ function Dashboard() {
   const moodChartData = (moods ?? []).map((m) => ({ value: m.mood_score, date: m.date }));
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-4 sm:space-y-5">
       {/* ── HERO GREETING ─────────────────────────────────────────── */}
       <div
-        className="relative overflow-hidden rounded-3xl isolate z-0"
+        className="relative overflow-hidden rounded-3xl isolate z-0 min-h-[150px] sm:min-h-[200px]"
         style={{ 
-          minHeight: 200,
           transform: "translateZ(0)",
           WebkitMaskImage: "-webkit-radial-gradient(white, black)",
           maskImage: "radial-gradient(white, black)"
@@ -407,14 +406,14 @@ function Dashboard() {
         />
 
         {/* Glass content card */}
-        <div className="relative glass-hero rounded-3xl m-1 p-6 sm:p-8">
-          <p className="text-sm font-medium text-muted-foreground tracking-wide">
+        <div className="relative glass-hero rounded-3xl m-0.5 p-5 sm:p-8">
+          <p className="text-xs sm:text-sm font-medium text-muted-foreground tracking-wide">
             {greetEmoji} {greet}
           </p>
           {pLoading ? (
             <div className="mt-2 skeleton h-9 w-3/4 rounded-xl" />
           ) : (
-            <h1 className="mt-1.5 font-display text-2xl font-semibold leading-tight text-foreground sm:text-3xl">
+            <h1 className="mt-1.5 font-display text-xl sm:text-3xl font-semibold leading-tight text-foreground">
               Halo, <span className="text-primary">{profile?.name ?? "teman"}</span>.{" "}
               <span className="text-foreground/80">Gimana perasaanmu hari ini?</span>
             </h1>
@@ -431,7 +430,7 @@ function Dashboard() {
       </div>
 
       {/* ── QUICK MOOD ────────────────────────────────────────────── */}
-      <section className="rounded-3xl bg-card p-5 ring-1 ring-border/60 shadow-card">
+      <section className="rounded-3xl bg-card p-4 sm:p-5 ring-1 ring-border/60 shadow-card">
         <div className="flex items-center justify-between mb-3">
           <p className="text-sm font-semibold">Cek mood cepat</p>
           <Link to="/app/mood" className="text-xs font-medium text-primary hover:text-primary/80 transition-colors">
@@ -459,55 +458,54 @@ function Dashboard() {
       </section>
 
       {/* ── QUICK ACTIONS ─────────────────────────────────────────── */}
-      <div className="grid gap-3 sm:grid-cols-2">
+      <div className="grid grid-cols-2 gap-2.5 sm:gap-4">
         <Link
           to="/app/chat"
-          className="group relative overflow-hidden rounded-3xl p-6 text-primary-foreground transition-all duration-300 hover:-translate-y-1.5 hover:shadow-float active:scale-98"
+          className="group relative overflow-hidden rounded-3xl p-4 sm:p-6 text-primary-foreground transition-all duration-300 hover:-translate-y-1.5 hover:shadow-float active:scale-98"
           style={{ background: "var(--gradient-sage)" }}
         >
           {/* Bokeh blobs */}
-          <div className="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-white/12 transition-transform duration-500 group-hover:scale-125" />
-          <div className="absolute right-4 bottom-4 h-16 w-16 rounded-full bg-white/6 transition-transform duration-500 group-hover:scale-110" />
-          <div className="absolute -left-4 top-1/2 h-12 w-12 rounded-full bg-white/8" />
+          <div className="absolute -right-6 -top-6 h-20 w-20 rounded-full bg-white/12 transition-transform duration-500 group-hover:scale-125" />
+          <div className="absolute right-4 bottom-4 h-12 w-12 rounded-full bg-white/6" />
           <div className="relative">
-            <div className="grid h-11 w-11 place-items-center rounded-2xl bg-white/20 backdrop-blur-sm transition-transform duration-250 group-hover:scale-110">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5" aria-hidden="true">
+            <div className="grid h-9 w-9 sm:h-11 sm:w-11 place-items-center rounded-xl sm:rounded-2xl bg-white/20 backdrop-blur-sm transition-transform duration-250 group-hover:scale-110">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="h-4.5 w-4.5" aria-hidden="true">
                 <path d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 0 1-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
               </svg>
             </div>
-            <h3 className="mt-3 font-display text-lg font-semibold">Mulai curhat sekarang</h3>
-            <p className="mt-0.5 text-sm opacity-85">Pendamping AI menunggumu.</p>
+            <h3 className="mt-2.5 font-display text-[13px] sm:text-lg font-semibold leading-tight">Curhat AI</h3>
+            <p className="mt-0.5 text-[9.5px] sm:text-sm opacity-85 leading-tight">Mulai obrolan baru.</p>
           </div>
         </Link>
 
         <Link
           to="/app/calm"
-          className="group relative overflow-hidden rounded-3xl p-6 text-accent-foreground transition-all duration-300 hover:-translate-y-1.5 hover:shadow-float active:scale-98"
+          className="group relative overflow-hidden rounded-3xl p-4 sm:p-6 text-accent-foreground transition-all duration-300 hover:-translate-y-1.5 hover:shadow-float active:scale-98"
           style={{ background: "var(--gradient-warm)" }}
         >
-          <div className="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-white/12 transition-transform duration-500 group-hover:scale-125" />
-          <div className="absolute right-4 bottom-4 h-16 w-16 rounded-full bg-white/6" />
+          <div className="absolute -right-6 -top-6 h-20 w-20 rounded-full bg-white/12 transition-transform duration-500 group-hover:scale-125" />
+          <div className="absolute right-4 bottom-4 h-12 w-12 rounded-full bg-white/6" />
           <div className="relative">
-            <div className="grid h-11 w-11 place-items-center rounded-2xl bg-white/20 backdrop-blur-sm transition-transform duration-250 group-hover:scale-110">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5" aria-hidden="true">
+            <div className="grid h-9 w-9 sm:h-11 sm:w-11 place-items-center rounded-xl sm:rounded-2xl bg-white/20 backdrop-blur-sm transition-transform duration-250 group-hover:scale-110">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="h-4.5 w-4.5" aria-hidden="true">
                 <circle cx="12" cy="12" r="10" /><path d="M12 8v4M12 16h.01" />
               </svg>
             </div>
-            <h3 className="mt-3 font-display text-lg font-semibold">Aku butuh tenang</h3>
-            <p className="mt-0.5 text-sm opacity-85">Emergency calm mode.</p>
+            <h3 className="mt-2.5 font-display text-[13px] sm:text-lg font-semibold leading-tight">Butuh Tenang</h3>
+            <p className="mt-0.5 text-[9.5px] sm:text-sm opacity-85 leading-tight">Mode tenangkan diri.</p>
           </div>
         </Link>
       </div>
 
       {/* ── DAILY AFFIRMATION WIDGET ────────────────────────────── */}
-      <div className="relative overflow-hidden rounded-3xl p-6 ring-1 ring-border/60 shadow-card bg-gradient-to-br from-card to-cream-deep/20">
+      <div className="relative overflow-hidden rounded-3xl p-4.5 sm:p-6 ring-1 ring-border/60 shadow-card bg-gradient-to-br from-card to-cream-deep/20">
         {/* Soft decorative gold/amber blobs */}
         <div className="absolute -right-6 -bottom-6 h-24 w-24 rounded-full bg-amber-200/10 filter blur-xl pointer-events-none" />
         <div className="absolute left-1/4 -top-8 h-20 w-20 rounded-full bg-primary/10 filter blur-lg pointer-events-none" />
         
-        <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-3.5">
           <div className="flex-1 space-y-1">
-            <p className="text-[10px] font-bold uppercase tracking-wider text-amber-700">Afirmasi Hari Ini</p>
+            <p className="text-[9px] font-bold uppercase tracking-wider text-amber-700">Afirmasi Hari Ini</p>
             <div 
               className="transition-all duration-300"
               style={{
@@ -516,7 +514,7 @@ function Dashboard() {
                 filter: flip ? "blur(3px)" : "none"
               }}
             >
-              <p className="font-display text-lg font-medium leading-relaxed text-foreground/90 italic">
+              <p className="font-display text-sm sm:text-lg font-medium leading-relaxed text-foreground/90 italic">
                 "{AFFIRMATIONS[affIdx]}"
               </p>
             </div>
@@ -525,21 +523,21 @@ function Dashboard() {
           <div className="flex gap-2 shrink-0 self-end md:self-center">
             <button
               onClick={copyAffirmation}
-              className="flex h-9 w-9 items-center justify-center rounded-full bg-background border border-border/60 text-muted-foreground hover:text-foreground transition-all duration-200 active:scale-90"
+              className="flex h-8 w-8 items-center justify-center rounded-full bg-background border border-border/60 text-muted-foreground hover:text-foreground transition-all duration-200 active:scale-90"
               aria-label="Salin afirmasi"
               title="Salin afirmasi"
             >
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="h-4.5 w-4.5">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4">
                 <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
                 <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
               </svg>
             </button>
             <button
               onClick={nextAffirmation}
-              className="flex h-9 px-4 items-center justify-center gap-1.5 rounded-full bg-accent text-accent-foreground shadow-peach text-xs font-semibold hover:-translate-y-0.5 active:scale-95 transition-all duration-250"
+              className="flex h-8 px-3.5 items-center justify-center gap-1.5 rounded-full bg-accent text-accent-foreground shadow-peach text-xs font-semibold hover:-translate-y-0.5 active:scale-95 transition-all duration-250"
             >
               <span>Ganti</span>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`h-3.5 w-3.5 ${flip ? "animate-spin" : ""}`}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`h-3 w-3 ${flip ? "animate-spin" : ""}`}>
                 <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67" />
               </svg>
             </button>
@@ -611,7 +609,7 @@ function Dashboard() {
 
       {/* ── DAILY SELF-CARE QUEST ───────────────────────────────── */}
       <div 
-        className={`relative overflow-hidden rounded-3xl p-6 ring-1 transition-all duration-500 ${
+        className={`relative overflow-hidden rounded-3xl p-5 sm:p-6 ring-1 transition-all duration-500 ${
           questCompleted 
             ? "border-primary/20 bg-primary-soft/20 shadow-sm" 
             : "border-border/60 bg-card shadow-card card-hover"
@@ -644,13 +642,13 @@ function Dashboard() {
               {questCompleted ? "🌸" : "🎯"}
             </div>
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-wider text-primary">Misi Kebaikan Kecil</p>
-              <h3 className={`mt-0.5 font-display text-lg font-semibold transition-all duration-300 ${
+              <p className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-primary">Misi Kebaikan Kecil</p>
+              <h3 className={`mt-0.5 font-display text-base sm:text-lg font-semibold transition-all duration-300 ${
                 questCompleted ? "text-muted-foreground line-through" : "text-foreground"
               }`}>
                 {questCompleted ? "Misi hari ini selesai!" : "Tantangan Hari Ini"}
               </h3>
-              <p className={`mt-1 text-sm leading-relaxed transition-all duration-300 ${
+              <p className={`mt-1 text-xs sm:text-sm leading-relaxed transition-all duration-300 ${
                 questCompleted ? "text-muted-foreground/80 italic" : "text-foreground/80"
               }`}>
                 {questCompleted 
@@ -676,7 +674,7 @@ function Dashboard() {
       {journalLoading ? (
         <SkeletonCard lines={2} />
       ) : lastJournal ? (
-        <section className="rounded-3xl bg-card p-5 ring-1 ring-border/60 shadow-card card-hover animate-slide-up">
+        <section className="rounded-3xl bg-card p-4.5 sm:p-5 ring-1 ring-border/60 shadow-card card-hover animate-slide-up">
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-2">
