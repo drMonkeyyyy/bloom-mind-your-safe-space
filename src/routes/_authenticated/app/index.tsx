@@ -739,7 +739,7 @@ function Dashboard() {
         <div className="text-xs leading-relaxed min-w-0">
           <p className="font-bold text-amber-900 font-display">Tips Nyaman</p>
           <p className="mt-0.5 text-stone-600">
-            Capek mengetik di layar HP? Buka <strong className="text-amber-900 font-semibold">JN_CALM</strong> di browser Laptop/MacBook-mu untuk pengalaman curhat & menulis jurnal yang lebih leluasa dengan keyboard fisik! 💻
+            Capek mengetik di layar HP? Buka <a href="https://jncalm.my.id" target="_blank" rel="noopener noreferrer" className="underline font-bold text-amber-900">jncalm.my.id</a> di browser Laptop/MacBook-mu untuk pengalaman curhat & menulis jurnal yang lebih leluasa dengan keyboard fisik! 💻
           </p>
         </div>
       </div>
