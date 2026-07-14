@@ -368,7 +368,7 @@ function MoodPage() {
                 <button
                   key={m.key}
                   onClick={() => selectMood(m.key)}
-                  className={`relative flex flex-col items-center gap-1 px-1.5 py-2.5 sm:px-2 sm:py-3 text-center transition-all duration-250 ${
+                  className={`relative flex flex-col items-center gap-1.5 rounded-2xl border-2 px-1.5 py-2.5 sm:px-2 sm:py-3 text-center transition-all duration-250 ${
                     selected
                       ? "border-primary bg-primary-soft shadow-soft scale-105"
                       : "border-transparent bg-cream-deep hover:bg-primary-soft/50 hover:scale-102 hover:border-primary/20"

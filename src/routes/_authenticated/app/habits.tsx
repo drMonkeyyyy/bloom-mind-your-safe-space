@@ -139,7 +139,7 @@ function HabitRow({
   const { ripples, trigger } = useRipple();
   return (
     <div
-      className={`group relative flex items-center gap-5 overflow-visible rounded-[1.25rem] p-4 transition-all duration-500 ease-out animate-slide-up ${
+      className={`group relative flex items-center gap-3.5 sm:gap-5 overflow-visible rounded-2xl sm:rounded-[1.25rem] p-3 sm:p-4 transition-all duration-500 ease-out animate-slide-up ${
         isDone
           ? "bg-gradient-to-r from-primary/10 via-primary/5 to-transparent border border-primary/20 shadow-sm"
           : "bg-card border border-border/40 hover:border-border/80 hover:shadow-md hover:-translate-y-0.5"
@@ -152,7 +152,7 @@ function HabitRow({
       {/* Checkbox with ripple + premium feel */}
       <button
         onClick={(e) => { trigger(e); onToggle(h.id); }}
-        className={`relative overflow-hidden grid h-11 w-11 shrink-0 place-items-center rounded-2xl border-2 transition-all duration-400 ${
+        className={`relative overflow-hidden grid h-9 w-9 sm:h-11 sm:w-11 shrink-0 place-items-center rounded-xl sm:rounded-2xl border-2 transition-all duration-400 ${
           isDone
             ? "border-primary bg-primary text-primary-foreground shadow-lg shadow-primary/30 scale-100"
             : "border-border/60 bg-background/50 hover:border-primary/60 hover:bg-primary/5 scale-100 hover:scale-105 active:scale-90"
@@ -168,7 +168,7 @@ function HabitRow({
           strokeWidth="3"
           strokeLinecap="round"
           strokeLinejoin="round"
-          className={`relative h-5 w-5 transition-all duration-300 ${isDone ? "opacity-100 scale-100" : "opacity-0 scale-50"}`}
+          className={`relative h-4 w-4 sm:h-5 sm:w-5 transition-all duration-300 ${isDone ? "opacity-100 scale-100" : "opacity-0 scale-50"}`}
           aria-hidden="true"
         >
           <path d="m5 12 4 4 10-10" />
@@ -176,11 +176,11 @@ function HabitRow({
       </button>
 
       {/* Icon + name */}
-      <div className="flex flex-1 items-center gap-4 min-w-0">
-        <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl text-2xl transition-all duration-300 ${isDone ? "bg-white/40 grayscale mix-blend-luminosity" : "bg-muted/50 group-hover:bg-white group-hover:shadow-sm group-hover:scale-110"}`}>
+      <div className="flex flex-1 items-center gap-3.5 sm:gap-4 min-w-0">
+        <div className={`flex h-9 w-9 sm:h-12 sm:w-12 shrink-0 items-center justify-center rounded-xl sm:rounded-2xl text-xl sm:text-2xl transition-all duration-300 ${isDone ? "bg-white/40 grayscale mix-blend-luminosity" : "bg-muted/50 group-hover:bg-white group-hover:shadow-sm group-hover:scale-110"}`}>
           {h.icon || "✨"}
         </div>
-        <span className={`truncate text-[15px] font-semibold transition-all duration-400 ${isDone ? "text-muted-foreground/60 line-through decoration-muted-foreground/40" : "text-foreground/90"}`}>
+        <span className={`truncate text-sm sm:text-[15px] font-semibold transition-all duration-400 ${isDone ? "text-muted-foreground/60 line-through decoration-muted-foreground/40" : "text-foreground/90"}`}>
           {h.name}
         </span>
       </div>
@@ -188,10 +188,10 @@ function HabitRow({
       {/* Delete (visible on hover) */}
       <button
         onClick={() => onRemove(h.id)}
-        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-muted-foreground/40 opacity-0 transition-all duration-200 hover:bg-destructive/10 hover:text-destructive group-hover:opacity-100 active:scale-90"
+        className="flex h-8 w-8 sm:h-10 sm:w-10 shrink-0 items-center justify-center rounded-full text-muted-foreground/40 opacity-0 transition-all duration-200 hover:bg-destructive/10 hover:text-destructive group-hover:opacity-100 active:scale-90"
         aria-label={`Hapus habit ${h.name}`}
       >
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4.5 w-4.5" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4" aria-hidden="true">
           <path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6" />
         </svg>
       </button>
@@ -208,6 +208,11 @@ function HabitPage() {
   const [newIcon, setNewIcon] = useState("✨");
   const [addOpen, setAddOpen] = useState(false);
   const [justCompleted, setJustCompleted] = useState<string | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    setIsMobile(window.innerWidth < 640);
+  }, []);
 
   // Use local date string instead of UTC to avoid early 7 AM day rollover bugs
   const getLocalDateString = (d: Date = new Date()) => {
@@ -292,10 +297,10 @@ function HabitPage() {
   const allDone = total > 0 && done >= total;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Page header with mint gradient */}
       <div
-        className="relative overflow-hidden rounded-3xl px-6 pt-6 pb-5"
+        className="relative overflow-hidden rounded-3xl px-5 py-5 sm:px-6 sm:pt-6 sm:pb-5"
         style={{
           background: "linear-gradient(135deg, oklch(0.977 0.008 85) 0%, oklch(0.95 0.03 170) 40%, oklch(0.97 0.02 185) 100%)",
           backgroundSize: "300% 300%",
@@ -308,14 +313,14 @@ function HabitPage() {
         />
         <div className="relative flex items-center justify-between">
           <div>
-            <h1 className="font-display text-3xl font-semibold">Habit Tracker</h1>
-            <p className="mt-1 text-sm text-muted-foreground">
+            <h1 className="font-display text-xl sm:text-3xl font-semibold">Habit Tracker</h1>
+            <p className="mt-0.5 text-[11px] sm:text-sm text-muted-foreground">
               {new Date().toLocaleDateString("id-ID", { weekday: "long", day: "numeric", month: "long" })}
             </p>
           </div>
           <button
             onClick={() => setAddOpen(!addOpen)}
-            className="rounded-full bg-accent px-4 py-2.5 text-sm font-semibold text-accent-foreground shadow-peach transition-all duration-250 hover:-translate-y-0.5 hover:shadow-glow-peach active:scale-95"
+            className="rounded-full bg-accent px-3.5 py-1.5 text-xs sm:px-4 sm:py-2.5 sm:text-sm font-semibold text-accent-foreground shadow-peach transition-all duration-250 hover:-translate-y-0.5 hover:shadow-glow-peach active:scale-95"
           >
             {addOpen ? "Tutup" : "+ Tambah"}
           </button>
@@ -325,7 +330,7 @@ function HabitPage() {
       {/* ── PROGRESS HEADER ─────────────────────────────────────── */}
       {total > 0 && (
         <div
-          className={`relative flex items-center gap-6 rounded-[2rem] p-7 transition-all duration-700 overflow-hidden backdrop-blur-md border ${
+          className={`relative flex items-center gap-4 sm:gap-6 rounded-3xl p-4.5 sm:p-7 transition-all duration-700 overflow-hidden backdrop-blur-md border ${
             allDone
               ? "bg-gradient-to-br from-primary/10 via-primary/5 to-accent/10 border-primary/20 shadow-[0_8px_30px_rgb(0,0,0,0.04)]"
               : "bg-card/80 border-border/50 shadow-sm"
@@ -346,13 +351,13 @@ function HabitPage() {
           <div className="relative shrink-0 drop-shadow-sm">
             <ProgressRing
               value={pct}
-              size={96}
-              strokeWidth={8}
+              size={isMobile ? 76 : 96}
+              strokeWidth={isMobile ? 6 : 8}
               color={allDone ? "var(--color-accent)" : "var(--color-primary)"}
             >
               <div className="text-center flex flex-col items-center justify-center mt-1">
-                <p className="font-display text-2xl font-bold text-foreground leading-none tracking-tight">{done}</p>
-                <p className="text-[11px] font-medium text-muted-foreground mt-0.5">/{total}</p>
+                <p className="font-display text-lg sm:text-2xl font-bold text-foreground leading-none tracking-tight">{done}</p>
+                <p className="text-[9px] sm:text-[11px] font-medium text-muted-foreground mt-0.5">/{total}</p>
               </div>
             </ProgressRing>
           </div>
@@ -360,23 +365,23 @@ function HabitPage() {
           <div className="relative flex-1 py-1">
             {allDone ? (
               <>
-                <p className="font-display text-xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                <p className="font-display text-base sm:text-xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent leading-none">
                   Semua habit selesai! 🎉
                 </p>
-                <p className="mt-1 text-sm font-medium text-muted-foreground/80">Luar biasa, kamu keren banget hari ini!</p>
+                <p className="mt-1 text-xs sm:text-sm font-medium text-muted-foreground/80 leading-tight">Luar biasa, kamu keren banget hari ini!</p>
               </>
             ) : (
               <>
                 <div className="flex justify-between items-end mb-1">
-                  <p className="font-display text-lg font-bold text-foreground/90 tracking-tight">
+                  <p className="font-display text-sm sm:text-lg font-bold text-foreground/90 tracking-tight leading-none">
                     {done} dari {total} selesai
                   </p>
-                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                  <p className="text-[10px] sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider leading-none">
                     {Math.round(pct)}%
                   </p>
                 </div>
-                <p className="text-sm text-muted-foreground/80 mb-3">
-                  {total - done} habit lagi untuk hari ini 💪
+                <p className="text-xs sm:text-sm text-muted-foreground/80 mb-2 leading-tight">
+                  {total - done} habit lagi hari ini 💪
                 </p>
               </>
             )}
