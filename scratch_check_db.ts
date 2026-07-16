@@ -30,24 +30,23 @@ async function main() {
     return;
   }
 
-  console.log("Supabase URL:", url);
   const supabase = createClient(url, serviceKey);
 
-  console.log("Updating profile name to JN_CALM for babysharkdududu820@gmail.com...");
+  console.log("Updating active order link to new subdomain...");
   try {
     const { data, error } = await supabase
-      .from("profiles")
-      .update({ name: "JN_CALM" })
-      .eq("email", "babysharkdududu820@gmail.com")
-      .select("id, name, email");
+      .from("orders")
+      .update({ payment_link: "https://jn-calm.myr.id/invoices/g9nxqk710c" })
+      .eq("order_number", "BM-20260716-69044")
+      .select("order_number", "payment_link");
 
     if (error) {
       console.error("Database update returned error:", error);
     } else {
-      console.log("Success! Updated profile data:", data);
+      console.log("Success! Updated order:", data);
     }
   } catch (err) {
-    console.error("Thrown exception:", err);
+    console.error("Database update failed:", err);
   }
 }
 

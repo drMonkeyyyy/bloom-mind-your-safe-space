@@ -117,5 +117,10 @@ export async function createMayarPaymentLink(params: {
     throw new Error(`Mayar payment generation failed: ${result.messages || 'Unknown error'}`);
   }
 
+  // Force replacement of old subdomain to the new working subdomain
+  if (result.data.link && result.data.link.includes("bloommind.myr.id")) {
+    result.data.link = result.data.link.replace("bloommind.myr.id", "jn-calm.myr.id");
+  }
+
   return result.data;
 }
