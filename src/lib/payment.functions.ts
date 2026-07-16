@@ -70,7 +70,15 @@ export const createPayment = createServerFn({ method: "POST" })
       .maybeSingle();
 
     if (existingOrder && existingOrder.payment_link) {
-      return { paymentLink: existingOrder.payment_link };
+      const isExpired = new Date().getTime() - new Date(existingOrder.created_at).getTime() > 24 * 60 * 60 * 1000;
+      if (isExpired) {
+        await supabaseAdmin
+          .from("orders")
+          .update({ payment_status: "ditolak", admin_note: "Link pembayaran kedaluwarsa" })
+          .eq("id", existingOrder.id);
+      } else {
+        return { paymentLink: existingOrder.payment_link };
+      }
     }
 
     // 4. Create a new order in "menunggu_pembayaran" status
