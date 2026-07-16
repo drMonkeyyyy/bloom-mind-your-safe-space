@@ -13,10 +13,10 @@ function detectCrisis(text: string) {
   return CRISIS_KEYWORDS.some((k) => t.includes(k));
 }
 
-function sanitizeUserName(name: string | null | undefined): string {
-  if (!name) return "sahabat";
+function sanitizeUserName(name: string | null | undefined): string | null {
+  if (!name) return null;
   const clean = name.trim();
-  if (!clean) return "sahabat";
+  if (!clean) return null;
   
   const lower = clean.toLowerCase();
   if (
@@ -29,11 +29,12 @@ function sanitizeUserName(name: string | null | undefined): string {
     lower === "admin" ||
     /^[0-9_\W]+$/.test(clean)
   ) {
-    return "sahabat";
+    return null;
   }
   
   return clean;
 }
+
 
 
 function handleAiError(e: unknown): never {
@@ -203,7 +204,10 @@ export const sendChatMessage = createServerFn({ method: "POST" })
     }
 
     const cleanName = sanitizeUserName(profile?.name);
-    const sysPrompt = `${companion.system_prompt}\n\nGaya komunikasi user: ${profile?.communication_style ?? "supportive"}. Nama user: ${cleanName}.${journalContext}\n\nSelalu Bahasa Indonesia. Maksimal 4-6 kalimat. Akhiri dengan 1 pertanyaan reflektif singkat (opsional).`;
+    const namePrompt = cleanName 
+      ? cleanName 
+      : "[Nama tidak diketahui. Sapa dengan sebutan yang sangat alami sesuai dengan peran hubunganmu dengan user. Misalnya: jika kamu berperan sebagai Ibu/Ayah gunakan 'nak'/'anakku', jika Kakak gunakan 'adik'/'kamu', jika Sahabat/Coach gunakan 'kamu'/'sahabat', jika Partner gunakan 'sayang'/'kamu'. JANGAN gunakan sebutan formal kaku seperti 'Saudara' atau 'User']";
+    const sysPrompt = `${companion.system_prompt}\n\nGaya komunikasi user: ${profile?.communication_style ?? "supportive"}. Nama user: ${namePrompt}.${journalContext}\n\nSelalu Bahasa Indonesia. Maksimal 4-6 kalimat. Akhiri dengan 1 pertanyaan reflektif singkat (opsional).`;
 
     let reply = "";
     try {
@@ -260,7 +264,8 @@ export const analyzeEmotionalEating = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     const { data: profile } = await supabase.from("profiles").select("name").eq("id", userId).maybeSingle();
-    const userName = sanitizeUserName(profile?.name);
+    const cleanName = sanitizeUserName(profile?.name);
+    const userName = cleanName || "[Nama tidak diketahui. Sapa dengan sebutan hangat yang natural seperti 'kamu' atau 'sahabat'. JANGAN gunakan sebutan formal seperti 'Saudara']";
 
     const { createGeminiClient, getGeminiApiKey } = await import("./ai-client.server");
     const apiKey = getGeminiApiKey();
@@ -570,7 +575,8 @@ export const getWeeklyInsight = createServerFn({ method: "POST" })
       return { text: "Belum cukup data minggu ini. Mulai mood check-in harian untuk dapat insight personal." };
     }
 
-    const userName = sanitizeUserName(profile?.name);
+    const cleanName = sanitizeUserName(profile?.name);
+    const userName = cleanName || "[Nama tidak diketahui. Sapa dengan sebutan hangat yang netral seperti 'kamu' atau 'teman']";
     const companionKey = chat?.companion_key;
     let companionRole = "Sahabat";
 
@@ -670,7 +676,8 @@ export const getDailyInsight = createServerFn({ method: "POST" })
       return { text: "BELUM_ADA_DATA_HARI_INI" };
     }
 
-    const userName = sanitizeUserName(profile?.name);
+    const cleanName = sanitizeUserName(profile?.name);
+    const userName = cleanName || "[Nama tidak diketahui. Sapa dengan sebutan hangat yang netral seperti 'kamu' atau 'teman']";
     const companionKey = chat?.companion_key;
     let companionRole = "Sahabat";
 
