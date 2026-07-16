@@ -13,6 +13,29 @@ function detectCrisis(text: string) {
   return CRISIS_KEYWORDS.some((k) => t.includes(k));
 }
 
+function sanitizeUserName(name: string | null | undefined): string {
+  if (!name) return "sahabat";
+  const clean = name.trim();
+  if (!clean) return "sahabat";
+  
+  const lower = clean.toLowerCase();
+  if (
+    lower === "jn-calm" || 
+    lower === "jn_calm" || 
+    lower === "jncalm" || 
+    lower === "bloom mind" || 
+    lower === "bloommind" ||
+    lower === "user" || 
+    lower === "admin" ||
+    /^[0-9_\W]+$/.test(clean)
+  ) {
+    return "sahabat";
+  }
+  
+  return clean;
+}
+
+
 function handleAiError(e: unknown): never {
   const err = e as any;
   const msg = err instanceof Error ? err.message : String(err);
@@ -179,7 +202,8 @@ export const sendChatMessage = createServerFn({ method: "POST" })
       }
     }
 
-    const sysPrompt = `${companion.system_prompt}\n\nGaya komunikasi user: ${profile?.communication_style ?? "supportive"}. Nama user: ${profile?.name ?? "teman"}.${journalContext}\n\nSelalu Bahasa Indonesia. Maksimal 4-6 kalimat. Akhiri dengan 1 pertanyaan reflektif singkat (opsional).`;
+    const cleanName = sanitizeUserName(profile?.name);
+    const sysPrompt = `${companion.system_prompt}\n\nGaya komunikasi user: ${profile?.communication_style ?? "supportive"}. Nama user: ${cleanName}.${journalContext}\n\nSelalu Bahasa Indonesia. Maksimal 4-6 kalimat. Akhiri dengan 1 pertanyaan reflektif singkat (opsional).`;
 
     let reply = "";
     try {
@@ -236,7 +260,7 @@ export const analyzeEmotionalEating = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     const { data: profile } = await supabase.from("profiles").select("name").eq("id", userId).maybeSingle();
-    const userName = profile?.name || "Teman JN-CALM";
+    const userName = sanitizeUserName(profile?.name);
 
     const { createGeminiClient, getGeminiApiKey } = await import("./ai-client.server");
     const apiKey = getGeminiApiKey();
@@ -546,7 +570,7 @@ export const getWeeklyInsight = createServerFn({ method: "POST" })
       return { text: "Belum cukup data minggu ini. Mulai mood check-in harian untuk dapat insight personal." };
     }
 
-    const userName = profile?.name || "Teman";
+    const userName = sanitizeUserName(profile?.name);
     const companionKey = chat?.companion_key;
     let companionRole = "Sahabat";
 
@@ -646,7 +670,7 @@ export const getDailyInsight = createServerFn({ method: "POST" })
       return { text: "BELUM_ADA_DATA_HARI_INI" };
     }
 
-    const userName = profile?.name || "Teman";
+    const userName = sanitizeUserName(profile?.name);
     const companionKey = chat?.companion_key;
     let companionRole = "Sahabat";
 

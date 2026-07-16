@@ -135,6 +135,15 @@ function ChatRoom() {
   });
 
   const scrollRef = useRef<HTMLDivElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    const el = textareaRef.current;
+    if (!el) return;
+    el.style.height = "auto";
+    el.style.height = `${Math.min(el.scrollHeight, 120)}px`;
+  }, [input]);
+
   
   // Detect if user has a 1-year annual premium subscription
   const isAnnual = !!(profile?.premium_end_date && profile?.premium_start_date && 
@@ -313,7 +322,8 @@ function ChatRoom() {
   const showLimitWarning = profile?.plan === "free";
 
   return (
-    <div className="flex h-[calc(100dvh-11.5rem)] flex-col lg:h-[calc(100dvh-6rem)]">
+    <div className="flex h-[calc(100dvh-3rem)] flex-col lg:h-[calc(100dvh-6rem)]">
+
       <div className="flex items-center justify-between gap-2.5 border-b border-border pb-2.5">
         <Link to="/app/chat" className="text-[10px] sm:text-xs text-muted-foreground shrink-0">← Semua</Link>
         <div className="flex items-center gap-2 min-w-0">
@@ -472,15 +482,17 @@ function ChatRoom() {
         </div>
         <form onSubmit={submit} className="flex gap-2">
           <textarea 
+            ref={textareaRef}
             value={input} 
             onChange={(e)=>setInput(e.target.value)} 
-            rows={2} 
+            rows={1} 
             placeholder={isLimitReached ? "🔒 Kuota gratis habis. Upgrade ke Premium." : "Tulis perasaanmu…"}
             disabled={sending || isLimitReached}
             maxLength={2000}
             onKeyDown={(e)=>{ if (e.key==="Enter" && !e.shiftKey) { e.preventDefault(); if (!isLimitReached) submit(); } }}
-            className="flex-1 resize-none rounded-2xl border border-border bg-card px-3 py-2 sm:px-4 sm:py-2.5 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-75 disabled:bg-stone-50/40" 
+            className="flex-1 resize-none rounded-2xl border border-border bg-card px-3 py-2.5 sm:px-4 sm:py-2.5 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-75 disabled:bg-stone-50/40" 
           />
+
           <button 
             disabled={sending || isLimitReached || !input.trim()} 
             className="self-end rounded-full bg-accent px-4 py-2 sm:px-5 sm:py-2.5 text-xs sm:text-sm font-semibold text-accent-foreground shadow-peach disabled:opacity-50 cursor-pointer"
