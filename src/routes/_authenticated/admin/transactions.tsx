@@ -13,7 +13,7 @@ export const Route = createFileRoute("/_authenticated/admin/transactions")({
 function Page() {
   const qc = useQueryClient();
   const verify = useServerFn(verifyOrder);
-  const [filter, setFilter] = useState<"all"|"menunggu_pembayaran"|"menunggu_verifikasi"|"disetujui"|"ditolak">("menunggu_verifikasi");
+  const [filter, setFilter] = useState<"all"|"menunggu_pembayaran"|"menunggu_verifikasi"|"disetujui"|"ditolak">("all");
 
   const { data: orders } = useQuery({
     queryKey: ["admin-orders", filter],
@@ -47,6 +47,11 @@ function Page() {
       </select>
 
       <div className="space-y-2">
+        {orders && orders.length === 0 && (
+          <div className="rounded-2xl border border-dashed border-border bg-card p-12 text-center text-sm text-muted-foreground">
+            Tidak ada transaksi dalam kategori ini.
+          </div>
+        )}
         {orders?.map((o)=>{
           const p = (o as unknown as { profiles?: { name?: string; email?: string } }).profiles;
           return (
