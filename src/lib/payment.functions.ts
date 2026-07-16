@@ -7,7 +7,7 @@ function makeOrderNumber() {
   const d = new Date();
   const ymd = `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, "0")}${String(d.getDate()).padStart(2, "0")}`;
   const rand = Math.floor(Math.random() * 90000) + 10000;
-  return `BM-${ymd}-${rand}`;
+  return `JN-${ymd}-${rand}`;
 }
 
 const CreatePaymentInput = z.object({
