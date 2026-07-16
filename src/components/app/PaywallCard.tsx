@@ -9,7 +9,7 @@ export function PaywallCard({ title = "Fitur Premium", desc }: { title?: string;
         {desc ?? "Upgrade ke Premium untuk membuka fitur ini dan tumbuh lebih dalam."}
       </p>
       <Link to="/app/premium" className="mt-4 inline-flex rounded-full bg-accent px-6 py-2.5 text-sm font-semibold text-accent-foreground shadow-peach">
-        Upgrade ke Premium · Rp49.000/bulan
+        Upgrade ke Premium · Mulai Rp15.000
       </Link>
     </div>
   );

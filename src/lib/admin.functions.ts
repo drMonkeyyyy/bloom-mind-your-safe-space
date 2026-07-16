@@ -36,6 +36,8 @@ export const verifyOrder = createServerFn({ method: "POST" })
       const end = new Date(now);
       if (order.package_name === "Premium Tahunan") {
         end.setDate(end.getDate() + 365);
+      } else if (order.package_name === "Premium Mingguan") {
+        end.setDate(end.getDate() + 7);
       } else {
         end.setDate(end.getDate() + 30);
       }

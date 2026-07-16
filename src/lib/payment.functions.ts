@@ -12,7 +12,7 @@ function makeOrderNumber() {
 
 const CreatePaymentInput = z.object({
   redirectUrl: z.string().url(),
-  packageType: z.enum(["bulanan", "tahunan"]).default("bulanan"),
+  packageType: z.enum(["mingguan", "bulanan", "tahunan"]).default("bulanan"),
 });
 
 export const createPayment = createServerFn({ method: "POST" })
@@ -51,6 +51,9 @@ export const createPayment = createServerFn({ method: "POST" })
     if (data.packageType === "tahunan") {
       amount = 490000; // Rp490.000 for Annual
       packageName = "Premium Tahunan";
+    } else if (data.packageType === "mingguan") {
+      amount = 15000; // Rp15.000 for Weekly
+      packageName = "Premium Mingguan";
     }
 
     // 3. Check if there is an existing pending order with a valid payment link for the same package

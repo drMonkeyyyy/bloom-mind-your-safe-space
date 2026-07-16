@@ -66,7 +66,7 @@ function Page() {
     queryFn: async () => (await supabase.from("orders").select("*").eq("user_id", user!.id).order("created_at", { ascending: false })).data ?? [],
   });
 
-  const [packageType, setPackageType] = useState<"bulanan" | "tahunan">("bulanan");
+  const [packageType, setPackageType] = useState<"mingguan" | "bulanan" | "tahunan">("bulanan");
   const activeOrder = orders?.find((o) => (o.payment_status === "menunggu_pembayaran" || o.payment_status === "menunggu_verifikasi") && o.payment_method === "mayar");
   const [creating, setCreating] = useState(false);
 
@@ -97,9 +97,13 @@ function Page() {
 
   // Active premium state
   if (profile?.plan === "premium") {
-    const isAnnual = !!(profile?.premium_end_date && profile?.premium_start_date &&
-      (new Date(profile.premium_end_date).getTime() - new Date(profile.premium_start_date).getTime() > 60 * 24 * 60 * 60 * 1000));
-    const activeFeatures = isAnnual ? FEATURES_ANNUAL : FEATURES_MONTHLY;
+    let planLabel = "Bulanan";
+    if (profile?.premium_end_date && profile?.premium_start_date) {
+      const diffDays = Math.round((new Date(profile.premium_end_date).getTime() - new Date(profile.premium_start_date).getTime()) / (24 * 60 * 60 * 1000));
+      if (diffDays > 60) planLabel = "Tahunan";
+      else if (diffDays <= 10) planLabel = "Mingguan";
+    }
+    const activeFeatures = planLabel === "Tahunan" ? FEATURES_ANNUAL : FEATURES_MONTHLY;
     return (
       <div className="space-y-6">
         <h1 className="font-display text-3xl font-semibold">✨ Premium Aktif</h1>
@@ -110,12 +114,12 @@ function Page() {
           <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10" />
           <div className="absolute -bottom-10 right-20 h-28 w-28 rounded-full bg-white/5" />
           <div className="relative">
-            <p className="text-4xl">{isAnnual ? "🏆" : "✨"}</p>
+            <p className="text-4xl">{planLabel === "Tahunan" ? "🏆" : "✨"}</p>
             <h2 className="mt-3 font-display text-2xl font-semibold">
-              JN-CALM Premium {isAnnual ? "Tahunan" : "Bulanan"}
+              JN-CALM Premium {planLabel}
             </h2>
             <p className="mt-1 text-sm opacity-80">
-              {isAnnual ? "Riwayat disimpan 1 tahun penuh · Ekspor PDF Diary" : "Riwayat disimpan 3 bulan · Ekspor PDF Diary"}
+              {planLabel === "Tahunan" ? "Riwayat disimpan 1 tahun penuh · Ekspor PDF Diary" : "Riwayat disimpan 3 bulan · Ekspor PDF Diary"}
             </p>
             <div className="mt-6 rounded-2xl bg-white/15 px-5 py-4 backdrop-blur-sm">
               <p className="text-xs opacity-75">Berlaku hingga</p>
@@ -147,28 +151,44 @@ function Page() {
 
       {/* ── PLAN SELECTOR ────────────────────────────────────────── */}
       <div className="flex justify-center">
-        <div className="bg-muted p-1 rounded-[1.5rem] flex items-center ring-1 ring-border/40 max-w-sm w-full">
+        <div className="bg-muted p-1 rounded-[1.5rem] flex items-center ring-1 ring-border/40 max-w-md w-full">
+          <button
+            onClick={() => setPackageType("mingguan")}
+            className={`flex-1 py-2.5 px-3 rounded-[1.25rem] text-[11px] font-bold transition-all duration-300 relative ${
+              packageType === "mingguan"
+                ? "bg-card text-foreground shadow-sm scale-100"
+                : "text-muted-foreground hover:text-foreground scale-95"
+            }`}
+          >
+            Mingguan
+            <span className="absolute -top-2 -right-1 bg-emerald-500 text-white text-[7px] font-black px-1.5 py-0.5 rounded-full shadow-sm scale-90">
+              COBA
+            </span>
+          </button>
           <button
             onClick={() => setPackageType("bulanan")}
-            className={`flex-1 py-2.5 px-4 rounded-[1.25rem] text-xs font-bold transition-all duration-300 ${
+            className={`flex-1 py-2.5 px-3 rounded-[1.25rem] text-[11px] font-bold transition-all duration-300 relative ${
               packageType === "bulanan"
                 ? "bg-card text-foreground shadow-sm scale-100"
                 : "text-muted-foreground hover:text-foreground scale-95"
             }`}
           >
             Bulanan
+            <span className="absolute -top-2 -right-1 bg-amber-500 text-white text-[7px] font-black px-1.5 py-0.5 rounded-full shadow-sm scale-90 animate-pulse">
+              POPULER
+            </span>
           </button>
           <button
             onClick={() => setPackageType("tahunan")}
-            className={`flex-1 py-2.5 px-4 rounded-[1.25rem] text-xs font-bold transition-all duration-300 relative ${
+            className={`flex-1 py-2.5 px-3 rounded-[1.25rem] text-[11px] font-bold transition-all duration-300 relative ${
               packageType === "tahunan"
                 ? "bg-card text-foreground shadow-sm scale-100"
                 : "text-muted-foreground hover:text-foreground scale-95"
             }`}
           >
             Tahunan
-            <span className="absolute -top-2 -right-1 bg-accent text-accent-foreground text-[8px] font-black px-1.5 py-0.5 rounded-full shadow-sm scale-90 animate-pulse">
-              HEMAT 17%
+            <span className="absolute -top-2 -right-1 bg-violet-600 text-white text-[7px] font-black px-1.5 py-0.5 rounded-full shadow-sm scale-90">
+              HEMAT 37%
             </span>
           </button>
         </div>
@@ -183,21 +203,25 @@ function Page() {
 
           <div className="relative">
             <span className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-amber-100 to-orange-100 px-3 py-1 text-xs font-bold text-amber-700">
-              {packageType === "tahunan" ? "✨ BEST VALUE - SAVE 17%" : "✨ PALING POPULER"}
+              {packageType === "tahunan" ? "✨ BEST VALUE - SAVE 37%" : packageType === "mingguan" ? "🌱 COBA DULU" : "✨ PALING POPULER (HEMAT 24%)"}
             </span>
             <div className="mt-4 flex items-baseline gap-2">
               <span className="font-display text-5xl font-bold text-foreground">
-                Rp{packageType === "tahunan" ? "490.000" : (settings?.premium_price ?? 49000).toLocaleString("id-ID")}
+                Rp{packageType === "tahunan" ? "490.000" : packageType === "mingguan" ? "15.000" : (settings?.premium_price ?? 49000).toLocaleString("id-ID")}
               </span>
-              <span className="text-base text-muted-foreground">/{packageType === "tahunan" ? "tahun" : "bulan"}</span>
+              <span className="text-base text-muted-foreground">/{packageType === "tahunan" ? "tahun" : packageType === "mingguan" ? "minggu" : "bulan"}</span>
             </div>
             {packageType === "tahunan" ? (
               <p className="mt-1 text-xs text-muted-foreground">
-                Pembayaran sekali di depan · Aktif selama 12 bulan penuh
+                Pembayaran sekali di depan · Aktif selama 12 bulan penuh (Hanya Rp1.342/hari)
+              </p>
+            ) : packageType === "mingguan" ? (
+              <p className="mt-1 text-xs text-muted-foreground">
+                Pembayaran sekali di depan · Aktif selama 7 hari penuh (Rp2.142/hari)
               </p>
             ) : (
               <p className="mt-1 text-xs text-muted-foreground">
-                Langkah kecil untuk kedamaian pikiranmu.
+                Langkah kecil untuk kedamaian pikiranmu (Hanya Rp1.633/hari — <strong>Lebih hemat 24% vs Mingguan!</strong>)
               </p>
             )}
 
@@ -233,9 +257,9 @@ function Page() {
             </ul>
 
             {/* Storage info callout */}
-            <div className={`mt-4 flex items-start gap-2 rounded-xl px-3 py-2.5 ring-1 ${packageType === "tahunan" ? "bg-violet-50 ring-violet-200/80" : "bg-amber-50 ring-amber-200/60"}`}>
+            <div className={`mt-4 flex items-start gap-2 rounded-xl px-3 py-2.5 ring-1 ${packageType === "tahunan" ? "bg-violet-50 ring-violet-200/80" : packageType === "mingguan" ? "bg-emerald-50 ring-emerald-200/60" : "bg-amber-50 ring-amber-200/60"}`}>
               <span className="text-base leading-none mt-0.5">{packageType === "tahunan" ? "📖" : "📒"}</span>
-              <p className={`text-xs leading-snug ${packageType === "tahunan" ? "text-violet-800" : "text-amber-800"}`}>
+              <p className={`text-xs leading-snug ${packageType === "tahunan" ? "text-violet-800" : packageType === "mingguan" ? "text-emerald-800" : "text-amber-800"}`}>
                 {packageType === "tahunan"
                   ? <><span className="font-semibold">Riwayat disimpan 1 tahun penuh.</span> Ekspor kapan saja sebagai <strong>PDF Diary bergaya buku harian</strong> — kenangan indahmu tersimpan rapi & bisa dicetak seumur hidup.</>
                   : <><span className="font-semibold">Riwayat disimpan 3 bulan.</span> Data lebih lama bisa diekspor sebagai <strong>PDF Diary bergaya buku harian</strong> yang cantik & siap cetak, sebelum dihapus.</>}
@@ -248,13 +272,15 @@ function Page() {
                 disabled={creating}
                 className="mt-6 w-full rounded-full bg-accent py-4 text-sm font-semibold text-accent-foreground shadow-peach transition-all duration-300 hover:-translate-y-0.5 disabled:opacity-60"
               >
-                {creating ? "Membuat pesanan…" : `Daftar Premium ${packageType === "tahunan" ? "Tahunan" : "Bulanan"} →`}
+                {creating ? "Membuat pesanan…" : `Daftar Premium ${packageType === "tahunan" ? "Tahunan" : packageType === "mingguan" ? "Mingguan" : "Bulanan"} →`}
               </button>
             )}
             <p className="mt-3 text-center text-xs text-muted-foreground">
               {packageType === "tahunan" 
-                ? "☕ Hanya setara dengan Rp40.833 per bulan!"
-                : "☕ Kurang dari sekali nongkrong di coffee shop"}
+                ? "🏆 Hemat 37% per hari dibandingkan paket Mingguan!"
+                : packageType === "mingguan"
+                  ? "🌱 Pilihan praktis untuk mencoba seluruh fitur premium"
+                  : "🔥 Hemat 24% per hari dibandingkan paket Mingguan!"}
             </p>
           </div>
         </section>

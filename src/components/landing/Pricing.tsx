@@ -110,8 +110,8 @@ export function Pricing() {
           </p>
         </div>
 
-        {/* Plan cards — 3 columns */}
-        <div data-reveal className="mx-auto mt-14 grid max-w-5xl gap-5 lg:grid-cols-3">
+        {/* Plan cards — 4 columns */}
+        <div data-reveal className="mx-auto mt-14 grid max-w-7xl gap-5 sm:grid-cols-2 lg:grid-cols-4">
 
           {/* Free */}
           <div className="rounded-3xl bg-card p-7 ring-1 ring-border flex flex-col">
@@ -139,6 +139,54 @@ export function Pricing() {
             </a>
           </div>
 
+          {/* Premium Weekly */}
+          <div className="relative">
+            <div className="absolute -inset-0.5 rounded-[2rem] bg-gradient-to-br from-emerald-400 via-teal-500 to-emerald-600 opacity-20 blur-lg" />
+            <div className="relative overflow-hidden rounded-[1.75rem] bg-card p-7 ring-1 ring-border flex flex-col h-full">
+              <div className="absolute -right-12 -top-12 h-40 w-40 rounded-full bg-emerald-soft opacity-40 blur-2xl" />
+              <div className="relative">
+                <div className="flex items-center justify-between">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Premium</p>
+                  <span className="rounded-full bg-gradient-to-r from-emerald-100 to-teal-100 px-3 py-1 text-xs font-bold text-emerald-700">
+                    🌱 COBA DULU
+                  </span>
+                </div>
+                <div className="mt-3 flex items-baseline gap-2">
+                  <span className="font-sans text-4xl font-bold text-foreground">Rp15.000</span>
+                  <span className="text-muted-foreground">/minggu</span>
+                </div>
+                <p className="mt-2 text-sm text-muted-foreground">Pilihan praktis untuk mencoba seluruh fitur premium.</p>
+              </div>
+
+              {/* Storage info badge */}
+              <div className="mt-4 flex items-start gap-2 rounded-xl bg-emerald-50 px-3 py-2.5 ring-1 ring-emerald-200/60">
+                <span className="text-base leading-none mt-0.5">📒</span>
+                <p className="text-xs text-emerald-800 leading-snug">
+                  <span className="font-semibold">Riwayat disimpan 3 bulan.</span> Data lebih lama bisa diekspor sebagai <strong>PDF Diary bergaya buku harian</strong> yang cantik & siap cetak.
+                </p>
+              </div>
+
+              <ul className="mt-5 flex-1 space-y-2.5">
+                {premiumMonthlyFeatures.map((f) => (
+                  <li key={f} className="flex items-center gap-2.5 text-sm text-foreground">
+                    <CheckIcon premium />
+                    {f}
+                  </li>
+                ))}
+              </ul>
+
+              <a
+                href="/auth?mode=register"
+                className="relative mt-7 block rounded-full bg-emerald-600 py-4 text-center text-sm font-semibold text-white shadow-lg transition-all duration-300 hover:-translate-y-0.5 hover:shadow-emerald-200/50 hover:shadow-xl"
+              >
+                Coba 1 Minggu
+              </a>
+              <p className="mt-3 text-center text-xs text-muted-foreground">
+                ☕ Hanya Rp2.142/hari — cocok untuk pemula
+              </p>
+            </div>
+          </div>
+
           {/* Premium Monthly */}
           <div className="relative">
             <div className="absolute -inset-0.5 rounded-[2rem] bg-gradient-to-br from-accent via-primary to-accent opacity-40 blur-lg" />
@@ -148,7 +196,7 @@ export function Pricing() {
                 <div className="flex items-center justify-between">
                   <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Premium</p>
                   <span className="rounded-full bg-gradient-to-r from-amber-100 to-orange-100 px-3 py-1 text-xs font-bold text-amber-700">
-                    ✨ PALING POPULER
+                    🔥 PALING POPULER
                   </span>
                 </div>
                 <div className="mt-3 flex items-baseline gap-2">
@@ -182,7 +230,7 @@ export function Pricing() {
                 Mulai Sekarang
               </a>
               <p className="mt-3 text-center text-xs text-muted-foreground">
-                ☕ Kurang dari sekali nongkrong di coffee shop
+                ☕ Hanya Rp1.633/hari — <strong>Lebih hemat 24% vs Mingguan!</strong>
               </p>
             </div>
           </div>
@@ -246,7 +294,7 @@ export function Pricing() {
                 Mulai Perjalanan 1 Tahun
               </a>
               <p className="mt-3 text-center text-xs text-muted-foreground">
-                💜 Setara Rp40.800/bulan — investasi terbaik untuk dirimu
+                💜 Setara Rp1.342/hari — <strong>Hemat 37% vs Mingguan!</strong>
               </p>
             </div>
           </div>

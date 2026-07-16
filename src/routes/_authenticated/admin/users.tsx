@@ -299,10 +299,13 @@ function Page() {
               <div className="flex flex-col items-end gap-1 shrink-0">
                 <span className={`rounded-full px-3 py-1 text-xs capitalize font-semibold ${u.plan === "premium" ? "bg-accent-soft text-accent-foreground" : "bg-cream-deep text-muted-foreground"}`}>
                   {u.plan === "premium" 
-                    ? (u.premium_end_date && u.premium_start_date &&
-                       (new Date(u.premium_end_date).getTime() - new Date(u.premium_start_date).getTime() > 60 * 24 * 60 * 60 * 1000)
-                        ? "Prem Tahunan 🏆"
-                        : "Prem Bulanan ✨")
+                    ? (() => {
+                        if (!u.premium_end_date || !u.premium_start_date) return "Prem Bulanan ✨";
+                        const diffDays = Math.round((new Date(u.premium_end_date).getTime() - new Date(u.premium_start_date).getTime()) / (24 * 60 * 60 * 1000));
+                        if (diffDays > 60) return "Prem Tahunan 🏆";
+                        if (diffDays <= 10) return "Prem Mingguan ⚡";
+                        return "Prem Bulanan ✨";
+                      })()
                     : "Free"}
                 </span>
                 {u.plan === "premium" && u.premium_end_date && (
@@ -367,6 +370,28 @@ function Page() {
                   </button>
                   <button
                     onClick={async () => {
+                      await setPlan({ data: { userId: u.id, plan: "premium", days: 7 } });
+                      toast.success("Plan diperbarui ke Premium 7 Hari");
+                      qc.invalidateQueries({ queryKey: ["admin-users"] });
+                      qc.invalidateQueries({ queryKey: ["profile", u.id] });
+                    }}
+                    className="rounded-full border border-border px-3 py-1 text-xs hover:bg-cream-deep transition-colors text-emerald-700 bg-emerald-50 border-emerald-200"
+                  >
+                    Set Prem 7 hari
+                  </button>
+                  <button
+                    onClick={async () => {
+                      await setPlan({ data: { userId: u.id, plan: "premium", days: 30 } });
+                      toast.success("Plan diperbarui ke Premium 30 Hari");
+                      qc.invalidateQueries({ queryKey: ["admin-users"] });
+                      qc.invalidateQueries({ queryKey: ["profile", u.id] });
+                    }}
+                    className="rounded-full border border-border px-3 py-1 text-xs hover:bg-cream-deep transition-colors"
+                  >
+                    Set Prem 30 hari
+                  </button>
+                  <button
+                    onClick={async () => {
                       await setPlan({ data: { userId: u.id, plan: "premium", days: 365 } });
                       toast.success("Plan diperbarui ke Premium 1 Tahun");
                       qc.invalidateQueries({ queryKey: ["admin-users"] });
@@ -379,6 +404,17 @@ function Page() {
                 </>
               ) : (
                 <>
+                  <button
+                    onClick={async () => {
+                      await setPlan({ data: { userId: u.id, plan: "premium", days: 7 } });
+                      toast.success("Plan diperbarui ke Premium 7 Hari");
+                      qc.invalidateQueries({ queryKey: ["admin-users"] });
+                      qc.invalidateQueries({ queryKey: ["profile", u.id] });
+                    }}
+                    className="rounded-full border border-border px-3 py-1 text-xs hover:bg-cream-deep transition-colors text-emerald-700 bg-emerald-50 border-emerald-200"
+                  >
+                    Set Prem 7 hari
+                  </button>
                   <button
                     onClick={async () => {
                       await setPlan({ data: { userId: u.id, plan: "premium", days: 30 } });
