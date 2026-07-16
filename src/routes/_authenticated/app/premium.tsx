@@ -321,19 +321,45 @@ function Page() {
           </div>
 
           {activeOrder.payment_status === "menunggu_pembayaran" && (
-            <button
-              onClick={() => {
-                if (activeOrder.payment_link) {
-                  window.location.href = activeOrder.payment_link;
-                } else {
-                  createOrder();
-                }
-              }}
-              disabled={creating}
-              className="w-full rounded-full bg-primary py-4 text-sm font-semibold text-primary-foreground shadow-peach transition-all duration-300 hover:-translate-y-0.5 disabled:opacity-60"
-            >
-              {creating ? "Memproses…" : activeOrder.payment_link ? "Lanjutkan Pembayaran →" : "Bayar Sekarang via Mayar →"}
-            </button>
+            <div className="flex gap-2">
+              <button
+                onClick={() => {
+                  if (activeOrder.payment_link) {
+                    window.location.href = activeOrder.payment_link;
+                  } else {
+                    createOrder();
+                  }
+                }}
+                disabled={creating}
+                className="flex-grow rounded-full bg-primary py-4 text-sm font-semibold text-primary-foreground shadow-peach transition-all duration-300 hover:-translate-y-0.5 disabled:opacity-60 text-center"
+              >
+                {creating ? "Memproses…" : activeOrder.payment_link ? "Lanjutkan Pembayaran →" : "Bayar Sekarang via Mayar →"}
+              </button>
+              <button
+                onClick={async () => {
+                  if (window.confirm("Apakah kamu yakin ingin membatalkan pembayaran ini untuk membuat yang baru?")) {
+                    setCreating(true);
+                    try {
+                      const { error } = await supabase
+                        .from("orders")
+                        .update({ payment_status: "ditolak", admin_note: "Dibatalkan oleh pengguna" })
+                        .eq("id", activeOrder.id);
+                      if (error) throw error;
+                      toast.success("Pembayaran berhasil dibatalkan. Silakan pilih paket baru.");
+                    } catch (err: any) {
+                      toast.error(err.message || "Gagal membatalkan pembayaran");
+                    } finally {
+                      setCreating(false);
+                      qc.invalidateQueries({ queryKey: ["my-orders", user?.id] });
+                    }
+                  }
+                }}
+                disabled={creating}
+                className="px-5 rounded-full border border-border bg-card text-muted-foreground text-xs font-semibold hover:text-foreground hover:bg-muted transition-all duration-300 disabled:opacity-60"
+              >
+                Batalkan
+              </button>
+            </div>
           )}
 
           {activeOrder.admin_note && (
