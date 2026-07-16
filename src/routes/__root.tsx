@@ -132,6 +132,22 @@ function RootInner() {
   const router = useRouter();
   const qc = useQueryClient();
   useEffect(() => {
+    const handlePreloadError = (event: Event) => {
+      console.error("Dynamic import chunk load error detected:", event);
+      const isReloading = sessionStorage.getItem("chunk_reload_attempted");
+      if (!isReloading) {
+        sessionStorage.setItem("chunk_reload_attempted", "true");
+        window.location.reload();
+      }
+    };
+    window.addEventListener("vite:preloadError", handlePreloadError);
+    sessionStorage.removeItem("chunk_reload_attempted");
+    return () => {
+      window.removeEventListener("vite:preloadError", handlePreloadError);
+    };
+  }, []);
+
+  useEffect(() => {
     const { data: sub } = supabase.auth.onAuthStateChange((event) => {
       if (event !== "SIGNED_IN" && event !== "SIGNED_OUT" && event !== "USER_UPDATED") return;
       router.invalidate();

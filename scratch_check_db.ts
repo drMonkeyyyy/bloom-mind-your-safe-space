@@ -35,10 +35,10 @@ async function main() {
 
   console.log("Checking profiles table schema...");
   try {
-    // We select sync_journal_memory specifically to test if it exists
+    // We select sync_journal_memory and last_active_at to test if they exist
     const { data, error } = await supabase
       .from("profiles")
-      .select("id, name, sync_journal_memory")
+      .select("id, name, sync_journal_memory, last_active_at")
       .limit(1);
 
     if (error) {
