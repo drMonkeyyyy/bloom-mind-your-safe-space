@@ -8,6 +8,7 @@ import { MoodBars } from "@/components/app/MoodSparkline";
 import { SkeletonCard } from "@/components/app/SkeletonCard";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
+import { toggleAmbientSound, subscribeAudioState } from "@/lib/audio";
 
 export const Route = createFileRoute("/_authenticated/app/")({
   component: Dashboard,
@@ -236,6 +237,14 @@ function Dashboard() {
   const { data: profile, isLoading: pLoading } = useProfile(user?.id);
   const [affIdx, setAffIdx] = useState(() => getDailyAffirmationIndex(AFFIRMATIONS.length));
   const [flip, setFlip] = useState(false);
+  const [isCanonPlaying, setIsCanonPlaying] = useState<boolean>(false);
+
+  useEffect(() => {
+    const unsubscribe = subscribeAudioState((channels) => {
+      setIsCanonPlaying(channels.canon > 0);
+    });
+    return unsubscribe;
+  }, []);
 
   const copyAffirmation = () => {
     navigator.clipboard.writeText(AFFIRMATIONS[affIdx]);
@@ -407,17 +416,39 @@ function Dashboard() {
 
         {/* Glass content card */}
         <div className="relative glass-hero rounded-3xl m-0.5 p-5 sm:p-8">
-          <p className="text-xs sm:text-sm font-medium text-muted-foreground tracking-wide">
-            {greetEmoji} {greet}
-          </p>
-          {pLoading ? (
-            <div className="mt-2 skeleton h-9 w-3/4 rounded-xl" />
-          ) : (
-            <h1 className="mt-1.5 font-display text-xl sm:text-3xl font-semibold leading-tight text-foreground">
-              Halo, <span className="text-primary">{profile?.name ?? "teman"}</span>.{" "}
-              <span className="text-foreground/80">Gimana perasaanmu hari ini?</span>
-            </h1>
-          )}
+          <div className="flex justify-between items-start gap-3">
+            <div>
+              <p className="text-xs sm:text-sm font-medium text-muted-foreground tracking-wide">
+                {greetEmoji} {greet}
+              </p>
+              {pLoading ? (
+                <div className="mt-2 skeleton h-9 w-3/4 rounded-xl" />
+              ) : (
+                <h1 className="mt-1.5 font-display text-xl sm:text-3xl font-semibold leading-tight text-foreground">
+                  Halo, <span className="text-primary">{profile?.name ?? "teman"}</span>.{" "}
+                  <span className="text-foreground/80">Gimana perasaanmu hari ini?</span>
+                </h1>
+              )}
+            </div>
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                try {
+                  toggleAmbientSound("canon");
+                } catch (err) {
+                  console.error("Gagal mengaktifkan musik latar:", err);
+                }
+              }}
+              className="flex items-center gap-1.5 rounded-full bg-card/65 hover:bg-card/90 border border-border/40 px-3.5 py-1.5 text-[10px] sm:px-4 sm:py-2 sm:text-xs font-semibold text-foreground backdrop-blur-md transition-all duration-200 shadow-sm active:scale-95 cursor-pointer shrink-0"
+              title="Putar musik penenang Canon in D"
+            >
+              <span className={`text-base ${isCanonPlaying ? "animate-pulse" : ""}`}>🎻</span>
+              <span className="hidden sm:inline">Canon in D: {isCanonPlaying ? "Diputar" : "Dijeda"}</span>
+              <span className="text-[10px] text-muted-foreground">
+                {isCanonPlaying ? "⏸️" : "▶️"}
+              </span>
+            </button>
+          </div>
           <p className="mt-2 text-xs text-muted-foreground">
             {new Date().toLocaleDateString("id-ID", { weekday: "long", day: "numeric", month: "long" })}
           </p>
