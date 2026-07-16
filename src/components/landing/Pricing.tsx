@@ -182,7 +182,7 @@ export function Pricing() {
                 Coba 1 Minggu
               </a>
               <p className="mt-3 text-center text-xs text-muted-foreground">
-                ☕ Hanya Rp2.142/hari — cocok untuk pemula
+                ☕ Cuma Rp2.100-an/hari — Cocok untuk uji coba 🌱
               </p>
             </div>
           </div>
@@ -230,7 +230,7 @@ export function Pricing() {
                 Mulai Sekarang
               </a>
               <p className="mt-3 text-center text-xs text-muted-foreground">
-                ☕ Hanya Rp1.633/hari — <strong>Lebih hemat 24% vs Mingguan!</strong>
+                ☕ Cuma Rp1.600-an/hari — <strong>Lebih hemat 24% vs Mingguan!</strong> 🔥
               </p>
             </div>
           </div>
@@ -294,7 +294,7 @@ export function Pricing() {
                 Mulai Perjalanan 1 Tahun
               </a>
               <p className="mt-3 text-center text-xs text-muted-foreground">
-                💜 Setara Rp1.342/hari — <strong>Hemat 37% vs Mingguan!</strong>
+                💜 Cuma Rp1.300-an/hari — <strong>Paling hemat (Hemat 37%)!</strong> 🏆
               </p>
             </div>
           </div>

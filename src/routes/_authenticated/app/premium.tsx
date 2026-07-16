@@ -213,15 +213,15 @@ function Page() {
             </div>
             {packageType === "tahunan" ? (
               <p className="mt-1 text-xs text-muted-foreground">
-                Pembayaran sekali di depan · Aktif selama 12 bulan penuh (Hanya Rp1.342/hari)
+                Pembayaran sekali di depan · Aktif selama 12 bulan penuh (Cuma Rp1.300-an/hari)
               </p>
             ) : packageType === "mingguan" ? (
               <p className="mt-1 text-xs text-muted-foreground">
-                Pembayaran sekali di depan · Aktif selama 7 hari penuh (Rp2.142/hari)
+                Pembayaran sekali di depan · Aktif selama 7 hari penuh (Cuma Rp2.100-an/hari)
               </p>
             ) : (
               <p className="mt-1 text-xs text-muted-foreground">
-                Langkah kecil untuk kedamaian pikiranmu (Hanya Rp1.633/hari — <strong>Lebih hemat 24% vs Mingguan!</strong>)
+                Langkah kecil untuk kedamaian pikiranmu (Cuma Rp1.600-an/hari — <strong>Lebih hemat 24% vs Mingguan!</strong>)
               </p>
             )}
 
@@ -277,10 +277,10 @@ function Page() {
             )}
             <p className="mt-3 text-center text-xs text-muted-foreground">
               {packageType === "tahunan" 
-                ? "🏆 Hemat 37% per hari dibandingkan paket Mingguan!"
+                ? "🏆 Cuma Rp1.300-an/hari — Pilihan terbaik & paling hemat!"
                 : packageType === "mingguan"
-                  ? "🌱 Pilihan praktis untuk mencoba seluruh fitur premium"
-                  : "🔥 Hemat 24% per hari dibandingkan paket Mingguan!"}
+                  ? "🌱 Cuma Rp2.100-an/hari — Pas buat yang mau coba-coba dulu"
+                  : "🔥 Cuma Rp1.600-an/hari — Lebih hemat 24% dari paket Mingguan!"}
             </p>
           </div>
         </section>
