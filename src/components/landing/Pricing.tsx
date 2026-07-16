@@ -8,7 +8,7 @@ const freeTier = [
 ];
 
 const premiumMonthlyFeatures = [
-  "Chat AI tanpa batas & semua Companion",
+  "Curhat tanpa batas & semua Pendamping",
   "Jurnal & Gratitude tanpa batas",
   "Growth Dashboard & Grafik Lengkap",
   "Refleksi Harian & Mingguan",

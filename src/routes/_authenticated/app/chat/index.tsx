@@ -268,7 +268,7 @@ function ChatList() {
         publicUrl = urlData.publicUrl;
       }
 
-      const systemPrompt = `Kamu adalah "${name}" — pendamping AI Bloom Mind dengan gaya bicara ${finalTone} dan berperan sebagai ${description}. Selalu balas dalam Bahasa Indonesia yang lembut. Validasi perasaan user lebih dulu, lalu beri satu langkah kecil yang bisa dilakukan. Maksimal 1 pertanyaan lanjutan. Jangan beri diagnosis medis/psikiatri, jangan menyarankan obat. Jika user menunjukkan tanda self-harm/bunuh diri/krisis: aktifkan respons krisis, sarankan menghubungi orang terdekat atau layanan darurat 119, dan tegaskan bantuan profesional. Jangan roleplay seksual. Jangan membangun ketergantungan emosional.`;
+      const systemPrompt = `Kamu adalah "${name}" — pendamping Bloom Mind dengan gaya bicara ${finalTone} dan berperan sebagai ${description}. Selalu balas dalam Bahasa Indonesia yang lembut. Validasi perasaan user lebih dulu, lalu beri satu langkah kecil yang bisa dilakukan. Maksimal 1 pertanyaan lanjutan. Jangan beri diagnosis medis/psikiatri, jangan menyarankan obat. Jika user menunjukkan tanda self-harm/bunuh diri/krisis: aktifkan respons krisis, sarankan menghubungi orang terdekat atau layanan darurat 119, dan tegaskan bantuan profesional. Jangan roleplay seksual. Jangan membangun ketergantungan emosional.`;
 
       const { data: newComp, error: insertError } = await supabase
         .from("custom_companions")
@@ -334,7 +334,7 @@ function ChatList() {
             )}
           </div>
           <p className="mt-1 text-xs text-muted-foreground leading-relaxed">
-            Izinkan Pendamping AI Anda membaca jurnal harian Anda (7 hari terakhir) untuk memberikan dukungan & saran yang sangat personal saat curhat.
+            Izinkan Pendamping Anda membaca jurnal harian Anda (7 hari terakhir) untuk memberikan dukungan & saran yang sangat personal saat curhat.
           </p>
         </div>
         <div className="flex items-center gap-3 shrink-0 self-end sm:self-center">
@@ -357,7 +357,7 @@ function ChatList() {
               if (error) {
                 toast.error(error.message);
               } else {
-                toast.success(newVal ? "Memori Jurnal diaktifkan! AI kini mengingat jurnal harianmu. 🧠" : "Memori Jurnal dinonaktifkan.");
+                toast.success(newVal ? "Memori Jurnal diaktifkan! Pendamping kini mengingat jurnal harianmu. 🧠" : "Memori Jurnal dinonaktifkan.");
                 qc.invalidateQueries({ queryKey: ["profile", user!.id] });
               }
             }}

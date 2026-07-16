@@ -20,10 +20,10 @@ function makeOrderNumber() {
 }
 
 const FEATURES_MONTHLY = [
-  { icon: "💬", label: "Chat AI tanpa batas & semua Companion" },
+  { icon: "💬", label: "Curhat tanpa batas & semua Pendamping" },
   { icon: "📓", label: "Jurnal & Gratitude tanpa batas" },
   { icon: "📈", label: "Growth Dashboard & Grafik Lengkap" },
-  { icon: "📊", label: "Daily & Weekly AI Insight" },
+  { icon: "📊", label: "Daily & Weekly Insight Personal" },
   { icon: "🍎", label: "Emotional Eating Analysis" },
   { icon: "📂", label: "Riwayat tersimpan 3 bulan" },
   { icon: "📒", label: "Ekspor PDF Diary bergaya buku harian" },
@@ -31,10 +31,10 @@ const FEATURES_MONTHLY = [
 ];
 
 const FEATURES_ANNUAL = [
-  { icon: "💬", label: "Chat AI tanpa batas & semua Companion" },
+  { icon: "💬", label: "Curhat tanpa batas & semua Pendamping" },
   { icon: "📓", label: "Jurnal & Gratitude tanpa batas" },
   { icon: "📈", label: "Growth Dashboard & Grafik Lengkap" },
-  { icon: "📊", label: "Daily & Weekly AI Insight" },
+  { icon: "📊", label: "Daily & Weekly Insight Personal" },
   { icon: "🍎", label: "Emotional Eating Analysis" },
   { icon: "📖", label: "Riwayat 1 TAHUN PENUH tersimpan" },
   { icon: "📒", label: "Ekspor PDF Diary bergaya buku harian" },
@@ -146,7 +146,7 @@ function Page() {
     <div className="space-y-6">
       <div>
         <h1 className="font-display text-3xl font-semibold">Upgrade ke Premium</h1>
-        <p className="mt-1 text-sm text-muted-foreground">Buka semua fitur dan dampingan AI penuh.</p>
+        <p className="mt-1 text-sm text-muted-foreground">Buka semua fitur dan pendampingan personal penuh.</p>
       </div>
 
       {/* ── PLAN SELECTOR ────────────────────────────────────────── */}
@@ -227,19 +227,19 @@ function Page() {
 
             <ul className="mt-5 grid grid-cols-1 gap-2 sm:grid-cols-2">
               {(packageType === "tahunan" ? [
-                { icon: "💬", label: "Chat AI tanpa batas & semua Companion" },
+                { icon: "💬", label: "Curhat tanpa batas & semua Pendamping" },
                 { icon: "📓", label: "Jurnal & Gratitude tanpa batas" },
                 { icon: "📈", label: "Growth Dashboard & Grafik Lengkap" },
-                { icon: "📊", label: "Daily & Weekly AI Insight" },
+                { icon: "📊", label: "Daily & Weekly Insight Personal" },
                 { icon: "🍎", label: "Emotional Eating Analysis" },
                 { icon: "📖", label: "Riwayat 1 TAHUN PENUH tersimpan" },
                 { icon: "📄", label: "Ekspor PDF Diary bergaya buku harian" },
                 { icon: "✅", label: "Habit tracker tanpa batas" },
               ] : [
-                { icon: "💬", label: "Chat AI tanpa batas & semua Companion" },
+                { icon: "💬", label: "Curhat tanpa batas & semua Pendamping" },
                 { icon: "📓", label: "Jurnal & Gratitude tanpa batas" },
                 { icon: "📈", label: "Growth Dashboard & Grafik Lengkap" },
-                { icon: "📊", label: "Daily & Weekly AI Insight" },
+                { icon: "📊", label: "Daily & Weekly Insight Personal" },
                 { icon: "🍎", label: "Emotional Eating Analysis" },
                 { icon: "📂", label: "Riwayat tersimpan 3 bulan" },
                 { icon: "📄", label: "Ekspor PDF Diary bergaya buku harian" },

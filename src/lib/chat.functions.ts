@@ -243,10 +243,7 @@ export const analyzeEmotionalEating = createServerFn({ method: "POST" })
     if (!apiKey) throw new Error("GEMINI_API_KEY belum dikonfigurasi");
     const { generateText } = await import("ai");
     const gateway = createGeminiClient(apiKey);
-    const prompt = `Nama User: ${userName}
-User ${userName} sedang melakukan refleksi emotional eating di aplikasi JN-CALM.
-Detail Input:
-- Emosi yang dirasakan: ${data.emotion || "-"}
+    const prompt = `Informasi user saat ini:
 - Makanan yang dicraving: ${data.cravingFood || "-"}
 - Situasi pemicu (trigger): ${data.trigger || "-"}
 - Jenis lapar yang dirasakan: ${data.hungerType ?? "belum dipilih"}
@@ -254,7 +251,7 @@ Detail Input:
 Tugasmu (Berperanlah sebagai Psikolog atau Psikiater klinis profesional yang hangat dan empatik):
 1. Buat "insight": Sapa user dengan panggilan hangat menggunakan nama mereka (misalnya: "Halo ${userName}," atau "Hai ${userName},"). JANGAN gunakan sebutan formal yang kaku seperti "Saudara ${userName}" atau "Saudara JN-CALM". Berikan analisis hangat, empatik, berwawasan psikologis mendalam dalam Bahasa Indonesia (sekitar 3-4 kalimat) mengenai akar pemicu emosional mereka dan kaitannya dengan makanan yang mereka inginkan. Jelaskan mengapa emosi tersebut mengarahkan mereka ke makanan spesifik tersebut tanpa memberikan diagnosis medis formal atau resep obat.
 2. Buat "action": Berikan 2-3 langkah coping mechanism terapeutik yang diuraikan secara detail dan praktis (bukan sekadar daftar pendek, melainkan penjelasan instruktif langkah-per-langkah yang mendalam). Gunakan bahasa psikologi yang mudah dipahami, membimbing, dan mendukung proses regulasi emosi mereka. Gunakan penomoran dan baris baru (\n) untuk memisahkan setiap langkah agar mudah dibaca. 
-   PENTING: Salah satu langkah WAJIB menyarankan mereka untuk masuk ke menu Chat AI di aplikasi JN-CALM untuk melakukan curhat/mengobrol dengan Pendamping AI pilihan mereka guna mendapatkan dukungan emosional langsung.
+    PENTING: Salah satu langkah WAJIB menyarankan mereka untuk masuk ke menu Teman Curhat di aplikasi JN-CALM untuk melakukan curhat/mengobrol dengan Pendamping pilihan mereka guna mendapatkan dukungan emosional langsung.
 
 PENTING: Output HARUS berupa JSON valid dengan format berikut (jangan sertakan teks markdown \`\`\`json atau teks lain di luar JSON):
 {
@@ -266,8 +263,8 @@ PENTING: Output HARUS berupa JSON valid dengan format berikut (jangan sertakan t
     let action = `1. Jeda & Bernapas (Latihan 4-4-6):
 Tarik napas perlahan lewat hidung dalam 4 hitungan, tahan napas selama 4 hitungan, lalu hembuskan lembut lewat mulut selama 6 hitungan. Ulangi 3-5 kali untuk menenangkan sistem saraf cemasmu.
 
-2. Curhat dengan Pendamping AI JN-CALM:
-Buka menu Chat AI di aplikasi dan pilihlah Pendamping favoritmu. Luapkan emosi atau stres yang sedang kamu rasakan saat ini. Berbicara dengan Pendamping AI dapat meredakan kecemasan dan mengalihkan dorongan makan secara instan.
+2. Curhat dengan Pendamping JN-CALM:
+Buka menu Teman Curhat di aplikasi dan pilihlah Pendamping favoritmu. Luapkan emosi atau stres yang sedang kamu rasakan saat ini. Berbicara dengan Pendamping dapat meredakan kecemasan dan mengalihkan dorongan makan secara instan.
 
 3. Ekspresikan Emosi (Journaling Singkat):
 Tuliskan 1 kalimat jujur tentang apa yang paling kamu cemaskan atau rasakan saat ini di lembar jurnal JN-CALM untuk menyalurkan energi emosionalmu.`;

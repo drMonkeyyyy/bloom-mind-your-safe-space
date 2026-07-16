@@ -225,10 +225,10 @@ function Page() {
       <section className="rounded-3xl bg-card p-6 ring-1 ring-border space-y-4">
         <div className="flex items-center justify-between gap-4">
           <div className="min-w-0 flex-1">
-            <p className="text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground/60">Integrasi AI</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground/60">Koneksi Pendamping</p>
             <h3 className="mt-1 font-display text-sm font-semibold text-foreground">Memori Jurnal Harian</h3>
             <p className="mt-0.5 text-xs text-muted-foreground">
-              Izinkan Pendamping AI Anda membaca jurnal harian Anda (7 hari terakhir) untuk memberikan saran dan dukungan yang lebih personal.
+              Izinkan Pendamping Anda membaca jurnal harian Anda (7 hari terakhir) untuk memberikan saran dan dukungan yang lebih personal.
             </p>
           </div>
           <button
@@ -257,7 +257,7 @@ function Page() {
           <div className="rounded-2xl bg-amber-50/70 p-3.5 ring-1 ring-amber-100/50 text-xs text-amber-800 flex items-start gap-2">
             <span className="text-sm">✨</span>
             <p>
-              Tersedia untuk anggota <strong>Premium</strong>. Aktifkan untuk membuat percakapan dengan Pendamping AI terasa jauh lebih personal dan terhubung.
+              Tersedia untuk anggota <strong>Premium</strong>. Aktifkan untuk membuat percakapan dengan Pendamping terasa jauh lebih personal dan terhubung.
             </p>
           </div>
         )}
