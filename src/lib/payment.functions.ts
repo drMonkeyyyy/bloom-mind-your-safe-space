@@ -56,30 +56,13 @@ export const createPayment = createServerFn({ method: "POST" })
       packageName = "Premium Mingguan";
     }
 
-    // 3. Check if there is an existing pending order with a valid payment link for the same package
-    const { data: existingOrder } = await supabaseAdmin
+    // 3. Cancel any existing pending orders for this package to avoid duplicate payment links and force a fresh invoice
+    await supabaseAdmin
       .from("orders")
-      .select("*")
+      .update({ payment_status: "ditolak", admin_note: "Dibatalkan karena meminta link baru" })
       .eq("user_id", userId)
       .eq("payment_status", "menunggu_pembayaran")
-      .eq("payment_method", "mayar")
-      .eq("package_name", packageName)
-      .not("payment_link", "is", null)
-      .order("created_at", { ascending: false })
-      .limit(1)
-      .maybeSingle();
-
-    if (existingOrder && existingOrder.payment_link) {
-      const isExpired = new Date().getTime() - new Date(existingOrder.created_at).getTime() > 24 * 60 * 60 * 1000;
-      if (isExpired) {
-        await supabaseAdmin
-          .from("orders")
-          .update({ payment_status: "ditolak", admin_note: "Link pembayaran kedaluwarsa" })
-          .eq("id", existingOrder.id);
-      } else {
-        return { paymentLink: existingOrder.payment_link };
-      }
-    }
+      .eq("package_name", packageName);
 
     // 4. Create a new order in "menunggu_pembayaran" status
     const orderNumber = makeOrderNumber();
