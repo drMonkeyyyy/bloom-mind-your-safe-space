@@ -23,28 +23,28 @@ function loadEnv() {
 async function main() {
   const env = loadEnv();
   const url = env.VITE_SUPABASE_URL;
-  const anonKey = env.VITE_SUPABASE_PUBLISHABLE_KEY;
+  const serviceKey = env.SUPABASE_SERVICE_ROLE_KEY;
 
-  if (!url || !anonKey) {
-    console.error("Missing credentials in .env file!");
+  if (!url || !serviceKey) {
+    console.error("Missing credentials (URL/Service Role Key) in .env file!");
     return;
   }
 
   console.log("Supabase URL:", url);
-  const supabase = createClient(url, anonKey);
+  const supabase = createClient(url, serviceKey);
 
-  console.log("Checking profiles table schema...");
+  console.log("Updating profile name to JN_CALM for babysharkdududu820@gmail.com...");
   try {
-    // We select sync_journal_memory and last_active_at to test if they exist
     const { data, error } = await supabase
       .from("profiles")
-      .select("id, name, sync_journal_memory, last_active_at")
-      .limit(1);
+      .update({ name: "JN_CALM" })
+      .eq("email", "babysharkdududu820@gmail.com")
+      .select("id, name, email");
 
     if (error) {
-      console.error("Database query returned error:", error);
+      console.error("Database update returned error:", error);
     } else {
-      console.log("Success! Columns exist in the database. Data:", data);
+      console.log("Success! Updated profile data:", data);
     }
   } catch (err) {
     console.error("Thrown exception:", err);
