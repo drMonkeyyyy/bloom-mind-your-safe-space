@@ -61,7 +61,7 @@ export const sendChatMessage = createServerFn({ method: "POST" })
 
     // Load profile + settings
     const [{ data: profile }, { data: settings }] = await Promise.all([
-      supabase.from("profiles").select("plan, communication_style, name").eq("id", userId).maybeSingle(),
+      supabase.from("profiles").select("plan, communication_style, name, sync_journal_memory").eq("id", userId).maybeSingle(),
       supabase.from("app_settings").select("free_chat_limit").eq("id", 1).maybeSingle(),
     ]);
 
@@ -164,7 +164,22 @@ export const sendChatMessage = createServerFn({ method: "POST" })
     const { generateText } = await import("ai");
     const gateway = createGeminiClient(apiKey);
 
-    const sysPrompt = `${companion.system_prompt}\n\nGaya komunikasi user: ${profile?.communication_style ?? "supportive"}. Nama user: ${profile?.name ?? "teman"}. Selalu Bahasa Indonesia. Maksimal 4-6 kalimat. Akhiri dengan 1 pertanyaan reflektif singkat (opsional).`;
+    let journalContext = "";
+    if (profile?.plan === "premium" && profile?.sync_journal_memory) {
+      const since = new Date(Date.now() - 7 * 86400000).toISOString().slice(0, 10);
+      const { data: journals } = await supabase
+        .from("journals")
+        .select("main_emotion, main_trigger, summary, lesson, date")
+        .eq("user_id", userId)
+        .gte("date", since)
+        .order("date", { ascending: false });
+
+      if (journals && journals.length > 0) {
+        journalContext = `\n\nMemori Jurnal Harian Pengguna (7 hari terakhir):\n${journals.map(j => `- Tanggal ${j.date}: Merasa ${j.main_emotion || "biasa"}. Trigger: ${j.main_trigger || "tidak ada"}. Ringkasan: ${j.summary || ""}. Pelajaran: ${j.lesson || ""}`).join("\n")}\nGunakan memori jurnal di atas dengan sangat halus dan empati tinggi untuk memberikan dukungan yang personal jika relevan dengan percakapan saat ini. JANGAN katakan Anda "membaca jurnal" secara blak-blakan kecuali secara halus dan alami.`;
+      }
+    }
+
+    const sysPrompt = `${companion.system_prompt}\n\nGaya komunikasi user: ${profile?.communication_style ?? "supportive"}. Nama user: ${profile?.name ?? "teman"}.${journalContext}\n\nSelalu Bahasa Indonesia. Maksimal 4-6 kalimat. Akhiri dengan 1 pertanyaan reflektif singkat (opsional).`;
 
     let reply = "";
     try {

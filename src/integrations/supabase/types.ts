@@ -502,6 +502,7 @@ export type Database = {
           updated_at: string
           last_active_at: string | null
           lifetime_points: number | null
+          sync_journal_memory: boolean
         }
         Insert: {
           age?: number | null
@@ -524,6 +525,7 @@ export type Database = {
           updated_at?: string
           last_active_at?: string | null
           lifetime_points?: number | null
+          sync_journal_memory?: boolean
         }
         Update: {
           age?: number | null
@@ -546,6 +548,7 @@ export type Database = {
           updated_at?: string
           last_active_at?: string | null
           lifetime_points?: number | null
+          sync_journal_memory?: boolean
         }
         Relationships: []
       }

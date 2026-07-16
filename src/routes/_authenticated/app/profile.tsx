@@ -29,6 +29,7 @@ function Page() {
   const [signOutConfirm, setSignOutConfirm] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const [syncJournalMemory, setSyncJournalMemory] = useState<boolean>(false);
 
   useEffect(() => {
     if (profile) {
@@ -38,6 +39,7 @@ function Page() {
       setCompanion(profile.selected_companion ?? "sahabat");
       setStyle(profile.communication_style ?? "supportive");
       setAvatarUrl(profile.avatar_url ?? null);
+      setSyncJournalMemory(profile.sync_journal_memory ?? false);
     }
   }, [profile]);
 
@@ -48,6 +50,7 @@ function Page() {
       name, age: age ? parseInt(age) : null, phone,
       selected_companion: companion as "sahabat",
       communication_style: style as "supportive",
+      sync_journal_memory: syncJournalMemory,
     }).eq("id", user.id);
     setSaving(false);
     if (error) { toast.error(error.message); return; }
@@ -216,6 +219,48 @@ function Page() {
             );
           })}
         </div>
+      </section>
+
+      {/* ── SINKRONISASI MEMORI JURNAL (PREMIUM ONLY) ───────────────── */}
+      <section className="rounded-3xl bg-card p-6 ring-1 ring-border space-y-4">
+        <div className="flex items-center justify-between gap-4">
+          <div className="min-w-0 flex-1">
+            <p className="text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground/60">Integrasi AI</p>
+            <h3 className="mt-1 font-display text-sm font-semibold text-foreground">Memori Jurnal Harian</h3>
+            <p className="mt-0.5 text-xs text-muted-foreground">
+              Izinkan Pendamping AI Anda membaca jurnal harian Anda (7 hari terakhir) untuk memberikan saran dan dukungan yang lebih personal.
+            </p>
+          </div>
+          <button
+            onClick={() => {
+              if (!isPremium) {
+                toast.error("Fitur ini khusus untuk anggota Premium. Yuk, upgrade plan kamu! 🌟");
+                return;
+              }
+              setSyncJournalMemory(!syncJournalMemory);
+            }}
+            className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+              syncJournalMemory ? "bg-primary" : "bg-muted"
+            }`}
+            role="switch"
+            aria-checked={syncJournalMemory}
+          >
+            <span
+              aria-hidden="true"
+              className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+                syncJournalMemory ? "translate-x-5" : "translate-x-0"
+              }`}
+            />
+          </button>
+        </div>
+        {!isPremium && (
+          <div className="rounded-2xl bg-amber-50/70 p-3.5 ring-1 ring-amber-100/50 text-xs text-amber-800 flex items-start gap-2">
+            <span className="text-sm">✨</span>
+            <p>
+              Tersedia untuk anggota <strong>Premium</strong>. Aktifkan untuk membuat percakapan dengan Pendamping AI terasa jauh lebih personal dan terhubung.
+            </p>
+          </div>
+        )}
       </section>
 
       {/* ── SAVE ──────────────────────────────────────────────────── */}
