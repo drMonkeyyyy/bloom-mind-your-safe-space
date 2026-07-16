@@ -327,11 +327,6 @@ function ChatList() {
           <div className="flex items-center gap-2">
             <span className="text-base">🧠</span>
             <h3 className="font-display text-sm font-semibold text-foreground">Sinkronisasi Memori Jurnal Harian</h3>
-            {profile?.plan === "premium" ? (
-              <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[9px] font-black text-amber-700">PREMIUM</span>
-            ) : (
-              <span className="rounded-full bg-primary-soft px-2 py-0.5 text-[9px] font-black text-primary">FREE</span>
-            )}
           </div>
           <p className="mt-1 text-xs text-muted-foreground leading-relaxed">
             Izinkan Pendamping Anda membaca jurnal harian Anda (7 hari terakhir) untuk memberikan dukungan & saran yang sangat personal saat curhat.
