@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useAuth } from "@/hooks/use-auth";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { COMPANIONS, COMM_STYLES } from "@/lib/companions";
 import { useProfile } from "@/hooks/use-profile";
@@ -19,6 +19,7 @@ function ChatList() {
   const { data: profile } = useProfile(user?.id);
   const navigate = useNavigate();
   const initBuckets = useServerFn(initStorageBuckets);
+  const qc = useQueryClient();
 
   // Overrides state for default companions (loaded from localStorage)
   const [defaultCustoms, setDefaultCustoms] = useState<Record<string, { avatar_url?: string | null; emoji?: string }>>({});
@@ -318,6 +319,62 @@ function ChatList() {
       <div>
         <h1 className="font-display text-3xl font-semibold">Pendamping kamu</h1>
         <p className="mt-1 text-sm text-muted-foreground">Pilih siapa yang menemanimu hari ini.</p>
+      </div>
+
+      {/* ── SINKRONISASI MEMORI JURNAL (PREMIUM COMPANION SYNC) ────────── */}
+      <div className={`rounded-3xl p-5 ring-1 ${profile?.plan === "premium" ? "bg-gradient-to-r from-amber-50/70 to-orange-50/70 ring-amber-100/50" : "bg-cream-deep/60 ring-border/50"} flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm`}>
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-2">
+            <span className="text-base">🧠</span>
+            <h3 className="font-display text-sm font-semibold text-foreground">Sinkronisasi Memori Jurnal Harian</h3>
+            {profile?.plan === "premium" ? (
+              <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[9px] font-black text-amber-700">PREMIUM</span>
+            ) : (
+              <span className="rounded-full bg-primary-soft px-2 py-0.5 text-[9px] font-black text-primary">FREE</span>
+            )}
+          </div>
+          <p className="mt-1 text-xs text-muted-foreground leading-relaxed">
+            Izinkan Pendamping AI Anda membaca jurnal harian Anda (7 hari terakhir) untuk memberikan dukungan & saran yang sangat personal saat curhat.
+          </p>
+        </div>
+        <div className="flex items-center gap-3 shrink-0 self-end sm:self-center">
+          <span className="text-xs font-semibold text-foreground/80">
+            {profile?.sync_journal_memory ? "Aktif" : "Nonaktif"}
+          </span>
+          <button
+            onClick={async () => {
+              if (profile?.plan !== "premium") {
+                toast.error("Fitur memori jurnal khusus untuk anggota Premium. Yuk, upgrade plan kamu! 🌟");
+                navigate({ to: "/app/premium" });
+                return;
+              }
+              const newVal = !profile?.sync_journal_memory;
+              const { error } = await supabase
+                .from("profiles")
+                .update({ sync_journal_memory: newVal })
+                .eq("id", user!.id);
+              
+              if (error) {
+                toast.error(error.message);
+              } else {
+                toast.success(newVal ? "Memori Jurnal diaktifkan! AI kini mengingat jurnal harianmu. 🧠" : "Memori Jurnal dinonaktifkan.");
+                qc.invalidateQueries({ queryKey: ["profile", user!.id] });
+              }
+            }}
+            className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+              profile?.sync_journal_memory ? "bg-primary" : "bg-muted"
+            }`}
+            role="switch"
+            aria-checked={profile?.sync_journal_memory}
+          >
+            <span
+              aria-hidden="true"
+              className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+                profile?.sync_journal_memory ? "translate-x-5" : "translate-x-0"
+              }`}
+            />
+          </button>
+        </div>
       </div>
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
