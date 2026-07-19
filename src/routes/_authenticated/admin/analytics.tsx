@@ -3,6 +3,8 @@ import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { exportAnalyticsReportPDF } from "@/lib/export-pdf";
+import { useServerFn } from "@tanstack/react-start";
+import { getAdminAnalytics } from "@/lib/admin.functions";
 
 const COMPANION_NAMES: Record<string, { name: string; emoji: string }> = {
   ibu: { name: "Ibu", emoji: "👩" },
@@ -150,179 +152,12 @@ function Page() {
   const [isDeleting, setIsDeleting] = useState(false);
   const [timeRange, setTimeRange] = useState<"7" | "30" | "90" | "all">("30");
 
+  const getAnalytics = useServerFn(getAdminAnalytics);
+
   const { data, refetch } = useQuery({
     queryKey: ["admin-analytics", timeRange],
     queryFn: async () => {
-      let filterDate: string | null = null;
-      if (timeRange !== "all") {
-        const d = new Date();
-        d.setDate(d.getDate() - parseInt(timeRange));
-        filterDate = d.toISOString().slice(0, 10);
-      }
-
-      const fetchFeedback = async () => {
-        try {
-          let q = supabase.from("calm_feedback_logs" as any).select("*");
-          if (filterDate) {
-            q = q.gte("created_at", filterDate);
-          }
-          const res = await q;
-          return res;
-        } catch {
-          return { data: [] };
-        }
-      };
-
-      let moodQuery = supabase.from("mood_checkins").select("mood, triggers, user_id, date, mood_score, stress_score, energy_score");
-      let journalQuery = supabase.from("journals").select("id", { count: "exact", head: true });
-      let habitQuery = supabase.from("habit_logs").select("id", { count: "exact", head: true }).eq("completed", true);
-      let eatingQuery = supabase.from("emotional_eating_logs").select("hunger_type, emotion, trigger");
-      let chatQuery = supabase.from("chats").select("companion_key");
-      let msgQuery = supabase.from("messages").select("id", { count: "exact", head: true }).eq("role", "assistant");
-      let journalizerQuery = supabase.from("journals").select("id", { count: "exact", head: true }).in("source", ["from_chat", "chat"]);
-
-      if (filterDate) {
-        moodQuery = moodQuery.gte("date", filterDate);
-        journalQuery = journalQuery.gte("date", filterDate);
-        habitQuery = habitQuery.gte("date", filterDate);
-        eatingQuery = eatingQuery.gte("date", filterDate);
-        chatQuery = chatQuery.gte("created_at", filterDate);
-        msgQuery = msgQuery.gte("created_at", filterDate);
-        journalizerQuery = journalizerQuery.gte("date", filterDate);
-      }
-
-      const [moods, journals, habits, eating, chats, totalMsgs, feedbackRes, chatJournals] = await Promise.all([
-        moodQuery,
-        journalQuery,
-        habitQuery,
-        eatingQuery,
-        chatQuery,
-        msgQuery,
-        fetchFeedback(),
-        journalizerQuery
-      ]);
-      
-      const moodCount: Record<string,number> = {};
-      const triggerCount: Record<string,number> = {};
-      const moodTriggers: Record<string, Record<string, number>> = {};
-      
-      const moodUsers: Record<string, Set<string>> = {};
-      const moodTotalCount: Record<string, number> = {};
-
-      (moods.data as any[])?.forEach((m: any)=>{
-        moodCount[m.mood] = (moodCount[m.mood]??0)+1;
-        if (!moodTriggers[m.mood]) moodTriggers[m.mood] = {};
-        m.triggers?.forEach((t: any)=>{ 
-          triggerCount[t]=(triggerCount[t]??0)+1;
-          moodTriggers[m.mood][t] = (moodTriggers[m.mood][t]??0)+1;
-        });
-      });
-
-      // Compute statistics for prevalence in active selected range
-      (moods.data as any[])?.forEach((m: any) => {
-        if (!moodUsers[m.mood]) moodUsers[m.mood] = new Set();
-        moodUsers[m.mood].add(m.user_id);
-        moodTotalCount[m.mood] = (moodTotalCount[m.mood] ?? 0) + 1;
-      });
-
-      const moodStats30Days: Record<string, { uniqueUsers: number; avgFrequency: number }> = {};
-      Object.keys(MOOD_RESOLUTIONS).forEach((moodKey) => {
-        const uniqueCount = moodUsers[moodKey]?.size ?? 0;
-        const totalCount = moodTotalCount[moodKey] ?? 0;
-        moodStats30Days[moodKey] = {
-          uniqueUsers: uniqueCount,
-          avgFrequency: uniqueCount > 0 ? Number((totalCount / uniqueCount).toFixed(1)) : 0
-        };
-      });
-
-      const companionCount: Record<string, number> = {};
-      (chats.data as any[])?.forEach((c: any) => {
-        const key = c.companion_key || "sahabat";
-        companionCount[key] = (companionCount[key] ?? 0) + 1;
-      });
-
-      const hungerCount: Record<string, number> = {};
-      (eating.data as any[])?.forEach((e: any) => {
-        if (e.hunger_type) {
-          hungerCount[e.hunger_type] = (hungerCount[e.hunger_type] ?? 0) + 1;
-        }
-      });
-
-      // Efficacy calculations
-      const feedbackLogs = feedbackRes.data ?? [];
-      const totalFeedbacks = feedbackLogs.length;
-      const helpfulFeedbacks = feedbackLogs.filter((f: any) => f.is_helpful).length;
-      const uniqueUsersHelped = new Set(
-        feedbackLogs.filter((f: any) => f.is_helpful).map((f: any) => f.user_id)
-      ).size;
-
-      const exerciseEfficacy: Record<string, { total: number; helpful: number; pct: number }> = {};
-      feedbackLogs.forEach((f: any) => {
-        if (!exerciseEfficacy[f.exercise_key]) {
-          exerciseEfficacy[f.exercise_key] = { total: 0, helpful: 0, pct: 0 };
-        }
-        exerciseEfficacy[f.exercise_key].total += 1;
-        if (f.is_helpful) {
-          exerciseEfficacy[f.exercise_key].helpful += 1;
-        }
-      });
-
-      Object.keys(exerciseEfficacy).forEach((key) => {
-        const item = exerciseEfficacy[key];
-        item.pct = item.total > 0 ? Math.round((item.helpful / item.total) * 100) : 0;
-      });
-
-      // Calculate correlation between mood and exercise efficacy
-      const moodCalmEfficacy: Record<string, Record<string, { total: number; helpful: number }>> = {};
-      const userMoodByDate: Record<string, Record<string, string>> = {};
-      
-      (moods.data as any[])?.forEach((m: any) => {
-        if (m.user_id && m.date && m.mood) {
-          if (!userMoodByDate[m.user_id]) {
-            userMoodByDate[m.user_id] = {};
-          }
-          userMoodByDate[m.user_id][m.date] = m.mood;
-        }
-      });
-
-      feedbackLogs.forEach((f: any) => {
-        if (f.user_id && f.created_at && f.exercise_key) {
-          const feedbackDateStr = f.created_at.slice(0, 10);
-          const userMood = userMoodByDate[f.user_id]?.[feedbackDateStr];
-          
-          if (userMood) {
-            if (!moodCalmEfficacy[userMood]) {
-              moodCalmEfficacy[userMood] = {};
-            }
-            if (!moodCalmEfficacy[userMood][f.exercise_key]) {
-              moodCalmEfficacy[userMood][f.exercise_key] = { total: 0, helpful: 0 };
-            }
-            const stats = moodCalmEfficacy[userMood][f.exercise_key];
-            stats.total += 1;
-            if (f.is_helpful) {
-              stats.helpful += 1;
-            }
-          }
-        }
-      });
-
-      return {
-        moodCount, triggerCount, companionCount, hungerCount, moodTriggers, moodStats30Days, moodCalmEfficacy,
-        moodsRaw: moods.data ?? [],
-        feedbackLogsRaw: feedbackRes.data ?? [],
-        journalCount: journals.count ?? 0,
-        habitCompletions: habits.count ?? 0,
-        eatingCount: eating.data?.length ?? 0,
-        aiReplyCount: totalMsgs.count ?? 0,
-        chatJournalCount: chatJournals.count ?? 0,
-        feedbackStats: {
-          total: totalFeedbacks,
-          helpful: helpfulFeedbacks,
-          uniqueHelpedCount: uniqueUsersHelped,
-          overallPct: totalFeedbacks > 0 ? Math.round((helpfulFeedbacks / totalFeedbacks) * 100) : 0,
-          efficacy: exerciseEfficacy
-        }
-      };
+      return getAnalytics({ data: { timeRange } });
     },
   });
 

@@ -1,9 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
 import { useServerFn } from "@tanstack/react-start";
-import { promoteToAdmin, demoteFromAdmin, suspendUser, setUserPlan } from "@/lib/admin.functions";
+import { promoteToAdmin, demoteFromAdmin, suspendUser, setUserPlan, getAdminUsers } from "@/lib/admin.functions";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
 
@@ -20,192 +19,12 @@ function Page() {
   const demote = useServerFn(demoteFromAdmin);
   const suspend = useServerFn(suspendUser);
   const setPlan = useServerFn(setUserPlan);
+  const getUsers = useServerFn(getAdminUsers);
 
   const { data: users } = useQuery({
     queryKey: ["admin-users", q, filter],
     queryFn: async () => {
-      let qb = supabase.from("profiles").select("*").order("created_at", { ascending: false }).limit(200);
-      if (filter !== "all") qb = qb.eq("plan", filter);
-      if (q) qb = qb.or(`email.ilike.%${q}%,name.ilike.%${q}%`);
-
-      const getLocalDateString = (d: Date) => {
-        const year = d.getFullYear();
-        const month = String(d.getMonth() + 1).padStart(2, '0');
-        const day = String(d.getDate()).padStart(2, '0');
-        return `${year}-${month}-${day}`;
-      };
-
-      const fetchStats = async () => {
-        try {
-          const res = await supabase.from("user_message_stats" as any).select("*");
-          return res;
-        } catch {
-          return { data: [] };
-        }
-      };
-
-      const fetchAdmins = async () => {
-        try {
-          const res = await supabase.from("user_roles").select("user_id").eq("role", "admin");
-          return res;
-        } catch {
-          return { data: [] };
-        }
-      };
-
-      const fetchMoodStats = async () => {
-        try {
-          const thirtyDaysAgo = getLocalDateString(new Date(Date.now() - 30 * 24 * 60 * 60 * 1000));
-          const res = await supabase.from("mood_checkins")
-            .select("user_id, mood_score, stress_score, date, triggers")
-            .gte("date", thirtyDaysAgo);
-          return res;
-        } catch {
-          return { data: [] };
-        }
-      };
-
-      const fetchJournals = async () => {
-        try {
-          const thirtyDaysAgo = getLocalDateString(new Date(Date.now() - 30 * 24 * 60 * 60 * 1000));
-          const res = await supabase.from("journals")
-            .select("user_id, id")
-            .gte("date", thirtyDaysAgo);
-          return res;
-        } catch {
-          return { data: [] };
-        }
-      };
-
-      const fetchGratitudes = async () => {
-        try {
-          const thirtyDaysAgo = getLocalDateString(new Date(Date.now() - 30 * 24 * 60 * 60 * 1000));
-          const res = await supabase.from("gratitude_entries")
-            .select("user_id, id")
-            .gte("date", thirtyDaysAgo);
-          return res;
-        } catch {
-          return { data: [] };
-        }
-      };
-
-      const fetchEatings = async () => {
-        try {
-          const thirtyDaysAgo = getLocalDateString(new Date(Date.now() - 30 * 24 * 60 * 60 * 1000));
-          const res = await supabase.from("emotional_eating_logs")
-            .select("user_id, id")
-            .gte("date", thirtyDaysAgo);
-          return res;
-        } catch {
-          return { data: [] };
-        }
-      };
-
-      const [profilesRes, statsRes, adminsRes, moodStatsRes, journalsRes, gratitudesRes, eatingsRes] = await Promise.all([
-        qb,
-        fetchStats(),
-        fetchAdmins(),
-        fetchMoodStats(),
-        fetchJournals(),
-        fetchGratitudes(),
-        fetchEatings(),
-      ]);
-
-      const profiles = profilesRes.data ?? [];
-      const statsMap = new Map((statsRes.data ?? []).map((s: any) => [s.user_id, s.total_replies]));
-      const adminSet = new Set((adminsRes.data ?? []).map((a: any) => a.user_id));
-
-      const moodsMap = new Map<string, Array<{ mood_score: number; stress_score: number; date: string; triggers: string[] | null }>>();
-      (moodStatsRes.data ?? []).forEach((m: any) => {
-        if (!moodsMap.has(m.user_id)) {
-          moodsMap.set(m.user_id, []);
-        }
-        moodsMap.get(m.user_id)!.push(m);
-      });
-
-      const journalsMap = new Map<string, number>();
-      (journalsRes.data ?? []).forEach((j: any) => {
-        journalsMap.set(j.user_id, (journalsMap.get(j.user_id) ?? 0) + 1);
-      });
-
-      const gratitudesMap = new Map<string, number>();
-      (gratitudesRes.data ?? []).forEach((g: any) => {
-        gratitudesMap.set(g.user_id, (gratitudesMap.get(g.user_id) ?? 0) + 1);
-      });
-
-      const eatingsMap = new Map<string, number>();
-      (eatingsRes.data ?? []).forEach((e: any) => {
-        eatingsMap.set(e.user_id, (eatingsMap.get(e.user_id) ?? 0) + 1);
-      });
-
-      const sevenDaysAgoStr = getLocalDateString(new Date(Date.now() - 7 * 24 * 60 * 60 * 1000));
-
-      return profiles.map((p: any) => {
-        const userMoods = moodsMap.get(p.id) ?? [];
-        const totalCheckins = userMoods.length;
-        let trendText = "Belum cukup data";
-        let trendColor = "text-stone-500 bg-stone-100/60 border border-stone-200/40";
-        let avgMood30 = 0;
-
-        if (totalCheckins > 0) {
-          const sumMood = userMoods.reduce((sum, item) => sum + item.mood_score, 0);
-          avgMood30 = Number((sumMood / totalCheckins).toFixed(1));
-
-          const recentMoods = userMoods.filter((m) => m.date >= sevenDaysAgoStr);
-          const olderMoods = userMoods.filter((m) => m.date < sevenDaysAgoStr);
-
-          if (recentMoods.length > 0 && olderMoods.length > 0) {
-            const avgRecent = recentMoods.reduce((sum, item) => sum + item.mood_score, 0) / recentMoods.length;
-            const avgOlder = olderMoods.reduce((sum, item) => sum + item.mood_score, 0) / olderMoods.length;
-
-            const diff = avgRecent - avgOlder;
-            if (diff >= 0.5) {
-              trendText = `↗️ Membaik (+${diff.toFixed(1)})`;
-              trendColor = "text-emerald-700 bg-emerald-50 border border-emerald-100/60";
-            } else if (diff <= -0.5) {
-              trendText = `↘️ Menurun (${diff.toFixed(1)})`;
-              trendColor = "text-red-700 bg-red-50 border border-red-100/60";
-            } else {
-              trendText = `➡️ Stabil (${diff >= 0 ? "+" : ""}${diff.toFixed(1)})`;
-              trendColor = "text-amber-700 bg-amber-50 border border-amber-100/60";
-            }
-          } else if (recentMoods.length > 0) {
-            trendText = "Baru Check-in (Stabil)";
-            trendColor = "text-blue-700 bg-blue-50 border border-blue-100/60";
-          }
-        }
-
-        const userTriggers: Record<string, number> = {};
-        userMoods.forEach((m) => {
-          m.triggers?.forEach((t) => {
-            userTriggers[t] = (userTriggers[t] ?? 0) + 1;
-          });
-        });
-
-        const sortedTriggers = Object.entries(userTriggers)
-          .sort((a, b) => b[1] - a[1])
-          .slice(0, 3)
-          .map(([t, count]) => {
-            const pct = totalCheckins ? Math.round((count / totalCheckins) * 100) : 0;
-            return `${t} (${count}× dari ${totalCheckins} [${pct}%])`;
-          });
-
-        const topTriggersText = sortedTriggers.length > 0 ? sortedTriggers.join(", ") : "Tidak ada";
-
-        return {
-          ...p,
-          total_replies: statsMap.get(p.id) ?? 0,
-          is_admin: adminSet.has(p.id),
-          total_checkins: totalCheckins,
-          avg_mood_30: avgMood30,
-          trend_text: trendText,
-          trend_color: trendColor,
-          total_journals: journalsMap.get(p.id) ?? 0,
-          total_gratitudes: gratitudesMap.get(p.id) ?? 0,
-          total_eatings: eatingsMap.get(p.id) ?? 0,
-          top_triggers_text: topTriggersText,
-        };
-      });
+      return getUsers({ data: { q, filter } });
     },
   });
 
