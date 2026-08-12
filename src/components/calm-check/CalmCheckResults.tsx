@@ -9,7 +9,6 @@ import {
   RotateCcw,
   TrendingUp,
   Share2,
-  ShieldCheck,
   Check,
   ArrowRight,
   Info,
@@ -22,8 +21,6 @@ import {
   Smile,
   CheckCircle2,
   MessageSquare,
-  ChevronDown,
-  ChevronUp,
   ListChecks
 } from "lucide-react";
 import { toPng } from "html-to-image";
@@ -59,7 +56,6 @@ export function CalmCheckResults({
 }: CalmCheckResultsProps) {
   const cardRef = useRef<HTMLDivElement>(null);
   const [downloading, setDownloading] = useState(false);
-  const [showAnswerBreakdown, setShowAnswerBreakdown] = useState(false);
   const recommendations: RecommendationItem[] = getPersonalizedRecommendations(scores);
 
   const handleDownloadCard = async () => {
