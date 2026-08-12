@@ -50,6 +50,57 @@ export type Database = {
         }
         Relationships: []
       }
+      calm_check_results: {
+        Row: {
+          id: string
+          user_id: string
+          depression_score: number
+          anxiety_score: number
+          stress_score: number
+          depression_category: string
+          anxiety_category: string
+          stress_category: string
+          answers: Json
+          consent_given: boolean
+          safety_flag: boolean
+          recommendations: Json | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          depression_score: number
+          anxiety_score: number
+          stress_score: number
+          depression_category: string
+          anxiety_category: string
+          stress_category: string
+          answers?: Json
+          consent_given?: boolean
+          safety_flag?: boolean
+          recommendations?: Json | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          depression_score?: number
+          anxiety_score?: number
+          stress_score?: number
+          depression_category?: string
+          anxiety_category?: string
+          stress_category?: string
+          answers?: Json
+          consent_given?: boolean
+          safety_flag?: boolean
+          recommendations?: Json | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       chats: {
         Row: {
           companion_key: Database["public"]["Enums"]["companion_key"] | null

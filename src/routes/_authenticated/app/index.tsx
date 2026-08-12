@@ -488,6 +488,36 @@ function Dashboard() {
         </div>
       </section>
 
+      {/* ── CALM CHECK ASSESSMENT BANNER ──────────────────────────── */}
+      <section className="relative overflow-hidden rounded-3xl border border-primary/20 bg-gradient-to-r from-primary-soft/80 via-cream to-accent-soft/50 p-5 shadow-card transition-all hover:shadow-soft">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="space-y-1">
+            <div className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-0.5 text-[10px] font-bold text-primary">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-3 w-3">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+              </svg>
+              <span>Fitur Asesmen Resmi</span>
+            </div>
+            <h3 className="font-display text-lg font-bold text-foreground">
+              Calm Check — Skrining DASS-21
+            </h3>
+            <p className="text-xs text-muted-foreground max-w-md">
+              Kenali tingkat stres, kecemasan, dan suasana hatimu dalam 3–5 menit untuk rekomendasi JN-CALM yang dipersonalisasi.
+            </p>
+          </div>
+
+          <Link
+            to="/app/calm-check"
+            className="group flex shrink-0 items-center gap-2 rounded-2xl bg-primary px-5 py-3 text-xs font-bold text-white shadow-soft transition-all duration-300 hover:bg-primary/90 hover:scale-105 active:scale-95"
+          >
+            <span>Mulai Calm Check</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4 transition-transform group-hover:translate-x-1">
+              <path d="M5 12h14M12 5l7 7-7 7" />
+            </svg>
+          </Link>
+        </div>
+      </section>
+
       {/* ── QUICK ACTIONS ─────────────────────────────────────────── */}
       <div className="grid grid-cols-2 gap-2.5 sm:gap-4">
         <Link
