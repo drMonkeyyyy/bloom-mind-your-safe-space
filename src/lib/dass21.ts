@@ -121,6 +121,8 @@ export function getDepressionExplanation(category: DASS21Category): string {
       return "Jawabanmu menunjukkan gejala depresi berat. Mulai pulihkan energimu secara bertahap melalui program mikro-habit harian JN-CALM.";
     case "Sangat berat":
       return "Jawabanmu menunjukkan gejala depresi sangat berat. Fokus pada langkah kecil penenangan diri di JN-CALM dan luangkan waktu untuk istirahat.";
+    default:
+      return "Jawabanmu memberikan gambaran kondisi suasana hatimu minggu ini bersama JN-CALM.";
   }
 }
 
@@ -136,6 +138,8 @@ export function getAnxietyExplanation(category: DASS21Category): string {
       return "Jawabanmu menunjukkan gejala kecemasan berat. Fitur Emergency Calm & audio penenang JN-CALM siap membantumu kapan saja.";
     case "Sangat berat":
       return "Jawabanmu menunjukkan gejala kecemasan sangat berat. Rilis gelisah fisikmu segera menggunakan modul relaksasi darurat JN-CALM.";
+    default:
+      return "Jawabanmu memberikan gambaran respon kecemasan fisik & pikiranmu minggu ini.";
   }
 }
 
@@ -151,6 +155,8 @@ export function getStressExplanation(category: DASS21Category): string {
       return "Jawabanmu menunjukkan gejala stres berat. Jalankan Program 7-Hari Kelola Stres JN-CALM untuk membangun resiliensi emosional.";
     case "Sangat berat":
       return "Jawabanmu menunjukkan gejala stres sangat berat. Berikan jeda total pada tubuhmu dan manfaatkan modul rilis ketegangan JN-CALM.";
+    default:
+      return "Jawabanmu memberikan gambaran respon tingkat stres harianmu minggu ini.";
   }
 }
 
@@ -190,6 +196,13 @@ export function getCategoryBadgeStyles(category: DASS21Category) {
         bgLight: "bg-rose-50 dark:bg-rose-950/40 border-rose-200 dark:border-rose-800",
         badgeBg: "bg-rose-100 text-rose-800 dark:bg-rose-900/60 dark:text-rose-200",
         barBg: "bg-rose-500"
+      };
+    default:
+      return {
+        color: "text-emerald-700 dark:text-emerald-300",
+        bgLight: "bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-800",
+        badgeBg: "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-200",
+        barBg: "bg-emerald-500"
       };
   }
 }
@@ -287,6 +300,15 @@ export function calculateDASS21Scores(answers: Record<number, number>): DASS21Sc
  */
 export function getPersonalizedRecommendations(scores: DASS21Scores): RecommendationItem[] {
   const allRecs: Record<string, RecommendationItem> = {
+    ai_companion: {
+      id: "ai_companion",
+      title: "Teman Curhat AI JN-CALM",
+      description: "Ruang aman 24/7 untuk mencurahkan isi hati & emosimu tanpa rasa takut dihakimi.",
+      path: "/app/chat",
+      iconName: "MessageSquare",
+      badgeText: "Teman Curhat",
+      colorClass: "from-pink-500/10 to-rose-500/20 text-rose-700 dark:text-rose-300"
+    },
     emergency_calm: {
       id: "emergency_calm",
       title: "Emergency Calm",
@@ -373,14 +395,14 @@ export function getPersonalizedRecommendations(scores: DASS21Scores): Recommenda
   const selected: RecommendationItem[] = [];
 
   if (scores.dominantDomain === "stress") {
-    selected.push(allRecs.emergency_calm, allRecs.breathing, allRecs.stress_journal);
+    selected.push(allRecs.ai_companion, allRecs.emergency_calm, allRecs.stress_journal);
   } else if (scores.dominantDomain === "anxiety") {
-    selected.push(allRecs.grounding, allRecs.worry_journal, allRecs.mood_tracker);
+    selected.push(allRecs.ai_companion, allRecs.grounding, allRecs.worry_journal);
   } else if (scores.dominantDomain === "depression") {
-    selected.push(allRecs.small_habits, allRecs.gratitude_journal, allRecs.mood_tracker);
+    selected.push(allRecs.ai_companion, allRecs.small_habits, allRecs.gratitude_journal);
   } else {
     // Mixed domain
-    selected.push(allRecs.emergency_calm, allRecs.grounding, allRecs.gratitude_journal);
+    selected.push(allRecs.ai_companion, allRecs.emergency_calm, allRecs.grounding);
   }
 
   // Ensure max 3

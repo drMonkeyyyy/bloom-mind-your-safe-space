@@ -81,9 +81,17 @@ export function CalmCheckHistoryModal({
             </div>
           ) : (
             history.map((item) => {
-              const formattedDate = format(new Date(item.created_at), "eeee, d MMMM yyyy (HH:mm)", {
-                locale: localeID
-              });
+              let formattedDate = String(item.created_at || "Baru saja");
+              try {
+                const dateObj = new Date(item.created_at);
+                if (!isNaN(dateObj.getTime())) {
+                  formattedDate = format(dateObj, "eeee, d MMMM yyyy (HH:mm)", {
+                    locale: localeID
+                  });
+                }
+              } catch (e) {
+                console.warn("Error formatting date:", e);
+              }
 
               return (
                 <div

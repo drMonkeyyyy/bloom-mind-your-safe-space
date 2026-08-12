@@ -1,7 +1,7 @@
 import { useState, useRef } from "react";
 import { Link } from "@tanstack/react-router";
 import type { DASS21Scores, RecommendationItem } from "@/lib/dass21";
-import { getPersonalizedRecommendations } from "@/lib/dass21";
+import { getPersonalizedRecommendations, DASS21_ITEMS, DASS21_RESPONSE_OPTIONS } from "@/lib/dass21";
 import {
   Sparkles,
   Save,
@@ -20,13 +20,18 @@ import {
   Feather,
   Heart,
   Smile,
-  CheckCircle2
+  CheckCircle2,
+  MessageSquare,
+  ChevronDown,
+  ChevronUp,
+  ListChecks
 } from "lucide-react";
 import { toPng } from "html-to-image";
 import { toast } from "sonner";
 
 interface CalmCheckResultsProps {
   scores: DASS21Scores;
+  answers?: Record<number, number>;
   previousScores?: {
     depression: number;
     anxiety: number;
@@ -43,6 +48,7 @@ interface CalmCheckResultsProps {
 
 export function CalmCheckResults({
   scores,
+  answers,
   previousScores,
   onSave,
   onDelete,
@@ -53,6 +59,7 @@ export function CalmCheckResults({
 }: CalmCheckResultsProps) {
   const cardRef = useRef<HTMLDivElement>(null);
   const [downloading, setDownloading] = useState(false);
+  const [showAnswerBreakdown, setShowAnswerBreakdown] = useState(false);
   const recommendations: RecommendationItem[] = getPersonalizedRecommendations(scores);
 
   const handleDownloadCard = async () => {
@@ -75,6 +82,7 @@ export function CalmCheckResults({
 
   const renderIcon = (iconName: string) => {
     switch (iconName) {
+      case "MessageSquare": return <MessageSquare className="h-5 w-5" />;
       case "Wind": return <Wind className="h-5 w-5" />;
       case "Activity": return <Activity className="h-5 w-5" />;
       case "Anchor": return <Anchor className="h-5 w-5" />;
@@ -87,12 +95,16 @@ export function CalmCheckResults({
     }
   };
 
-  const getComparisonText = (current: number, prev?: number) => {
+  const getComparisonInfo = (current: number, prev?: number) => {
     if (prev === undefined) return null;
     const diff = current - prev;
-    if (diff === 0) return "Sama dengan minggu lalu";
-    if (diff < 0) return `Turun ${Math.abs(diff)} poin dibanding minggu lalu 📈`;
-    return `Naik ${diff} poin dibanding minggu lalu`;
+    if (diff === 0) {
+      return { text: "Kondisi emosional stabil dibanding tes sebelumnya ⚡", colorClass: "text-muted-foreground" };
+    }
+    if (diff < 0) {
+      return { text: "Gejala membaik dibanding tes sebelumnya 🌿", colorClass: "text-emerald-600 dark:text-emerald-400" };
+    }
+    return { text: "Tingkat gejala meningkat dibanding tes sebelumnya ⚠️", colorClass: "text-amber-600 dark:text-amber-400" };
   };
 
   return (
@@ -117,17 +129,17 @@ export function CalmCheckResults({
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           {/* Depresi */}
           <div className={`rounded-2xl border p-4 transition-all ${scores.depression.bgLight}`}>
-            <div className="flex items-center justify-between">
+            <div className="flex flex-wrap items-center justify-between gap-1">
               <span className="text-xs font-bold text-foreground">Depresi</span>
               <span className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold ${scores.depression.badgeBg}`}>
                 {scores.depression.category}
               </span>
             </div>
-            <div className="my-3 flex items-baseline gap-1">
-              <span className="font-display text-3xl font-extrabold text-foreground">
+            <div className="my-3 flex items-baseline gap-1.5">
+              <span className="text-xs font-semibold text-muted-foreground">Skor:</span>
+              <span className="font-display text-2xl font-extrabold text-foreground">
                 {scores.depression.score}
               </span>
-              <span className="text-xs text-muted-foreground">/ 42</span>
             </div>
             {/* Horizontal Bar */}
             <div className="h-2 w-full overflow-hidden rounded-full bg-black/10 dark:bg-white/10">
@@ -139,26 +151,29 @@ export function CalmCheckResults({
             <p className="mt-3 text-[11px] leading-relaxed text-muted-foreground">
               {scores.depression.explanation}
             </p>
-            {previousScores && (
-              <p className="mt-2 text-[10px] font-semibold text-primary">
-                {getComparisonText(scores.depression.score, previousScores.depression)}
-              </p>
-            )}
+            {previousScores && (() => {
+              const info = getComparisonInfo(scores.depression.score, previousScores.depression);
+              return info ? (
+                <p className={`mt-2 text-[10px] font-bold ${info.colorClass}`}>
+                  {info.text}
+                </p>
+              ) : null;
+            })()}
           </div>
 
           {/* Kecemasan */}
           <div className={`rounded-2xl border p-4 transition-all ${scores.anxiety.bgLight}`}>
-            <div className="flex items-center justify-between">
+            <div className="flex flex-wrap items-center justify-between gap-1">
               <span className="text-xs font-bold text-foreground">Kecemasan</span>
               <span className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold ${scores.anxiety.badgeBg}`}>
                 {scores.anxiety.category}
               </span>
             </div>
-            <div className="my-3 flex items-baseline gap-1">
-              <span className="font-display text-3xl font-extrabold text-foreground">
+            <div className="my-3 flex items-baseline gap-1.5">
+              <span className="text-xs font-semibold text-muted-foreground">Skor:</span>
+              <span className="font-display text-2xl font-extrabold text-foreground">
                 {scores.anxiety.score}
               </span>
-              <span className="text-xs text-muted-foreground">/ 42</span>
             </div>
             {/* Horizontal Bar */}
             <div className="h-2 w-full overflow-hidden rounded-full bg-black/10 dark:bg-white/10">
@@ -170,26 +185,29 @@ export function CalmCheckResults({
             <p className="mt-3 text-[11px] leading-relaxed text-muted-foreground">
               {scores.anxiety.explanation}
             </p>
-            {previousScores && (
-              <p className="mt-2 text-[10px] font-semibold text-primary">
-                {getComparisonText(scores.anxiety.score, previousScores.anxiety)}
-              </p>
-            )}
+            {previousScores && (() => {
+              const info = getComparisonInfo(scores.anxiety.score, previousScores.anxiety);
+              return info ? (
+                <p className={`mt-2 text-[10px] font-bold ${info.colorClass}`}>
+                  {info.text}
+                </p>
+              ) : null;
+            })()}
           </div>
 
           {/* Stres */}
           <div className={`rounded-2xl border p-4 transition-all ${scores.stress.bgLight}`}>
-            <div className="flex items-center justify-between">
+            <div className="flex flex-wrap items-center justify-between gap-1">
               <span className="text-xs font-bold text-foreground">Stres</span>
               <span className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold ${scores.stress.badgeBg}`}>
                 {scores.stress.category}
               </span>
             </div>
-            <div className="my-3 flex items-baseline gap-1">
-              <span className="font-display text-3xl font-extrabold text-foreground">
+            <div className="my-3 flex items-baseline gap-1.5">
+              <span className="text-xs font-semibold text-muted-foreground">Skor:</span>
+              <span className="font-display text-2xl font-extrabold text-foreground">
                 {scores.stress.score}
               </span>
-              <span className="text-xs text-muted-foreground">/ 42</span>
             </div>
             {/* Horizontal Bar */}
             <div className="h-2 w-full overflow-hidden rounded-full bg-black/10 dark:bg-white/10">
@@ -201,11 +219,36 @@ export function CalmCheckResults({
             <p className="mt-3 text-[11px] leading-relaxed text-muted-foreground">
               {scores.stress.explanation}
             </p>
-            {previousScores && (
-              <p className="mt-2 text-[10px] font-semibold text-primary">
-                {getComparisonText(scores.stress.score, previousScores.stress)}
-              </p>
-            )}
+            {previousScores && (() => {
+              const info = getComparisonInfo(scores.stress.score, previousScores.stress);
+              return info ? (
+                <p className={`mt-2 text-[10px] font-bold ${info.colorClass}`}>
+                  {info.text}
+                </p>
+              ) : null;
+            })()}
+          </div>
+        </div>
+
+        {/* Positive Reinforcement & Highlights Card */}
+        <div className="rounded-2xl border border-emerald-200 bg-emerald-50/70 p-4.5 dark:border-emerald-900/40 dark:bg-emerald-950/30 space-y-2.5">
+          <div className="flex items-center gap-2 text-xs font-bold text-emerald-800 dark:text-emerald-200">
+            <Heart className="h-4 w-4 text-emerald-600 fill-emerald-600" />
+            <span>Hal Positif & Apresiasi Diri Hari Ini 🌟</span>
+          </div>
+          <div className="grid grid-cols-1 gap-2 text-[11px] text-emerald-900/90 dark:text-emerald-200/90 leading-relaxed">
+            <div className="flex items-start gap-2">
+              <span className="text-emerald-600 font-bold">•</span>
+              <span><strong>Kesadaran Diri Tinggi:</strong> Keberanianmu menyisihkan 3 menit untuk menyadari kondisi emosional adalah bentuk kepedulian yang sangat positif bagi kesehatan batinmu.</span>
+            </div>
+            <div className="flex items-start gap-2">
+              <span className="text-emerald-600 font-bold">•</span>
+              <span><strong>Resiliensi Jiwa:</strong> Memahami apa yang kamu rasakan tanpa menghakimi diri adalah langkah awal pemulihan dan peningkatan ketahanan emosional.</span>
+            </div>
+            <div className="flex items-start gap-2">
+              <span className="text-emerald-600 font-bold">•</span>
+              <span><strong>Solusi Terjangkau:</strong> Dengan rutin mencoba 1–2 kebiasaan kecil di JN-CALM hari ini, kamu sedang membangun proteksi emosi yang lebih stabil untuk masa depan.</span>
+            </div>
           </div>
         </div>
 
@@ -266,6 +309,57 @@ export function CalmCheckResults({
           ))}
         </div>
       </div>
+
+      {/* Questionnaire Answers Breakdown Accordion */}
+      {answers && Object.keys(answers).length > 0 && (
+        <div className="rounded-3xl border border-border/80 bg-surface/90 p-5 shadow-card space-y-4">
+          <button
+            type="button"
+            onClick={() => setShowAnswerBreakdown(!showAnswerBreakdown)}
+            className="flex w-full items-center justify-between text-left focus:outline-none"
+          >
+            <div className="flex items-center gap-2 text-sm font-bold text-foreground">
+              <ListChecks className="h-5 w-5 text-primary" />
+              <span>Lihat Rincian Jawaban Kuesioner (21 Pertanyaan)</span>
+            </div>
+            <div className="flex items-center gap-1.5 text-xs text-muted-foreground font-semibold">
+              <span>{showAnswerBreakdown ? "Sembunyikan" : "Tampilkan"}</span>
+              {showAnswerBreakdown ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+            </div>
+          </button>
+
+          {showAnswerBreakdown && (
+            <div className="space-y-3 pt-2 border-t border-border/60 animate-fade-in-up">
+              <p className="text-[11px] text-muted-foreground">
+                Berikut adalah ringkasan jawaban yang kamu pilih untuk 21 pertanyaan skrining Calm Check:
+              </p>
+              <div className="divide-y divide-border/50 max-h-80 overflow-y-auto pr-1 space-y-2">
+                {DASS21_ITEMS.map((item) => {
+                  const val = answers[item.id] ?? 0;
+                  const opt = DASS21_RESPONSE_OPTIONS.find((o) => o.value === val);
+                  return (
+                    <div key={item.id} className="pt-2 pb-1 space-y-1">
+                      <div className="flex items-start justify-between gap-2">
+                        <p className="text-xs font-semibold text-foreground leading-snug">
+                          {item.id}. {item.text}
+                        </p>
+                        <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold ${
+                          val === 0 ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300" :
+                          val === 1 ? "bg-sky-100 text-sky-800 dark:bg-sky-950 dark:text-sky-300" :
+                          val === 2 ? "bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300" :
+                          "bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300"
+                        }`}>
+                          {opt ? opt.label : `Poin ${val}`}
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Re-assessment Advice */}
       <div className="rounded-2xl border border-sky-200 bg-sky-50/70 p-4 dark:border-sky-900/40 dark:bg-sky-950/30">

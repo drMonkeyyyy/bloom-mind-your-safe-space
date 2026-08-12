@@ -259,6 +259,7 @@ function CalmCheckPage() {
       {step === "results" && scores && (
         <CalmCheckResults
           scores={scores}
+          answers={answers}
           previousScores={previousAssessment}
           onSave={handleSaveResults}
           onRetakeLater={handleRetakeLater}

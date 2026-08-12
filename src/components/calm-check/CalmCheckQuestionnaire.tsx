@@ -107,7 +107,7 @@ export function CalmCheckQuestionnaire({
         <div className="space-y-6 relative z-10">
           <div className="space-y-2">
             <span className="inline-block rounded-full bg-primary-soft px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-primary">
-              Butir Ke-{currentItem.id}
+              Pertanyaan Ke-{currentItem.id}
             </span>
             <h3 className="font-display text-xl font-bold text-foreground sm:text-2xl leading-snug">
               "{currentItem.text}"
