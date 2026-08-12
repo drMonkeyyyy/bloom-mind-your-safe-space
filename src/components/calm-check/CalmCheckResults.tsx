@@ -135,11 +135,6 @@ export function CalmCheckResults({
                 {scores.depression.category}
               </span>
             </div>
-            <div className="my-3 flex items-baseline gap-1.5">
-              <span className="font-display text-2xl font-extrabold text-foreground">
-                {scores.depression.score}
-              </span>
-            </div>
             {/* Horizontal Bar */}
             <div className="h-2 w-full overflow-hidden rounded-full bg-black/10 dark:bg-white/10">
               <div
@@ -168,11 +163,6 @@ export function CalmCheckResults({
                 {scores.anxiety.category}
               </span>
             </div>
-            <div className="my-3 flex items-baseline gap-1.5">
-              <span className="font-display text-2xl font-extrabold text-foreground">
-                {scores.anxiety.score}
-              </span>
-            </div>
             {/* Horizontal Bar */}
             <div className="h-2 w-full overflow-hidden rounded-full bg-black/10 dark:bg-white/10">
               <div
@@ -199,11 +189,6 @@ export function CalmCheckResults({
               <span className="text-xs font-bold text-foreground">Stres</span>
               <span className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold ${scores.stress.badgeBg}`}>
                 {scores.stress.category}
-              </span>
-            </div>
-            <div className="my-3 flex items-baseline gap-1.5">
-              <span className="font-display text-2xl font-extrabold text-foreground">
-                {scores.stress.score}
               </span>
             </div>
             {/* Horizontal Bar */}
