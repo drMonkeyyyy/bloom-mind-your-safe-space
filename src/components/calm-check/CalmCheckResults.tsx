@@ -244,6 +244,41 @@ export function CalmCheckResults({
             "Hasil skrining ini adalah kompas emosionalmu. Dengan rutin menjalankan rekomendasi fitur JN-CALM di bawah ini secara berkala, kamu dapat memulihkan energi, merilis rasa cemas, dan menemukan kembali kedamaian batinmu."
           </p>
         </div>
+
+        {/* Questionnaire Answers inside card (always visible, included in export) */}
+        {answers && Object.keys(answers).length > 0 && (
+          <div className="space-y-3 border-t border-border/60 pt-4">
+            <div className="flex items-center gap-2 text-xs font-bold text-foreground">
+              <ListChecks className="h-4 w-4 text-primary" />
+              <span>Rincian Jawaban 21 Pertanyaan</span>
+            </div>
+            <div className="space-y-2">
+              {DASS21_ITEMS.map((item) => {
+                const val = answers[item.id] ?? 0;
+                const opt = RESPONSE_OPTIONS.find((o: { value: number; label: string }) => o.value === val);
+                return (
+                  <div key={item.id} className="flex items-start justify-between gap-3">
+                    <p className="text-[10px] leading-snug text-muted-foreground flex-1">
+                      <span className="font-bold text-foreground/70 mr-1">{item.id}.</span>
+                      {item.text}
+                    </p>
+                    <span className={`shrink-0 rounded-full px-2 py-0.5 text-[9px] font-bold ${
+                      val === 0 ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300" :
+                      val === 1 ? "bg-sky-100 text-sky-800 dark:bg-sky-950 dark:text-sky-300" :
+                      val === 2 ? "bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300" :
+                      "bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300"
+                    }`}>
+                      {opt ? opt.label : `Poin ${val}`}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+            <p className="text-[9px] text-muted-foreground text-center pt-1">
+              Dibuat oleh JN-CALM · jncalm.my.id
+            </p>
+          </div>
+        )}
       </div>
 
       {/* Personalized Recommendations Section */}
