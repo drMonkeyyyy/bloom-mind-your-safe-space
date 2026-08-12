@@ -154,7 +154,8 @@ function CalmCheckPage() {
         if (!error) {
           savedToCloud = true;
           if (data && data[0]) {
-            newRecord.id = data[0].id;
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            newRecord.id = (data[0] as any).id;
           }
         } else {
           console.warn("Supabase save returned error, saving locally:", error);

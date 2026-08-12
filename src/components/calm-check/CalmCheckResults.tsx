@@ -1,7 +1,7 @@
 import { useState, useRef } from "react";
 import { Link } from "@tanstack/react-router";
 import type { DASS21Scores, RecommendationItem } from "@/lib/dass21";
-import { getPersonalizedRecommendations, DASS21_ITEMS, DASS21_RESPONSE_OPTIONS } from "@/lib/dass21";
+import { getPersonalizedRecommendations, DASS21_ITEMS, RESPONSE_OPTIONS } from "@/lib/dass21";
 import {
   Sparkles,
   Save,
@@ -136,7 +136,6 @@ export function CalmCheckResults({
               </span>
             </div>
             <div className="my-3 flex items-baseline gap-1.5">
-              <span className="text-xs font-semibold text-muted-foreground">Skor:</span>
               <span className="font-display text-2xl font-extrabold text-foreground">
                 {scores.depression.score}
               </span>
@@ -170,7 +169,6 @@ export function CalmCheckResults({
               </span>
             </div>
             <div className="my-3 flex items-baseline gap-1.5">
-              <span className="text-xs font-semibold text-muted-foreground">Skor:</span>
               <span className="font-display text-2xl font-extrabold text-foreground">
                 {scores.anxiety.score}
               </span>
@@ -204,7 +202,6 @@ export function CalmCheckResults({
               </span>
             </div>
             <div className="my-3 flex items-baseline gap-1.5">
-              <span className="text-xs font-semibold text-muted-foreground">Skor:</span>
               <span className="font-display text-2xl font-extrabold text-foreground">
                 {scores.stress.score}
               </span>
@@ -336,7 +333,7 @@ export function CalmCheckResults({
               <div className="divide-y divide-border/50 max-h-80 overflow-y-auto pr-1 space-y-2">
                 {DASS21_ITEMS.map((item) => {
                   const val = answers[item.id] ?? 0;
-                  const opt = DASS21_RESPONSE_OPTIONS.find((o) => o.value === val);
+                  const opt = RESPONSE_OPTIONS.find((o: { value: number; label: string }) => o.value === val);
                   return (
                     <div key={item.id} className="pt-2 pb-1 space-y-1">
                       <div className="flex items-start justify-between gap-2">
