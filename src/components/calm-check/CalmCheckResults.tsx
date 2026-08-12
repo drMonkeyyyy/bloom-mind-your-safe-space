@@ -327,56 +327,7 @@ export function CalmCheckResults({
         </div>
       </div>
 
-      {/* Questionnaire Answers Breakdown Accordion */}
-      {answers && Object.keys(answers).length > 0 && (
-        <div className="rounded-3xl border border-border/80 bg-surface/90 p-5 shadow-card space-y-4">
-          <button
-            type="button"
-            onClick={() => setShowAnswerBreakdown(!showAnswerBreakdown)}
-            className="flex w-full items-center justify-between text-left focus:outline-none"
-          >
-            <div className="flex items-center gap-2 text-sm font-bold text-foreground">
-              <ListChecks className="h-5 w-5 text-primary" />
-              <span>Lihat Rincian Jawaban Kuesioner (21 Pertanyaan)</span>
-            </div>
-            <div className="flex items-center gap-1.5 text-xs text-muted-foreground font-semibold">
-              <span>{showAnswerBreakdown ? "Sembunyikan" : "Tampilkan"}</span>
-              {showAnswerBreakdown ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-            </div>
-          </button>
 
-          {showAnswerBreakdown && (
-            <div className="space-y-3 pt-2 border-t border-border/60 animate-fade-in-up">
-              <p className="text-[11px] text-muted-foreground">
-                Berikut adalah ringkasan jawaban yang kamu pilih untuk 21 pertanyaan skrining Calm Check:
-              </p>
-              <div className="divide-y divide-border/50 max-h-80 overflow-y-auto pr-1 space-y-2">
-                {DASS21_ITEMS.map((item) => {
-                  const val = answers[item.id] ?? 0;
-                  const opt = RESPONSE_OPTIONS.find((o: { value: number; label: string }) => o.value === val);
-                  return (
-                    <div key={item.id} className="pt-2 pb-1 space-y-1">
-                      <div className="flex items-start justify-between gap-2">
-                        <p className="text-xs font-semibold text-foreground leading-snug">
-                          {item.id}. {item.text}
-                        </p>
-                        <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold ${
-                          val === 0 ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300" :
-                          val === 1 ? "bg-sky-100 text-sky-800 dark:bg-sky-950 dark:text-sky-300" :
-                          val === 2 ? "bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300" :
-                          "bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300"
-                        }`}>
-                          {opt ? opt.label : `Poin ${val}`}
-                        </span>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-        </div>
-      )}
 
       {/* Re-assessment Advice */}
       <div className="rounded-2xl border border-sky-200 bg-sky-50/70 p-4 dark:border-sky-900/40 dark:bg-sky-950/30">

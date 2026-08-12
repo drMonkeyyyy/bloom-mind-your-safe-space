@@ -108,17 +108,15 @@ export function CalmCheckOpening({ onStart, onViewHistory, hasHistory }: CalmChe
           <ArrowRight className="h-5 w-5 transition-transform duration-300 group-hover:translate-x-1" />
         </button>
 
-        {hasHistory && (
-          <div>
-            <button
-              onClick={onViewHistory}
-              className="inline-flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-semibold text-primary hover:bg-primary-soft/60 transition-colors"
-            >
-              <History className="h-4 w-4" />
-              <span>Lihat Riwayat Asesmen Sebelumnya</span>
-            </button>
-          </div>
-        )}
+        <div>
+          <button
+            onClick={onViewHistory}
+            className="inline-flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-semibold text-primary hover:bg-primary-soft/60 transition-colors"
+          >
+            <History className="h-4 w-4" />
+            <span>{hasHistory ? "Lihat Riwayat Asesmen Sebelumnya" : "Cek Riwayat Check"}</span>
+          </button>
+        </div>
       </div>
     </div>
   );
