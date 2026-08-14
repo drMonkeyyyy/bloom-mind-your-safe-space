@@ -82,8 +82,8 @@ export function CalmCheckOpening({ onStart, onViewHistory, hasHistory }: CalmChe
             <Info className="h-5 w-5" />
           </div>
           <div>
-            <p className="text-xs font-bold text-foreground">Instrumen Resmi</p>
-            <p className="text-[11px] text-muted-foreground">DASS-21 Tervalidasi</p>
+            <p className="text-xs font-bold text-foreground">Standar Teruji</p>
+            <p className="text-[11px] text-muted-foreground">Metode DASS-21</p>
           </div>
         </div>
       </div>
@@ -93,7 +93,7 @@ export function CalmCheckOpening({ onStart, onViewHistory, hasHistory }: CalmChe
         <div className="flex items-center gap-2 text-muted-foreground">
           <Info className="h-4 w-4 shrink-0 text-primary" />
           <p className="text-[11px] leading-relaxed">
-            <strong className="font-semibold text-foreground">Catatan Penting:</strong> Calm Check adalah skrining mandiri awal untuk membantu kamu menemukan rekomendasi fitur JN-CALM yang paling tepat. Hasil ini bukan diagnosis medis.
+            <strong className="font-semibold text-foreground">Catatan Penting:</strong> Calm Check adalah tes mandiri awal untuk membantu kamu menemukan rekomendasi fitur JN-CALM yang paling tepat. Hasil ini bukan diagnosis medis.
           </p>
         </div>
       </div>
@@ -104,7 +104,7 @@ export function CalmCheckOpening({ onStart, onViewHistory, hasHistory }: CalmChe
           onClick={onStart}
           className="group relative inline-flex w-full items-center justify-center gap-2.5 rounded-2xl bg-gradient-to-r from-primary to-primary/90 px-8 py-4 text-base font-bold text-white shadow-soft transition-all duration-300 hover:scale-[1.01] hover:shadow-float active:scale-[0.99] sm:w-auto"
         >
-          <span>Mulai Calm Check</span>
+          <span>Mulai Cek Kesehatan Mental</span>
           <ArrowRight className="h-5 w-5 transition-transform duration-300 group-hover:translate-x-1" />
         </button>
 

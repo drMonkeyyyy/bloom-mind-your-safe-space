@@ -499,10 +499,10 @@ function Dashboard() {
               <span>Fitur Asesmen Resmi</span>
             </div>
             <h3 className="font-display text-lg font-bold text-foreground">
-              Calm Check — Skrining DASS-21
+              Calm Check — Cek Kesehatan Mental
             </h3>
             <p className="text-xs text-muted-foreground max-w-md">
-              Kenali tingkat stres, kecemasan, dan suasana hatimu dalam 3–5 menit untuk rekomendasi JN-CALM yang dipersonalisasi.
+              Kenali tingkat stres, kecemasan, dan suasana hatimu dalam 3–5 menit dengan metode teruji DASS-21.
             </p>
           </div>
 
@@ -510,7 +510,7 @@ function Dashboard() {
             to="/app/calm-check"
             className="group flex shrink-0 items-center gap-2 rounded-2xl bg-primary px-5 py-3 text-xs font-bold text-white shadow-soft transition-all duration-300 hover:bg-primary/90 hover:scale-105 active:scale-95"
           >
-            <span>Mulai Calm Check</span>
+            <span>Mulai Cek Kesehatan Mental</span>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4 transition-transform group-hover:translate-x-1">
               <path d="M5 12h14M12 5l7 7-7 7" />
             </svg>
