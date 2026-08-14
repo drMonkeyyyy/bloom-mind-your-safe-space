@@ -795,12 +795,12 @@ function Dashboard() {
       )}
 
       {/* ── MOBILE-ONLY LAPTOP/DESKTOP PROMPT ────────────────────── */}
-      <div className="sm:hidden rounded-3xl bg-amber-50/70 border border-amber-100/50 p-4 shadow-soft animate-slide-up flex gap-3 text-amber-950">
-        <span className="text-2xl select-none shrink-0">💡</span>
+      <div className="sm:hidden rounded-3xl bg-amber-50/80 border border-amber-200/60 p-4 shadow-card animate-slide-up flex gap-3 text-amber-950">
+        <span className="text-2xl select-none shrink-0">💻</span>
         <div className="text-xs leading-relaxed min-w-0">
-          <p className="font-bold text-amber-900 font-display">Tips Nyaman</p>
-          <p className="mt-0.5 text-stone-600">
-            Capek mengetik di layar HP? Buka <a href="https://jncalm.my.id" target="_blank" rel="noopener noreferrer" className="underline font-bold text-amber-900">jncalm.my.id</a> di browser Laptop/MacBook-mu untuk pengalaman curhat & menulis jurnal yang lebih leluasa dengan keyboard fisik! 💻
+          <p className="font-bold text-amber-900 font-display text-sm">Tips Pengalaman Lebih Nyaman 🌿</p>
+          <p className="mt-1 text-stone-700">
+            Layar HP terasa kurang lega atau sempit? Lebih disarankan buka <a href="https://jncalm.my.id" target="_blank" rel="noopener noreferrer" className="underline font-bold text-amber-900">jncalm.my.id</a> di <strong>Laptop/PC</strong> kamu. Tampilannya jauh lebih luas, lega, dan nyaman untuk curhat, berrefleksi, maupun mengisi asesmen! ✨
           </p>
         </div>
       </div>
