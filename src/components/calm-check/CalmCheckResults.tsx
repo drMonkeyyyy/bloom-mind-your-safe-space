@@ -91,18 +91,6 @@ export function CalmCheckResults({
     }
   };
 
-  const getComparisonInfo = (current: number, prev?: number) => {
-    if (prev === undefined) return null;
-    const diff = current - prev;
-    if (diff === 0) {
-      return { text: "Kondisi emosional stabil dibanding tes sebelumnya ⚡", colorClass: "text-muted-foreground" };
-    }
-    if (diff < 0) {
-      return { text: "Gejala membaik dibanding tes sebelumnya 🌿", colorClass: "text-emerald-600 dark:text-emerald-400" };
-    }
-    return { text: "Tingkat gejala meningkat dibanding tes sebelumnya ⚠️", colorClass: "text-amber-600 dark:text-amber-400" };
-  };
-
   return (
     <div className="mx-auto max-w-2xl space-y-8 animate-fade-in-up">
       {/* Header */}
@@ -141,14 +129,6 @@ export function CalmCheckResults({
             <p className="mt-3 text-[11px] leading-relaxed text-muted-foreground">
               {scores.depression.explanation}
             </p>
-            {previousScores && (() => {
-              const info = getComparisonInfo(scores.depression.score, previousScores.depression);
-              return info ? (
-                <p className={`mt-2 text-[10px] font-bold ${info.colorClass}`}>
-                  {info.text}
-                </p>
-              ) : null;
-            })()}
           </div>
 
           {/* Kecemasan */}
@@ -169,14 +149,6 @@ export function CalmCheckResults({
             <p className="mt-3 text-[11px] leading-relaxed text-muted-foreground">
               {scores.anxiety.explanation}
             </p>
-            {previousScores && (() => {
-              const info = getComparisonInfo(scores.anxiety.score, previousScores.anxiety);
-              return info ? (
-                <p className={`mt-2 text-[10px] font-bold ${info.colorClass}`}>
-                  {info.text}
-                </p>
-              ) : null;
-            })()}
           </div>
 
           {/* Stres */}
@@ -197,14 +169,6 @@ export function CalmCheckResults({
             <p className="mt-3 text-[11px] leading-relaxed text-muted-foreground">
               {scores.stress.explanation}
             </p>
-            {previousScores && (() => {
-              const info = getComparisonInfo(scores.stress.score, previousScores.stress);
-              return info ? (
-                <p className={`mt-2 text-[10px] font-bold ${info.colorClass}`}>
-                  {info.text}
-                </p>
-              ) : null;
-            })()}
           </div>
         </div>
 
