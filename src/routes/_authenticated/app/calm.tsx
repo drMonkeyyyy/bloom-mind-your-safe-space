@@ -9,6 +9,8 @@ import { CognitiveReframing } from "@/components/calm/CognitiveReframing";
 import { SomaticExercise } from "@/components/calm/SomaticExercise";
 import { AmbientSoundPlayer } from "@/components/calm/AmbientSoundPlayer";
 import { PanicAttackTimer } from "@/components/calm/PanicAttackTimer";
+import { CatharticCrystalShatter } from "@/components/calm/CatharticCrystalShatter";
+import { StarConstellationGame } from "@/components/calm/StarConstellationGame";
 import { playAmbientSound, toggleAmbientSound, subscribeAudioState } from "@/lib/audio";
 import { Music, Pause, Play } from "lucide-react";
 
@@ -16,7 +18,7 @@ export const Route = createFileRoute("/_authenticated/app/calm")({
   component: Page,
 });
 
-type Tool = "breath" | "ground" | "selftalk" | "vent" | "reframing" | "somatic" | "panic" | null;
+type Tool = "breath" | "ground" | "selftalk" | "vent" | "reframing" | "somatic" | "panic" | "crystal" | "stars" | null;
 
 function Page() {
   const [tool, setTool] = useState<Tool>(null);
@@ -136,6 +138,8 @@ function Page() {
     { k: "vent" as Tool, icon: "🍃", title: "Kotak Pelepasan", desc: "Tulis dan bakar/hancurkan beban pikiran", color: "oklch(0.77 0.085 40)" },
     { k: "reframing" as Tool, icon: "🪞", title: "Ubah Sudut Pandang", desc: "Tulis ulang pikiran negatif secara ramah", color: "oklch(0.75 0.08 40)" },
     { k: "somatic" as Tool, icon: "🦋", title: "Latihan Somatik", desc: "Tenangkan saraf tubuh secara fisik", color: "oklch(0.71 0.045 160)" },
+    { k: "crystal" as Tool, icon: "⚡", title: "Hancurkan Kristal Stres", desc: "Ketuk & hancurkan beban emosi jadi debu bintang", color: "oklch(0.68 0.18 300)" },
+    { k: "stars" as Tool, icon: "⭐", title: "Sambungkan Bintang", desc: "Hubungkan rasi bintang & temukan afirmasi untukmu", color: "oklch(0.68 0.12 270)" },
     { k: "panic" as Tool, icon: "🆘", title: "Panic Attack Timer", desc: "Panduan darurat napas + grounding + afirmasi", color: "oklch(0.55 0.18 20)" },
   ];
 
@@ -216,6 +220,8 @@ function Page() {
             {tool === "vent" && <VentingBox />}
             {tool === "reframing" && <CognitiveReframing />}
             {tool === "somatic" && <SomaticExercise />}
+            {tool === "crystal" && <CatharticCrystalShatter />}
+            {tool === "stars" && <StarConstellationGame />}
             {tool === "panic" && <PanicAttackTimer />}
           </div>
 

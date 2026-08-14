@@ -473,3 +473,63 @@ export const toggleAmbientSound = (sound: SoundType) => {
     playAmbientSound(sound);
   }
 };
+
+// ─── Balloon Pop Sound (Web Audio synthesis — no external file needed) ────────
+// Creates a satisfying short burst: pink noise burst + low thump + pitch fall
+export const playPopSound = (volume = 0.7) => {
+  try {
+    const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
+    const ctx: AudioContext = window.__bloomAudioCtx ?? new AudioCtx();
+    if (!window.__bloomAudioCtx) window.__bloomAudioCtx = ctx;
+    if (ctx.state === "suspended") ctx.resume();
+
+    const now = ctx.currentTime;
+
+    // ── 1. Pink noise burst (the "pop" hiss) ──
+    const noiseLen = 0.08; // 80ms
+    const bufSize = Math.ceil(ctx.sampleRate * noiseLen);
+    const noiseBuf = ctx.createBuffer(1, bufSize, ctx.sampleRate);
+    const data = noiseBuf.getChannelData(0);
+    let b0 = 0, b1 = 0, b2 = 0, b3 = 0, b4 = 0, b5 = 0;
+    for (let i = 0; i < bufSize; i++) {
+      const w = Math.random() * 2 - 1;
+      b0 = 0.99886 * b0 + w * 0.0555179;
+      b1 = 0.99332 * b1 + w * 0.0750759;
+      b2 = 0.96900 * b2 + w * 0.1538520;
+      b3 = 0.86650 * b3 + w * 0.3104856;
+      b4 = 0.55000 * b4 + w * 0.5329522;
+      b5 = -0.7616 * b5 - w * 0.0168980;
+      data[i] = (b0 + b1 + b2 + b3 + b4 + b5 + w * 0.5362) * 0.11;
+    }
+    const noiseSrc = ctx.createBufferSource();
+    noiseSrc.buffer = noiseBuf;
+    const noiseBpf = ctx.createBiquadFilter();
+    noiseBpf.type = "bandpass";
+    noiseBpf.frequency.value = 1800;
+    noiseBpf.Q.value = 0.5;
+    const noiseGain = ctx.createGain();
+    noiseGain.gain.setValueAtTime(volume * 1.2, now);
+    noiseGain.gain.exponentialRampToValueAtTime(0.001, now + noiseLen);
+    noiseSrc.connect(noiseBpf);
+    noiseBpf.connect(noiseGain);
+    noiseGain.connect(ctx.destination);
+    noiseSrc.start(now);
+    noiseSrc.stop(now + noiseLen + 0.01);
+
+    // ── 2. Low thump oscillator (the "boom" of the pop) ──
+    const osc = ctx.createOscillator();
+    osc.type = "sine";
+    osc.frequency.setValueAtTime(180, now);
+    osc.frequency.exponentialRampToValueAtTime(40, now + 0.12);
+    const oscGain = ctx.createGain();
+    oscGain.gain.setValueAtTime(volume * 0.8, now);
+    oscGain.gain.exponentialRampToValueAtTime(0.001, now + 0.14);
+    osc.connect(oscGain);
+    oscGain.connect(ctx.destination);
+    osc.start(now);
+    osc.stop(now + 0.15);
+  } catch (e) {
+    // Silently fail if audio not supported
+  }
+};
+
