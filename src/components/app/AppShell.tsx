@@ -248,10 +248,10 @@ export function AppShell({ children }: { children: ReactNode }) {
 
       {/* ── MOBILE TOP HEADER ────────────────────────────── */}
       {!isChatRoom && (
-        <header className="sticky top-0 z-20 flex items-center justify-between border-b border-border/60 bg-card/85 px-5 py-3 backdrop-blur-xl lg:hidden" style={{ boxShadow: "0 1px 0 0 var(--color-border)" }}>
+        <header className="sticky top-0 z-20 flex items-center justify-between border-b border-border/60 bg-card/85 px-4 py-2 backdrop-blur-xl lg:hidden" style={{ boxShadow: "0 1px 0 0 var(--color-border)" }}>
           <Link to="/app" className="flex items-center gap-2">
             <BrandLogo size="sm" />
-            <span className="font-display text-base font-bold tracking-widest text-[#6E8C71]">JN-CALM</span>
+            <span className="font-display text-sm font-bold tracking-widest text-[#6E8C71]">JN-CALM</span>
           </Link>
           <div className="flex items-center gap-2">
             {isAdmin && (
@@ -270,8 +270,8 @@ export function AppShell({ children }: { children: ReactNode }) {
 
 
       {/* ── MAIN CONTENT ─────────────────────────────────── */}
-      <main className={`lg:pl-64 lg:pb-12 ${isChatRoom ? "pb-0" : "pb-28"}`}>
-        <div className="mx-auto max-w-5xl px-4 py-6 sm:px-6 sm:py-10">
+      <main className={`lg:pl-64 lg:pb-12 ${isChatRoom ? "pb-0" : "pb-16"}`}>
+        <div className="mx-auto max-w-5xl px-3.5 py-4 sm:px-6 sm:py-8">
           {/* Page transition wrapper keyed to path */}
           <div key={path} className="page-transition">
             {children}
@@ -294,10 +294,10 @@ export function AppShell({ children }: { children: ReactNode }) {
                 <Link
                   key={n.to}
                   to={n.to}
-                  className={`flex flex-col items-center gap-1 py-3 text-[9.5px] tracking-wide font-semibold transition-all duration-250 ${active ? "text-primary font-bold" : "text-muted-foreground hover:text-foreground"}`}
+                  className={`flex flex-col items-center gap-0.5 py-1.5 text-[9px] tracking-tight font-semibold transition-all duration-200 ${active ? "text-primary font-bold" : "text-muted-foreground hover:text-foreground"}`}
                 >
-                  <span className={`relative flex h-7 w-7 items-center justify-center rounded-xl transition-all duration-250 ${active ? "bg-primary-soft scale-110 shadow-sm" : "hover:bg-cream-deep"}`}>
-                    <Icon d={n.icon} className="h-4.5 w-4.5" />
+                  <span className={`relative flex h-6 w-6 items-center justify-center rounded-lg transition-all duration-200 ${active ? "bg-primary-soft scale-105 shadow-xs" : "hover:bg-cream-deep"}`}>
+                    <Icon d={n.icon} className="h-4 w-4" />
                     {active && (
                       <span className="absolute -bottom-0.5 left-1/2 -translate-x-1/2 h-1 w-1 rounded-full bg-primary" />
                     )}
@@ -308,29 +308,19 @@ export function AppShell({ children }: { children: ReactNode }) {
             })}
 
             {/* Center FAB — Chat */}
-            <div className="flex flex-col items-center pb-1">
+            <div className="flex flex-col items-center pb-0.5">
               <div className="relative">
-                {/* Pulse ring */}
-                <span
-                  className="absolute inset-0 rounded-full bg-gradient-to-br from-primary to-accent opacity-0 animate-fab-ring"
-                  aria-hidden="true"
-                />
-                <span
-                  className="absolute inset-0 rounded-full bg-gradient-to-br from-primary to-accent opacity-0 animate-fab-ring"
-                  style={{ animationDelay: "0.8s" }}
-                  aria-hidden="true"
-                />
                 <Link
                   to="/app/chat"
-                  className="group flex h-14 w-14 -translate-y-3 items-center justify-center rounded-full bg-gradient-to-br from-primary to-accent shadow-float transition-all duration-300 hover:scale-110 hover:shadow-glow-sage active:scale-95"
+                  className="group flex h-11 w-11 -translate-y-2 items-center justify-center rounded-full bg-gradient-to-br from-primary to-accent shadow-md transition-all duration-300 hover:scale-105 active:scale-95"
                   aria-label="Buka Teman Curhat"
                 >
-                  <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="h-6 w-6" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5" aria-hidden="true">
                     <path d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 0 1-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                   </svg>
                 </Link>
               </div>
-              <span className={`-mt-0.5 text-[9.5px] tracking-wide font-semibold ${path.startsWith("/app/chat") ? "text-primary font-bold" : "text-muted-foreground"}`}>Curhat</span>
+              <span className={`-mt-1 text-[9px] tracking-tight font-semibold ${path.startsWith("/app/chat") ? "text-primary font-bold" : "text-muted-foreground"}`}>Curhat</span>
             </div>
 
             {/* Items 3–4 */}
@@ -340,10 +330,10 @@ export function AppShell({ children }: { children: ReactNode }) {
                 <Link
                   key={n.to}
                   to={n.to}
-                  className={`flex flex-col items-center gap-1 py-3 text-[9.5px] tracking-wide font-semibold transition-all duration-250 ${active ? "text-primary font-bold" : "text-muted-foreground hover:text-foreground"}`}
+                  className={`flex flex-col items-center gap-0.5 py-1.5 text-[9px] tracking-tight font-semibold transition-all duration-200 ${active ? "text-primary font-bold" : "text-muted-foreground hover:text-foreground"}`}
                 >
-                  <span className={`relative flex h-7 w-7 items-center justify-center rounded-xl transition-all duration-250 ${active ? "bg-primary-soft scale-110 shadow-sm" : "hover:bg-cream-deep"}`}>
-                    <Icon d={n.icon} className="h-4.5 w-4.5" />
+                  <span className={`relative flex h-6 w-6 items-center justify-center rounded-lg transition-all duration-200 ${active ? "bg-primary-soft scale-105 shadow-xs" : "hover:bg-cream-deep"}`}>
+                    <Icon d={n.icon} className="h-4 w-4" />
                     {active && (
                       <span className="absolute -bottom-0.5 left-1/2 -translate-x-1/2 h-1 w-1 rounded-full bg-primary" />
                     )}
@@ -356,12 +346,12 @@ export function AppShell({ children }: { children: ReactNode }) {
             {/* More button */}
             <button
               onClick={() => setMoreOpen(true)}
-              className={`flex flex-col items-center gap-1 py-3 text-[9.5px] tracking-wide font-semibold transition-all duration-250 ${moreOpen ? "text-primary font-bold" : "text-muted-foreground hover:text-foreground"}`}
+              className={`flex flex-col items-center gap-0.5 py-1.5 text-[9px] tracking-tight font-semibold transition-all duration-200 ${moreOpen ? "text-primary font-bold" : "text-muted-foreground hover:text-foreground"}`}
               aria-label="Lebih banyak menu"
               aria-expanded={moreOpen}
             >
-              <span className={`relative flex h-7 w-7 items-center justify-center rounded-xl transition-all duration-250 ${moreOpen ? "bg-primary-soft scale-110 shadow-sm" : "hover:bg-cream-deep"}`}>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" className="h-4.5 w-4.5" aria-hidden="true">
+              <span className={`relative flex h-6 w-6 items-center justify-center rounded-lg transition-all duration-200 ${moreOpen ? "bg-primary-soft scale-105 shadow-xs" : "hover:bg-cream-deep"}`}>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" className="h-4 w-4" aria-hidden="true">
                   <circle cx="12" cy="5" r="1" /><circle cx="12" cy="12" r="1" /><circle cx="12" cy="19" r="1" />
                 </svg>
               </span>
