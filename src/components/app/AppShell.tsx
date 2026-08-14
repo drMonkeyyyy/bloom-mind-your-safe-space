@@ -42,15 +42,15 @@ const accountNav = [
   { to: "/app/profile", label: "Profil & Pengaturan", icon: "M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z" },
 ];
 
-/* Bottom nav — 5 slots with FAB */
+/* Bottom nav — 5 slots with FAB (2 left, Curhat center, 2 right) */
 const bottomNav = [
   { to: "/app", label: "Beranda", icon: "M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z", exact: true },
   { to: "/app/mood", label: "Mood", icon: "M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" },
   { to: "/app/journal", label: "Journal", icon: "M4 19.5A2.5 2.5 0 0 1 6.5 17H20M4 19.5V5A2.5 2.5 0 0 1 6.5 2.5H20v19H6.5A2.5 2.5 0 0 1 4 19.5z" },
-  { to: "/app/profile", label: "Profil", icon: "M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z" },
 ];
 
 const moreNavItems = [
+  { to: "/app/profile", label: "Profil Saya", icon: "M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z", color: "bg-indigo-50 text-indigo-600" },
   { to: "/app/calm-check", label: "Cek Kesehatan Mental", icon: "M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z", color: "bg-teal-50 text-teal-600" },
   { to: "/app/gratitude", label: "Gratitude Journal", icon: "M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z", color: "bg-rose-50 text-rose-500" },
   { to: "/app/habits", label: "Habit Tracker", icon: "M9 11l3 3L22 4M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11", color: "bg-emerald-50 text-emerald-600" },
@@ -286,8 +286,8 @@ export function AppShell({ children }: { children: ReactNode }) {
           style={{ boxShadow: "var(--shadow-nav)" }}
           aria-label="Navigasi utama"
         >
-          <div className="glass-strong grid grid-cols-6 items-end pb-safe">
-            {/* Items 1–2 */}
+          <div className="glass-strong grid grid-cols-5 items-end pb-safe">
+            {/* Items 1–2 (Beranda, Mood) */}
             {bottomNav.slice(0, 2).map((n) => {
               const active = (n as any).exact ? path === n.to : path === n.to || path.startsWith(n.to);
               return (
@@ -307,7 +307,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               );
             })}
 
-            {/* Center FAB — Chat */}
+            {/* Center FAB — Chat (Exact Middle - Slot 3/5) */}
             <div className="flex flex-col items-center pb-0.5">
               <div className="relative">
                 <Link
@@ -323,8 +323,8 @@ export function AppShell({ children }: { children: ReactNode }) {
               <span className={`-mt-1 text-[9px] tracking-tight font-semibold ${path.startsWith("/app/chat") ? "text-primary font-bold" : "text-muted-foreground"}`}>Curhat</span>
             </div>
 
-            {/* Items 3–4 */}
-            {bottomNav.slice(2, 4).map((n) => {
+            {/* Item 3 (Journal) */}
+            {bottomNav.slice(2, 3).map((n) => {
               const active = (n as any).exact ? path === n.to : path === n.to || path.startsWith(n.to);
               return (
                 <Link
