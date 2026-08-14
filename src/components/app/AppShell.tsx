@@ -91,14 +91,15 @@ function NavSection({ title, items, path }: { title: string; items: typeof prima
   );
 }
 
-function UserAvatar({ name, avatarUrl }: { name?: string | null; avatarUrl?: string | null }) {
+function UserAvatar({ name, avatarUrl, size = "md" }: { name?: string | null; avatarUrl?: string | null; size?: "sm" | "md" }) {
   const initials = name ? name.slice(0, 2).toUpperCase() : "BM";
+  const sz = size === "sm" ? "h-7 w-7 text-[10px]" : "h-9 w-9 text-xs";
   return (
-    <div className="h-9 w-9 shrink-0 overflow-hidden rounded-full ring-1 ring-border shadow-soft transition-transform duration-200 hover:scale-105">
+    <div className={`${sz} shrink-0 overflow-hidden rounded-full ring-1 ring-border/70 shadow-xs transition-transform duration-200 hover:scale-105`}>
       {avatarUrl ? (
         <img src={avatarUrl} alt={name ?? "Avatar"} className="h-full w-full object-cover" />
       ) : (
-        <div className="grid h-full w-full place-items-center bg-gradient-to-br from-primary to-accent font-display text-sm font-bold text-white">
+        <div className="grid h-full w-full place-items-center bg-gradient-to-br from-primary to-accent font-display font-bold text-white">
           {initials}
         </div>
       )}
@@ -107,10 +108,15 @@ function UserAvatar({ name, avatarUrl }: { name?: string | null; avatarUrl?: str
 }
 
 /* ─── Brand Logo ───────────────────────────────────────────── */
-function BrandLogo({ size = "md" }: { size?: "sm" | "md" }) {
-  const sz = size === "sm" ? { outer: "h-8 w-8", rounded: "rounded-xl" } : { outer: "h-11 w-11", rounded: "rounded-2xl" };
+function BrandLogo({ size = "md" }: { size?: "xs" | "sm" | "md" }) {
+  const sz =
+    size === "xs"
+      ? { outer: "h-6.5 w-6.5", rounded: "rounded-lg" }
+      : size === "sm"
+      ? { outer: "h-7.5 w-7.5", rounded: "rounded-xl" }
+      : { outer: "h-10 w-10", rounded: "rounded-2xl" };
   return (
-    <div className={`grid ${sz.outer} place-items-center ${sz.rounded} bg-white shadow-sm border border-border/50 transition-all duration-300 hover:scale-105 overflow-hidden`}>
+    <div className={`grid ${sz.outer} place-items-center ${sz.rounded} bg-white shadow-xs border border-border/50 transition-all duration-300 hover:scale-105 overflow-hidden shrink-0`}>
       <img src="/logo.png" alt="JN-CALM Logo" className="h-full w-full object-cover" />
     </div>
   );
@@ -248,21 +254,25 @@ export function AppShell({ children }: { children: ReactNode }) {
 
       {/* ── MOBILE TOP HEADER ────────────────────────────── */}
       {!isChatRoom && (
-        <header className="sticky top-0 z-20 flex items-center justify-between border-b border-border/60 bg-card/85 px-4 py-2 backdrop-blur-xl lg:hidden" style={{ boxShadow: "0 1px 0 0 var(--color-border)" }}>
-          <Link to="/app" className="flex items-center gap-2">
-            <BrandLogo size="sm" />
-            <span className="font-display text-sm font-bold tracking-widest text-[#6E8C71]">JN-CALM</span>
+        <header className="sticky top-0 z-20 flex h-11 items-center justify-between border-b border-border/50 bg-card/90 px-3.5 backdrop-blur-xl lg:hidden" style={{ boxShadow: "0 1px 0 0 var(--color-border)" }}>
+          <Link to="/app" className="flex items-center gap-1.5 active:opacity-80 transition-opacity">
+            <BrandLogo size="xs" />
+            <span className="font-display text-xs font-bold tracking-widest text-[#6E8C71]">JN-CALM</span>
           </Link>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5">
             {isAdmin && (
-              <Link to="/admin" className="text-xs text-muted-foreground" aria-label="Admin Panel">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4" aria-hidden="true">
+              <Link
+                to="/admin"
+                className="flex h-7 w-7 items-center justify-center rounded-full bg-cream-deep/60 text-muted-foreground transition-colors hover:bg-cream-deep hover:text-foreground"
+                aria-label="Admin Panel"
+              >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="h-3.5 w-3.5" aria-hidden="true">
                   <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
                 </svg>
               </Link>
             )}
-            <Link to="/app/profile">
-              <UserAvatar name={profile?.name} avatarUrl={profile?.avatar_url} />
+            <Link to="/app/profile" className="active:scale-95 transition-transform">
+              <UserAvatar name={profile?.name} avatarUrl={profile?.avatar_url} size="sm" />
             </Link>
           </div>
         </header>
