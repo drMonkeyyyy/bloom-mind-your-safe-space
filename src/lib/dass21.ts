@@ -112,17 +112,17 @@ export function getStressCategory(score: number): DASS21Category {
 export function getDepressionExplanation(category: DASS21Category): string {
   switch (category) {
     case "Normal":
-      return "Jawabanmu menunjukkan tingkat suasana hati yang stabil. Pertahankan ritme positifmu bersama JN-CALM.";
+      return "Jawabanmu menunjukkan tingkat suasana hati yang stabil dan positif minggu ini.";
     case "Ringan":
-      return "Jawabanmu menunjukkan gejala depresi ringan. Lakukan habit kecil dan gratitude journal di JN-CALM untuk dorongan energi positif.";
+      return "Jawabanmu menunjukkan gejala depresi ringan. Mulai pulihkan energimu secara perlahan dan berikan waktu untuk mengapresiasi hal-hal kecil.";
     case "Sedang":
-      return "Jawabanmu menunjukkan gejala depresi sedang. Luangkan waktu khusus untuk journaling refleksi dan chat bersama AI Companion JN-CALM.";
+      return "Jawabanmu menunjukkan gejala depresi sedang. Kamu mungkin merasa lelah emosional, cobalah meluangkan waktu khusus untuk refleksi diri dan istirahat.";
     case "Berat":
-      return "Jawabanmu menunjukkan gejala depresi berat. Mulai pulihkan energimu secara bertahap melalui program mikro-habit harian JN-CALM.";
+      return "Jawabanmu menunjukkan gejala depresi berat. Beban emosional yang dirasakan cukup tinggi, prioritaskan perawatan diri dan pemulihan energi secara bertahap.";
     case "Sangat berat":
-      return "Jawabanmu menunjukkan gejala depresi sangat berat. Fokus pada langkah kecil penenangan diri di JN-CALM dan luangkan waktu untuk istirahat.";
+      return "Jawabanmu menunjukkan gejala depresi sangat berat. Fokus pada langkah kecil penenangan diri, kurangi beban aktivitas, dan luangkan waktu untuk istirahat penuh.";
     default:
-      return "Jawabanmu memberikan gambaran kondisi suasana hatimu minggu ini bersama JN-CALM.";
+      return "Jawabanmu memberikan gambaran kondisi suasana hatimu minggu ini.";
   }
 }
 
@@ -131,13 +131,13 @@ export function getAnxietyExplanation(category: DASS21Category): string {
     case "Normal":
       return "Jawabanmu menunjukkan tingkat kecemasan yang normal dan terkendali minggu ini.";
     case "Ringan":
-      return "Jawabanmu menunjukkan gejala kecemasan ringan. Latihan pernapasan terpandu di JN-CALM dapat membantumu tetap rileks.";
+      return "Jawabanmu menunjukkan gejala kecemasan ringan. Latihan pernapasan sederhana dapat membantumu tetap tenang saat rasa gelisah muncul.";
     case "Sedang":
-      return "Jawabanmu menunjukkan gejala kecemasan sedang. Gunakan fitur Grounding 5-4-3-2-1 JN-CALM saat merasa pikiran mulai terdistraksi.";
+      return "Jawabanmu menunjukkan gejala kecemasan sedang. Cobalah teknik alih perhatian atau grounding saat merasa pikiran mulai terlalu terdistraksi.";
     case "Berat":
-      return "Jawabanmu menunjukkan gejala kecemasan berat. Fitur Emergency Calm & audio penenang JN-CALM siap membantumu kapan saja.";
+      return "Jawabanmu menunjukkan gejala kecemasan berat. Kegelisahan fisik dan pikiran cukup tinggi, berikan jeda sejenak untuk menenangkan diri.";
     case "Sangat berat":
-      return "Jawabanmu menunjukkan gejala kecemasan sangat berat. Rilis gelisah fisikmu segera menggunakan modul relaksasi darurat JN-CALM.";
+      return "Jawabanmu menunjukkan gejala kecemasan sangat berat. Rilis gelisah fisikmu segera dengan relaksasi dan fokus pada penenangan napas dasar.";
     default:
       return "Jawabanmu memberikan gambaran respon kecemasan fisik & pikiranmu minggu ini.";
   }
@@ -148,13 +148,13 @@ export function getStressExplanation(category: DASS21Category): string {
     case "Normal":
       return "Jawabanmu menunjukkan tingkat stres yang berada dalam batas normal dan seimbang.";
     case "Ringan":
-      return "Jawabanmu menunjukkan gejala stres ringan. Jurnal pemicu stres JN-CALM dapat membantumu memetakan beban harian.";
+      return "Jawabanmu menunjukkan gejala stres ringan. Mencatat pemicu stres harian dapat membantumu memetakan dan merapikan beban pikiran.";
     case "Sedang":
-      return "Jawabanmu menunjukkan gejala stres sedang. Luangkan 5 menit untuk latihan pernapasan 4-7-8 di JN-CALM sebelum istirahat.";
+      return "Jawabanmu menunjukkan gejala stres sedang. Luangkan waktu beberapa menit untuk bernapas perlahan dan istirahat sejenak dari rutinitas.";
     case "Berat":
-      return "Jawabanmu menunjukkan gejala stres berat. Jalankan Program 7-Hari Kelola Stres JN-CALM untuk membangun resiliensi emosional.";
+      return "Jawabanmu menunjukkan gejala stres berat. Beban harian terasa menumpuk, jadwalkan jeda berkala untuk membangun resiliensi emosional.";
     case "Sangat berat":
-      return "Jawabanmu menunjukkan gejala stres sangat berat. Berikan jeda total pada tubuhmu dan manfaatkan modul rilis ketegangan JN-CALM.";
+      return "Jawabanmu menunjukkan gejala stres sangat berat. Berikan jeda total pada tubuh dan pikiranmu untuk merilis ketegangan yang menumpuk.";
     default:
       return "Jawabanmu memberikan gambaran respon tingkat stres harianmu minggu ini.";
   }
