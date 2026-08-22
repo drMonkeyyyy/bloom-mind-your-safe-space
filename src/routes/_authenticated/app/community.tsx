@@ -486,33 +486,6 @@ export default function CommunityPage() {
             </p>
           </div>
 
-          {/* Stats bar — brand values, always strong */}
-          <div className="mt-6 flex items-end gap-8 border-t border-white/15 pt-4">
-            <div>
-              <p className="text-2xl font-bold leading-none text-white">
-                100<span className="text-amber-400">%</span>
-              </p>
-              <p className="mt-1 text-[10px] font-semibold uppercase tracking-[0.15em] text-white/50">
-                Aman & Terjaga
-              </p>
-            </div>
-            <div>
-              <p className="text-2xl font-bold leading-none text-white">
-                🔒
-              </p>
-              <p className="mt-1 text-[10px] font-semibold uppercase tracking-[0.15em] text-white/50">
-                Anonim Penuh
-              </p>
-            </div>
-            <div>
-              <p className="text-2xl font-bold leading-none text-white">
-                24<span className="text-amber-400">/7</span>
-              </p>
-              <p className="mt-1 text-[10px] font-semibold uppercase tracking-[0.15em] text-white/50">
-                Selalu Ada
-              </p>
-            </div>
-          </div>
 
         </div>
       </div>
