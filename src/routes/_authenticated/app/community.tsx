@@ -392,6 +392,29 @@ export default function CommunityPage() {
     toast.success("Postingan dihapus.");
   };
 
+  const deleteComment = async (commentId: string) => {
+    if (!confirm("Hapus komentar ini?")) return;
+    if (user) {
+      try {
+        await supabase.from("community_comments" as any).delete().eq("id", commentId);
+        // Decrement comment count on post
+        if (commentPost) {
+          const newCount = Math.max(0, commentPost.comments_count - 1);
+          await supabase.from("community_posts" as any).update({ comments_count: newCount }).eq("id", commentPost.id);
+          const updP = posts.map((p) => p.id === commentPost.id ? { ...p, comments_count: newCount } : p);
+          setPosts(updP);
+          localStorage.setItem("bloom_community_v3", JSON.stringify(updP));
+        }
+      } catch { /* silent */ }
+    }
+    const updC = comments.filter((c) => c.id !== commentId);
+    setComments(updC);
+    if (commentPost) {
+      localStorage.setItem(`bloom_community_comments_v3_${commentPost.id}`, JSON.stringify(updC));
+    }
+    toast.success("Komentar dihapus.");
+  };
+
   // ─── Derived Data ──────────────────────────────────────────────
   const filtered = useMemo(() => {
     let r = [...posts];
@@ -807,19 +830,32 @@ export default function CommunityPage() {
                 </div>
               ) : (
                 <div className="space-y-2 max-h-56 overflow-y-auto pr-1">
-                  {comments.map((c) => (
-                    <div key={c.id} className="flex gap-3 rounded-2xl border border-border/50 bg-card p-3.5">
-                      <AuthorAvatar post={c} size="sm" />
-                      <div className="flex-1 min-w-0 space-y-1">
-                        <div className="flex items-center gap-1.5 flex-wrap">
-                          <span className="text-xs font-bold text-foreground">{c.author_name}</span>
-                          <IdentityBadge isAnonymous={c.is_anonymous} />
-                          <span className="text-[10px] text-muted-foreground ml-auto">{timeAgo(c.created_at)}</span>
+                  {comments.map((c) => {
+                    const isCommentOwner = user?.id === c.user_id;
+                    return (
+                      <div key={c.id} className="group/comment flex gap-3 rounded-2xl border border-border/50 bg-card p-3.5 transition-colors hover:border-border">
+                        <AuthorAvatar post={c} size="sm" />
+                        <div className="flex-1 min-w-0 space-y-1.5">
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            <span className="text-xs font-bold text-foreground">{c.author_name}</span>
+                            <IdentityBadge isAnonymous={c.is_anonymous} />
+                            <span className="text-[10px] text-muted-foreground">{timeAgo(c.created_at)}</span>
+                            {isCommentOwner && (
+                              <button
+                                type="button"
+                                onClick={() => deleteComment(c.id)}
+                                className="ml-auto opacity-0 group-hover/comment:opacity-100 inline-flex items-center gap-1 text-[10px] text-muted-foreground/50 hover:text-destructive transition-all cursor-pointer"
+                                title="Hapus komentar"
+                              >
+                                <Trash2 className="h-3 w-3" /> Hapus
+                              </button>
+                            )}
+                          </div>
+                          <p className="text-xs text-foreground/85 leading-relaxed">{c.content}</p>
                         </div>
-                        <p className="text-xs text-foreground/85 leading-relaxed">{c.content}</p>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </div>
