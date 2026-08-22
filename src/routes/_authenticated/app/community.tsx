@@ -771,7 +771,7 @@ export default function CommunityPage() {
 
       {/* ─── Comments Modal ──────────────────────────────────── */}
       <ModalDialog
-        isOpen={!!commentPost}
+        open={!!commentPost}
         onClose={() => { setCommentPost(null); setNewComment(""); }}
         title="Diskusi & Balasan"
       >
