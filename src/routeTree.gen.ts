@@ -29,6 +29,7 @@ import { Route as AuthenticatedAppHabitsRouteImport } from './routes/_authentica
 import { Route as AuthenticatedAppGrowthRouteImport } from './routes/_authenticated/app/growth'
 import { Route as AuthenticatedAppGratitudeRouteImport } from './routes/_authenticated/app/gratitude'
 import { Route as AuthenticatedAppEatingRouteImport } from './routes/_authenticated/app/eating'
+import { Route as AuthenticatedAppCommunityRouteImport } from './routes/_authenticated/app/community'
 import { Route as AuthenticatedAppCalmCheckRouteImport } from './routes/_authenticated/app/calm-check'
 import { Route as AuthenticatedAppCalmRouteImport } from './routes/_authenticated/app/calm'
 import { Route as AuthenticatedAdminUsersRouteImport } from './routes/_authenticated/admin/users'
@@ -139,6 +140,12 @@ const AuthenticatedAppEatingRoute = AuthenticatedAppEatingRouteImport.update({
   path: '/eating',
   getParentRoute: () => AuthenticatedAppRoute,
 } as any)
+const AuthenticatedAppCommunityRoute =
+  AuthenticatedAppCommunityRouteImport.update({
+    id: '/community',
+    path: '/community',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
 const AuthenticatedAppCalmCheckRoute =
   AuthenticatedAppCalmCheckRouteImport.update({
     id: '/calm-check',
@@ -201,6 +208,7 @@ export interface FileRoutesByFullPath {
   '/admin/users': typeof AuthenticatedAdminUsersRoute
   '/app/calm': typeof AuthenticatedAppCalmRoute
   '/app/calm-check': typeof AuthenticatedAppCalmCheckRoute
+  '/app/community': typeof AuthenticatedAppCommunityRoute
   '/app/eating': typeof AuthenticatedAppEatingRoute
   '/app/gratitude': typeof AuthenticatedAppGratitudeRoute
   '/app/growth': typeof AuthenticatedAppGrowthRoute
@@ -228,6 +236,7 @@ export interface FileRoutesByTo {
   '/admin/users': typeof AuthenticatedAdminUsersRoute
   '/app/calm': typeof AuthenticatedAppCalmRoute
   '/app/calm-check': typeof AuthenticatedAppCalmCheckRoute
+  '/app/community': typeof AuthenticatedAppCommunityRoute
   '/app/eating': typeof AuthenticatedAppEatingRoute
   '/app/gratitude': typeof AuthenticatedAppGratitudeRoute
   '/app/growth': typeof AuthenticatedAppGrowthRoute
@@ -259,6 +268,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/users': typeof AuthenticatedAdminUsersRoute
   '/_authenticated/app/calm': typeof AuthenticatedAppCalmRoute
   '/_authenticated/app/calm-check': typeof AuthenticatedAppCalmCheckRoute
+  '/_authenticated/app/community': typeof AuthenticatedAppCommunityRoute
   '/_authenticated/app/eating': typeof AuthenticatedAppEatingRoute
   '/_authenticated/app/gratitude': typeof AuthenticatedAppGratitudeRoute
   '/_authenticated/app/growth': typeof AuthenticatedAppGrowthRoute
@@ -290,6 +300,7 @@ export interface FileRouteTypes {
     | '/admin/users'
     | '/app/calm'
     | '/app/calm-check'
+    | '/app/community'
     | '/app/eating'
     | '/app/gratitude'
     | '/app/growth'
@@ -317,6 +328,7 @@ export interface FileRouteTypes {
     | '/admin/users'
     | '/app/calm'
     | '/app/calm-check'
+    | '/app/community'
     | '/app/eating'
     | '/app/gratitude'
     | '/app/growth'
@@ -347,6 +359,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/users'
     | '/_authenticated/app/calm'
     | '/_authenticated/app/calm-check'
+    | '/_authenticated/app/community'
     | '/_authenticated/app/eating'
     | '/_authenticated/app/gratitude'
     | '/_authenticated/app/growth'
@@ -514,6 +527,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppEatingRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
+    '/_authenticated/app/community': {
+      id: '/_authenticated/app/community'
+      path: '/community'
+      fullPath: '/app/community'
+      preLoaderRoute: typeof AuthenticatedAppCommunityRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
     '/_authenticated/app/calm-check': {
       id: '/_authenticated/app/calm-check'
       path: '/calm-check'
@@ -595,6 +615,7 @@ const AuthenticatedAdminRouteWithChildren =
 interface AuthenticatedAppRouteChildren {
   AuthenticatedAppCalmRoute: typeof AuthenticatedAppCalmRoute
   AuthenticatedAppCalmCheckRoute: typeof AuthenticatedAppCalmCheckRoute
+  AuthenticatedAppCommunityRoute: typeof AuthenticatedAppCommunityRoute
   AuthenticatedAppEatingRoute: typeof AuthenticatedAppEatingRoute
   AuthenticatedAppGratitudeRoute: typeof AuthenticatedAppGratitudeRoute
   AuthenticatedAppGrowthRoute: typeof AuthenticatedAppGrowthRoute
@@ -612,6 +633,7 @@ interface AuthenticatedAppRouteChildren {
 const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
   AuthenticatedAppCalmRoute: AuthenticatedAppCalmRoute,
   AuthenticatedAppCalmCheckRoute: AuthenticatedAppCalmCheckRoute,
+  AuthenticatedAppCommunityRoute: AuthenticatedAppCommunityRoute,
   AuthenticatedAppEatingRoute: AuthenticatedAppEatingRoute,
   AuthenticatedAppGratitudeRoute: AuthenticatedAppGratitudeRoute,
   AuthenticatedAppGrowthRoute: AuthenticatedAppGrowthRoute,
