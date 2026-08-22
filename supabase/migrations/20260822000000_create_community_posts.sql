@@ -1,10 +1,12 @@
--- Table for Anonymous Community Posts (Threads Style)
+-- Table for Community Posts (Threads/Wall Style with Anonymous & Public options)
 CREATE TABLE IF NOT EXISTS public.community_posts (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
   content TEXT NOT NULL,
   author_name TEXT NOT NULL DEFAULT 'Anonim',
   author_avatar TEXT NOT NULL DEFAULT '🌸',
+  is_anonymous BOOLEAN NOT NULL DEFAULT true,
+  tag TEXT NOT NULL DEFAULT 'Curhat',
   hugs_count INT NOT NULL DEFAULT 0,
   comments_count INT NOT NULL DEFAULT 0,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
@@ -20,7 +22,7 @@ CREATE TABLE IF NOT EXISTS public.community_hugs (
   CONSTRAINT community_hugs_post_user_unique UNIQUE (post_id, user_id)
 );
 
--- Table for Anonymous Comments / Discussions ("Diskusi")
+-- Table for Comments / Discussions ("Diskusi")
 CREATE TABLE IF NOT EXISTS public.community_comments (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   post_id UUID NOT NULL REFERENCES public.community_posts(id) ON DELETE CASCADE,
@@ -28,6 +30,7 @@ CREATE TABLE IF NOT EXISTS public.community_comments (
   content TEXT NOT NULL,
   author_name TEXT NOT NULL DEFAULT 'Anonim',
   author_avatar TEXT NOT NULL DEFAULT '🌸',
+  is_anonymous BOOLEAN NOT NULL DEFAULT true,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
