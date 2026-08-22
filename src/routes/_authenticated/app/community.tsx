@@ -8,19 +8,19 @@ import { ModalDialog } from "@/components/app/BottomSheet";
 import {
   MessageSquare,
   Send,
-  Heart,
   Sparkles,
   Lock,
   Globe,
   Users,
   ShieldCheck,
   Search,
-  Filter,
   Trash2,
   Tag,
-  UserCheck,
+  HeartHandshake,
+  Heart,
   TrendingUp,
-  HeartHandshake
+  User,
+  X,
 } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/app/community")({
@@ -53,31 +53,22 @@ interface CommunityPost {
 }
 
 const TAG_OPTIONS = [
-  { id: "Curhat", label: "💬 Curhat", color: "bg-teal-50 text-teal-700 border-teal-200" },
-  { id: "SelfCare", label: "🌸 Self-Care", color: "bg-rose-50 text-rose-700 border-rose-200" },
-  { id: "ButuhDukungan", label: "🫂 Butuh Peluk", color: "bg-amber-50 text-amber-800 border-amber-200" },
-  { id: "Motivasi", label: "✨ Motivasi", color: "bg-emerald-50 text-emerald-800 border-emerald-200" },
-  { id: "CeritaKecil", label: "📖 Cerita Hari Ini", color: "bg-sky-50 text-sky-800 border-sky-200" },
+  { id: "Curhat", label: "Curhat", emoji: "💬", pill: "bg-teal-50/80 text-teal-700 border-teal-200/60", active: "bg-teal-600 text-white border-teal-600" },
+  { id: "SelfCare", label: "Self-Care", emoji: "🌸", pill: "bg-rose-50/80 text-rose-600 border-rose-200/60", active: "bg-rose-500 text-white border-rose-500" },
+  { id: "ButuhDukungan", label: "Butuh Peluk", emoji: "🫂", pill: "bg-amber-50/80 text-amber-700 border-amber-200/60", active: "bg-amber-500 text-white border-amber-500" },
+  { id: "Motivasi", label: "Motivasi", emoji: "✨", pill: "bg-emerald-50/80 text-emerald-700 border-emerald-200/60", active: "bg-emerald-600 text-white border-emerald-600" },
+  { id: "CeritaKecil", label: "Cerita Hari Ini", emoji: "📖", pill: "bg-sky-50/80 text-sky-700 border-sky-200/60", active: "bg-sky-500 text-white border-sky-500" },
 ];
 
-const AVATAR_OPTIONS = [
-  { emoji: "🌸", label: "Sakura" },
-  { emoji: "🌷", label: "Tulip" },
-  { emoji: "🌿", label: "Daun" },
-  { emoji: "🌻", label: "Sunflower" },
-  { emoji: "🪷", label: "Lotus" },
-  { emoji: "🎈", label: "Balon" },
-  { emoji: "🧸", label: "Teddy" },
-];
+const AVATAR_OPTIONS = ["🌸", "🌷", "🌿", "🌻", "🪷", "🎈", "🧸", "☁️", "🦋", "🌙"];
 
-const INITIAL_STARTERS = [
+const PROMPTS = [
   "Hari ini aku belajar bahwa tidak apa-apa jika belum sepenuhnya sembuh...",
   "Langkah kecil yang berhasil kubuat hari ini adalah...",
-  "Tolong bisakah seseorang memberi ucapan hangat atau pelukan?",
-  "Pesan apresiasi dari hatiku paling dalam untuk diriku...",
+  "Seseorang yang membutuhkan pelukan hangat hari ini, aku di sini bersamamu...",
+  "Terima kasih untuk diriku karena sudah bertahan sejauh ini...",
 ];
 
-// Seed initial demo data showcasing both Public and Anonymous posts
 const DEMO_POSTS: CommunityPost[] = [
   {
     id: "demo-1",
@@ -121,7 +112,7 @@ const DEMO_POSTS: CommunityPost[] = [
   {
     id: "demo-4",
     user_id: "demo-user-4",
-    content: "Berat banget mengurai isi kepala sendirian... tapi berada di komunitas ini membuatku sadar kalau ada banyak jiwa yang saling menguatkan.",
+    content: "Berat banget mengurai isi kepala sendirian... tapi berada di ruang ini membuatku sadar kalau ada banyak jiwa yang saling menguatkan. Terima kasih semuanya.",
     author_name: "Anonim",
     author_avatar: "🌿",
     is_anonymous: true,
@@ -158,59 +149,109 @@ const DEMO_COMMENTS: Record<string, PostComment[]> = {
   ],
 };
 
-function formatIndonesianDate(isoString: string): string {
+function timeAgo(isoString: string): string {
   try {
     const date = new Date(isoString);
     const now = new Date();
-    const diffMin = Math.floor((now.getTime() - date.getTime()) / (1000 * 60));
-
-    if (diffMin < 1) return "Baru saja";
-    if (diffMin < 60) return `${diffMin} mnt yang lalu`;
-    const diffHours = Math.floor(diffMin / 60);
-    if (diffHours < 24) return `${diffHours} jam yang lalu`;
-
+    const diff = Math.floor((now.getTime() - date.getTime()) / 1000);
+    if (diff < 60) return "Baru saja";
+    if (diff < 3600) return `${Math.floor(diff / 60)} mnt lalu`;
+    if (diff < 86400) return `${Math.floor(diff / 3600)} jam lalu`;
     const months = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
-    return `${date.getDate()} ${months[date.getMonth()]}`;
-  } catch (e) {
+    const d = date;
+    return `${d.getDate()} ${months[d.getMonth()]}`;
+  } catch {
     return "Baru saja";
   }
 }
 
-function CommunityPage() {
+/** Avatar for non-anonymous (initials) or anonymous (emoji) */
+function AuthorAvatar({ post, size = "md" }: { post: CommunityPost | PostComment; size?: "sm" | "md" }) {
+  const sz = size === "sm" ? "h-8 w-8 text-[11px]" : "h-10 w-10 text-sm";
+  if (post.is_anonymous) {
+    return (
+      <span className={`${sz} flex shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-teal-100 to-emerald-100 border border-teal-200/50 shadow-xs text-base`}>
+        {post.author_avatar}
+      </span>
+    );
+  }
+  return (
+    <span className={`${sz} flex shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-600 font-bold tracking-tight text-white shadow-xs border border-indigo-300/40`}>
+      {post.author_avatar?.slice(0, 2) || "U"}
+    </span>
+  );
+}
+
+function TagBadge({ tagId, compact = false }: { tagId: string; compact?: boolean }) {
+  const t = TAG_OPTIONS.find((x) => x.id === tagId) ?? TAG_OPTIONS[0];
+  return (
+    <span className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 font-semibold ${compact ? "text-[10px]" : "text-xs"} ${t.pill}`}>
+      <span>{t.emoji}</span>
+      {!compact && <span>{t.label}</span>}
+    </span>
+  );
+}
+
+function IdentityBadge({ isAnonymous }: { isAnonymous: boolean }) {
+  if (isAnonymous) {
+    return (
+      <span className="inline-flex items-center gap-1 rounded-full bg-teal-50/80 px-2 py-0.5 text-[10px] font-semibold text-teal-700 border border-teal-200/50">
+        <Lock className="h-2.5 w-2.5" /> Anonim
+      </span>
+    );
+  }
+  return (
+    <span className="inline-flex items-center gap-1 rounded-full bg-indigo-50/80 px-2 py-0.5 text-[10px] font-semibold text-indigo-700 border border-indigo-200/50">
+      <Globe className="h-2.5 w-2.5" /> Publik
+    </span>
+  );
+}
+
+export default function CommunityPage() {
   const { user } = useAuth();
   const { data: profile } = useProfile(user?.id);
 
   const [posts, setPosts] = useState<CommunityPost[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState(true);
 
-  // Composer States
-  const [newContent, setNewContent] = useState<string>("");
-  const [isAnonymous, setIsAnonymous] = useState<boolean>(true); // Mode Anonim vs Mode Publik toggle
-  const [selectedTag, setSelectedTag] = useState<string>("Curhat");
-  const [selectedAvatar, setSelectedAvatar] = useState<string>("🌸");
-  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  // Composer
+  const [content, setContent] = useState("");
+  const [isAnonymous, setIsAnonymous] = useState(true);
+  const [selectedTag, setSelectedTag] = useState("Curhat");
+  const [selectedAvatar, setSelectedAvatar] = useState("🌸");
+  const [submitting, setSubmitting] = useState(false);
+  const [composerOpen, setComposerOpen] = useState(false);
 
-  // Filter & Search
-  const [activeTab, setActiveTab] = useState<"semua" | "anonim" | "publik" | "populer" | "saya">("semua");
-  const [activeTagFilter, setActiveTagFilter] = useState<string | null>(null);
-  const [searchQuery, setSearchQuery] = useState<string>("");
+  // Filter
+  const [tab, setTab] = useState<"semua" | "anonim" | "publik" | "populer" | "saya">("semua");
+  const [tagFilter, setTagFilter] = useState<string | null>(null);
+  const [search, setSearch] = useState("");
 
-  // Comment Modal state
-  const [activePostForComments, setActivePostForComments] = useState<CommunityPost | null>(null);
+  // Hug animation
+  const [animatingId, setAnimatingId] = useState<string | null>(null);
+
+  // Comments
+  const [commentPost, setCommentPost] = useState<CommunityPost | null>(null);
   const [comments, setComments] = useState<PostComment[]>([]);
-  const [commentsLoading, setCommentsLoading] = useState<boolean>(false);
-  const [newCommentContent, setNewCommentContent] = useState<string>("");
-  const [commentIsAnonymous, setCommentIsAnonymous] = useState<boolean>(true);
-  const [isSubmittingComment, setIsSubmittingComment] = useState<boolean>(false);
+  const [commentsLoading, setCommentsLoading] = useState(false);
+  const [newComment, setNewComment] = useState("");
+  const [commentAnon, setCommentAnon] = useState(true);
+  const [submittingComment, setSubmittingComment] = useState(false);
 
-  // Micro Hug Animation state
-  const [animatingHugId, setAnimatingHugId] = useState<string | null>(null);
+  const displayName = profile?.name || user?.email?.split("@")[0] || "Anggota";
+  const initials = displayName.slice(0, 2).toUpperCase();
 
-  // User displayName & Avatar Initials
-  const publicDisplayName = profile?.name || user?.email?.split("@")[0] || "Anggota Bloom";
-  const publicInitials = publicDisplayName.slice(0, 2).toUpperCase();
+  // ─── Data Fetching ─────────────────────────────────────────────
+  const loadLocal = () => {
+    try {
+      const raw = localStorage.getItem("bloom_community_v3");
+      setPosts(raw ? JSON.parse(raw) : DEMO_POSTS);
+      if (!raw) localStorage.setItem("bloom_community_v3", JSON.stringify(DEMO_POSTS));
+    } catch {
+      setPosts(DEMO_POSTS);
+    }
+  };
 
-  // Load Posts from Supabase or LocalStorage Fallback
   const fetchPosts = async () => {
     setLoading(true);
     try {
@@ -219,70 +260,31 @@ function CommunityPage() {
         .select("*")
         .order("created_at", { ascending: false });
 
-      if (error) {
-        console.warn("Supabase query warning, using local posts:", error.message);
-        loadLocalPosts();
-      } else if (data && data.length > 0) {
-        let userHugs = new Set<string>();
-        if (user) {
-          const { data: hugsData } = await supabase
-            .from("community_hugs" as any)
-            .select("post_id")
-            .eq("user_id", user.id);
-          if (hugsData) {
-            hugsData.forEach((h: any) => userHugs.add(h.post_id));
-          }
-        }
-        const formatted: CommunityPost[] = data.map((p: any) => ({
-          ...p,
-          has_hugged: userHugs.has(p.id),
-        }));
-        setPosts(formatted);
-      } else {
-        loadLocalPosts();
+      if (error || !data?.length) { loadLocal(); return; }
+
+      let userHugs = new Set<string>();
+      if (user) {
+        const { data: hd } = await supabase.from("community_hugs" as any).select("post_id").eq("user_id", user.id);
+        if (hd) hd.forEach((h: any) => userHugs.add(h.post_id));
       }
-    } catch (e) {
-      loadLocalPosts();
-    } finally {
-      setLoading(false);
-    }
+      setPosts(data.map((p: any) => ({ ...p, has_hugged: userHugs.has(p.id) })));
+    } catch { loadLocal(); }
+    finally { setLoading(false); }
   };
 
-  const loadLocalPosts = () => {
-    try {
-      const local = localStorage.getItem("bloom_community_posts_v2");
-      if (local) {
-        setPosts(JSON.parse(local));
-      } else {
-        setPosts(DEMO_POSTS);
-        localStorage.setItem("bloom_community_posts_v2", JSON.stringify(DEMO_POSTS));
-      }
-    } catch (e) {
-      setPosts(DEMO_POSTS);
-    }
-  };
+  useEffect(() => { fetchPosts(); }, [user?.id]);
 
-  useEffect(() => {
-    fetchPosts();
-  }, [user?.id]);
+  // ─── Create Post ───────────────────────────────────────────────
+  const handlePost = async () => {
+    if (!content.trim()) return;
+    setSubmitting(true);
 
-  // Create Post
-  const handleCreatePost = async () => {
-    if (!newContent.trim()) {
-      toast.error("Tuliskan ceritamu terlebih dahulu sebelum membagikannya.");
-      return;
-    }
-
-    setIsSubmitting(true);
-    const authorName = isAnonymous ? "Anonim" : publicDisplayName;
-    const authorAvatar = isAnonymous ? selectedAvatar : publicInitials;
-
-    const newPostObj: CommunityPost = {
+    const newPost: CommunityPost = {
       id: crypto.randomUUID(),
-      user_id: user?.id || "guest-user",
-      content: newContent.trim(),
-      author_name: authorName,
-      author_avatar: authorAvatar,
+      user_id: user?.id || "guest",
+      content: content.trim(),
+      author_name: isAnonymous ? "Anonim" : displayName,
+      author_avatar: isAnonymous ? selectedAvatar : initials,
       is_anonymous: isAnonymous,
       tag: selectedTag,
       hugs_count: 0,
@@ -294,756 +296,545 @@ function CommunityPage() {
     try {
       if (user) {
         await supabase.from("community_posts" as any).insert({
-          id: newPostObj.id,
-          user_id: user.id,
-          content: newPostObj.content,
-          author_name: newPostObj.author_name,
-          author_avatar: newPostObj.author_avatar,
-          is_anonymous: newPostObj.is_anonymous,
-          tag: newPostObj.tag,
-          hugs_count: 0,
-          comments_count: 0,
+          id: newPost.id, user_id: user.id, content: newPost.content,
+          author_name: newPost.author_name, author_avatar: newPost.author_avatar,
+          is_anonymous: newPost.is_anonymous, tag: newPost.tag,
+          hugs_count: 0, comments_count: 0,
         });
       }
-
-      const updated = [newPostObj, ...posts];
+      const updated = [newPost, ...posts];
       setPosts(updated);
-      localStorage.setItem("bloom_community_posts_v2", JSON.stringify(updated));
-
-      setNewContent("");
-      toast.success(
-        isAnonymous
-          ? "Ceritamu berhasil dibagikan secara Anonim! 🔒"
-          : `Postingan publik terbit sebagai ${publicDisplayName}! 👤`,
-        {
-          description: "Terima kasih sudah berbagi ruang positif di Bloom Mind.",
-        }
-      );
-    } catch (e) {
-      toast.error("Terjadi kesalahan saat membagikan postingan.");
-    } finally {
-      setIsSubmitting(false);
-    }
+      localStorage.setItem("bloom_community_v3", JSON.stringify(updated));
+      setContent("");
+      setComposerOpen(false);
+      toast.success(isAnonymous ? "Ceritamu terkirim secara anonim 🔒" : `Postingan publik terbit sebagai ${displayName} 👤`);
+    } catch { toast.error("Terjadi kesalahan, coba lagi."); }
+    finally { setSubmitting(false); }
   };
 
-  // Toggle Hug ("Saling Peluk")
-  const handleToggleHug = async (post: CommunityPost) => {
-    const isHugged = post.has_hugged;
-    const newCount = isHugged ? Math.max(0, post.hugs_count - 1) : post.hugs_count + 1;
+  // ─── Hug Toggle ────────────────────────────────────────────────
+  const handleHug = async (post: CommunityPost) => {
+    const hugged = post.has_hugged;
+    const count = hugged ? Math.max(0, post.hugs_count - 1) : post.hugs_count + 1;
 
-    if (!isHugged) {
-      setAnimatingHugId(post.id);
-      setTimeout(() => setAnimatingHugId(null), 1000);
-    }
+    if (!hugged) { setAnimatingId(post.id); setTimeout(() => setAnimatingId(null), 900); }
 
-    const updatedPosts = posts.map((p) =>
-      p.id === post.id ? { ...p, hugs_count: newCount, has_hugged: !isHugged } : p
-    );
-    setPosts(updatedPosts);
-    localStorage.setItem("bloom_community_posts_v2", JSON.stringify(updatedPosts));
+    const updated = posts.map((p) => p.id === post.id ? { ...p, hugs_count: count, has_hugged: !hugged } : p);
+    setPosts(updated);
+    localStorage.setItem("bloom_community_v3", JSON.stringify(updated));
 
     if (user) {
       try {
-        if (isHugged) {
+        if (hugged) {
           await supabase.from("community_hugs" as any).delete().eq("post_id", post.id).eq("user_id", user.id);
         } else {
           await supabase.from("community_hugs" as any).insert({ post_id: post.id, user_id: user.id });
         }
-        await supabase.from("community_posts" as any).update({ hugs_count: newCount }).eq("id", post.id);
-      } catch (e) {
-        console.warn("DB hug toggle error:", e);
-      }
+        await supabase.from("community_posts" as any).update({ hugs_count: count }).eq("id", post.id);
+      } catch { /* silent */ }
     }
-
-    if (!isHugged) {
-      toast("Kamu mengirim pelukan hangat 🫂🩵", {
-        description: "Dukunganmu membawa kekuatan untuk sesama anggota.",
-      });
-    }
+    if (!hugged) toast("Pelukan hangat terkirim 🩵", { description: "Kamu baru saja membuat seseorang merasa tidak sendirian." });
   };
 
-  // Open Comments
-  const handleOpenComments = async (post: CommunityPost) => {
-    setActivePostForComments(post);
+  // ─── Comments ──────────────────────────────────────────────────
+  const openComments = async (post: CommunityPost) => {
+    setCommentPost(post);
     setCommentsLoading(true);
-
     try {
       if (user) {
-        const { data, error } = await supabase
-          .from("community_comments" as any)
-          .select("*")
-          .eq("post_id", post.id)
-          .order("created_at", { ascending: true });
-
-        if (!error && data) {
-          setComments(data as PostComment[]);
-          setCommentsLoading(false);
-          return;
-        }
+        const { data, error } = await supabase.from("community_comments" as any).select("*").eq("post_id", post.id).order("created_at", { ascending: true });
+        if (!error && data) { setComments(data as PostComment[]); setCommentsLoading(false); return; }
       }
-      const demoList = DEMO_COMMENTS[post.id] || [];
-      const savedKey = `bloom_community_comments_v2_${post.id}`;
-      const saved = localStorage.getItem(savedKey);
-      setComments(saved ? JSON.parse(saved) : demoList);
-    } catch (e) {
-      setComments(DEMO_COMMENTS[post.id] || []);
-    } finally {
-      setCommentsLoading(false);
-    }
+      const key = `bloom_community_comments_v3_${post.id}`;
+      const raw = localStorage.getItem(key);
+      setComments(raw ? JSON.parse(raw) : DEMO_COMMENTS[post.id] || []);
+    } catch { setComments(DEMO_COMMENTS[post.id] || []); }
+    finally { setCommentsLoading(false); }
   };
 
-  // Add Comment
-  const handleAddComment = async () => {
-    if (!newCommentContent.trim() || !activePostForComments) return;
+  const submitComment = async () => {
+    if (!newComment.trim() || !commentPost) return;
+    setSubmittingComment(true);
 
-    setIsSubmittingComment(true);
-    const authorName = commentIsAnonymous ? "Anonim" : publicDisplayName;
-    const authorAvatar = commentIsAnonymous ? selectedAvatar : publicInitials;
-
-    const newCommentObj: PostComment = {
+    const c: PostComment = {
       id: crypto.randomUUID(),
-      post_id: activePostForComments.id,
-      user_id: user?.id || "guest-user",
-      content: newCommentContent.trim(),
-      author_name: authorName,
-      author_avatar: authorAvatar,
-      is_anonymous: commentIsAnonymous,
+      post_id: commentPost.id,
+      user_id: user?.id || "guest",
+      content: newComment.trim(),
+      author_name: commentAnon ? "Anonim" : displayName,
+      author_avatar: commentAnon ? selectedAvatar : initials,
+      is_anonymous: commentAnon,
       created_at: new Date().toISOString(),
     };
 
     try {
       if (user) {
-        await supabase.from("community_comments" as any).insert({
-          id: newCommentObj.id,
-          post_id: activePostForComments.id,
-          user_id: user.id,
-          content: newCommentObj.content,
-          author_name: newCommentObj.author_name,
-          author_avatar: newCommentObj.author_avatar,
-          is_anonymous: newCommentObj.is_anonymous,
-        });
-
-        const newCommCount = activePostForComments.comments_count + 1;
-        await supabase
-          .from("community_posts" as any)
-          .update({ comments_count: newCommCount })
-          .eq("id", activePostForComments.id);
+        await supabase.from("community_comments" as any).insert({ id: c.id, post_id: commentPost.id, user_id: user.id, content: c.content, author_name: c.author_name, author_avatar: c.author_avatar, is_anonymous: c.is_anonymous });
+        await supabase.from("community_posts" as any).update({ comments_count: commentPost.comments_count + 1 }).eq("id", commentPost.id);
       }
-
-      const updatedComments = [...comments, newCommentObj];
-      setComments(updatedComments);
-      localStorage.setItem(`bloom_community_comments_v2_${activePostForComments.id}`, JSON.stringify(updatedComments));
-
-      const updatedPosts = posts.map((p) =>
-        p.id === activePostForComments.id ? { ...p, comments_count: p.comments_count + 1 } : p
-      );
-      setPosts(updatedPosts);
-      localStorage.setItem("bloom_community_posts_v2", JSON.stringify(updatedPosts));
-
-      setNewCommentContent("");
-      toast.success("Komentar berhasil terkirim!");
-    } catch (e) {
-      toast.error("Gagal mengirim komentar.");
-    } finally {
-      setIsSubmittingComment(false);
-    }
+      const updC = [...comments, c];
+      setComments(updC);
+      localStorage.setItem(`bloom_community_comments_v3_${commentPost.id}`, JSON.stringify(updC));
+      const updP = posts.map((p) => p.id === commentPost.id ? { ...p, comments_count: p.comments_count + 1 } : p);
+      setPosts(updP);
+      localStorage.setItem("bloom_community_v3", JSON.stringify(updP));
+      setNewComment("");
+    } catch { toast.error("Gagal mengirim komentar."); }
+    finally { setSubmittingComment(false); }
   };
 
-  // Delete Post
-  const handleDeletePost = async (postId: string) => {
-    if (!confirm("Apakah kamu yakin ingin menghapus postingan ini?")) return;
-
-    try {
-      if (user) {
-        await supabase.from("community_posts" as any).delete().eq("id", postId);
-      }
-      const updated = posts.filter((p) => p.id !== postId);
-      setPosts(updated);
-      localStorage.setItem("bloom_community_posts_v2", JSON.stringify(updated));
-      toast.success("Postingan berhasil dihapus.");
-    } catch (e) {
-      toast.error("Gagal menghapus postingan.");
-    }
+  const deletePost = async (postId: string) => {
+    if (!confirm("Hapus postingan ini?")) return;
+    if (user) { try { await supabase.from("community_posts" as any).delete().eq("id", postId); } catch { /* silent */ } }
+    const updated = posts.filter((p) => p.id !== postId);
+    setPosts(updated);
+    localStorage.setItem("bloom_community_v3", JSON.stringify(updated));
+    toast.success("Postingan dihapus.");
   };
 
-  // Filtered Posts
-  const filteredPosts = useMemo(() => {
-    let result = [...posts];
+  // ─── Derived Data ──────────────────────────────────────────────
+  const filtered = useMemo(() => {
+    let r = [...posts];
+    if (search.trim()) { const q = search.toLowerCase(); r = r.filter((p) => p.content.toLowerCase().includes(q) || p.author_name.toLowerCase().includes(q)); }
+    if (tagFilter) r = r.filter((p) => p.tag === tagFilter);
+    if (tab === "anonim") r = r.filter((p) => p.is_anonymous);
+    else if (tab === "publik") r = r.filter((p) => !p.is_anonymous);
+    else if (tab === "populer") r.sort((a, b) => b.hugs_count - a.hugs_count);
+    else if (tab === "saya") r = r.filter((p) => p.user_id === user?.id);
+    return r;
+  }, [posts, tab, tagFilter, search, user?.id]);
 
-    if (searchQuery.trim()) {
-      const q = searchQuery.toLowerCase();
-      result = result.filter(
-        (p) => p.content.toLowerCase().includes(q) || p.author_name.toLowerCase().includes(q)
-      );
-    }
+  const totalHugs = useMemo(() => posts.reduce((s, p) => s + p.hugs_count, 0), [posts]);
 
-    if (activeTagFilter) {
-      result = result.filter((p) => p.tag === activeTagFilter);
-    }
-
-    if (activeTab === "anonim") {
-      result = result.filter((p) => p.is_anonymous);
-    } else if (activeTab === "publik") {
-      result = result.filter((p) => !p.is_anonymous);
-    } else if (activeTab === "populer") {
-      result.sort((a, b) => b.hugs_count - a.hugs_count);
-    } else if (activeTab === "saya") {
-      result = result.filter((p) => p.user_id === user?.id);
-    }
-
-    return result;
-  }, [posts, activeTab, activeTagFilter, searchQuery, user?.id]);
-
-  const totalHugsAll = useMemo(() => posts.reduce((sum, p) => sum + p.hugs_count, 0), [posts]);
+  const TABS = [
+    { id: "semua", label: "Semua" },
+    { id: "anonim", label: "🔒 Anonim" },
+    { id: "publik", label: "👤 Publik" },
+    { id: "populer", label: "🔥 Terpopuler" },
+    { id: "saya", label: "Post Saya" },
+  ] as const;
 
   return (
-    <div className="mx-auto max-w-3xl space-y-6 pb-24 pt-2 sm:pt-4 px-3 sm:px-4">
-      {/* ─── Ambient Header Greeting Card ─── */}
-      <div className="relative overflow-hidden rounded-3xl border border-teal-100 bg-gradient-to-br from-teal-500/10 via-emerald-500/5 to-rose-500/10 p-5 sm:p-7 shadow-xs">
-        <div className="relative z-10 space-y-3">
+    <div className="mx-auto max-w-2xl space-y-5 pb-28 pt-2 sm:pt-4 px-3 sm:px-0">
+
+      {/* ─── Premium Hero Header ─────────────────────────────── */}
+      <div
+        className="relative overflow-hidden rounded-3xl p-6 sm:p-8"
+        style={{ background: "linear-gradient(135deg, oklch(0.95 0.03 165) 0%, oklch(0.97 0.02 85) 50%, oklch(0.94 0.03 30) 100%)" }}
+      >
+        {/* Ambient orbs */}
+        <div className="pointer-events-none absolute -left-8 -top-8 h-40 w-40 rounded-full bg-teal-400/15 blur-3xl" />
+        <div className="pointer-events-none absolute -right-4 bottom-0 h-32 w-32 rounded-full bg-rose-400/10 blur-2xl" />
+
+        <div className="relative z-10 space-y-4">
+          {/* Eyebrow Badges */}
           <div className="flex flex-wrap items-center gap-2">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-teal-600/10 px-3 py-1 text-xs font-bold text-teal-800 border border-teal-200/60 backdrop-blur-xs">
-              <Users className="h-3.5 w-3.5 text-teal-600" /> Ruang Komunitas Bloom
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-teal-200/70 bg-white/60 px-3 py-1 text-[11px] font-bold text-teal-800 backdrop-blur-xs">
+              <Users className="h-3 w-3 text-teal-600" /> Ruang Komunitas Bloom
             </span>
-            <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-700 bg-emerald-100/60 px-2.5 py-0.5 rounded-full">
-              <ShieldCheck className="h-3 w-3" /> Pilihan Anonim & Publik
+            <span className="inline-flex items-center gap-1 rounded-full border border-emerald-200/60 bg-emerald-50/70 px-3 py-1 text-[11px] font-bold text-emerald-800">
+              <ShieldCheck className="h-3 w-3" /> Anonim & Publik
             </span>
           </div>
 
-          <div className="space-y-1">
-            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground font-display">
-              Ruang Saling Peluk & Menguatkan
+          <div>
+            <h1 className="font-display text-2xl sm:text-3xl font-bold tracking-tight text-foreground leading-snug">
+              Ruang Saling Peluk
+              <br className="hidden sm:block" />
+              <span className="text-teal-700"> & Menguatkan</span>
             </h1>
-            <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed max-w-2xl">
-              Berbagilah cerita tanpa rasa takut dinilai. Kamu bebas memilih untuk membagikannya secara{" "}
-              <strong className="text-teal-700 font-semibold">100% Anonim</strong> atau{" "}
-              <strong className="text-indigo-700 font-semibold">Dengan Nama Profil</strong>.
+            <p className="mt-1.5 text-xs sm:text-sm leading-relaxed text-muted-foreground max-w-sm">
+              Berbagi cerita tanpa rasa takut dinilai. Pilih identitas{" "}
+              <strong className="font-semibold text-teal-700">Anonim</strong> atau{" "}
+              <strong className="font-semibold text-indigo-700">Profil Publik</strong>.
             </p>
           </div>
 
-          {/* Quick Stats Widget */}
-          <div className="flex items-center gap-4 pt-2 text-xs font-semibold text-muted-foreground">
-            <div className="flex items-center gap-1.5 bg-background/80 px-3 py-1.5 rounded-2xl border border-border/50">
+          {/* Stats Row */}
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 rounded-2xl border border-white/60 bg-white/50 px-3.5 py-2 text-xs font-semibold text-foreground backdrop-blur-xs shadow-xs">
               <HeartHandshake className="h-4 w-4 text-teal-600" />
-              <span>
-                <strong className="text-foreground font-bold">{totalHugsAll}</strong> Pelukan Terbagikan
-              </span>
+              <span><strong className="text-teal-700">{totalHugs}</strong> Pelukan</span>
             </div>
-            <div className="flex items-center gap-1.5 bg-background/80 px-3 py-1.5 rounded-2xl border border-border/50">
+            <div className="flex items-center gap-2 rounded-2xl border border-white/60 bg-white/50 px-3.5 py-2 text-xs font-semibold text-foreground backdrop-blur-xs shadow-xs">
               <Sparkles className="h-4 w-4 text-amber-500" />
-              <span>
-                <strong className="text-foreground font-bold">{posts.length}</strong> Cerita Menguatkan
-              </span>
+              <span><strong className="text-amber-700">{posts.length}</strong> Cerita</span>
             </div>
           </div>
         </div>
-
-        {/* Ambient background glow orb */}
-        <div className="absolute -right-8 -top-8 h-36 w-36 rounded-full bg-teal-400/10 blur-2xl pointer-events-none" />
       </div>
 
-      {/* ─── Creative Post Composer Card ─── */}
-      <div className="rounded-3xl border border-border/80 bg-card p-4 sm:p-6 shadow-sm space-y-4">
-        {/* Mode Toggle Bar (Anonim vs Publik) */}
-        <div className="flex items-center justify-between gap-2 p-1.5 bg-muted/50 rounded-2xl border border-border/40">
-          <span className="text-xs font-semibold text-muted-foreground pl-2 hidden sm:inline">
-            Mode Identitas Post:
-          </span>
+      {/* ─── Composer Card ───────────────────────────────────── */}
+      <div className="rounded-3xl border border-border/70 bg-card shadow-card overflow-hidden">
 
-          <div className="flex items-center gap-1.5 w-full sm:w-auto">
+        {/* Identity Toggle Row */}
+        <div className="flex items-center justify-between gap-3 border-b border-border/40 bg-muted/30 px-5 py-3">
+          <span className="text-xs font-semibold text-muted-foreground">Identitas:</span>
+          <div className="flex items-center gap-1.5 rounded-2xl bg-background border border-border/60 p-1">
             <button
               type="button"
               onClick={() => setIsAnonymous(true)}
-              className={`flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 rounded-xl px-3.5 py-1.5 text-xs font-bold transition-all cursor-pointer ${
-                isAnonymous
-                  ? "bg-teal-600 text-white shadow-xs"
-                  : "text-muted-foreground hover:bg-background/60"
-              }`}
+              className={`inline-flex items-center gap-1.5 rounded-xl px-4 py-1.5 text-xs font-bold transition-all duration-200 cursor-pointer ${isAnonymous ? "bg-teal-600 text-white shadow-xs shadow-teal-600/30" : "text-muted-foreground hover:text-foreground"}`}
             >
-              <Lock className="h-3.5 w-3.5" />
-              <span>🔒 Mode Anonim</span>
+              <Lock className="h-3 w-3" /> Anonim
             </button>
-
             <button
               type="button"
               onClick={() => setIsAnonymous(false)}
-              className={`flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 rounded-xl px-3.5 py-1.5 text-xs font-bold transition-all cursor-pointer ${
-                !isAnonymous
-                  ? "bg-indigo-600 text-white shadow-xs"
-                  : "text-muted-foreground hover:bg-background/60"
-              }`}
+              className={`inline-flex items-center gap-1.5 rounded-xl px-4 py-1.5 text-xs font-bold transition-all duration-200 cursor-pointer ${!isAnonymous ? "bg-indigo-600 text-white shadow-xs shadow-indigo-600/30" : "text-muted-foreground hover:text-foreground"}`}
             >
-              <Globe className="h-3.5 w-3.5" />
-              <span>👤 Mode Publik</span>
+              <Globe className="h-3 w-3" /> {displayName}
             </button>
           </div>
         </div>
 
-        {/* Identity Preview Badge */}
-        <div className="flex items-center justify-between text-xs px-1">
-          {isAnonymous ? (
-            <div className="flex items-center gap-2 text-teal-700 bg-teal-50 px-3 py-1 rounded-full border border-teal-200/60">
-              <span>{selectedAvatar}</span>
-              <span className="font-semibold">Bercerita sebagai {selectedAvatar} Anonim</span>
-            </div>
-          ) : (
-            <div className="flex items-center gap-2 text-indigo-700 bg-indigo-50 px-3 py-1 rounded-full border border-indigo-200/60">
-              <span className="flex h-5 w-5 items-center justify-center rounded-full bg-indigo-600 text-white text-[10px] font-bold">
-                {publicInitials}
+        <div className="p-5 space-y-4">
+          {/* Identity Preview */}
+          <div className="flex items-center gap-2.5">
+            {isAnonymous ? (
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-teal-50 border border-teal-200/60 text-base">
+                {selectedAvatar}
               </span>
-              <span className="font-semibold">Bercerita sebagai {publicDisplayName} (Profil Terverifikasi)</span>
+            ) : (
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-600 font-bold text-white text-xs shadow-xs">
+                {initials}
+              </span>
+            )}
+            <div className="text-xs text-muted-foreground">
+              {isAnonymous ? (
+                <span>Posting sebagai <strong className="text-teal-700">🔒 Anonim</strong> — nama & identitasmu tersembunyi</span>
+              ) : (
+                <span>Posting sebagai <strong className="text-indigo-700">👤 {displayName}</strong></span>
+              )}
+            </div>
+          </div>
+
+          {/* Textarea */}
+          <textarea
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+            maxLength={50000}
+            rows={4}
+            placeholder={
+              isAnonymous
+                ? "Tulis ceritamu di sini — 100% anonim & aman..."
+                : `Bagikan cerita atau pikiran positifmu, ${displayName}...`
+            }
+            className="w-full resize-none rounded-2xl border border-border/60 bg-muted/20 px-4 py-3.5 text-sm text-foreground placeholder:text-muted-foreground/50 focus:border-primary/60 focus:bg-background focus:outline-none focus:ring-2 focus:ring-primary/15 transition-all leading-relaxed"
+          />
+
+          {/* Quick Prompts */}
+          <div className="space-y-2">
+            <p className="flex items-center gap-1 text-[11px] font-semibold text-muted-foreground/80">
+              <Sparkles className="h-3 w-3 text-amber-500" /> Inspirasi kata
+            </p>
+            <div className="flex flex-wrap gap-1.5">
+              {PROMPTS.map((p, i) => (
+                <button
+                  key={i}
+                  type="button"
+                  onClick={() => setContent(p)}
+                  className="rounded-full border border-border/60 bg-muted/40 px-3 py-1 text-[11px] font-medium text-muted-foreground hover:bg-primary-soft hover:text-primary hover:border-primary/30 transition-all cursor-pointer text-left"
+                >
+                  {p.slice(0, 38)}…
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Anonymous Avatar Selector */}
+          {isAnonymous && (
+            <div className="space-y-1.5">
+              <p className="text-[11px] font-semibold text-muted-foreground/80">Pilih avatar anonim</p>
+              <div className="flex items-center gap-1.5 flex-wrap">
+                {AVATAR_OPTIONS.map((av) => (
+                  <button
+                    key={av}
+                    type="button"
+                    onClick={() => setSelectedAvatar(av)}
+                    className={`h-8 w-8 rounded-xl border text-sm transition-all duration-200 cursor-pointer ${selectedAvatar === av ? "border-teal-400 bg-teal-50 scale-110 shadow-xs" : "border-border/50 bg-muted/30 hover:bg-muted"}`}
+                  >
+                    {av}
+                  </button>
+                ))}
+              </div>
             </div>
           )}
 
-          <span className="text-muted-foreground/70 text-[11px] hidden sm:inline">
-            {newContent.length}/50.000 karakter
-          </span>
-        </div>
-
-        {/* Textarea */}
-        <textarea
-          value={newContent}
-          onChange={(e) => setNewContent(e.target.value)}
-          maxLength={50000}
-          placeholder={
-            isAnonymous
-              ? "Tulis ceritamu di sini (100% rahasia & tanpa nama profil)..."
-              : `Bagikan pengalaman atau pikiran positifmu sebagai ${publicDisplayName}...`
-          }
-          className="w-full min-h-[120px] sm:min-h-[130px] resize-none rounded-2xl border border-border/60 bg-background/60 p-4 text-sm sm:text-base text-foreground placeholder:text-muted-foreground/60 focus:border-teal-500 focus:bg-background focus:outline-none focus:ring-2 focus:ring-teal-500/20 transition-all leading-relaxed"
-        />
-
-        {/* Anonymous Avatar Selector (Only if isAnonymous) */}
-        {isAnonymous && (
-          <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
-            <span className="text-[11px] font-medium text-muted-foreground shrink-0">Pilih Avatar Anonim:</span>
-            {AVATAR_OPTIONS.map((av) => (
-              <button
-                key={av.emoji}
-                type="button"
-                onClick={() => setSelectedAvatar(av.emoji)}
-                className={`flex items-center gap-1 rounded-full px-2.5 py-1 text-xs transition-all shrink-0 cursor-pointer ${
-                  selectedAvatar === av.emoji
-                    ? "bg-teal-100 text-teal-800 ring-1 ring-teal-400 font-bold scale-105"
-                    : "bg-muted/40 text-muted-foreground hover:bg-muted"
-                }`}
-              >
-                <span>{av.emoji}</span>
-              </button>
-            ))}
-          </div>
-        )}
-
-        {/* Tag Category Selector */}
-        <div className="flex flex-wrap items-center gap-1.5 pt-1">
-          <span className="text-[11px] font-medium text-muted-foreground mr-1 flex items-center gap-1">
-            <Tag className="h-3 w-3" /> Tag Kategori:
-          </span>
-          {TAG_OPTIONS.map((tag) => (
-            <button
-              key={tag.id}
-              type="button"
-              onClick={() => setSelectedTag(tag.id)}
-              className={`rounded-full px-3 py-1 text-xs font-medium border transition-all cursor-pointer ${
-                selectedTag === tag.id
-                  ? `${tag.color} ring-1 font-bold shadow-2xs`
-                  : "bg-background text-muted-foreground border-border/50 hover:bg-muted/40"
-              }`}
-            >
-              {tag.label}
-            </button>
-          ))}
-        </div>
-
-        {/* Quick Starter Prompts */}
-        <div className="flex flex-wrap items-center gap-1.5 pt-1">
-          <span className="text-[11px] font-medium text-muted-foreground mr-1 flex items-center gap-1">
-            <Sparkles className="h-3 w-3 text-amber-500" /> Inspirasi:
-          </span>
-          {INITIAL_STARTERS.map((prompt, idx) => (
-            <button
-              key={idx}
-              type="button"
-              onClick={() => setNewContent(prompt)}
-              className="rounded-full bg-secondary/60 px-2.5 py-0.5 text-[11px] font-medium text-secondary-foreground hover:bg-teal-50 hover:text-teal-700 transition-all text-left border border-border/40 cursor-pointer"
-            >
-              {prompt.slice(0, 30)}...
-            </button>
-          ))}
-        </div>
-
-        {/* Submit Footer */}
-        <div className="flex items-center justify-between pt-3 border-t border-border/40">
-          <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
-            {isAnonymous ? (
-              <span className="flex items-center gap-1 text-emerald-600 font-medium">
-                <Lock className="h-3 w-3" /> Identitas tersembunyi
-              </span>
-            ) : (
-              <span className="flex items-center gap-1 text-indigo-600 font-medium">
-                <Globe className="h-3 w-3" /> Terbit sebagai postingan publik
-              </span>
-            )}
+          {/* Tag Selector */}
+          <div className="space-y-1.5">
+            <p className="flex items-center gap-1 text-[11px] font-semibold text-muted-foreground/80">
+              <Tag className="h-3 w-3" /> Kategori
+            </p>
+            <div className="flex flex-wrap gap-1.5">
+              {TAG_OPTIONS.map((tag) => (
+                <button
+                  key={tag.id}
+                  type="button"
+                  onClick={() => setSelectedTag(tag.id)}
+                  className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-semibold transition-all cursor-pointer ${selectedTag === tag.id ? tag.active : tag.pill}`}
+                >
+                  <span>{tag.emoji}</span> {tag.label}
+                </button>
+              ))}
+            </div>
           </div>
 
-          <button
-            type="button"
-            onClick={handleCreatePost}
-            disabled={isSubmitting || !newContent.trim()}
-            className={`inline-flex items-center justify-center gap-2 rounded-full font-bold px-6 py-2.5 text-xs sm:text-sm text-white shadow-md transition-all duration-200 cursor-pointer ${
-              isAnonymous
-                ? "bg-teal-600 hover:bg-teal-700 shadow-teal-600/20"
-                : "bg-indigo-600 hover:bg-indigo-700 shadow-indigo-600/20"
-            } disabled:opacity-50 disabled:cursor-not-allowed active:scale-98`}
-          >
-            {isSubmitting ? (
-              <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-            ) : (
-              <Send className="h-4 w-4" />
-            )}
-            <span>{isAnonymous ? "Bagikan Anonim" : "Bagikan Publik"}</span>
-          </button>
+          {/* Submit Bar */}
+          <div className="flex items-center justify-between pt-1 border-t border-border/40">
+            <span className="text-[11px] text-muted-foreground/70">
+              {content.length > 0 && `${content.length.toLocaleString()} / 50.000`}
+            </span>
+            <button
+              type="button"
+              onClick={handlePost}
+              disabled={submitting || !content.trim()}
+              className={`inline-flex items-center gap-2 rounded-full px-6 py-2.5 text-xs font-bold text-white shadow-md transition-all duration-200 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed active:scale-95 ${isAnonymous ? "bg-teal-600 hover:bg-teal-700 shadow-teal-600/25" : "bg-indigo-600 hover:bg-indigo-700 shadow-indigo-600/25"}`}
+            >
+              {submitting
+                ? <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                : <Send className="h-3.5 w-3.5" />}
+              {isAnonymous ? "Bagikan Anonim" : "Bagikan Publik"}
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* ─── Filtering & Tab Navigation ─── */}
-      <div className="space-y-3 pt-2">
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
-          {/* Tabs */}
-          <div className="flex items-center gap-1 overflow-x-auto pb-1 scrollbar-none rounded-2xl bg-muted/60 p-1 border border-border/50">
+      {/* ─── Tabs & Filters ─────────────────────────────────── */}
+      <div className="space-y-3">
+        {/* Tabs */}
+        <div className="flex items-center gap-1 overflow-x-auto pb-0.5 scrollbar-none">
+          {TABS.map((t) => (
+            <button
+              key={t.id}
+              type="button"
+              onClick={() => setTab(t.id)}
+              className={`shrink-0 rounded-full px-4 py-1.5 text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
+                tab === t.id
+                  ? "bg-foreground text-background shadow-xs"
+                  : "bg-muted/60 text-muted-foreground border border-border/50 hover:bg-muted"
+              }`}
+            >
+              {t.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Tag Filters + Search Row */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
+          <div className="flex items-center gap-1.5 flex-wrap flex-1">
             <button
               type="button"
-              onClick={() => setActiveTab("semua")}
-              className={`rounded-xl px-3 py-1.5 text-xs font-bold transition-all shrink-0 cursor-pointer ${
-                activeTab === "semua"
-                  ? "bg-background text-foreground shadow-xs"
-                  : "text-muted-foreground hover:text-foreground"
-              }`}
+              onClick={() => setTagFilter(null)}
+              className={`rounded-full px-3 py-1 text-[11px] font-bold transition-all cursor-pointer ${tagFilter === null ? "bg-foreground text-background" : "bg-muted/60 text-muted-foreground border border-border/50 hover:bg-muted"}`}
             >
               Semua
             </button>
-            <button
-              type="button"
-              onClick={() => setActiveTab("anonim")}
-              className={`rounded-xl px-3 py-1.5 text-xs font-bold transition-all shrink-0 cursor-pointer ${
-                activeTab === "anonim"
-                  ? "bg-teal-600 text-white shadow-xs"
-                  : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              🔒 Anonim
-            </button>
-            <button
-              type="button"
-              onClick={() => setActiveTab("publik")}
-              className={`rounded-xl px-3 py-1.5 text-xs font-bold transition-all shrink-0 cursor-pointer ${
-                activeTab === "publik"
-                  ? "bg-indigo-600 text-white shadow-xs"
-                  : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              👤 Publik
-            </button>
-            <button
-              type="button"
-              onClick={() => setActiveTab("populer")}
-              className={`rounded-xl px-3 py-1.5 text-xs font-bold transition-all shrink-0 cursor-pointer ${
-                activeTab === "populer"
-                  ? "bg-background text-foreground shadow-xs"
-                  : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              🔥 Paling Menguatkan
-            </button>
-            <button
-              type="button"
-              onClick={() => setActiveTab("saya")}
-              className={`rounded-xl px-3 py-1.5 text-xs font-bold transition-all shrink-0 cursor-pointer ${
-                activeTab === "saya"
-                  ? "bg-background text-foreground shadow-xs"
-                  : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              Post Saya
-            </button>
+            {TAG_OPTIONS.map((t) => (
+              <button
+                key={t.id}
+                type="button"
+                onClick={() => setTagFilter(tagFilter === t.id ? null : t.id)}
+                className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-[11px] font-semibold transition-all cursor-pointer ${tagFilter === t.id ? t.active : t.pill}`}
+              >
+                {t.emoji} {t.label}
+              </button>
+            ))}
           </div>
 
-          {/* Search Input */}
-          <div className="relative max-w-xs">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+          {/* Search */}
+          <div className="relative shrink-0 w-full sm:w-44">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3 w-3 text-muted-foreground" />
             <input
               type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Cari postingan..."
-              className="w-full rounded-2xl border border-border/60 bg-background/80 pl-8 pr-3 py-1.5 text-xs text-foreground placeholder:text-muted-foreground/60 focus:border-teal-500 focus:outline-none"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Cari cerita..."
+              className="w-full rounded-full border border-border/60 bg-background pl-7 pr-3 py-1.5 text-xs text-foreground placeholder:text-muted-foreground/60 focus:border-primary/50 focus:outline-none focus:ring-1 focus:ring-primary/20"
             />
           </div>
         </div>
-
-        {/* Tag Filters */}
-        <div className="flex flex-wrap items-center gap-1.5">
-          <span className="text-[11px] font-semibold text-muted-foreground mr-1">Filter Tag:</span>
-          <button
-            type="button"
-            onClick={() => setActiveTagFilter(null)}
-            className={`rounded-full px-2.5 py-0.5 text-[11px] font-semibold transition-all cursor-pointer ${
-              activeTagFilter === null
-                ? "bg-foreground text-background font-bold"
-                : "bg-muted/50 text-muted-foreground hover:bg-muted"
-            }`}
-          >
-            Semua Tag
-          </button>
-          {TAG_OPTIONS.map((tag) => (
-            <button
-              key={tag.id}
-              type="button"
-              onClick={() => setActiveTagFilter(activeTagFilter === tag.id ? null : tag.id)}
-              className={`rounded-full px-2.5 py-0.5 text-[11px] font-semibold transition-all cursor-pointer ${
-                activeTagFilter === tag.id
-                  ? `${tag.color} ring-1 font-bold`
-                  : "bg-muted/40 text-muted-foreground hover:bg-muted"
-              }`}
-            >
-              {tag.label}
-            </button>
-          ))}
-        </div>
       </div>
 
-      {/* ─── Community Posts Feed ─── */}
-      <div className="space-y-4 pt-1">
+      {/* ─── Posts Feed ──────────────────────────────────────── */}
+      <div className="space-y-3">
         {loading ? (
-          <div className="space-y-4">
-            {[1, 2, 3].map((n) => (
-              <div key={n} className="rounded-3xl border border-border/40 p-6 bg-card/50 space-y-3 animate-pulse">
-                <div className="h-4 bg-muted rounded-full w-3/4" />
-                <div className="h-4 bg-muted rounded-full w-1/2" />
-              </div>
-            ))}
-          </div>
-        ) : filteredPosts.length === 0 ? (
-          <div className="rounded-3xl border border-dashed border-border p-10 text-center space-y-3 bg-card/30">
-            <div className="mx-auto h-12 w-12 rounded-full bg-teal-50 grid place-items-center text-teal-600 text-xl">
-              🌸
-            </div>
-            <h3 className="font-semibold text-sm text-foreground">Belum ada cerita di filter ini</h3>
-            <p className="text-xs text-muted-foreground max-w-xs mx-auto">
-              Cobalah memilih mode filter lain atau jadilah yang pertama membagikan pikiran positifmu!
-            </p>
-          </div>
-        ) : (
-          filteredPosts.map((post) => {
-            const isOwner = user?.id === post.user_id;
-            const tagInfo = TAG_OPTIONS.find((t) => t.id === post.tag) || TAG_OPTIONS[0];
-
-            return (
-              <div
-                key={post.id}
-                className="group relative rounded-3xl border border-border/60 bg-card p-5 sm:p-6 shadow-2xs hover:shadow-md transition-all duration-300 hover:border-teal-200/80"
-              >
-                {/* Micro Hug particle animation */}
-                {animatingHugId === post.id && (
-                  <div className="absolute top-4 right-6 pointer-events-none animate-bounce text-2xl z-20">
-                    🩵 🫂
-                  </div>
-                )}
-
-                <div className="space-y-4">
-                  {/* Top Bar: Author & Tag */}
-                  <div className="flex items-center justify-between gap-2">
-                    <div className="flex items-center gap-2.5">
-                      {/* Avatar */}
-                      {post.is_anonymous ? (
-                        <span className="flex h-9 w-9 items-center justify-center rounded-2xl bg-teal-50 text-base border border-teal-200/70 shrink-0">
-                          {post.author_avatar || "🌸"}
-                        </span>
-                      ) : (
-                        <span className="flex h-9 w-9 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-600 to-violet-600 text-white font-bold text-xs shadow-2xs shrink-0">
-                          {post.author_avatar || "U"}
-                        </span>
-                      )}
-
-                      <div>
-                        <div className="flex items-center gap-1.5">
-                          <span className="text-xs font-bold text-foreground">{post.author_name}</span>
-
-                          {/* Identity Badge */}
-                          {post.is_anonymous ? (
-                            <span className="rounded-full bg-teal-50 px-2 py-0.5 text-[10px] font-semibold text-teal-700 border border-teal-200/60 inline-flex items-center gap-0.5">
-                              <Lock className="h-2.5 w-2.5" /> Anonim
-                            </span>
-                          ) : (
-                            <span className="rounded-full bg-indigo-50 px-2 py-0.5 text-[10px] font-semibold text-indigo-700 border border-indigo-200/60 inline-flex items-center gap-0.5">
-                              <Globe className="h-2.5 w-2.5" /> Publik
-                            </span>
-                          )}
-
-                          {isOwner && (
-                            <span className="rounded-full bg-emerald-100/70 px-2 py-0.5 text-[10px] font-bold text-emerald-800">
-                              Post Anda
-                            </span>
-                          )}
-                        </div>
-
-                        <span className="text-[11px] text-muted-foreground/80">
-                          {formatIndonesianDate(post.created_at)}
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Tag Badge */}
-                    <span className={`rounded-full px-3 py-1 text-[11px] font-semibold border ${tagInfo.color}`}>
-                      {tagInfo.label}
-                    </span>
-                  </div>
-
-                  {/* Post Content */}
-                  <p className="text-sm sm:text-base text-foreground/90 leading-relaxed font-normal whitespace-pre-line pt-1">
-                    {post.content}
-                  </p>
-
-                  {/* Divider */}
-                  <div className="h-px w-full bg-border/40" />
-
-                  {/* Bottom Actions */}
-                  <div className="flex items-center justify-between gap-3 pt-1">
-                    {/* Delete option if owner */}
-                    {isOwner ? (
-                      <button
-                        type="button"
-                        onClick={() => handleDeletePost(post.id)}
-                        className="inline-flex items-center gap-1 text-xs text-muted-foreground/60 hover:text-red-500 transition-all cursor-pointer"
-                      >
-                        <Trash2 className="h-3.5 w-3.5" />
-                        <span className="hidden sm:inline">Hapus</span>
-                      </button>
-                    ) : (
-                      <span className="text-[11px] text-muted-foreground/60 italic">Ruang aman bersama</span>
-                    )}
-
-                    {/* Right Action Pill Buttons */}
-                    <div className="flex items-center gap-2">
-                      {/* Diskusi */}
-                      <button
-                        type="button"
-                        onClick={() => handleOpenComments(post)}
-                        className="inline-flex items-center gap-1.5 rounded-full border border-border/70 bg-background/80 px-3.5 py-1.5 text-xs font-semibold text-foreground hover:bg-secondary transition-all active:scale-95 cursor-pointer shadow-2xs"
-                      >
-                        <MessageSquare className="h-3.5 w-3.5 text-muted-foreground" />
-                        <span>Diskusi ({post.comments_count || 0})</span>
-                      </button>
-
-                      {/* Peluk & Menguatkan */}
-                      <button
-                        type="button"
-                        onClick={() => handleToggleHug(post)}
-                        className={`inline-flex items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-xs font-bold transition-all active:scale-95 cursor-pointer shadow-2xs ${
-                          post.has_hugged
-                            ? "bg-teal-600 text-white border-teal-600 shadow-teal-600/30"
-                            : "bg-teal-50 text-teal-700 border-teal-200 hover:bg-teal-100/70"
-                        }`}
-                      >
-                        <span className="text-sm">🩵 🫂</span>
-                        <span>Saling Peluk ({post.hugs_count || 0})</span>
-                      </button>
-                    </div>
-                  </div>
+          Array.from({ length: 3 }).map((_, i) => (
+            <div key={i} className="rounded-3xl border border-border/40 bg-card p-6 space-y-3 animate-pulse">
+              <div className="flex items-center gap-3">
+                <div className="h-10 w-10 rounded-2xl bg-muted" />
+                <div className="space-y-1.5 flex-1">
+                  <div className="h-3 bg-muted rounded-full w-28" />
+                  <div className="h-2.5 bg-muted rounded-full w-16" />
                 </div>
               </div>
+              <div className="space-y-2">
+                <div className="h-3.5 bg-muted rounded-full w-full" />
+                <div className="h-3.5 bg-muted rounded-full w-3/4" />
+              </div>
+            </div>
+          ))
+        ) : filtered.length === 0 ? (
+          <div className="flex flex-col items-center justify-center gap-3 rounded-3xl border border-dashed border-border bg-card/40 py-16 text-center px-6">
+            <span className="text-3xl">🌸</span>
+            <h3 className="text-sm font-semibold text-foreground">Belum ada cerita di sini</h3>
+            <p className="text-xs text-muted-foreground max-w-xs">Jadilah yang pertama berbagi cerita dan menginspirasi sesama anggota Bloom.</p>
+          </div>
+        ) : (
+          filtered.map((post) => {
+            const isOwner = user?.id === post.user_id;
+            const isHugged = post.has_hugged;
+
+            return (
+              <article
+                key={post.id}
+                className="group relative rounded-3xl border border-border/60 bg-card p-5 shadow-card transition-all duration-300 hover:border-border hover:shadow-elevated"
+              >
+                {/* Hug animation bubble */}
+                {animatingId === post.id && (
+                  <div className="pointer-events-none absolute right-5 top-5 z-20 animate-bounce text-xl">🩵</div>
+                )}
+
+                {/* Top Row: Author + Tag */}
+                <div className="flex items-start justify-between gap-3 mb-3.5">
+                  <div className="flex items-center gap-3">
+                    <AuthorAvatar post={post} />
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <span className="text-xs font-bold text-foreground">{post.author_name}</span>
+                        <IdentityBadge isAnonymous={post.is_anonymous} />
+                        {isOwner && (
+                          <span className="rounded-full bg-emerald-100/80 px-2 py-0.5 text-[10px] font-bold text-emerald-800 border border-emerald-200/60">
+                            Milik Saya
+                          </span>
+                        )}
+                      </div>
+                      <span className="text-[11px] text-muted-foreground/70">{timeAgo(post.created_at)}</span>
+                    </div>
+                  </div>
+                  <TagBadge tagId={post.tag} />
+                </div>
+
+                {/* Content */}
+                <p className="text-sm leading-relaxed text-foreground/90 whitespace-pre-line">
+                  {post.content}
+                </p>
+
+                {/* Divider */}
+                <div className="my-4 h-px bg-border/40" />
+
+                {/* Action Row */}
+                <div className="flex items-center justify-between gap-2">
+                  {isOwner ? (
+                    <button
+                      type="button"
+                      onClick={() => deletePost(post.id)}
+                      className="inline-flex items-center gap-1 text-[11px] text-muted-foreground/50 hover:text-destructive transition-colors cursor-pointer"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" /> Hapus
+                    </button>
+                  ) : (
+                    <span className="text-[11px] italic text-muted-foreground/40">Ruang aman bersama</span>
+                  )}
+
+                  <div className="flex items-center gap-2">
+                    {/* Comment Button */}
+                    <button
+                      type="button"
+                      onClick={() => openComments(post)}
+                      className="inline-flex items-center gap-1.5 rounded-2xl border border-border/70 bg-muted/30 px-3.5 py-1.5 text-xs font-semibold text-foreground/80 hover:bg-muted hover:border-border transition-all cursor-pointer"
+                    >
+                      <MessageSquare className="h-3.5 w-3.5 text-muted-foreground" />
+                      Diskusi {post.comments_count > 0 && <span className="text-muted-foreground">({post.comments_count})</span>}
+                    </button>
+
+                    {/* Hug Button */}
+                    <button
+                      type="button"
+                      onClick={() => handleHug(post)}
+                      className={`inline-flex items-center gap-1.5 rounded-2xl border px-3.5 py-1.5 text-xs font-bold transition-all duration-200 cursor-pointer active:scale-95 ${
+                        isHugged
+                          ? "border-teal-500 bg-teal-600 text-white shadow-xs shadow-teal-600/30"
+                          : "border-teal-200/70 bg-teal-50/70 text-teal-700 hover:bg-teal-100/80 hover:border-teal-300"
+                      }`}
+                    >
+                      <span className="text-base leading-none">🩵</span>
+                      <span>{post.hugs_count > 0 ? post.hugs_count : ""} Saling Peluk</span>
+                    </button>
+                  </div>
+                </div>
+              </article>
             );
           })
         )}
       </div>
 
-      {/* ─── Comments & Discussion Modal ─── */}
+      {/* ─── Comments Modal ──────────────────────────────────── */}
       <ModalDialog
-        isOpen={!!activePostForComments}
-        onClose={() => setActivePostForComments(null)}
-        title="💬 Utas Diskusi & Balasan"
+        isOpen={!!commentPost}
+        onClose={() => { setCommentPost(null); setNewComment(""); }}
+        title="Diskusi & Balasan"
       >
-        {activePostForComments && (
-          <div className="space-y-4 pt-1">
-            {/* Target Post Quote */}
-            <div className="rounded-2xl bg-muted/40 p-4 border border-border/50 space-y-2">
-              <div className="flex items-center justify-between text-xs text-muted-foreground">
-                <span className="font-semibold">
-                  {activePostForComments.is_anonymous ? "🔒 Anonim" : `👤 ${activePostForComments.author_name}`}
+        {commentPost && (
+          <div className="space-y-5">
+            {/* Quoted Post */}
+            <div className="rounded-2xl border border-border/50 bg-muted/30 p-4 space-y-2.5">
+              <div className="flex items-center justify-between text-[11px] text-muted-foreground font-semibold">
+                <div className="flex items-center gap-1.5">
+                  <IdentityBadge isAnonymous={commentPost.is_anonymous} />
+                  <span>{commentPost.author_name}</span>
+                </div>
+                <span className="flex items-center gap-1 text-teal-600">
+                  <span>🩵</span> {commentPost.hugs_count} pelukan
                 </span>
-                <span>🩵 {activePostForComments.hugs_count} Pelukan</span>
               </div>
-              <p className="text-sm text-foreground italic">"{activePostForComments.content}"</p>
+              <p className="text-sm text-foreground/80 italic leading-relaxed line-clamp-3">
+                "{commentPost.content}"
+              </p>
             </div>
 
             {/* Comments List */}
-            <div className="space-y-3 max-h-60 overflow-y-auto pr-1">
-              <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
-                Komentar & Balasan ({comments.length})
+            <div className="space-y-2.5">
+              <h4 className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">
+                Balasan · {comments.length}
               </h4>
 
               {commentsLoading ? (
-                <div className="p-4 text-center text-xs text-muted-foreground">Memuat komentar...</div>
+                <div className="py-6 text-center text-xs text-muted-foreground animate-pulse">Memuat komentar...</div>
               ) : comments.length === 0 ? (
-                <div className="rounded-2xl border border-dashed border-border p-6 text-center text-xs text-muted-foreground">
-                  Belum ada balasan. Berikan pesan yang menguatkan!
+                <div className="rounded-2xl border border-dashed border-border py-8 text-center text-xs text-muted-foreground">
+                  Belum ada balasan. Berikan ucapan yang menguatkan!
                 </div>
               ) : (
-                comments.map((c) => (
-                  <div key={c.id} className="rounded-2xl bg-card border border-border/60 p-3.5 space-y-1.5 shadow-2xs">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-1.5">
-                        <span className="text-xs">{c.author_avatar || "🌸"}</span>
-                        <span className="text-xs font-bold text-foreground">{c.author_name}</span>
-                        {c.is_anonymous ? (
-                          <span className="text-[9px] bg-teal-50 text-teal-700 px-1.5 py-0.2 rounded-full border border-teal-200">
-                            Anonim
-                          </span>
-                        ) : (
-                          <span className="text-[9px] bg-indigo-50 text-indigo-700 px-1.5 py-0.2 rounded-full border border-indigo-200">
-                            Publik
-                          </span>
-                        )}
+                <div className="space-y-2 max-h-56 overflow-y-auto pr-1">
+                  {comments.map((c) => (
+                    <div key={c.id} className="flex gap-3 rounded-2xl border border-border/50 bg-card p-3.5">
+                      <AuthorAvatar post={c} size="sm" />
+                      <div className="flex-1 min-w-0 space-y-1">
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <span className="text-xs font-bold text-foreground">{c.author_name}</span>
+                          <IdentityBadge isAnonymous={c.is_anonymous} />
+                          <span className="text-[10px] text-muted-foreground ml-auto">{timeAgo(c.created_at)}</span>
+                        </div>
+                        <p className="text-xs text-foreground/85 leading-relaxed">{c.content}</p>
                       </div>
-                      <span className="text-[10px] text-muted-foreground">
-                        {formatIndonesianDate(c.created_at)}
-                      </span>
                     </div>
-                    <p className="text-xs sm:text-sm text-foreground/90 leading-relaxed pl-5">
-                      {c.content}
-                    </p>
-                  </div>
-                ))
+                  ))}
+                </div>
               )}
             </div>
 
-            {/* Comment Form */}
-            <div className="space-y-3 pt-3 border-t border-border">
-              {/* Comment Mode Selector */}
-              <div className="flex items-center justify-between text-xs">
-                <span className="font-medium text-muted-foreground">Kirim komentar sebagai:</span>
-                <div className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setCommentIsAnonymous(true)}
-                    className={`px-2.5 py-1 rounded-full text-xs font-bold transition-all cursor-pointer ${
-                      commentIsAnonymous
-                        ? "bg-teal-600 text-white"
-                        : "bg-muted text-muted-foreground"
-                    }`}
-                  >
+            {/* Comment Input */}
+            <div className="space-y-3 border-t border-border/40 pt-4">
+              {/* Anon/Publik toggle for comment */}
+              <div className="flex items-center gap-2">
+                <span className="text-[11px] font-semibold text-muted-foreground">Balas sebagai:</span>
+                <div className="flex items-center gap-1 rounded-2xl border border-border/60 bg-background p-0.5">
+                  <button type="button" onClick={() => setCommentAnon(true)} className={`rounded-xl px-3 py-1 text-[11px] font-bold transition-all cursor-pointer ${commentAnon ? "bg-teal-600 text-white" : "text-muted-foreground"}`}>
                     🔒 Anonim
                   </button>
-                  <button
-                    type="button"
-                    onClick={() => setCommentIsAnonymous(false)}
-                    className={`px-2.5 py-1 rounded-full text-xs font-bold transition-all cursor-pointer ${
-                      !commentIsAnonymous
-                        ? "bg-indigo-600 text-white"
-                        : "bg-muted text-muted-foreground"
-                    }`}
-                  >
-                    👤 {publicDisplayName}
+                  <button type="button" onClick={() => setCommentAnon(false)} className={`rounded-xl px-3 py-1 text-[11px] font-bold transition-all cursor-pointer ${!commentAnon ? "bg-indigo-600 text-white" : "text-muted-foreground"}`}>
+                    👤 {displayName}
                   </button>
                 </div>
               </div>
@@ -1051,23 +842,20 @@ function CommunityPage() {
               <div className="flex gap-2">
                 <input
                   type="text"
-                  value={newCommentContent}
-                  onChange={(e) => setNewCommentContent(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && handleAddComment()}
-                  placeholder={
-                    commentIsAnonymous
-                      ? "Tulis balasan anonim yang menguatkan..."
-                      : `Tulis balasan sebagai ${publicDisplayName}...`
-                  }
-                  className="flex-1 rounded-2xl border border-border bg-background px-4 py-2.5 text-xs sm:text-sm text-foreground placeholder:text-muted-foreground/60 focus:border-teal-500 focus:outline-none"
+                  value={newComment}
+                  onChange={(e) => setNewComment(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && submitComment()}
+                  placeholder={commentAnon ? "Tulis balasan anonim yang menguatkan..." : `Tulis sebagai ${displayName}...`}
+                  className="flex-1 rounded-2xl border border-border/60 bg-muted/20 px-4 py-2.5 text-xs text-foreground placeholder:text-muted-foreground/50 focus:border-primary/50 focus:bg-background focus:outline-none focus:ring-1 focus:ring-primary/20 transition-all"
                 />
                 <button
                   type="button"
-                  onClick={handleAddComment}
-                  disabled={isSubmittingComment || !newCommentContent.trim()}
-                  className="rounded-2xl bg-teal-600 text-white px-4 py-2.5 text-xs font-bold hover:bg-teal-700 disabled:opacity-50 transition-all flex items-center justify-center shrink-0 cursor-pointer"
+                  onClick={submitComment}
+                  disabled={submittingComment || !newComment.trim()}
+                  className="shrink-0 rounded-2xl bg-teal-600 px-4 py-2.5 text-xs font-bold text-white hover:bg-teal-700 disabled:opacity-40 transition-all cursor-pointer flex items-center gap-1.5"
                 >
-                  {isSubmittingComment ? "..." : "Kirim"}
+                  {submittingComment ? <span className="h-3 w-3 animate-spin rounded-full border-2 border-white border-t-transparent" /> : <Send className="h-3.5 w-3.5" />}
+                  Kirim
                 </button>
               </div>
             </div>
