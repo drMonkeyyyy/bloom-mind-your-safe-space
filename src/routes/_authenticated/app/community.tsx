@@ -440,52 +440,83 @@ export default function CommunityPage() {
   return (
     <div className="mx-auto max-w-2xl space-y-5 pb-28 pt-2 sm:pt-4 px-3 sm:px-0">
 
-      {/* ─── Premium Hero Header ─────────────────────────────── */}
-      <div
-        className="relative overflow-hidden rounded-3xl p-6 sm:p-8"
-        style={{ background: "linear-gradient(135deg, oklch(0.95 0.03 165) 0%, oklch(0.97 0.02 85) 50%, oklch(0.94 0.03 30) 100%)" }}
-      >
-        {/* Ambient orbs */}
-        <div className="pointer-events-none absolute -left-8 -top-8 h-40 w-40 rounded-full bg-teal-400/15 blur-3xl" />
-        <div className="pointer-events-none absolute -right-4 bottom-0 h-32 w-32 rounded-full bg-rose-400/10 blur-2xl" />
+      {/* ─── Cinematic Hero — Full width, Bekasigo style ─────── */}
+      {/* Negative margin to break out of px-3 sm:px-0 parent padding */}
+      <div className="-mx-3 sm:mx-0 relative overflow-hidden sm:rounded-3xl" style={{ minHeight: "420px" }}>
+        {/* Background */}
+        <img
+          src="/community-hero.png"
+          alt="Pulau mengambang dengan sakura dan lentera — Ruang Komunitas Bloom Mind"
+          className="absolute inset-0 h-full w-full object-cover object-center"
+          loading="eager"
+          style={{ objectPosition: "50% 40%" }}
+        />
+        {/* Overlays: bottom-heavy dark, left fade, subtle vignette */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/50 via-black/10 to-transparent" />
 
-        <div className="relative z-10 space-y-4">
-          {/* Eyebrow Badges */}
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-teal-200/70 bg-white/60 px-3 py-1 text-[11px] font-bold text-teal-800 backdrop-blur-xs">
-              <Users className="h-3 w-3 text-teal-600" /> Ruang Komunitas Bloom
-            </span>
-            <span className="inline-flex items-center gap-1 rounded-full border border-emerald-200/60 bg-emerald-50/70 px-3 py-1 text-[11px] font-bold text-emerald-800">
-              <ShieldCheck className="h-3 w-3" /> Anonim & Publik
-            </span>
-          </div>
+        {/* ── Top label ── */}
+        <div className="absolute left-5 top-5 sm:left-8 sm:top-6 flex items-center gap-2">
+          <span className="h-px w-8 bg-amber-400/80" />
+          <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-amber-300/90">
+            Bloom Community · Safe Space
+          </span>
+        </div>
 
-          <div>
-            <h1 className="font-display text-2xl sm:text-3xl font-bold tracking-tight text-foreground leading-snug">
+        {/* ── Main content — bottom left (Bekasigo layout) ── */}
+        <div
+          className="relative z-10 flex flex-col justify-end px-6 pb-6 sm:px-10 sm:pb-8"
+          style={{ minHeight: "420px" }}
+        >
+          {/* Headline */}
+          <div className="max-w-lg">
+            <h1 className="font-display text-3xl sm:text-4xl md:text-5xl font-bold leading-[1.1] tracking-tight text-white drop-shadow-xl">
               Ruang Saling Peluk
-              <br className="hidden sm:block" />
-              <span className="text-teal-700"> & Menguatkan</span>
+              <br />
+              <span
+                className="bg-gradient-to-r from-rose-300 to-amber-300 bg-clip-text text-transparent"
+              >
+                &amp; Menguatkan.
+              </span>
             </h1>
-            <p className="mt-1.5 text-xs sm:text-sm leading-relaxed text-muted-foreground max-w-sm">
-              Berbagi cerita tanpa rasa takut dinilai. Pilih identitas{" "}
-              <strong className="font-semibold text-teal-700">Anonim</strong> atau{" "}
-              <strong className="font-semibold text-indigo-700">Profil Publik</strong>.
+            <p className="mt-3 max-w-sm text-sm leading-relaxed text-white/70">
+              Dari cerita kecil yang tak terucap, hingga kekuatan bersama yang tumbuh — ceritakan dirimu,{" "}
+              <span className="text-teal-300 font-semibold">anonim</span> atau{" "}
+              <span className="text-indigo-300 font-semibold">publik</span>.
             </p>
           </div>
 
-          {/* Stats Row */}
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-2 rounded-2xl border border-white/60 bg-white/50 px-3.5 py-2 text-xs font-semibold text-foreground backdrop-blur-xs shadow-xs">
-              <HeartHandshake className="h-4 w-4 text-teal-600" />
-              <span><strong className="text-teal-700">{totalHugs}</strong> Pelukan</span>
+          {/* Stats bar — brand values, always strong */}
+          <div className="mt-6 flex items-end gap-8 border-t border-white/15 pt-4">
+            <div>
+              <p className="text-2xl font-bold leading-none text-white">
+                100<span className="text-amber-400">%</span>
+              </p>
+              <p className="mt-1 text-[10px] font-semibold uppercase tracking-[0.15em] text-white/50">
+                Aman & Terjaga
+              </p>
             </div>
-            <div className="flex items-center gap-2 rounded-2xl border border-white/60 bg-white/50 px-3.5 py-2 text-xs font-semibold text-foreground backdrop-blur-xs shadow-xs">
-              <Sparkles className="h-4 w-4 text-amber-500" />
-              <span><strong className="text-amber-700">{posts.length}</strong> Cerita</span>
+            <div>
+              <p className="text-2xl font-bold leading-none text-white">
+                🔒
+              </p>
+              <p className="mt-1 text-[10px] font-semibold uppercase tracking-[0.15em] text-white/50">
+                Anonim Penuh
+              </p>
+            </div>
+            <div>
+              <p className="text-2xl font-bold leading-none text-white">
+                24<span className="text-amber-400">/7</span>
+              </p>
+              <p className="mt-1 text-[10px] font-semibold uppercase tracking-[0.15em] text-white/50">
+                Selalu Ada
+              </p>
             </div>
           </div>
+
         </div>
       </div>
+
 
       {/* ─── Composer Card ───────────────────────────────────── */}
       <div className="rounded-3xl border border-border/70 bg-card shadow-card overflow-hidden">
