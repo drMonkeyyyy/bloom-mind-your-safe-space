@@ -177,9 +177,9 @@ export function Pricing() {
 
               <a
                 href="/auth?mode=register"
-                className="relative mt-7 block rounded-full bg-emerald-600 py-4 text-center text-sm font-semibold text-white shadow-lg transition-all duration-300 hover:-translate-y-0.5 hover:shadow-emerald-200/50 hover:shadow-xl"
+                className="relative mt-7 block rounded-full bg-emerald-600 py-3.5 px-4 text-center text-sm font-bold text-white shadow-md transition-all duration-300 hover:-translate-y-0.5 hover:bg-emerald-700 hover:shadow-lg"
               >
-                Coba 1 Minggu
+                Mulai Tenangkan Pikiran (Rp15rb)
               </a>
               <p className="mt-3 text-center text-xs text-muted-foreground">
                 ☕ Cuma Rp2.100-an/hari — Cocok untuk uji coba 🌱
@@ -189,13 +189,13 @@ export function Pricing() {
 
           {/* Premium Monthly */}
           <div className="relative">
-            <div className="absolute -inset-0.5 rounded-[2rem] bg-gradient-to-br from-accent via-primary to-accent opacity-40 blur-lg" />
-            <div className="relative overflow-hidden rounded-[1.75rem] bg-card p-7 ring-1 ring-border flex flex-col h-full">
-              <div className="absolute -right-12 -top-12 h-40 w-40 rounded-full bg-accent-soft opacity-60 blur-2xl" />
+            <div className="absolute -inset-0.5 rounded-[2rem] bg-gradient-to-br from-primary via-accent to-primary opacity-50 blur-lg" />
+            <div className="relative overflow-hidden rounded-[1.75rem] bg-card p-7 ring-2 ring-primary/60 flex flex-col h-full shadow-xl">
+              <div className="absolute -right-12 -top-12 h-40 w-40 rounded-full bg-primary-soft opacity-70 blur-2xl" />
               <div className="relative">
                 <div className="flex items-center justify-between">
-                  <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Premium</p>
-                  <span className="rounded-full bg-gradient-to-r from-amber-100 to-orange-100 px-3 py-1 text-xs font-bold text-amber-700">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-primary">Premium</p>
+                  <span className="rounded-full bg-gradient-to-r from-amber-100 to-orange-100 px-3 py-1 text-xs font-bold text-amber-700 shadow-xs">
                     🔥 PALING POPULER
                   </span>
                 </div>
@@ -207,10 +207,10 @@ export function Pricing() {
               </div>
 
               {/* Storage info badge */}
-              <div className="mt-4 flex items-start gap-2 rounded-xl bg-amber-50 px-3 py-2.5 ring-1 ring-amber-200/60">
+              <div className="mt-4 flex items-start gap-2 rounded-xl bg-amber-50/80 px-3 py-2.5 ring-1 ring-amber-200/60">
                 <span className="text-base leading-none mt-0.5">📒</span>
                 <p className="text-xs text-amber-800 leading-snug">
-                  <span className="font-semibold">Riwayat disimpan 3 bulan.</span> Data lebih lama bisa diekspor sebagai <strong>PDF Diary bergaya buku harian</strong> yang cantik & siap cetak, kapan saja sebelum dihapus.
+                  <span className="font-semibold">Riwayat disimpan 3 bulan.</span> Data lebih lama bisa diekspor sebagai <strong>PDF Diary bergaya buku harian</strong> yang cantik & siap cetak.
                 </p>
               </div>
 
@@ -225,9 +225,9 @@ export function Pricing() {
 
               <a
                 href="/auth?mode=register"
-                className="relative mt-7 block rounded-full bg-accent py-4 text-center text-sm font-semibold text-accent-foreground shadow-peach transition-all duration-300 hover:-translate-y-0.5 hover:shadow-float"
+                className="relative mt-7 block rounded-full bg-primary py-4 px-4 text-center text-sm font-bold text-primary-foreground shadow-lg transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl hover:opacity-95"
               >
-                Mulai Sekarang
+                Dapatkan Akses Curhat Bebas
               </a>
               <p className="mt-3 text-center text-xs text-muted-foreground">
                 ☕ Cuma Rp1.600-an/hari — <strong>Lebih hemat 24% vs Mingguan!</strong> 🔥
@@ -262,7 +262,7 @@ export function Pricing() {
               <div className="mt-4 flex items-start gap-2 rounded-xl bg-violet-50 px-3 py-2.5 ring-1 ring-violet-200/80">
                 <span className="text-base leading-none mt-0.5">📖</span>
                 <p className="text-xs text-violet-800 leading-snug">
-                  <span className="font-semibold">Riwayat disimpan 1 TAHUN PENUH.</span> Ekspor kapan saja sebagai <strong>PDF Diary bergaya buku harian</strong> — kenangan indahmu tersimpan rapi & bisa dicetak seumur hidup.
+                  <span className="font-semibold">Riwayat disimpan 1 TAHUN PENUH.</span> Ekspor kapan saja sebagai <strong>PDF Diary bergaya buku harian</strong> — tersimpan rapi.
                 </p>
               </div>
 
@@ -289,12 +289,12 @@ export function Pricing() {
 
               <a
                 href="/auth?mode=register"
-                className="relative mt-7 block rounded-full bg-gradient-to-r from-violet-600 to-indigo-600 py-4 text-center text-sm font-semibold text-white shadow-lg transition-all duration-300 hover:-translate-y-0.5 hover:shadow-violet-300/50 hover:shadow-xl"
+                className="relative mt-7 block rounded-full bg-gradient-to-r from-violet-600 to-indigo-600 py-3.5 px-4 text-center text-sm font-bold text-white shadow-lg transition-all duration-300 hover:-translate-y-0.5 hover:shadow-violet-300/50 hover:shadow-xl"
               >
-                Mulai Perjalanan 1 Tahun
+                Ambil Akses 1 Tahun (Hemat 37%)
               </a>
               <p className="mt-3 text-center text-xs text-muted-foreground">
-                💜 Cuma Rp1.300-an/hari — <strong>Paling hemat (Hemat 37%)!</strong> 🏆
+                💜 Cuma Rp1.300-an/hari — <strong>Paling hemat!</strong> 🏆
               </p>
             </div>
           </div>
