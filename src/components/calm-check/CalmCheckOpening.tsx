@@ -1,12 +1,14 @@
-import { Clock, ShieldCheck, Info, Sparkles, ArrowRight, History } from "lucide-react";
+import { Clock, ShieldCheck, Info, Sparkles, ArrowRight, History, Lock } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 
 interface CalmCheckOpeningProps {
   onStart: () => void;
   onViewHistory: () => void;
   hasHistory: boolean;
+  isFreeLimitReached?: boolean;
 }
 
-export function CalmCheckOpening({ onStart, onViewHistory, hasHistory }: CalmCheckOpeningProps) {
+export function CalmCheckOpening({ onStart, onViewHistory, hasHistory, isFreeLimitReached }: CalmCheckOpeningProps) {
   return (
     <div className="mx-auto max-w-2xl space-y-6 text-center animate-fade-in-up">
       {/* Top Tag */}
@@ -88,25 +90,53 @@ export function CalmCheckOpening({ onStart, onViewHistory, hasHistory }: CalmChe
         </div>
       </div>
 
-      {/* Subtle Disclaimer Banner */}
-      <div className="rounded-2xl border border-border/60 bg-cream-deep/40 p-3.5 text-left">
-        <div className="flex items-center gap-2 text-muted-foreground">
-          <Info className="h-4 w-4 shrink-0 text-primary" />
-          <p className="text-[11px] leading-relaxed">
-            <strong className="font-semibold text-foreground">Catatan Penting:</strong> Calm Check adalah tes mandiri awal untuk membantu kamu menemukan rekomendasi fitur JN-CALM yang paling tepat. Hasil ini bukan diagnosis medis.
-          </p>
+      {/* Free Limit Warning Banner */}
+      {isFreeLimitReached ? (
+        <div className="mx-auto max-w-lg rounded-2xl border border-amber-300 bg-amber-50/90 p-5 text-left shadow-card dark:border-amber-900/40 dark:bg-amber-950/40">
+          <div className="flex items-start gap-3">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-100 text-amber-700 dark:bg-amber-900/60 dark:text-amber-300">
+              <Lock className="h-5 w-5" />
+            </div>
+            <div>
+              <h3 className="text-sm font-bold text-amber-900 dark:text-amber-200">
+                Batas 1x Tes Gratis Calm Check Terpenuhi 🌸
+              </h3>
+              <p className="mt-1 text-xs leading-relaxed text-amber-800 dark:text-amber-300">
+                Kamu telah menggunakan 1x kesempatan tes kesehatan mental gratis. Upgrade ke Premium untuk melakukan tes tanpa batas & membuka riwayat lengkap perkembangan emosimu!
+              </p>
+              <Link
+                to="/app/premium"
+                className="mt-3.5 inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-amber-600 to-orange-600 px-5 py-2.5 text-xs font-bold text-white shadow-soft transition-transform hover:scale-[1.01] active:scale-[0.99]"
+              >
+                <span>Upgrade ke Premium · Mulai Rp15.000</span>
+                <Sparkles className="h-3.5 w-3.5" />
+              </Link>
+            </div>
+          </div>
         </div>
-      </div>
+      ) : (
+        /* Subtle Disclaimer Banner */
+        <div className="rounded-2xl border border-border/60 bg-cream-deep/40 p-3.5 text-left">
+          <div className="flex items-center gap-2 text-muted-foreground">
+            <Info className="h-4 w-4 shrink-0 text-primary" />
+            <p className="text-[11px] leading-relaxed">
+              <strong className="font-semibold text-foreground">Catatan Penting:</strong> Calm Check adalah tes mandiri awal untuk membantu kamu menemukan rekomendasi fitur JN-CALM yang paling tepat. Hasil ini bukan diagnosis medis.
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* Action Buttons */}
       <div className="pt-2 space-y-3">
-        <button
-          onClick={onStart}
-          className="group relative inline-flex w-full items-center justify-center gap-2.5 rounded-2xl bg-gradient-to-r from-primary to-primary/90 px-8 py-4 text-base font-bold text-white shadow-soft transition-all duration-300 hover:scale-[1.01] hover:shadow-float active:scale-[0.99] sm:w-auto"
-        >
-          <span>Mulai Cek Kesehatan Mental</span>
-          <ArrowRight className="h-5 w-5 transition-transform duration-300 group-hover:translate-x-1" />
-        </button>
+        {!isFreeLimitReached && (
+          <button
+            onClick={onStart}
+            className="group relative inline-flex w-full items-center justify-center gap-2.5 rounded-2xl bg-gradient-to-r from-primary to-primary/90 px-8 py-4 text-base font-bold text-white shadow-soft transition-all duration-300 hover:scale-[1.01] hover:shadow-float active:scale-[0.99] sm:w-auto"
+          >
+            <span>Mulai Cek Kesehatan Mental</span>
+            <ArrowRight className="h-5 w-5 transition-transform duration-300 group-hover:translate-x-1" />
+          </button>
+        )}
 
         <div>
           <button

@@ -41,6 +41,7 @@ interface CalmCheckResultsProps {
   onViewHistory: () => void;
   isSaved: boolean;
   isSaving: boolean;
+  isPremium?: boolean;
 }
 
 export function CalmCheckResults({
@@ -52,7 +53,8 @@ export function CalmCheckResults({
   onRetakeLater,
   onViewHistory,
   isSaved,
-  isSaving
+  isSaving,
+  isPremium
 }: CalmCheckResultsProps) {
   const cardRef = useRef<HTMLDivElement>(null);
   const [downloading, setDownloading] = useState(false);
@@ -287,14 +289,98 @@ export function CalmCheckResults({
         </div>
       </div>
 
+      {/* Premium Upsell Showcase (All 3 Tiers: Weekly, Monthly, Annual) */}
+      {!isPremium ? (
+        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-cream via-primary-soft/30 to-accent-soft/40 p-6 sm:p-7 border border-primary/30 shadow-card space-y-4">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+            <div>
+              <div className="inline-flex items-center gap-1.5 rounded-full bg-amber-100 px-3 py-0.5 text-[10px] font-bold text-amber-800 dark:bg-amber-950 dark:text-amber-300">
+                <Sparkles className="h-3.5 w-3.5 text-amber-600" />
+                <span>Pilihan Paket Pemulihan Premium</span>
+              </div>
+              <h3 className="mt-1.5 font-display text-lg sm:text-xl font-bold text-foreground">
+                Mulai Perjalanan Pemulihan Emosionalmu Hari Ini 🌿
+              </h3>
+              <p className="text-xs text-muted-foreground">
+                Buka akses Curhat AI 24/7 tanpa batas, jurnal refleksi, & grafik pemantauan kesehatan mental.
+              </p>
+            </div>
+          </div>
 
+          {/* 3 Tier Mini Cards */}
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 pt-1">
+            {/* Mingguan */}
+            <Link
+              to="/app/premium"
+              className="group relative flex flex-col justify-between rounded-2xl border border-border bg-card p-4 shadow-sm transition-all hover:-translate-y-1 hover:shadow-md hover:border-emerald-500"
+            >
+              <div>
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Mingguan</span>
+                  <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[9px] font-bold text-emerald-700">🌱 Coba Dulu</span>
+                </div>
+                <p className="mt-2 text-base font-bold text-foreground">Rp15.000 <span className="text-xs font-normal text-muted-foreground">/minggu</span></p>
+                <p className="mt-1 text-[11px] text-muted-foreground">Praktis untuk 7 hari uji coba.</p>
+              </div>
+              <div className="mt-3 flex items-center gap-1 text-[11px] font-bold text-emerald-600 group-hover:underline">
+                <span>Pilih Paket</span>
+                <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
+              </div>
+            </Link>
+
+            {/* Bulanan (Hero) */}
+            <Link
+              to="/app/premium"
+              className="group relative flex flex-col justify-between rounded-2xl border-2 border-primary bg-card p-4 shadow-soft transition-all hover:-translate-y-1 hover:shadow-float"
+            >
+              <div>
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-primary">Bulanan</span>
+                  <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[9px] font-bold text-amber-700">🔥 Terpopuler</span>
+                </div>
+                <p className="mt-2 text-base font-bold text-foreground">Rp49.000 <span className="text-xs font-normal text-muted-foreground">/bulan</span></p>
+                <p className="mt-1 text-[11px] text-muted-foreground">Hemat 24% vs Mingguan.</p>
+              </div>
+              <div className="mt-3 flex items-center gap-1 text-[11px] font-bold text-primary group-hover:underline">
+                <span>Pilih Paket</span>
+                <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
+              </div>
+            </Link>
+
+            {/* Tahunan */}
+            <Link
+              to="/app/premium"
+              className="group relative flex flex-col justify-between rounded-2xl border border-violet-200 bg-violet-50/50 p-4 shadow-sm transition-all hover:-translate-y-1 hover:shadow-md hover:border-violet-500 dark:bg-violet-950/20"
+            >
+              <div>
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-violet-700">Tahunan</span>
+                  <span className="rounded-full bg-violet-100 px-2 py-0.5 text-[9px] font-bold text-violet-700">🏆 Hemat 37%</span>
+                </div>
+                <p className="mt-2 text-base font-bold text-foreground">Rp490.000 <span className="text-xs font-normal text-muted-foreground">/tahun</span></p>
+                <p className="mt-1 text-[11px] text-muted-foreground">Sekali bayar, tenang setahun.</p>
+              </div>
+              <div className="mt-3 flex items-center gap-1 text-[11px] font-bold text-violet-600 group-hover:underline">
+                <span>Pilih Paket</span>
+                <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
+              </div>
+            </Link>
+          </div>
+        </div>
+      ) : (
+        <div className="rounded-2xl border border-amber-200 bg-amber-50/60 p-4 text-center dark:border-amber-900/40 dark:bg-amber-950/20">
+          <p className="text-xs font-semibold text-amber-800 dark:text-amber-200">
+            ✨ Kamu adalah Member Premium! Seluruh fitur rekomendasi di atas bebas kamu gunakan tanpa batas.
+          </p>
+        </div>
+      )}
 
       {/* Re-assessment Advice */}
       <div className="rounded-2xl border border-sky-200 bg-sky-50/70 p-4 dark:border-sky-900/40 dark:bg-sky-950/30">
         <div className="flex items-start gap-3">
           <Info className="h-5 w-5 shrink-0 text-sky-600 dark:text-sky-400" />
           <p className="text-xs text-sky-900/90 dark:text-sky-200/90 leading-relaxed">
-            <strong className="font-semibold">Saran Frekuensi:</strong> Asesmen Calm Check disarankan dilakukan berkala setiap 1–2 minggu untuk mengamati dinamika perkembangan emosionalmu. Mengulangi tes berulang kali dalam satu hari tidak direkomendasikan.
+            <strong className="font-semibold">Saran Frekuensi:</strong> Asesmen Calm Check disarankan dilakukan berkala setiap 1–2 minggu untuk mengamati dinamika perkembangan emosionalmu. Mengulangi tes berulang kali dalam satu hari tidak direkomendirkan.
           </p>
         </div>
       </div>

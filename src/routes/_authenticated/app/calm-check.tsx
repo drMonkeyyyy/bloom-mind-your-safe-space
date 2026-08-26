@@ -1,6 +1,7 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/use-auth";
+import { useProfile } from "@/hooks/use-profile";
 import { supabase } from "@/integrations/supabase/client";
 import { CalmCheckOpening } from "@/components/calm-check/CalmCheckOpening";
 import { CalmCheckConsent } from "@/components/calm-check/CalmCheckConsent";
@@ -21,6 +22,10 @@ const LOCAL_STORAGE_DRAFT_KEY = "jn_calm_check_answers_draft";
 
 function CalmCheckPage() {
   const { user } = useAuth();
+  const { data: profile } = useProfile(user?.id);
+  const isPremium = profile?.plan === "premium";
+  const navigate = useNavigate();
+
   const [step, setStep] = useState<Step>("opening");
   const [answers, setAnswers] = useState<Record<number, number>>({});
   const [safetyFlag, setSafetyFlag] = useState<boolean>(false);
@@ -29,6 +34,8 @@ function CalmCheckPage() {
   const [isSaving, setIsSaving] = useState<boolean>(false);
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [historyModalOpen, setHistoryModalOpen] = useState<boolean>(false);
+
+  const isFreeLimitReached = !isPremium && history.length >= 1;
 
   // Load draft answers from local storage on mount
   useEffect(() => {
@@ -98,6 +105,11 @@ function CalmCheckPage() {
 
   // Step transitions
   const handleStart = () => {
+    if (isFreeLimitReached) {
+      toast.error("Batas tes gratis 1x tercapai. Upgrade ke Premium untuk melakukan tes tanpa batas! 🌸");
+      navigate({ to: "/app/premium" });
+      return;
+    }
     setStep("consent");
   };
 
@@ -232,6 +244,7 @@ function CalmCheckPage() {
           onStart={handleStart}
           onViewHistory={() => setHistoryModalOpen(true)}
           hasHistory={history.length > 0}
+          isFreeLimitReached={isFreeLimitReached}
         />
       )}
 
@@ -267,6 +280,7 @@ function CalmCheckPage() {
           onViewHistory={() => setHistoryModalOpen(true)}
           isSaved={isSaved}
           isSaving={isSaving}
+          isPremium={isPremium}
         />
       )}
 
