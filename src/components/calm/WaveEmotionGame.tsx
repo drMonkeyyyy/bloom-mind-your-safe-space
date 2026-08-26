@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
+import { playAmbientSound, toggleAmbientSound, setChannelVolume, subscribeAudioState } from "@/lib/audio";
 
 // ── Types ──────────────────────────────────────────────────────────────────
 type Phase = "idle" | "inhale" | "hold" | "exhale" | "rest";
@@ -201,9 +202,39 @@ export function WaveEmotionGame() {
   const [cycle, setCycle] = useState(0);
   const [selectedPattern, setSelectedPattern] = useState(0);
   const [affirmationIdx, setAffirmationIdx] = useState(0);
+  const [wavesPlaying, setWavesPlaying] = useState(false);
+  const [waveVolume, setWaveVolume] = useState(0.6);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const tickRef = useRef(0);
   const stoppedRef = useRef(false);
+
+  // Subscribe to waves audio state
+  useEffect(() => {
+    const unsub = subscribeAudioState((channels) => {
+      setWavesPlaying(channels.waves > 0);
+    });
+    return unsub;
+  }, []);
+
+  // Auto-start waves sound on mount, stop on unmount
+  useEffect(() => {
+    setChannelVolume("waves", waveVolume);
+    playAmbientSound("waves");
+    return () => {
+      // Only stop waves if it was us playing it — toggle off
+      if (window.__bloomChannels?.["waves"]) {
+        toggleAmbientSound("waves");
+      }
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Update channel volume when slider changes
+  const handleVolumeChange = (v: number) => {
+    setWaveVolume(v);
+    setChannelVolume("waves", v);
+    if (!wavesPlaying) playAmbientSound("waves");
+  };
 
   const getPhaseLabel = () => {
     if (phase === "inhale") return "Tarik Napas...";
@@ -392,6 +423,32 @@ export function WaveEmotionGame() {
             <p className="text-sm font-semibold text-sky-700 opacity-80">Tekan mulai untuk naiki ombak 🏄‍♀️</p>
           </div>
         )}
+      </div>
+
+      {/* Wave volume control */}
+      <div className="flex items-center gap-3 rounded-2xl bg-white/50 border border-sky-200/40 px-4 py-2.5">
+        <button
+          onClick={() => toggleAmbientSound("waves")}
+          className="shrink-0 text-lg cursor-pointer transition-transform hover:scale-110 active:scale-95"
+          title={wavesPlaying ? "Matikan suara ombak" : "Nyalakan suara ombak"}
+        >
+          {wavesPlaying ? "🔊" : "🔇"}
+        </button>
+        <div className="flex-1">
+          <p className="text-[10px] font-semibold text-sky-700">Suara Ombak Laut</p>
+          <input
+            type="range"
+            min={0}
+            max={1}
+            step={0.05}
+            value={waveVolume}
+            onChange={(e) => handleVolumeChange(Number(e.target.value))}
+            className="mt-0.5 w-full h-1.5 accent-sky-500 cursor-pointer"
+          />
+        </div>
+        <span className="shrink-0 text-[10px] font-mono text-muted-foreground w-7 text-right">
+          {Math.round(waveVolume * 100)}%
+        </span>
       </div>
 
       {/* Affirmation strip */}
