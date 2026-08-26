@@ -11,6 +11,7 @@ import { AmbientSoundPlayer } from "@/components/calm/AmbientSoundPlayer";
 import { PanicAttackTimer } from "@/components/calm/PanicAttackTimer";
 import { CatharticCrystalShatter } from "@/components/calm/CatharticCrystalShatter";
 import { StarConstellationGame } from "@/components/calm/StarConstellationGame";
+import { WaveEmotionGame } from "@/components/calm/WaveEmotionGame";
 import { playAmbientSound, toggleAmbientSound, subscribeAudioState } from "@/lib/audio";
 import { Music, Pause, Play } from "lucide-react";
 
@@ -18,7 +19,7 @@ export const Route = createFileRoute("/_authenticated/app/calm")({
   component: Page,
 });
 
-type Tool = "breath" | "ground" | "selftalk" | "vent" | "reframing" | "somatic" | "panic" | "crystal" | "stars" | null;
+type Tool = "breath" | "ground" | "selftalk" | "vent" | "reframing" | "somatic" | "panic" | "crystal" | "stars" | "wave" | null;
 
 type Category = "all" | "emergency" | "games" | "thoughts";
 
@@ -148,6 +149,7 @@ function Page() {
     { k: "somatic" as Tool, icon: "🦋", title: "Latihan Somatik", desc: "Tenangkan saraf tubuh secara fisik", color: "oklch(0.71 0.045 160)", category: "emergency" as Category },
     { k: "crystal" as Tool, icon: "⚡", title: "Hancurkan Kristal Stres", desc: "Ketuk & hancurkan beban emosi jadi debu bintang", color: "oklch(0.68 0.18 300)", category: "games" as Category },
     { k: "stars" as Tool, icon: "⭐", title: "Sambungkan Bintang", desc: "Hubungkan rasi bintang & temukan afirmasi untukmu", color: "oklch(0.68 0.12 270)", category: "games" as Category },
+    { k: "wave" as Tool, icon: "🌊", title: "Ombak Emosi", desc: "Naiki ombak napasmu & surfing menuju ketenangan", color: "oklch(0.65 0.12 235)", category: "games" as Category },
     { k: "vent" as Tool, icon: "🍃", title: "Kotak Pelepasan", desc: "Tulis dan bakar/hancurkan beban pikiran", color: "oklch(0.77 0.085 40)", category: "games" as Category },
     { k: "selftalk" as Tool, icon: "🤍", title: "Self-Calming Talk", desc: "Kalimat menenangkan untuk dirimu", color: "oklch(0.70 0.05 310)", category: "thoughts" as Category },
     { k: "reframing" as Tool, icon: "🪞", title: "Ubah Sudut Pandang", desc: "Tulis ulang pikiran negatif secara ramah", color: "oklch(0.75 0.08 40)", category: "thoughts" as Category },
@@ -251,6 +253,7 @@ function Page() {
             {tool === "somatic" && <SomaticExercise />}
             {tool === "crystal" && <CatharticCrystalShatter />}
             {tool === "stars" && <StarConstellationGame />}
+            {tool === "wave" && <WaveEmotionGame />}
             {tool === "panic" && <PanicAttackTimer />}
           </div>
 
