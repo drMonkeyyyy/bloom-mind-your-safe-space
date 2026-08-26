@@ -132,16 +132,18 @@ function WaveCanvas({ progress, phase }: { progress: number; phase: Phase }) {
     ctx.lineWidth = 2.5;
     ctx.stroke();
 
-    // Fin
+
+    // Fin — sits under the back of the board, pointing downward
     ctx.beginPath();
-    ctx.moveTo(28, 7);
-    ctx.lineTo(38, 22);
-    ctx.lineTo(18, 12);
+    ctx.moveTo(22, 10);          // base left on board bottom
+    ctx.lineTo(28, 10);          // base right on board bottom
+    ctx.lineTo(26, 26);          // tip pointing down
     ctx.closePath();
-    ctx.fillStyle = "#f59e0b";
+    ctx.fillStyle = "#d97706";
     ctx.fill();
 
     ctx.restore();
+
 
     // Exhale bubbles rising up
     if (phase === "exhale" || phase === "rest") {
