@@ -8,6 +8,14 @@ const features = [
     tone: "primary",
   },
   {
+    title: "Tes Kesehatan Mental (Calm Check)",
+    desc: "Evaluasi tingkat kecemasan & stres klinis mandiri dengan laporan skor terstruktur.",
+    icon: (
+      <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2M9 5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2m-6 9 2 2 4-4" />
+    ),
+    tone: "primary",
+  },
+  {
     title: "Mood & Stress Tracker",
     desc: "Pantau emosi, tingkat energi, dan indikator stres Anda secara real-time.",
     icon: <path d="M4 18V8m5 10V4m5 14v-7m5 7v-3" />,

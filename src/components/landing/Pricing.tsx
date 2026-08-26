@@ -1,6 +1,7 @@
 const freeTier = [
   "10 chat selama masa gratis (Sahabat saja)",
   "Mood tracker harian (Tanpa Grafik)",
+  "Coba 1x Tes Kesehatan Mental (Calm Check)",
   "Jurnal manual (Maks 2 entri)",
   "Habit tracker (Maks 1 Habit)",
   "Gratitude journal (Maks 2 entri)",
@@ -9,6 +10,7 @@ const freeTier = [
 
 const premiumMonthlyFeatures = [
   "Curhat tanpa batas & semua Pendamping",
+  "Tes Kesehatan Mental (Calm Check) & Riwayat Skor",
   "Jurnal & Gratitude tanpa batas",
   "Growth Dashboard & Grafik Lengkap",
   "Refleksi Harian & Mingguan",
@@ -158,15 +160,7 @@ export function Pricing() {
                 <p className="mt-2 text-sm text-muted-foreground">Pilihan praktis untuk mencoba seluruh fitur premium.</p>
               </div>
 
-              {/* Storage info badge */}
-              <div className="mt-4 flex items-start gap-2 rounded-xl bg-emerald-50 px-3 py-2.5 ring-1 ring-emerald-200/60">
-                <span className="text-base leading-none mt-0.5">📒</span>
-                <p className="text-xs text-emerald-800 leading-snug">
-                  <span className="font-semibold">Riwayat disimpan 3 bulan.</span> Data lebih lama bisa diekspor sebagai <strong>PDF Diary bergaya buku harian</strong> yang cantik & siap cetak.
-                </p>
-              </div>
-
-              <ul className="mt-5 flex-1 space-y-2.5">
+              <ul className="mt-6 flex-1 space-y-2.5">
                 {premiumMonthlyFeatures.map((f) => (
                   <li key={f} className="flex items-center gap-2.5 text-sm text-foreground">
                     <CheckIcon premium />
@@ -206,15 +200,7 @@ export function Pricing() {
                 <p className="mt-2 text-sm text-muted-foreground">Langkah kecil untuk kedamaian pikiranmu.</p>
               </div>
 
-              {/* Storage info badge */}
-              <div className="mt-4 flex items-start gap-2 rounded-xl bg-amber-50/80 px-3 py-2.5 ring-1 ring-amber-200/60">
-                <span className="text-base leading-none mt-0.5">📒</span>
-                <p className="text-xs text-amber-800 leading-snug">
-                  <span className="font-semibold">Riwayat disimpan 3 bulan.</span> Data lebih lama bisa diekspor sebagai <strong>PDF Diary bergaya buku harian</strong> yang cantik & siap cetak.
-                </p>
-              </div>
-
-              <ul className="mt-5 flex-1 space-y-2.5">
+              <ul className="mt-6 flex-1 space-y-2.5">
                 {premiumMonthlyFeatures.map((f) => (
                   <li key={f} className="flex items-center gap-2.5 text-sm text-foreground">
                     <CheckIcon premium />
@@ -258,15 +244,7 @@ export function Pricing() {
                 <p className="mt-2 text-sm text-muted-foreground">Sekali bayar, tenang setahun penuh.</p>
               </div>
 
-              {/* Storage info badge */}
-              <div className="mt-4 flex items-start gap-2 rounded-xl bg-violet-50 px-3 py-2.5 ring-1 ring-violet-200/80">
-                <span className="text-base leading-none mt-0.5">📖</span>
-                <p className="text-xs text-violet-800 leading-snug">
-                  <span className="font-semibold">Riwayat disimpan 1 TAHUN PENUH.</span> Ekspor kapan saja sebagai <strong>PDF Diary bergaya buku harian</strong> — tersimpan rapi.
-                </p>
-              </div>
-
-              <ul className="mt-5 flex-1 space-y-2.5">
+              <ul className="mt-6 flex-1 space-y-2.5">
                 {premiumAnnualFeatures.map((f) => (
                   <li key={f} className="flex items-center gap-2.5 text-sm text-foreground">
                     <span className="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-violet-600 text-white">
