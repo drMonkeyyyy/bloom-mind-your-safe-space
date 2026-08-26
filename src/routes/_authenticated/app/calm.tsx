@@ -20,8 +20,18 @@ export const Route = createFileRoute("/_authenticated/app/calm")({
 
 type Tool = "breath" | "ground" | "selftalk" | "vent" | "reframing" | "somatic" | "panic" | "crystal" | "stars" | null;
 
+type Category = "all" | "emergency" | "games" | "thoughts";
+
+const CATEGORIES: { key: Category; label: string }[] = [
+  { key: "all", label: "✨ Semua Latihan" },
+  { key: "emergency", label: "🆘 Darurat & Napas" },
+  { key: "games", label: "🎮 Mindful Games & Katarsis" },
+  { key: "thoughts", label: "🪞 Pikiran & Afirmasi" },
+];
+
 function Page() {
   const [tool, setTool] = useState<Tool>(null);
+  const [activeCategory, setActiveCategory] = useState<Category>("all");
   const activeToolRef = useRef<HTMLDivElement>(null);
   const [feedbackSubmitted, setFeedbackSubmitted] = useState<boolean>(false);
   const [submitting, setSubmitting] = useState<boolean>(false);
@@ -132,16 +142,18 @@ function Page() {
   };
 
   const tools = [
-    { k: "breath" as Tool, icon: "🌬️", title: "Breathing 4-7-8", desc: "Latihan napas terbimbing dengan timer", color: "oklch(0.71 0.045 160)" },
-    { k: "ground" as Tool, icon: "🌍", title: "Grounding 5-4-3-2-1", desc: "Kembali ke momen saat ini", color: "oklch(0.65 0.06 230)" },
-    { k: "selftalk" as Tool, icon: "🤍", title: "Self-Calming Talk", desc: "Kalimat menenangkan untuk dirimu", color: "oklch(0.70 0.05 310)" },
-    { k: "vent" as Tool, icon: "🍃", title: "Kotak Pelepasan", desc: "Tulis dan bakar/hancurkan beban pikiran", color: "oklch(0.77 0.085 40)" },
-    { k: "reframing" as Tool, icon: "🪞", title: "Ubah Sudut Pandang", desc: "Tulis ulang pikiran negatif secara ramah", color: "oklch(0.75 0.08 40)" },
-    { k: "somatic" as Tool, icon: "🦋", title: "Latihan Somatik", desc: "Tenangkan saraf tubuh secara fisik", color: "oklch(0.71 0.045 160)" },
-    { k: "crystal" as Tool, icon: "⚡", title: "Hancurkan Kristal Stres", desc: "Ketuk & hancurkan beban emosi jadi debu bintang", color: "oklch(0.68 0.18 300)" },
-    { k: "stars" as Tool, icon: "⭐", title: "Sambungkan Bintang", desc: "Hubungkan rasi bintang & temukan afirmasi untukmu", color: "oklch(0.68 0.12 270)" },
-    { k: "panic" as Tool, icon: "🆘", title: "Panic Attack Timer", desc: "Panduan darurat napas + grounding + afirmasi", color: "oklch(0.55 0.18 20)" },
+    { k: "panic" as Tool, icon: "🆘", title: "Panic Attack Timer", desc: "Panduan darurat napas + grounding + afirmasi", color: "oklch(0.55 0.18 20)", category: "emergency" as Category },
+    { k: "breath" as Tool, icon: "🌬️", title: "Breathing 4-7-8", desc: "Latihan napas terbimbing dengan timer", color: "oklch(0.71 0.045 160)", category: "emergency" as Category },
+    { k: "ground" as Tool, icon: "🌍", title: "Grounding 5-4-3-2-1", desc: "Kembali ke momen saat ini", color: "oklch(0.65 0.06 230)", category: "emergency" as Category },
+    { k: "somatic" as Tool, icon: "🦋", title: "Latihan Somatik", desc: "Tenangkan saraf tubuh secara fisik", color: "oklch(0.71 0.045 160)", category: "emergency" as Category },
+    { k: "crystal" as Tool, icon: "⚡", title: "Hancurkan Kristal Stres", desc: "Ketuk & hancurkan beban emosi jadi debu bintang", color: "oklch(0.68 0.18 300)", category: "games" as Category },
+    { k: "stars" as Tool, icon: "⭐", title: "Sambungkan Bintang", desc: "Hubungkan rasi bintang & temukan afirmasi untukmu", color: "oklch(0.68 0.12 270)", category: "games" as Category },
+    { k: "vent" as Tool, icon: "🍃", title: "Kotak Pelepasan", desc: "Tulis dan bakar/hancurkan beban pikiran", color: "oklch(0.77 0.085 40)", category: "games" as Category },
+    { k: "selftalk" as Tool, icon: "🤍", title: "Self-Calming Talk", desc: "Kalimat menenangkan untuk dirimu", color: "oklch(0.70 0.05 310)", category: "thoughts" as Category },
+    { k: "reframing" as Tool, icon: "🪞", title: "Ubah Sudut Pandang", desc: "Tulis ulang pikiran negatif secara ramah", color: "oklch(0.75 0.08 40)", category: "thoughts" as Category },
   ];
+
+  const filteredTools = tools.filter((t) => activeCategory === "all" || t.category === activeCategory);
 
   return (
     <div className="space-y-4 sm:space-y-6">
@@ -185,9 +197,26 @@ function Page() {
       {/* Ambient Sound Player */}
       <AmbientSoundPlayer />
 
+      {/* Category Filter Tabs */}
+      <div className="flex flex-wrap items-center gap-2 pb-1 overflow-x-auto no-scrollbar">
+        {CATEGORIES.map((cat) => (
+          <button
+            key={cat.key}
+            onClick={() => setActiveCategory(cat.key)}
+            className={`inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-xs font-bold transition-all duration-200 shadow-xs cursor-pointer ${
+              activeCategory === cat.key
+                ? "bg-primary text-primary-foreground shadow-soft scale-[1.02]"
+                : "bg-card text-muted-foreground hover:bg-card/80 border border-border/60 hover:text-foreground"
+            }`}
+          >
+            <span>{cat.label}</span>
+          </button>
+        ))}
+      </div>
+
       {/* Tool selector — glass cards */}
       <div className="grid gap-2.5 sm:gap-3 sm:grid-cols-2">
-        {tools.map((t) => (
+        {filteredTools.map((t) => (
           <button
             key={t.k}
             onClick={() => setTool(tool === t.k ? null : t.k)}
