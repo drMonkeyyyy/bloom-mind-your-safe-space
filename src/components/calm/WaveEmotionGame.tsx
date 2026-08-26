@@ -95,54 +95,6 @@ function WaveCanvas({ progress, phase }: { progress: number; phase: Phase }) {
       ctx.fill();
     }
 
-    // Surfboard position on wave
-    const boardX = W * 0.5;
-    const topWaveY =
-      baseY +
-      Math.sin(boardX * 0.019 + t * 1.4) * H * 0.068 +
-      Math.sin(boardX * 0.015 * 1.7 - t * 0.84) * H * 0.034;
-    const boardY = topWaveY - 16;
-
-    // Glow under surfboard
-    ctx.save();
-    ctx.shadowColor = `rgba(${color.r}, ${color.g}, ${color.b}, 0.7)`;
-    ctx.shadowBlur = 20;
-    ctx.translate(boardX, boardY);
-    const tilt = Math.sin(t * 0.85) * 0.13;
-    ctx.rotate(tilt);
-
-    // Board body
-    ctx.beginPath();
-    ctx.ellipse(0, 0, 42, 11, 0, 0, Math.PI * 2);
-    const boardGrad = ctx.createLinearGradient(-42, -11, 42, 11);
-    boardGrad.addColorStop(0, "#fef9c3");
-    boardGrad.addColorStop(0.45, "#fde68a");
-    boardGrad.addColorStop(1, "#f59e0b");
-    ctx.fillStyle = boardGrad;
-    ctx.fill();
-    ctx.strokeStyle = "rgba(251,191,36,0.4)";
-    ctx.lineWidth = 1.5;
-    ctx.stroke();
-
-    // Board center stripe
-    ctx.beginPath();
-    ctx.moveTo(-32, 0);
-    ctx.lineTo(32, 0);
-    ctx.strokeStyle = `rgba(${color.r}, ${color.g}, ${color.b}, 0.9)`;
-    ctx.lineWidth = 2.5;
-    ctx.stroke();
-
-
-    // Fin — sits under the back of the board, pointing downward
-    ctx.beginPath();
-    ctx.moveTo(22, 10);          // base left on board bottom
-    ctx.lineTo(28, 10);          // base right on board bottom
-    ctx.lineTo(26, 26);          // tip pointing down
-    ctx.closePath();
-    ctx.fillStyle = "#d97706";
-    ctx.fill();
-
-    ctx.restore();
 
 
     // Exhale bubbles rising up
@@ -218,17 +170,13 @@ export function WaveEmotionGame() {
     return unsub;
   }, []);
 
-  // Auto-start waves sound on mount, stop on unmount
+  // Cleanup on unmount — stop waves if we started them
   useEffect(() => {
-    setChannelVolume("waves", waveVolume);
-    playAmbientSound("waves");
     return () => {
-      // Only stop waves if it was us playing it — toggle off
       if (window.__bloomChannels?.["waves"]) {
         toggleAmbientSound("waves");
       }
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Update channel volume when slider changes
@@ -329,6 +277,9 @@ export function WaveEmotionGame() {
     setProgress(0);
     setCycle(1);
     setAffirmationIdx(0);
+    // Start waves sound
+    setChannelVolume("waves", waveVolume);
+    playAmbientSound("waves");
     runCycles(PATTERNS[selectedPattern]);
   };
 
@@ -338,6 +289,10 @@ export function WaveEmotionGame() {
     if (intervalRef.current) clearInterval(intervalRef.current);
     setPhase("idle");
     setProgress(0);
+    // Stop waves sound
+    if (window.__bloomChannels?.["waves"]) {
+      toggleAmbientSound("waves");
+    }
     setTimeLeft(0);
     setCycle(0);
   };
