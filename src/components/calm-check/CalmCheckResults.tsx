@@ -289,82 +289,227 @@ export function CalmCheckResults({
         </div>
       </div>
 
-      {/* Premium Upsell Showcase (All 3 Tiers: Weekly, Monthly, Annual) */}
+      {/* Full Premium Cards (Identical to Landing Page Quality) */}
       {!isPremium ? (
-        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-cream via-primary-soft/30 to-accent-soft/40 p-6 sm:p-7 border border-primary/30 shadow-card space-y-4">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-            <div>
-              <div className="inline-flex items-center gap-1.5 rounded-full bg-amber-100 px-3 py-0.5 text-[10px] font-bold text-amber-800 dark:bg-amber-950 dark:text-amber-300">
-                <Sparkles className="h-3.5 w-3.5 text-amber-600" />
-                <span>Pilihan Paket Pemulihan Premium</span>
-              </div>
-              <h3 className="mt-1.5 font-display text-lg sm:text-xl font-bold text-foreground">
-                Mulai Perjalanan Pemulihan Emosionalmu Hari Ini 🌿
-              </h3>
-              <p className="text-xs text-muted-foreground">
-                Buka akses Curhat AI 24/7 tanpa batas, jurnal refleksi, & grafik pemantauan kesehatan mental.
-              </p>
+        <div className="space-y-6 pt-2">
+          <div className="text-center space-y-1.5">
+            <div className="inline-flex items-center gap-1.5 rounded-full bg-amber-100 px-3.5 py-1 text-xs font-bold text-amber-800 dark:bg-amber-950 dark:text-amber-300">
+              <Sparkles className="h-3.5 w-3.5 text-amber-600" />
+              <span>Pilihan Paket Pemulihan Emosional</span>
             </div>
+            <h3 className="font-display text-2xl font-bold text-foreground">
+              Investasi Terkecil untuk Kedamaian Pikiranmu 🌿
+            </h3>
+            <p className="text-xs text-muted-foreground max-w-lg mx-auto">
+              Buka seluruh fitur JN-CALM tanpa batas untuk mendampingi pemulihan kesehatan emosionalmu.
+            </p>
           </div>
 
-          {/* 3 Tier Mini Cards */}
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 pt-1">
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-3">
             {/* Mingguan */}
-            <Link
-              to="/app/premium"
-              className="group relative flex flex-col justify-between rounded-2xl border border-border bg-card p-4 shadow-sm transition-all hover:-translate-y-1 hover:shadow-md hover:border-emerald-500"
-            >
+            <div className="relative flex flex-col justify-between overflow-hidden rounded-3xl bg-card p-6 ring-1 ring-border shadow-sm">
               <div>
                 <div className="flex items-center justify-between">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Mingguan</span>
-                  <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[9px] font-bold text-emerald-700">🌱 Coba Dulu</span>
+                  <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Premium</span>
+                  <span className="rounded-full bg-gradient-to-r from-emerald-100 to-teal-100 px-2.5 py-0.5 text-xs font-bold text-emerald-700">
+                    🌱 COBA DULU
+                  </span>
                 </div>
-                <p className="mt-2 text-base font-bold text-foreground">Rp15.000 <span className="text-xs font-normal text-muted-foreground">/minggu</span></p>
-                <p className="mt-1 text-[11px] text-muted-foreground">Praktis untuk 7 hari uji coba.</p>
-              </div>
-              <div className="mt-3 flex items-center gap-1 text-[11px] font-bold text-emerald-600 group-hover:underline">
-                <span>Pilih Paket</span>
-                <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
-              </div>
-            </Link>
+                <div className="mt-3 flex items-baseline gap-1.5">
+                  <span className="font-sans text-3xl font-bold text-foreground">Rp15.000</span>
+                  <span className="text-xs text-muted-foreground">/minggu</span>
+                </div>
+                <p className="mt-1 text-xs text-muted-foreground">Pilihan praktis untuk uji coba 7 hari.</p>
 
-            {/* Bulanan (Hero) */}
-            <Link
-              to="/app/premium"
-              className="group relative flex flex-col justify-between rounded-2xl border-2 border-primary bg-card p-4 shadow-soft transition-all hover:-translate-y-1 hover:shadow-float"
-            >
-              <div>
+                <ul className="mt-5 space-y-2 text-xs text-foreground">
+                  <li className="flex items-center gap-2">
+                    <span className="grid h-4 w-4 shrink-0 place-items-center rounded-full bg-emerald-100 text-emerald-700">
+                      <Check className="h-2.5 w-2.5" />
+                    </span>
+                    <span>Curhat tanpa batas & semua Pendamping</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <span className="grid h-4 w-4 shrink-0 place-items-center rounded-full bg-emerald-100 text-emerald-700">
+                      <Check className="h-2.5 w-2.5" />
+                    </span>
+                    <span>Tes Kesehatan Mental & Riwayat Skor</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <span className="grid h-4 w-4 shrink-0 place-items-center rounded-full bg-emerald-100 text-emerald-700">
+                      <Check className="h-2.5 w-2.5" />
+                    </span>
+                    <span>Jurnal & Gratitude tanpa batas</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <span className="grid h-4 w-4 shrink-0 place-items-center rounded-full bg-emerald-100 text-emerald-700">
+                      <Check className="h-2.5 w-2.5" />
+                    </span>
+                    <span>Growth Dashboard & Grafik Lengkap</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <span className="grid h-4 w-4 shrink-0 place-items-center rounded-full bg-emerald-100 text-emerald-700">
+                      <Check className="h-2.5 w-2.5" />
+                    </span>
+                    <span>Refleksi Harian & Mingguan</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <span className="grid h-4 w-4 shrink-0 place-items-center rounded-full bg-emerald-100 text-emerald-700">
+                      <Check className="h-2.5 w-2.5" />
+                    </span>
+                    <span>Ekspor PDF Diary buku harian</span>
+                  </li>
+                </ul>
+              </div>
+
+              <div className="mt-6">
+                <Link
+                  to="/app/premium"
+                  className="block rounded-full bg-emerald-600 py-3 text-center text-xs font-bold text-white shadow-md transition-all hover:bg-emerald-700 hover:shadow-lg"
+                >
+                  Mulai Tenangkan Pikiran (Rp15rb)
+                </Link>
+                <p className="mt-2 text-center text-[10px] text-muted-foreground">
+                  ☕ Cuma Rp2.100-an/hari — Cocok untuk uji coba 🌱
+                </p>
+              </div>
+            </div>
+
+            {/* Bulanan (Hero Card) */}
+            <div className="relative flex flex-col justify-between overflow-hidden rounded-3xl bg-card p-6 ring-2 ring-primary shadow-xl">
+              <div className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-primary-soft opacity-70 blur-xl" />
+              <div className="relative">
                 <div className="flex items-center justify-between">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-primary">Bulanan</span>
-                  <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[9px] font-bold text-amber-700">🔥 Terpopuler</span>
+                  <span className="text-xs font-semibold uppercase tracking-wider text-primary">Premium</span>
+                  <span className="rounded-full bg-gradient-to-r from-amber-100 to-orange-100 px-2.5 py-0.5 text-xs font-bold text-amber-700 shadow-xs">
+                    🔥 PALING POPULER
+                  </span>
                 </div>
-                <p className="mt-2 text-base font-bold text-foreground">Rp49.000 <span className="text-xs font-normal text-muted-foreground">/bulan</span></p>
-                <p className="mt-1 text-[11px] text-muted-foreground">Hemat 24% vs Mingguan.</p>
+                <div className="mt-3 flex items-baseline gap-1.5">
+                  <span className="font-sans text-3xl font-bold text-foreground">Rp49.000</span>
+                  <span className="text-xs text-muted-foreground">/bulan</span>
+                </div>
+                <p className="mt-1 text-xs text-muted-foreground">Langkah kecil untuk kedamaian pikiranmu.</p>
+
+                <ul className="mt-5 space-y-2 text-xs text-foreground">
+                  <li className="flex items-center gap-2">
+                    <span className="grid h-4 w-4 shrink-0 place-items-center rounded-full bg-primary text-white">
+                      <Check className="h-2.5 w-2.5" />
+                    </span>
+                    <span>Curhat tanpa batas & semua Pendamping</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <span className="grid h-4 w-4 shrink-0 place-items-center rounded-full bg-primary text-white">
+                      <Check className="h-2.5 w-2.5" />
+                    </span>
+                    <span>Tes Kesehatan Mental & Riwayat Skor</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <span className="grid h-4 w-4 shrink-0 place-items-center rounded-full bg-primary text-white">
+                      <Check className="h-2.5 w-2.5" />
+                    </span>
+                    <span>Jurnal & Gratitude tanpa batas</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <span className="grid h-4 w-4 shrink-0 place-items-center rounded-full bg-primary text-white">
+                      <Check className="h-2.5 w-2.5" />
+                    </span>
+                    <span>Growth Dashboard & Grafik Lengkap</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <span className="grid h-4 w-4 shrink-0 place-items-center rounded-full bg-primary text-white">
+                      <Check className="h-2.5 w-2.5" />
+                    </span>
+                    <span>Refleksi Harian & Mingguan</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <span className="grid h-4 w-4 shrink-0 place-items-center rounded-full bg-primary text-white">
+                      <Check className="h-2.5 w-2.5" />
+                    </span>
+                    <span>Ekspor PDF Diary buku harian</span>
+                  </li>
+                </ul>
               </div>
-              <div className="mt-3 flex items-center gap-1 text-[11px] font-bold text-primary group-hover:underline">
-                <span>Pilih Paket</span>
-                <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
+
+              <div className="relative mt-6">
+                <Link
+                  to="/app/premium"
+                  className="block rounded-full bg-primary py-3.5 text-center text-xs font-bold text-white shadow-lg transition-all hover:opacity-95 hover:shadow-xl"
+                >
+                  Dapatkan Akses Curhat Bebas
+                </Link>
+                <p className="mt-2 text-center text-[10px] text-muted-foreground">
+                  ☕ Cuma Rp1.600-an/hari — <strong>Lebih hemat 24%!</strong> 🔥
+                </p>
               </div>
-            </Link>
+            </div>
 
             {/* Tahunan */}
-            <Link
-              to="/app/premium"
-              className="group relative flex flex-col justify-between rounded-2xl border border-violet-200 bg-violet-50/50 p-4 shadow-sm transition-all hover:-translate-y-1 hover:shadow-md hover:border-violet-500 dark:bg-violet-950/20"
-            >
+            <div className="relative flex flex-col justify-between overflow-hidden rounded-3xl bg-gradient-to-br from-violet-50 to-indigo-50 p-6 ring-1 ring-violet-200 dark:from-violet-950/30 dark:to-indigo-950/30 shadow-sm">
               <div>
                 <div className="flex items-center justify-between">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-violet-700">Tahunan</span>
-                  <span className="rounded-full bg-violet-100 px-2 py-0.5 text-[9px] font-bold text-violet-700">🏆 Hemat 37%</span>
+                  <span className="text-xs font-semibold uppercase tracking-wider text-violet-700">Tahunan</span>
+                  <span className="rounded-full bg-gradient-to-r from-violet-100 to-indigo-100 px-2.5 py-0.5 text-xs font-bold text-violet-700">
+                    🏆 TERBAIK
+                  </span>
                 </div>
-                <p className="mt-2 text-base font-bold text-foreground">Rp490.000 <span className="text-xs font-normal text-muted-foreground">/tahun</span></p>
-                <p className="mt-1 text-[11px] text-muted-foreground">Sekali bayar, tenang setahun.</p>
+                <div className="mt-3 flex items-baseline gap-1.5">
+                  <span className="font-sans text-3xl font-bold text-foreground">Rp490.000</span>
+                  <span className="text-xs text-muted-foreground">/tahun</span>
+                </div>
+                <p className="mt-1 text-xs text-muted-foreground">Sekali bayar, tenang setahun penuh.</p>
+
+                <ul className="mt-5 space-y-2 text-xs text-foreground">
+                  <li className="flex items-center gap-2">
+                    <span className="grid h-4 w-4 shrink-0 place-items-center rounded-full bg-violet-600 text-white">
+                      <Check className="h-2.5 w-2.5" />
+                    </span>
+                    <span>Semua fitur Premium Bulanan</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <span className="grid h-4 w-4 shrink-0 place-items-center rounded-full bg-violet-600 text-white">
+                      <Check className="h-2.5 w-2.5" />
+                    </span>
+                    <span>Riwayat 1 TAHUN tersimpan aman</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <span className="grid h-4 w-4 shrink-0 place-items-center rounded-full bg-violet-600 text-white">
+                      <Check className="h-2.5 w-2.5" />
+                    </span>
+                    <span>Ekspor PDF Diary bergaya buku harian</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <span className="grid h-4 w-4 shrink-0 place-items-center rounded-full bg-violet-600 text-white">
+                      <Check className="h-2.5 w-2.5" />
+                    </span>
+                    <span>Hemat Rp98.000 vs bulanan</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <span className="grid h-4 w-4 shrink-0 place-items-center rounded-full bg-violet-600 text-white">
+                      <Check className="h-2.5 w-2.5" />
+                    </span>
+                    <span>Prioritas akses fitur baru</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <span className="grid h-4 w-4 shrink-0 place-items-center rounded-full bg-violet-600 text-white">
+                      <Check className="h-2.5 w-2.5" />
+                    </span>
+                    <span>Dukungan & respons cepat</span>
+                  </li>
+                </ul>
               </div>
-              <div className="mt-3 flex items-center gap-1 text-[11px] font-bold text-violet-600 group-hover:underline">
-                <span>Pilih Paket</span>
-                <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
+
+              <div className="mt-6">
+                <Link
+                  to="/app/premium"
+                  className="block rounded-full bg-gradient-to-r from-violet-600 to-indigo-600 py-3 text-center text-xs font-bold text-white shadow-md transition-all hover:shadow-lg"
+                >
+                  Ambil Akses 1 Tahun (Hemat 37%)
+                </Link>
+                <p className="mt-2 text-center text-[10px] text-muted-foreground">
+                  💜 Cuma Rp1.300-an/hari — <strong>Paling hemat!</strong> 🏆
+                </p>
               </div>
-            </Link>
+            </div>
           </div>
         </div>
       ) : (
