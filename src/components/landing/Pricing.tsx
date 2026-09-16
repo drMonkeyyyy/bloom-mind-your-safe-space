@@ -1,5 +1,8 @@
+import { useState, useEffect } from "react";
+
 const freeTier = [
-  "10 chat pendamping AI",
+  "Komunitas Sahabat Support 🩵 (GRATIS)",
+  "10 chat pendamping AI Sahabat",
   "Mood tracker harian",
   "Tugas harian dasar (Micro-Quest)",
   "1x Tes Calm Check (DASS-21)",
@@ -13,6 +16,7 @@ const monthlyFeatures = [
   "Tugas Harian Pemulihan (Daily Quest)",
   "Calm Check & Grafik Mood Lengkap",
   "Emotional Eating & Craving Tracker",
+  "Komunitas Sahabat Support 🩵 (GRATIS)",
   "Ekspor PDF Diary bergaya buku harian",
 ];
 
@@ -22,7 +26,8 @@ const quarterlyFeatures = [
   "Evaluasi Grafik Progress 3 Bulan",
   "Laporan Ringkasan Klinis PDF",
   "Riwayat 90 Hari tersimpan aman",
-  "Akses Komunitas Sahabat Support",
+  "Komunitas Sahabat Support 🩵 (GRATIS)",
+  "Akses Pertama Fitur AI Terbaru",
 ];
 
 const annualFeatures = [
@@ -31,33 +36,38 @@ const annualFeatures = [
   "Riwayat 1 Tahun Penuh tersimpan",
   "Kilas Balik Tahunan & PDF Export",
   "Akses Pertama Pendamping AI Baru",
+  "Komunitas Sahabat Support 🩵 (GRATIS)",
   "Dukungan & Respons Prioritas Utama",
 ];
 
 const FAQ = [
   {
     q: "Apa saja yang ada dalam Emergency Calm Mode?",
-    a: "Emergency Calm Mode adalah fitur intervensi krisis instan saat kamu merasa panik atau cemas hebat. Berisi 10 alat pernapasan terpandu (4-7-8, Box Breathing), audio penenang, serta bantuan krisis. Semua paket program pemulihan (1 Bulan, 3 Bulan, 1 Tahun) mendapatkan Akses Tanpa Batas.",
+    a: "Emergency Calm Mode adalah fitur intervensi krisis instan saat kamu merasa panik atau cemas hebat. Berisi 10 alat pernapasan terpandu (4-7-8, Box Breathing), grounding 5-4-3-2-1, self-talk carousel, venting box, cognitive reframing, somatic exercise, dan 3 mini-game menenangkan. Semua paket berbayar (1 Bulan, 3 Bulan, 1 Tahun) mendapatkan Akses Tanpa Batas.",
   },
   {
-    q: "Apa saja seluruh fitur yang saya dapatkan dalam Program Pemulihan Bloom Mind?",
-    a: "Kamu mendapatkan akses penuh ke 10+ fitur klinis holistik: Emergency Calm Mode & Pernapasan SOS Tanpa Batas, JN-CALM Chat (Curhat AI), CBT Reflective Journaling, Gratitude Journal, Mood Weather Tracker, Calm Check Mental Screening, Emotional Eating Interrupter, Growth Dashboard Analytics, Komunitas Aman (Sahabat Support), dan Ekspor PDF Diary.",
+    q: "Apakah fitur Komunitas benar-benar gratis?",
+    a: "Ya! Komunitas Sahabat Support tersedia untuk semua pengguna termasuk akun Gratis. Kamu bisa berbagi cerita secara anonim, memberi Pelukan Hangat 🩵, dan membaca cerita dari ribuan anggota lainnya — tanpa perlu berlangganan.",
+  },
+  {
+    q: "Kenapa Program 90 Hari (3 Bulan) direkomendasikan untuk pemulihan?",
+    a: "Berdasarkan riset psikologi perilaku, otak manusia membutuhkan waktu rata-rata 60–90 hari untuk mengurai kebiasaan emosional lama (seperti impuls kecemasan atau emotional eating) dan membentuk regulasi emosi baru yang stabil. 30 hari cukup untuk stabilisasi, tapi 90 hari memastikan perubahan yang bertahan.",
+  },
+  {
+    q: "Apakah data saya aman dan terenkripsi?",
+    a: "Ya. Semua data dienkripsi dan tidak pernah dibagikan ke pihak ketiga. Privasi kamu adalah prioritas utama kami. Kamu juga bisa memposting secara anonim di komunitas.",
   },
   {
     q: "Apa itu Tugas Harian Pemulihan (Daily Quest)?",
     a: "Tugas Harian Pemulihan adalah aktivitas mikro berdurasi 2–3 menit setiap hari yang dirancang berbasis teknik terapi psikologi (CBT & Mindfulness). Mulai dari jurnal refleksi singkat, latihan pernapasan terpandu, hingga teknik mengurai cemas.",
   },
   {
-    q: "Apakah data saya aman dan terenkripsi?",
-    a: "Ya. Semua data dienkripsi dan tidak pernah dibagikan ke pihak ketiga. Privasi kamu adalah prioritas utama kami.",
-  },
-  {
-    q: "Kenapa Program 90 Hari (3 Bulan) direkomendasikan untuk pemulihan?",
-    a: "Berdasarkan riset psikologi perilaku, otak manusia membutuhkan waktu rata-rata 60 hingga 90 hari untuk mengurai kebiasaan emosional lama (seperti impuls kecemasan atau emotional eating) dan membentuk regulasi emosi baru yang stabil.",
-  },
-  {
     q: "Bagaimana cara pembayaran?",
     a: "Pembayaran dapat dilakukan secara instan & otomatis menggunakan Kartu Kredit, E-Wallet (GoPay, OVO, ShopeePay, Dana), QRIS, atau Virtual Account melalui payment gateway Mayar.id.",
+  },
+  {
+    q: "Ada garansi uang kembali tidak?",
+    a: "Ya! Kami memberikan Garansi Kepuasan 7 Hari. Jika dalam 7 hari kamu merasa tidak mendapat manfaat, hubungi tim kami dan kami akan memproses pengembalian dana penuh — tanpa pertanyaan.",
   },
 ];
 
@@ -105,6 +115,39 @@ function FAQItem({ q, a }: { q: string; a: string }) {
   );
 }
 
+// Countdown timer for urgency — resets to end of month
+function UrgencyTimer() {
+  const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, mins: 0 });
+
+  useEffect(() => {
+    const calc = () => {
+      const now = new Date();
+      const end = new Date(now.getFullYear(), now.getMonth() + 1, 1); // First of next month
+      const diff = end.getTime() - now.getTime();
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      setTimeLeft({ days, hours, mins });
+    };
+    calc();
+    const id = setInterval(calc, 60_000);
+    return () => clearInterval(id);
+  }, []);
+
+  return (
+    <div className="flex items-center justify-center gap-1.5 rounded-xl bg-amber-500/10 px-3 py-1.5 ring-1 ring-amber-500/30">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="h-3 w-3 text-amber-600" aria-hidden="true">
+        <circle cx="12" cy="12" r="10" /><path d="M12 6v6l4 2" />
+      </svg>
+      <span className="text-[10px] font-bold text-amber-700 dark:text-amber-400">
+        Harga ini berlaku{" "}
+        <span className="tabular-nums">{timeLeft.days}h {timeLeft.hours}j {timeLeft.mins}m</span>{" "}
+        lagi
+      </span>
+    </div>
+  );
+}
+
 export function Pricing() {
   return (
     <section id="harga" className="relative py-20 sm:py-28">
@@ -117,6 +160,12 @@ export function Pricing() {
           <p className="mt-3 text-sm sm:text-base text-muted-foreground">
             Akses penuh & tanpa batas ke Emergency Calm Mode serta 10+ fitur klinis psikologi holistik.
           </p>
+
+          {/* Guarantee strip */}
+          <div className="mt-5 inline-flex items-center gap-2 rounded-full bg-card px-4 py-2 ring-1 ring-border text-xs font-medium text-foreground">
+            <span className="text-base">🛡️</span>
+            Garansi Kepuasan 7 Hari — Uang Kembali Penuh Jika Tidak Puas
+          </div>
         </div>
 
         {/* Plan cards — 4 columns layout with equal heights & crisp typography */}
@@ -137,6 +186,11 @@ export function Pricing() {
                 <span className="text-xs text-muted-foreground">/bulan</span>
               </div>
               <p className="mt-1 text-xs text-muted-foreground">Mulai tanpa perlu kartu kredit.</p>
+
+              {/* Komunitas callout */}
+              <div className="mt-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 px-3 py-2 text-[11px] font-bold text-emerald-700 dark:text-emerald-400 ring-1 ring-emerald-200 dark:ring-emerald-800">
+                🩵 Komunitas Sahabat Support — GRATIS untuk semua!
+              </div>
 
               <div className="my-5 border-t border-border/60" />
 
@@ -225,9 +279,14 @@ export function Pricing() {
                 </div>
                 <div className="mt-1 flex items-center gap-1.5">
                   <span className="text-[10px] text-muted-foreground line-through">Rp147.000</span>
-                  <span className="rounded-full bg-amber-100 dark:bg-amber-950/60 px-2 py-0.5 text-[10px] font-bold text-amber-800 dark:text-amber-300">Hemat 20%</span>
+                  <span className="rounded-full bg-amber-100 dark:bg-amber-950/60 px-2 py-0.5 text-[10px] font-bold text-amber-800 dark:text-amber-300">Hemat 19%</span>
                 </div>
                 <p className="mt-1 text-xs text-muted-foreground">Durasi ideal psikologis mengubah habit & emosi.</p>
+
+                {/* Urgency countdown */}
+                <div className="mt-3">
+                  <UrgencyTimer />
+                </div>
 
                 <div className="my-5 border-t border-border/60" />
 
@@ -297,7 +356,7 @@ export function Pricing() {
                   Ambil Akses 1 Tahun
                 </a>
                 <p className="mt-2 text-center text-[10px] font-medium text-muted-foreground">
-                  💜 Cuma Rp1.300-an/hari (Paling Hemat)
+                  💜 Cuma Rp1.340-an/hari (Paling Hemat)
                 </p>
               </div>
             </div>
@@ -305,19 +364,22 @@ export function Pricing() {
 
         </div>
 
-        {/* Reassurance strip */}
-        <div data-reveal className="mx-auto mt-12 max-w-5xl">
-          <div className="flex flex-wrap justify-center gap-x-8 gap-y-2 text-xs text-muted-foreground">
-            <span className="flex items-center gap-1.5">🔒 Data terenkripsi & pribadi</span>
+        {/* Guarantee + Reassurance strip */}
+        <div data-reveal className="mx-auto mt-8 max-w-5xl">
+          <div className="rounded-2xl bg-card ring-1 ring-border p-4 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs text-muted-foreground">
+            <span className="flex items-center gap-1.5 font-medium text-foreground">🛡️ Garansi 7 Hari Uang Kembali</span>
+            <span className="flex items-center gap-1.5">🔒 Data terenkripsi & privadi</span>
             <span className="flex items-center gap-1.5">📒 Ekspor PDF Diary bergaya buku harian</span>
             <span className="flex items-center gap-1.5">✨ Bebas berhenti perpanjangan kapan saja</span>
-            <span className="flex items-center gap-1.5">💳 Bayar via GoPay, OVO, QRIS & Kartu</span>
+            <span className="flex items-center gap-1.5">💳 GoPay, OVO, QRIS & Kartu</span>
+            <span className="flex items-center gap-1.5">🩵 Komunitas Gratis untuk semua</span>
           </div>
         </div>
 
         {/* FAQ */}
         <div data-reveal className="mx-auto mt-20 max-w-2xl">
           <h3 className="text-center font-display text-2xl font-semibold text-foreground">Pertanyaan Umum</h3>
+
           <div className="mt-6 space-y-3">
             {FAQ.map((item) => (
               <FAQItem key={item.q} q={item.q} a={item.a} />
