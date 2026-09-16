@@ -21,7 +21,7 @@ const PROGRAM_DETAILS: Record<ProgramDuration, {
   targetOutcome: string;
   description: string;
   recommendedFor: string;
-  milestones: { step: string; title: string; desc: string; focusModule: string; link: string; search?: Record<string, string> }[];
+  milestones: { step: string; title: string; desc: string; focusModule: string; links: { name: string; link: string; search?: Record<string, string> }[] }[];
 }> = {
   "30hari": {
     name: "Program Reset 30 Hari",
@@ -31,10 +31,10 @@ const PROGRAM_DETAILS: Record<ProgramDuration, {
     description: "Program intensif 30 hari untuk mereset ambang toleransi stres tubuh dan membiasakan latihan regulasi emosi dasar.",
     recommendedFor: "Pengguna yang butuh interupsi krisis cepat & ingin membangun kebiasaan pemulihan harian.",
     milestones: [
-      { step: "Minggu 1", title: "Stabilisasi Somatis & Crisis Emergency", desc: "Menguasai 10 alat Emergency Calm Mode saat cemas/panik meluap.", focusModule: "Modul 1: Crisis Intervention", link: "/app/calm", search: { tool: "breath" } },
-      { step: "Minggu 2", title: "Asesmen Baseline & Tracking Trigger", desc: "Melihat grafik cuaca emosi dan mengukur skor kecemasan awal (DASS-21).", focusModule: "Modul 2: Skrining Psikologis", link: "/app/calm-check" },
-      { step: "Minggu 3", title: "Cognitive Reflection & Gratitude", desc: "Mengurai 3 pikiran otomatis negatif dan menulis jurnal rasa syukur.", focusModule: "Modul 3: Terapi Kognitif", link: "/app/journal" },
-      { step: "Minggu 4", title: "Evaluasi Reset & Micro-Habit", desc: "Meningkatkan skor mood dan mempertahankan habit tracker 3 menit.", focusModule: "Modul 4: Habit Building", link: "/app/habits" }
+      { step: "Minggu 1", title: "Stabilisasi Somatis & Crisis Emergency", desc: "Menguasai 10 alat Emergency Calm Mode saat cemas/panik meluap.", focusModule: "Modul 1: Crisis Intervention", links: [{ name: "Emergency Calm 🫁", link: "/app/calm", search: { tool: "breath" } }] },
+      { step: "Minggu 2", title: "Asesmen Baseline & Tracking Trigger", desc: "Melihat grafik cuaca emosi dan mengukur skor kecemasan awal (DASS-21).", focusModule: "Modul 2: Skrining Psikologis", links: [{ name: "Skrining DASS 📋", link: "/app/calm-check" }, { name: "Cuaca Emosi 🌤️", link: "/app/mood" }] },
+      { step: "Minggu 3", title: "Cognitive Reflection & Gratitude", desc: "Mengurai 3 pikiran otomatis negatif dan menulis jurnal rasa syukur.", focusModule: "Modul 3: Terapi Kognitif", links: [{ name: "Jurnal CBT 📓", link: "/app/journal" }, { name: "Jurnal Syukur 🌸", link: "/app/gratitude" }] },
+      { step: "Minggu 4", title: "Evaluasi Reset & Micro-Habit", desc: "Meningkatkan skor mood dan mempertahankan habit tracker 3 menit.", focusModule: "Modul 4: Habit Building", links: [{ name: "Habit Tracker 🎯", link: "/app/habits" }, { name: "Growth Report 📊", link: "/app/growth" }] }
     ]
   },
   "90hari": {
@@ -45,9 +45,9 @@ const PROGRAM_DETAILS: Record<ProgramDuration, {
     description: "Durasi emas 90 hari berbasis riset psikologi perilaku untuk mengurai kebiasaan impuls emosi lama dan membentuk struktur neurokognitif baru.",
     recommendedFor: "Rekomendasi utama psikologis untuk pemulihan emosional yang bertahan lama dan terbukti klinis.",
     milestones: [
-      { step: "Bulan 1 (Hari 1-30)", title: "Fase 1: Somatic Crisis Reset & Screening", desc: "Stabilisasi saraf Vagus, bebas serangan panik, dan pemetaan baseline DASS-21.", focusModule: "Modul 1 & 2: Emergency & Screening", link: "/app/calm", search: { tool: "panic" } },
-      { step: "Bulan 2 (Hari 31-60)", title: "Fase 2: CBT Rewiring & Emotional Eating Interruption", desc: "Menantang distorsi kognitif ANTs & memisahkan lapar fisik vs emosi.", focusModule: "Modul 3 & 4: CBT & Gut-Brain Axis", link: "/app/eating" },
-      { step: "Bulan 3 (Hari 61-90)", title: "Fase 3: Regulasis Diri, Sahabat Support & PDF Report", desc: "Integrasi komunitas aman, evaluasi progress 90 hari, dan cetak Laporan Klinis.", focusModule: "Modul 5: Dukungan Sosial & Dokumentasi", link: "/app/growth" }
+      { step: "Bulan 1 (Hari 1-30)", title: "Fase 1: Somatic Crisis Reset & Screening", desc: "Stabilisasi saraf Vagus, bebas serangan panik, dan pemetaan baseline DASS-21.", focusModule: "Modul 1 & 2: Emergency & Screening", links: [{ name: "Emergency Calm 🚨", link: "/app/calm", search: { tool: "panic" } }, { name: "Skrining DASS 📋", link: "/app/calm-check" }] },
+      { step: "Bulan 2 (Hari 31-60)", title: "Fase 2: CBT Rewiring & Emotional Eating Interruption", desc: "Menantang distorsi kognitif ANTs & memisahkan lapar fisik vs emosi.", focusModule: "Modul 3 & 4: CBT & Gut-Brain Axis", links: [{ name: "Jurnal CBT 📓", link: "/app/journal" }, { name: "Emotional Eating 🍎", link: "/app/eating" }] },
+      { step: "Bulan 3 (Hari 61-90)", title: "Fase 3: Regulasis Diri, Sahabat Support & PDF Report", desc: "Integrasi komunitas aman, evaluasi progress 90 hari, dan cetak Laporan Klinis.", focusModule: "Modul 5: Dukungan Sosial & Dokumentasi", links: [{ name: "Komunitas 🤝", link: "/app/community" }, { name: "Laporan PDF 📊", link: "/app/growth" }] }
     ]
   },
   "365hari": {
@@ -58,10 +58,10 @@ const PROGRAM_DETAILS: Record<ProgramDuration, {
     description: "Pendampingan holistik tanpa batas selama 365 hari dengan akses prioritas ke seluruh inovasi pendamping AI.",
     recommendedFor: "Pendampingan kesehatan emosi berkelanjutan sepanjang masa pasang surut kehidupan.",
     milestones: [
-      { step: "Kuartal 1", title: "Fondasi Ketenangan & Master Emergency Mode", desc: "Stabilisasi saraf otonom & penguasaan 10 teknik grounding.", focusModule: "Modul 1 & 2: Emergency Calm", link: "/app/calm", search: { tool: "ground" } },
-      { step: "Kuartal 2", title: "Cognitive Mastery & Pendamping AI 24/7", desc: "Restrukturisasi pikiran negatif & sesi curhat AI tanpa batas.", focusModule: "Modul 3: CBT & AI Chat", link: "/app/chat" },
-      { step: "Kuartal 3", title: "Gut-Brain Balance & Komunitas Safe Space", desc: "Mengurai pemicu emotional eating & aktif di Komunitas Sahabat Support.", focusModule: "Modul 4 & 5: Gut-Brain & Community", link: "/app/community" },
-      { step: "Kuartal 4", title: "Transendensi & Kilas Balik Tahunan", desc: "Evaluasi 1 tahun penuh, retrospektif emosional & dokumen PDF perjalanan.", focusModule: "Modul 5: Growth Dashboard & PDF", link: "/app/growth" }
+      { step: "Kuartal 1", title: "Fondasi Ketenangan & Master Emergency Mode", desc: "Stabilisasi saraf otonom & penguasaan 10 teknik grounding.", focusModule: "Modul 1 & 2: Emergency Calm", links: [{ name: "Grounding 🌍", link: "/app/calm", search: { tool: "ground" } }, { name: "Skrining DASS 📋", link: "/app/calm-check" }] },
+      { step: "Kuartal 2", title: "Cognitive Mastery & Pendamping AI 24/7", desc: "Restrukturisasi pikiran negatif & sesi curhat AI tanpa batas.", focusModule: "Modul 3: CBT & AI Chat", links: [{ name: "Jurnal CBT 📓", link: "/app/journal" }, { name: "Curhat AI 💬", link: "/app/chat" }] },
+      { step: "Kuartal 3", title: "Gut-Brain Balance & Komunitas Safe Space", desc: "Mengurai pemicu emotional eating & aktif di Komunitas Sahabat Support.", focusModule: "Modul 4 & 5: Gut-Brain & Community", links: [{ name: "Emotional Eating 🍎", link: "/app/eating" }, { name: "Komunitas 🤝", link: "/app/community" }] },
+      { step: "Kuartal 4", title: "Transendensi & Kilas Balik Tahunan", desc: "Evaluasi 1 tahun penuh, retrospektif emosional & dokumen PDF perjalanan.", focusModule: "Modul 5: Growth Dashboard & PDF", links: [{ name: "Habit Tracker 🎯", link: "/app/habits" }, { name: "Laporan PDF 📊", link: "/app/growth" }] }
     ]
   }
 };
@@ -410,15 +410,21 @@ export function ProgramPage() {
                   <h4 className="mt-2 font-display text-sm font-bold text-foreground">{m.title}</h4>
                   <p className="mt-1 text-[11px] text-muted-foreground leading-snug">{m.desc}</p>
                 </div>
-                <div className="mt-4 pt-3 border-t border-border/40 flex items-center justify-between">
-                  <span className="text-[10px] font-semibold text-primary truncate max-w-[140px]">{m.focusModule}</span>
-                  <Link
-                    to={m.link}
-                    search={m.search as any}
-                    className="text-[10px] font-bold text-foreground hover:text-primary flex items-center gap-1"
-                  >
-                    Buka →
-                  </Link>
+                <div className="mt-4 pt-3 border-t border-border/40 space-y-2">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block">{m.focusModule}</span>
+                  <div className="flex flex-wrap items-center gap-1.5">
+                    {m.links.map((l) => (
+                      <Link
+                        key={l.name}
+                        to={l.link}
+                        search={l.search as any}
+                        className="inline-flex items-center gap-1 rounded-full bg-primary/10 hover:bg-primary/20 text-primary px-2.5 py-1 text-[10px] font-bold transition-colors shadow-2xs"
+                      >
+                        <span>{l.name}</span>
+                        <span className="text-[9px]">→</span>
+                      </Link>
+                    ))}
+                  </div>
                 </div>
               </div>
             ))}
