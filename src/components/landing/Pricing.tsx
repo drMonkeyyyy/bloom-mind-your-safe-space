@@ -5,6 +5,7 @@ const freeTier = [
   "1x Tes Calm Check (DASS-21)",
   "1x Emergency Calm Mode & Pernapasan",
   "Jurnal & Gratitude dasar",
+  "Akses Komunitas Sahabat Support",
 ];
 
 const monthlyFeatures = [
@@ -14,6 +15,7 @@ const monthlyFeatures = [
   "Calm Check & Grafik Mood Lengkap",
   "Emotional Eating & Craving Tracker",
   "Ekspor PDF Diary bergaya buku harian",
+  "Akses Komunitas Sahabat Support",
 ];
 
 const quarterlyFeatures = [
