@@ -187,7 +187,40 @@ export function ProgramPage() {
     } catch { /* silent */ }
   };
 
-  const isPremium = profile?.plan === "premium";
+  const isDateActive = profile?.premium_end_date ? new Date(profile.premium_end_date) > new Date() : false;
+  const isPremium = profile?.plan === "premium" || isDateActive;
+
+  let activePlanTitle = "🌱 Free Starter";
+  let autoSelectedDuration: ProgramDuration = "90hari";
+
+  if (isPremium) {
+    if (profile?.premium_end_date && profile?.premium_start_date) {
+      const diffDays = Math.round(
+        (new Date(profile.premium_end_date).getTime() - new Date(profile.premium_start_date).getTime()) /
+          (24 * 60 * 60 * 1000)
+      );
+      if (diffDays > 180) {
+        activePlanTitle = "🏆 Program Pendampingan 365 Hari";
+        autoSelectedDuration = "365hari";
+      } else if (diffDays > 60) {
+        activePlanTitle = "🔥 Program Pemulihan Utuh (90 Hari)";
+        autoSelectedDuration = "90hari";
+      } else {
+        activePlanTitle = "🌿 Program Reset 30 Hari";
+        autoSelectedDuration = "30hari";
+      }
+    } else {
+      activePlanTitle = "🔥 Program Pemulihan 90 Hari (Aktif)";
+      autoSelectedDuration = "90hari";
+    }
+  }
+
+  useEffect(() => {
+    if (isPremium && autoSelectedDuration) {
+      setSelectedDuration(autoSelectedDuration);
+    }
+  }, [isPremium, autoSelectedDuration]);
+
   const progressPercentage = Math.round((completedQuests.length / TODAY_QUESTS.length) * 100);
   const activeProgram = PROGRAM_DETAILS[selectedDuration];
 
@@ -201,8 +234,11 @@ export function ProgramPage() {
             <span className="inline-flex items-center gap-1.5 rounded-full bg-primary px-3 py-1 text-xs font-bold text-primary-foreground shadow-xs">
               🧠 INTEGRATED HEALING PROTOCOL
             </span>
-            <span className="rounded-full bg-card px-3 py-1 text-xs font-semibold text-muted-foreground ring-1 ring-border">
-              Status Akses: <strong className={isPremium ? "text-emerald-600" : "text-amber-600"}>{isPremium ? "✨ Full Unlimited" : "🌱 Free Starter"}</strong>
+            <span className="rounded-full bg-card px-3.5 py-1 text-xs font-semibold text-muted-foreground ring-1 ring-border shadow-xs">
+              Status Akses:{" "}
+              <strong className={isPremium ? "text-emerald-600 dark:text-emerald-400 font-bold" : "text-amber-600 dark:text-amber-400 font-bold"}>
+                {isPremium ? `${activePlanTitle} (Aktif ✨)` : "🌱 Free Starter"}
+              </strong>
             </span>
           </div>
 
@@ -436,8 +472,41 @@ export function ProgramPage() {
         </div>
       </div>
 
-      {/* ── CTA TO UPGRADE IF FREE ───────────────────────────────────── */}
-      {!isPremium && (
+      {/* ── ACTIVE PLAN BANNER / UPGRADE CTA ──────────────────────────── */}
+      {isPremium ? (
+        <div className="rounded-3xl bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-700 p-8 text-white shadow-xl">
+          <div className="max-w-3xl">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="rounded-full bg-white/20 px-3 py-1 text-xs font-bold">✨ Program Pemulihan Aktif</span>
+              {profile?.premium_end_date && (
+                <span className="text-xs opacity-90 font-medium">
+                  Berlaku s/d {new Date(profile.premium_end_date).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" })}
+                </span>
+              )}
+            </div>
+            <h3 className="mt-3 font-display text-2xl font-bold">
+              {activePlanTitle} — Akses Penuh Siap Digunakan
+            </h3>
+            <p className="mt-2 text-xs opacity-90 leading-relaxed">
+              Seluruh 10 alat Emergency Calm Mode, Jurnal Refleksi CBT, Skrining DASS-21, Gut-Brain Interrupter, dan Komunitas Support telah terbuka tanpa batas untuk perjalanan pemulihan emosionalmu.
+            </p>
+            <div className="mt-5 flex flex-wrap gap-3">
+              <Link
+                to="/app/calm"
+                className="rounded-full bg-white px-6 py-3 text-xs font-black text-teal-800 shadow-md transition-all hover:bg-emerald-50"
+              >
+                Buka Emergency Calm Mode →
+              </Link>
+              <Link
+                to="/app/growth"
+                className="rounded-full bg-white/15 border border-white/30 px-5 py-3 text-xs font-bold text-white hover:bg-white/25 transition-colors"
+              >
+                Lihat Dashboard Kemajuan →
+              </Link>
+            </div>
+          </div>
+        </div>
+      ) : (
         <div className="rounded-3xl bg-gradient-to-r from-amber-500 via-orange-500 to-rose-500 p-8 text-white shadow-xl">
           <div className="max-w-2xl">
             <span className="rounded-full bg-white/20 px-3 py-1 text-xs font-bold">✨ Buka Full Access Program Pemulihan</span>
