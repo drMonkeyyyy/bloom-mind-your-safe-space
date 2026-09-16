@@ -276,28 +276,46 @@ export function ProgramPage() {
             Roadmap klinis terpadu yang memobilisasi <strong>seluruh 10+ fitur Bloom Mind</strong> — termasuk 10 alat Emergency Calm Mode, CBT Journaling, DASS-21 Screening, Gut-Brain Interruption, dan Komunitas Support.
           </p>
 
-          {/* Program Duration Switcher */}
-          <div className="mt-6 flex flex-wrap items-center gap-2">
-            <button
-              onClick={() => setSelectedDuration("30hari")}
-              className={`rounded-2xl px-4 py-2.5 text-xs font-bold transition-all ${selectedDuration === "30hari" ? "bg-teal-600 text-white shadow-md ring-2 ring-teal-400" : "bg-card text-foreground hover:bg-muted"}`}
-            >
-              🌿 Program Reset (30 Hari)
-            </button>
-            <button
-              onClick={() => setSelectedDuration("90hari")}
-              className={`rounded-2xl px-4 py-2.5 text-xs font-bold transition-all relative ${selectedDuration === "90hari" ? "bg-amber-500 text-white shadow-md ring-2 ring-amber-400" : "bg-card text-foreground hover:bg-muted"}`}
-            >
-              🔥 Program Pemulihan Utuh (90 Hari)
-              <span className="ml-1.5 rounded-full bg-white/20 px-2 py-0.5 text-[9px] font-black uppercase">Ideal</span>
-            </button>
-            <button
-              onClick={() => setSelectedDuration("365hari")}
-              className={`rounded-2xl px-4 py-2.5 text-xs font-bold transition-all ${selectedDuration === "365hari" ? "bg-violet-600 text-white shadow-md ring-2 ring-violet-400" : "bg-card text-foreground hover:bg-muted"}`}
-            >
-              🏆 Program Pendampingan (365 Hari)
-            </button>
-          </div>
+          {/* Program Duration Display for Premium vs Switcher for Free */}
+          {isPremium ? (
+            <div className="mt-6 flex items-center gap-2">
+              <span className="rounded-2xl bg-card px-4 py-2.5 text-xs font-bold text-foreground ring-1 ring-border shadow-xs flex items-center gap-2">
+                <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+                <span>Program Aktif Kamu:</span>
+                <span className={`rounded-full px-3 py-0.5 text-xs font-black text-white shadow-xs ${
+                  selectedDuration === "90hari"
+                    ? "bg-amber-500"
+                    : selectedDuration === "365hari"
+                    ? "bg-violet-600"
+                    : "bg-teal-600"
+                }`}>
+                  {activeProgram.name}
+                </span>
+              </span>
+            </div>
+          ) : (
+            <div className="mt-6 flex flex-wrap items-center gap-2">
+              <button
+                onClick={() => setSelectedDuration("30hari")}
+                className={`rounded-2xl px-4 py-2.5 text-xs font-bold transition-all ${selectedDuration === "30hari" ? "bg-teal-600 text-white shadow-md ring-2 ring-teal-400" : "bg-card text-foreground hover:bg-muted"}`}
+              >
+                🌿 Program Reset (30 Hari)
+              </button>
+              <button
+                onClick={() => setSelectedDuration("90hari")}
+                className={`rounded-2xl px-4 py-2.5 text-xs font-bold transition-all relative ${selectedDuration === "90hari" ? "bg-amber-500 text-white shadow-md ring-2 ring-amber-400" : "bg-card text-foreground hover:bg-muted"}`}
+              >
+                🔥 Program Pemulihan Utuh (90 Hari)
+                <span className="ml-1.5 rounded-full bg-white/20 px-2 py-0.5 text-[9px] font-black uppercase">Ideal</span>
+              </button>
+              <button
+                onClick={() => setSelectedDuration("365hari")}
+                className={`rounded-2xl px-4 py-2.5 text-xs font-bold transition-all ${selectedDuration === "365hari" ? "bg-violet-600 text-white shadow-md ring-2 ring-violet-400" : "bg-card text-foreground hover:bg-muted"}`}
+              >
+                🏆 Program Pendampingan (365 Hari)
+              </button>
+            </div>
+          )}
         </div>
       </div>
 
