@@ -139,11 +139,14 @@ export const Route = createFileRoute('/api/mayar-webhook')({
             });
           }
 
-          // 6. Activate Premium Plan for user (7 days, 30 days or 365 days from now depending on package)
+          // 6. Activate Premium Plan for user (7 days, 30 days, 90 days, or 365 days from now depending on package)
           const endDate = new Date(now);
-          if (order.package_name === "Premium Tahunan") {
+          const name = order.package_name || "";
+          if (name.includes("Tahunan") || name.includes("1 Tahun")) {
             endDate.setDate(endDate.getDate() + 365);
-          } else if (order.package_name === "Premium Mingguan") {
+          } else if (name.includes("90 Hari") || name.includes("3 Bulan")) {
+            endDate.setDate(endDate.getDate() + 90);
+          } else if (name.includes("Mingguan") || name.includes("1 Minggu")) {
             endDate.setDate(endDate.getDate() + 7);
           } else {
             endDate.setDate(endDate.getDate() + 30);

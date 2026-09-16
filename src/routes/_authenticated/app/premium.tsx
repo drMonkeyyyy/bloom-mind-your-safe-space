@@ -20,25 +20,25 @@ function makeOrderNumber() {
 }
 
 const FEATURES_MONTHLY = [
-  { icon: "💬", label: "Curhat tanpa batas & semua Pendamping" },
-  { icon: "📓", label: "Jurnal & Gratitude tanpa batas" },
-  { icon: "📈", label: "Growth Dashboard & Grafik Lengkap" },
-  { icon: "📊", label: "Daily & Weekly Insight Personal" },
-  { icon: "🍎", label: "Emotional Eating Analysis" },
-  { icon: "📂", label: "Riwayat tersimpan 3 bulan" },
-  { icon: "📒", label: "Ekspor PDF Diary bergaya buku harian" },
-  { icon: "✅", label: "Habit tracker tanpa batas" },
+  { icon: "🎯", label: "Tugas Harian Pemulihan (3-Min Daily Quest)" },
+  { icon: "🫁", label: "Emergency Calm Mode & Pernapasan SOS Tanpa Batas" },
+  { icon: "💬", label: "Curhat tanpa batas & semua Pendamping AI" },
+  { icon: "📋", label: "Tes Kesehatan Mental (Calm Check) & Skor" },
+  { icon: "📓", label: "Jurnal Refleksi CBT & Gratitude tanpa batas" },
+  { icon: "📈", label: "Growth Dashboard & Grafik Emosi Lengkap" },
+  { icon: "🍎", label: "Emotional Eating Analysis & Craving Tracker" },
+  { icon: "🤝", label: "Akses Komunitas Aman & Fitur Pelukan 🩵" },
+  { icon: "📒", label: "Ekspor PDF Diary Bergaya Buku Harian" },
 ];
 
 const FEATURES_ANNUAL = [
-  { icon: "💬", label: "Curhat tanpa batas & semua Pendamping" },
-  { icon: "📓", label: "Jurnal & Gratitude tanpa batas" },
-  { icon: "📈", label: "Growth Dashboard & Grafik Lengkap" },
-  { icon: "📊", label: "Daily & Weekly Insight Personal" },
-  { icon: "🍎", label: "Emotional Eating Analysis" },
-  { icon: "📖", label: "Riwayat 1 TAHUN PENUH tersimpan" },
-  { icon: "📒", label: "Ekspor PDF Diary bergaya buku harian" },
-  { icon: "✅", label: "Habit tracker tanpa batas" },
+  { icon: "🎯", label: "Roadmap & Quest Pemulihan Personal 365 Hari" },
+  { icon: "🫁", label: "Emergency Calm Mode & Pernapasan SOS Tanpa Batas" },
+  { icon: "👑", label: "Semua Fitur Lengkap Program Pemulihan 90 Hari" },
+  { icon: "🔒", label: "Riwayat Penuh 1 TAHUN Tersimpan Aman" },
+  { icon: "📄", label: "Ekspor PDF Diary & Kilas Balik Tahunan" },
+  { icon: "⭐", label: "Akses Pertama Fitur & Pendamping AI Baru" },
+  { icon: "⚡", label: "Dukungan & Respons Prioritas Utama" },
 ];
 
 const STATUS_COLORS: Record<string, string> = {
@@ -66,7 +66,7 @@ function Page() {
     queryFn: async () => (await supabase.from("orders").select("*").eq("user_id", user!.id).order("created_at", { ascending: false })).data ?? [],
   });
 
-  const [packageType, setPackageType] = useState<"mingguan" | "bulanan" | "tahunan">("bulanan");
+  const [packageType, setPackageType] = useState<"bulanan" | "3bulan" | "tahunan">("3bulan");
   const activeOrder = orders?.find((o) => (o.payment_status === "menunggu_pembayaran" || o.payment_status === "menunggu_verifikasi") && o.payment_method === "mayar");
   const [creating, setCreating] = useState(false);
 
@@ -100,13 +100,14 @@ function Page() {
     let planLabel = "Bulanan";
     if (profile?.premium_end_date && profile?.premium_start_date) {
       const diffDays = Math.round((new Date(profile.premium_end_date).getTime() - new Date(profile.premium_start_date).getTime()) / (24 * 60 * 60 * 1000));
-      if (diffDays > 60) planLabel = "Tahunan";
-      else if (diffDays <= 10) planLabel = "Mingguan";
+      if (diffDays > 180) planLabel = "Tahunan (365 Hari)";
+      else if (diffDays > 60) planLabel = "3 Bulan (90 Hari)";
+      else planLabel = "Bulanan (30 Hari)";
     }
-    const activeFeatures = planLabel === "Tahunan" ? FEATURES_ANNUAL : FEATURES_MONTHLY;
+    const activeFeatures = planLabel.includes("Tahunan") ? FEATURES_ANNUAL : FEATURES_MONTHLY;
     return (
       <div className="space-y-6">
-        <h1 className="font-display text-3xl font-semibold">✨ Premium Aktif</h1>
+        <h1 className="font-display text-3xl font-semibold">✨ Program Pemulihan Aktif</h1>
         <div
           className="relative overflow-hidden rounded-3xl p-8 text-white"
           style={{ background: "var(--gradient-premium)" }}
@@ -114,12 +115,12 @@ function Page() {
           <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10" />
           <div className="absolute -bottom-10 right-20 h-28 w-28 rounded-full bg-white/5" />
           <div className="relative">
-            <p className="text-4xl">{planLabel === "Tahunan" ? "🏆" : "✨"}</p>
+            <p className="text-4xl">{planLabel.includes("Tahunan") ? "🏆" : planLabel.includes("3 Bulan") ? "🔥" : "✨"}</p>
             <h2 className="mt-3 font-display text-2xl font-semibold">
-              JN-CALM Premium {planLabel}
+              JN-CALM Premium — {planLabel}
             </h2>
             <p className="mt-1 text-sm opacity-80">
-              {planLabel === "Tahunan" ? "Riwayat disimpan 1 tahun penuh · Ekspor PDF Diary" : "Riwayat disimpan 3 bulan · Ekspor PDF Diary"}
+              {planLabel.includes("Tahunan") ? "Riwayat disimpan 1 tahun penuh · Ekspor PDF Diary" : "Riwayat disimpan aman · Ekspor PDF Diary"}
             </p>
             <div className="mt-6 rounded-2xl bg-white/15 px-5 py-4 backdrop-blur-sm">
               <p className="text-xs opacity-75">Berlaku hingga</p>
@@ -145,50 +146,48 @@ function Page() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="font-display text-3xl font-semibold">Upgrade ke Premium</h1>
-        <p className="mt-1 text-sm text-muted-foreground">Buka semua fitur dan pendampingan personal penuh.</p>
+        <h1 className="font-display text-3xl font-semibold">Program Pemulihan Emosi</h1>
+        <p className="mt-1 text-sm text-muted-foreground">Pilih tahapan pendampingan dan pemulihan mental yang kamu butuhkan.</p>
       </div>
 
       {/* ── PLAN SELECTOR ────────────────────────────────────────── */}
       <div className="flex justify-center">
-        <div className="bg-muted p-1 rounded-[1.5rem] flex items-center ring-1 ring-border/40 max-w-md w-full">
-          <button
-            onClick={() => setPackageType("mingguan")}
-            className={`flex-1 py-2.5 px-3 rounded-[1.25rem] text-[11px] font-bold transition-all duration-300 relative ${
-              packageType === "mingguan"
-                ? "bg-card text-foreground shadow-sm scale-100"
-                : "text-muted-foreground hover:text-foreground scale-95"
-            }`}
-          >
-            Mingguan
-            <span className="absolute -top-2 -right-1 bg-emerald-500 text-white text-[7px] font-black px-1.5 py-0.5 rounded-full shadow-sm scale-90">
-              COBA
-            </span>
-          </button>
+        <div className="bg-muted p-1 rounded-[1.5rem] flex items-center ring-1 ring-border/40 max-w-lg w-full">
           <button
             onClick={() => setPackageType("bulanan")}
-            className={`flex-1 py-2.5 px-3 rounded-[1.25rem] text-[11px] font-bold transition-all duration-300 relative ${
+            className={`flex-1 py-2.5 px-3 rounded-[1.25rem] text-xs font-bold transition-all duration-300 relative ${
               packageType === "bulanan"
                 ? "bg-card text-foreground shadow-sm scale-100"
                 : "text-muted-foreground hover:text-foreground scale-95"
             }`}
           >
-            Bulanan
+            1 Bulan
+            <span className="ml-1 opacity-75">· 49rb</span>
+          </button>
+          <button
+            onClick={() => setPackageType("3bulan")}
+            className={`flex-1 py-2.5 px-3 rounded-[1.25rem] text-xs font-bold transition-all duration-300 relative ${
+              packageType === "3bulan"
+                ? "bg-card text-foreground shadow-sm scale-100"
+                : "text-muted-foreground hover:text-foreground scale-95"
+            }`}
+          >
+            3 Bulan
             <span className="absolute -top-2 -right-1 bg-amber-500 text-white text-[7px] font-black px-1.5 py-0.5 rounded-full shadow-sm scale-90 animate-pulse">
-              POPULER
+              HEALING 90 HARI
             </span>
           </button>
           <button
             onClick={() => setPackageType("tahunan")}
-            className={`flex-1 py-2.5 px-3 rounded-[1.25rem] text-[11px] font-bold transition-all duration-300 relative ${
+            className={`flex-1 py-2.5 px-3 rounded-[1.25rem] text-xs font-bold transition-all duration-300 relative ${
               packageType === "tahunan"
                 ? "bg-card text-foreground shadow-sm scale-100"
                 : "text-muted-foreground hover:text-foreground scale-95"
             }`}
           >
-            Tahunan
+            1 Tahun
             <span className="absolute -top-2 -right-1 bg-violet-600 text-white text-[7px] font-black px-1.5 py-0.5 rounded-full shadow-sm scale-90">
-              HEMAT 37%
+              HEMAT 17%
             </span>
           </button>
         </div>
@@ -202,26 +201,50 @@ function Page() {
           <div className="absolute -bottom-10 -left-10 h-32 w-32 rounded-full bg-primary-soft opacity-60 blur-xl" />
 
           <div className="relative">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-amber-100 to-orange-100 px-3 py-1 text-xs font-bold text-amber-700">
-              {packageType === "tahunan" ? "✨ BEST VALUE - SAVE 37%" : packageType === "mingguan" ? "🌱 COBA DULU" : "✨ PALING POPULER (HEMAT 24%)"}
-            </span>
-            <div className="mt-4 flex items-baseline gap-2">
-              <span className="font-display text-5xl font-bold text-foreground">
-                Rp{packageType === "tahunan" ? "490.000" : packageType === "mingguan" ? "15.000" : (settings?.premium_price ?? 49000).toLocaleString("id-ID")}
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-amber-100 to-orange-100 px-3 py-1 text-xs font-bold text-amber-700">
+                {packageType === "tahunan"
+                  ? "🏆 TRANSFORMASI 365 HARI (HEMAT 17%)"
+                  : packageType === "3bulan"
+                    ? "🔥 REKOMENDASI HEALING 90 HARI (HEMAT 20%)"
+                    : "🌿 RESET KETENANGAN 30 HARI"}
               </span>
-              <span className="text-base text-muted-foreground">/{packageType === "tahunan" ? "tahun" : packageType === "mingguan" ? "minggu" : "bulan"}</span>
+              {packageType === "3bulan" && (
+                <span className="rounded-full bg-amber-500/10 px-2.5 py-0.5 text-[11px] font-semibold text-amber-800">
+                  Coret Rp147.000 → Rp119.000
+                </span>
+              )}
+              {packageType === "tahunan" && (
+                <span className="rounded-full bg-violet-500/10 px-2.5 py-0.5 text-[11px] font-semibold text-violet-800">
+                  Coret Rp588.000 → Rp490.000
+                </span>
+              )}
             </div>
+
+            <div className="mt-4 flex items-baseline gap-2">
+              <span className="font-display text-4xl sm:text-5xl font-bold text-foreground">
+                Rp{packageType === "tahunan"
+                  ? "490.000"
+                  : packageType === "3bulan"
+                    ? "119.000"
+                    : (settings?.premium_price ?? 49000).toLocaleString("id-ID")}
+              </span>
+              <span className="text-base text-muted-foreground">
+                /{packageType === "tahunan" ? "tahun" : packageType === "3bulan" ? "3 bulan" : "bulan"}
+              </span>
+            </div>
+
             {packageType === "tahunan" ? (
               <p className="mt-1 text-xs text-muted-foreground">
-                Pembayaran sekali di depan · Aktif selama 12 bulan penuh (Cuma Rp1.300-an/hari)
+                Investasi penuh ketahanan mental & kedamaian sepanjang tahun (Cuma Rp1.300-an/hari)
               </p>
-            ) : packageType === "mingguan" ? (
+            ) : packageType === "3bulan" ? (
               <p className="mt-1 text-xs text-muted-foreground">
-                Pembayaran sekali di depan · Aktif selama 7 hari penuh (Cuma Rp2.100-an/hari)
+                Durasi ideal psikologis untuk menyembuhkan pola emosi lama & habit baru (Setara Rp39.600/bln)
               </p>
             ) : (
               <p className="mt-1 text-xs text-muted-foreground">
-                Langkah kecil untuk kedamaian pikiranmu (Cuma Rp1.600-an/hari — <strong>Lebih hemat 24% vs Mingguan!</strong>)
+                Langkah konsisten mengenali emosi & mengurai stres harian (Cuma Rp1.600-an/hari)
               </p>
             )}
 
@@ -233,6 +256,15 @@ function Page() {
                 { icon: "📊", label: "Daily & Weekly Insight Personal" },
                 { icon: "🍎", label: "Emotional Eating Analysis" },
                 { icon: "📖", label: "Riwayat 1 TAHUN PENUH tersimpan" },
+                { icon: "📄", label: "Ekspor PDF Diary bergaya buku harian" },
+                { icon: "✅", label: "Habit tracker tanpa batas" },
+              ] : packageType === "3bulan" ? [
+                { icon: "💬", label: "Curhat tanpa batas & semua Pendamping" },
+                { icon: "📓", label: "Jurnal & Gratitude tanpa batas" },
+                { icon: "📈", label: "Growth Dashboard & Grafik Lengkap 90 Hari" },
+                { icon: "📊", label: "Daily & Weekly Insight Personal" },
+                { icon: "🍎", label: "Emotional Eating Analysis" },
+                { icon: "📖", label: "Riwayat 90 HARI PENUH tersimpan" },
                 { icon: "📄", label: "Ekspor PDF Diary bergaya buku harian" },
                 { icon: "✅", label: "Habit tracker tanpa batas" },
               ] : [
@@ -257,12 +289,14 @@ function Page() {
             </ul>
 
             {/* Storage info callout */}
-            <div className={`mt-4 flex items-start gap-2 rounded-xl px-3 py-2.5 ring-1 ${packageType === "tahunan" ? "bg-violet-50 ring-violet-200/80" : packageType === "mingguan" ? "bg-emerald-50 ring-emerald-200/60" : "bg-amber-50 ring-amber-200/60"}`}>
+            <div className={`mt-4 flex items-start gap-2 rounded-xl px-3 py-2.5 ring-1 ${packageType === "tahunan" ? "bg-violet-50 ring-violet-200/80" : packageType === "3bulan" ? "bg-amber-50 ring-amber-200/80" : "bg-teal-50 ring-teal-200/60"}`}>
               <span className="text-base leading-none mt-0.5">{packageType === "tahunan" ? "📖" : "📒"}</span>
-              <p className={`text-xs leading-snug ${packageType === "tahunan" ? "text-violet-800" : packageType === "mingguan" ? "text-emerald-800" : "text-amber-800"}`}>
+              <p className={`text-xs leading-snug ${packageType === "tahunan" ? "text-violet-800" : packageType === "3bulan" ? "text-amber-800" : "text-teal-800"}`}>
                 {packageType === "tahunan"
                   ? <><span className="font-semibold">Riwayat disimpan 1 tahun penuh.</span> Ekspor kapan saja sebagai <strong>PDF Diary bergaya buku harian</strong> — kenangan indahmu tersimpan rapi & bisa dicetak seumur hidup.</>
-                  : <><span className="font-semibold">Riwayat disimpan 3 bulan.</span> Data lebih lama bisa diekspor sebagai <strong>PDF Diary bergaya buku harian</strong> yang cantik & siap cetak, sebelum dihapus.</>}
+                  : packageType === "3bulan"
+                    ? <><span className="font-semibold">Riwayat disimpan 90 hari penuh.</span> Pantau transformasi emosimu selama 3 bulan dan ekspor sebagai <strong>PDF Diary bergaya buku harian</strong>.</>
+                    : <><span className="font-semibold">Riwayat disimpan aman.</span> Data lebih lama bisa diekspor sebagai <strong>PDF Diary bergaya buku harian</strong> yang cantik & siap cetak.</>}
               </p>
             </div>
 
@@ -270,17 +304,25 @@ function Page() {
               <button
                 onClick={createOrder}
                 disabled={creating}
-                className="mt-6 w-full rounded-full bg-accent py-4 text-sm font-semibold text-accent-foreground shadow-peach transition-all duration-300 hover:-translate-y-0.5 disabled:opacity-60"
+                className="mt-6 w-full rounded-full bg-accent py-4 text-sm font-bold text-accent-foreground shadow-peach transition-all duration-300 hover:-translate-y-0.5 disabled:opacity-60"
               >
-                {creating ? "Membuat pesanan…" : `Daftar Premium ${packageType === "tahunan" ? "Tahunan" : packageType === "mingguan" ? "Mingguan" : "Bulanan"} →`}
+                {creating
+                  ? "Membuat pesanan…"
+                  : `Daftar ${
+                      packageType === "tahunan"
+                        ? "Program Pendampingan 1 Tahun"
+                        : packageType === "3bulan"
+                          ? "Program Pemulihan 90 Hari"
+                          : "Program Reset 30 Hari"
+                    } →`}
               </button>
             )}
             <p className="mt-3 text-center text-xs text-muted-foreground">
               {packageType === "tahunan" 
                 ? "🏆 Cuma Rp1.300-an/hari — Pilihan terbaik & paling hemat!"
-                : packageType === "mingguan"
-                  ? "🌱 Cuma Rp2.100-an/hari — Pas buat yang mau coba-coba dulu"
-                  : "🔥 Cuma Rp1.600-an/hari — Lebih hemat 24% dari paket Mingguan!"}
+                : packageType === "3bulan"
+                  ? "🔥 Cuma Rp1.300-an/hari (Setara Rp39.600/bln) — Rekomendasi Pemulihan Ideal!"
+                  : "🌿 Cuma Rp1.600-an/hari — Praktis & fleksibel setiap bulan!"}
             </p>
           </div>
         </section>

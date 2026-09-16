@@ -20,6 +20,7 @@ import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/ap
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedAppIndexRouteImport } from './routes/_authenticated/app/index'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin/index'
+import { Route as AuthenticatedAppProgramRouteImport } from './routes/_authenticated/app/program'
 import { Route as AuthenticatedAppProfileRouteImport } from './routes/_authenticated/app/profile'
 import { Route as AuthenticatedAppPremiumRouteImport } from './routes/_authenticated/app/premium'
 import { Route as AuthenticatedAppOnboardingRouteImport } from './routes/_authenticated/app/onboarding'
@@ -92,6 +93,11 @@ const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => AuthenticatedAdminRoute,
+} as any)
+const AuthenticatedAppProgramRoute = AuthenticatedAppProgramRouteImport.update({
+  id: '/program',
+  path: '/program',
+  getParentRoute: () => AuthenticatedAppRoute,
 } as any)
 const AuthenticatedAppProfileRoute = AuthenticatedAppProfileRouteImport.update({
   id: '/profile',
@@ -218,6 +224,7 @@ export interface FileRoutesByFullPath {
   '/app/onboarding': typeof AuthenticatedAppOnboardingRoute
   '/app/premium': typeof AuthenticatedAppPremiumRoute
   '/app/profile': typeof AuthenticatedAppProfileRoute
+  '/app/program': typeof AuthenticatedAppProgramRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
   '/app/': typeof AuthenticatedAppIndexRoute
   '/app/chat/$chatId': typeof AuthenticatedAppChatChatIdRoute
@@ -246,6 +253,7 @@ export interface FileRoutesByTo {
   '/app/onboarding': typeof AuthenticatedAppOnboardingRoute
   '/app/premium': typeof AuthenticatedAppPremiumRoute
   '/app/profile': typeof AuthenticatedAppProfileRoute
+  '/app/program': typeof AuthenticatedAppProgramRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
   '/app': typeof AuthenticatedAppIndexRoute
   '/app/chat/$chatId': typeof AuthenticatedAppChatChatIdRoute
@@ -278,6 +286,7 @@ export interface FileRoutesById {
   '/_authenticated/app/onboarding': typeof AuthenticatedAppOnboardingRoute
   '/_authenticated/app/premium': typeof AuthenticatedAppPremiumRoute
   '/_authenticated/app/profile': typeof AuthenticatedAppProfileRoute
+  '/_authenticated/app/program': typeof AuthenticatedAppProgramRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/_authenticated/app/': typeof AuthenticatedAppIndexRoute
   '/_authenticated/app/chat/$chatId': typeof AuthenticatedAppChatChatIdRoute
@@ -310,6 +319,7 @@ export interface FileRouteTypes {
     | '/app/onboarding'
     | '/app/premium'
     | '/app/profile'
+    | '/app/program'
     | '/admin/'
     | '/app/'
     | '/app/chat/$chatId'
@@ -338,6 +348,7 @@ export interface FileRouteTypes {
     | '/app/onboarding'
     | '/app/premium'
     | '/app/profile'
+    | '/app/program'
     | '/admin'
     | '/app'
     | '/app/chat/$chatId'
@@ -369,6 +380,7 @@ export interface FileRouteTypes {
     | '/_authenticated/app/onboarding'
     | '/_authenticated/app/premium'
     | '/_authenticated/app/profile'
+    | '/_authenticated/app/program'
     | '/_authenticated/admin/'
     | '/_authenticated/app/'
     | '/_authenticated/app/chat/$chatId'
@@ -463,6 +475,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin/'
       preLoaderRoute: typeof AuthenticatedAdminIndexRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/app/program': {
+      id: '/_authenticated/app/program'
+      path: '/program'
+      fullPath: '/app/program'
+      preLoaderRoute: typeof AuthenticatedAppProgramRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
     }
     '/_authenticated/app/profile': {
       id: '/_authenticated/app/profile'
@@ -625,6 +644,7 @@ interface AuthenticatedAppRouteChildren {
   AuthenticatedAppOnboardingRoute: typeof AuthenticatedAppOnboardingRoute
   AuthenticatedAppPremiumRoute: typeof AuthenticatedAppPremiumRoute
   AuthenticatedAppProfileRoute: typeof AuthenticatedAppProfileRoute
+  AuthenticatedAppProgramRoute: typeof AuthenticatedAppProgramRoute
   AuthenticatedAppIndexRoute: typeof AuthenticatedAppIndexRoute
   AuthenticatedAppChatChatIdRoute: typeof AuthenticatedAppChatChatIdRoute
   AuthenticatedAppChatIndexRoute: typeof AuthenticatedAppChatIndexRoute
@@ -643,6 +663,7 @@ const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
   AuthenticatedAppOnboardingRoute: AuthenticatedAppOnboardingRoute,
   AuthenticatedAppPremiumRoute: AuthenticatedAppPremiumRoute,
   AuthenticatedAppProfileRoute: AuthenticatedAppProfileRoute,
+  AuthenticatedAppProgramRoute: AuthenticatedAppProgramRoute,
   AuthenticatedAppIndexRoute: AuthenticatedAppIndexRoute,
   AuthenticatedAppChatChatIdRoute: AuthenticatedAppChatChatIdRoute,
   AuthenticatedAppChatIndexRoute: AuthenticatedAppChatIndexRoute,

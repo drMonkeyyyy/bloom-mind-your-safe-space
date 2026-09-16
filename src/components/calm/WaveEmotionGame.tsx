@@ -98,6 +98,8 @@ function WaveCanvas({ progress, phase }: { progress: number; phase: Phase }) {
 
 
     // Exhale bubbles rising up
+    const boardX = W / 2;
+    const boardY = baseY + Math.sin(t * 1.4) * 6;
     if (phase === "exhale" || phase === "rest") {
       for (let i = 0; i < 6; i++) {
         const bx = boardX - 25 + i * 10 + Math.sin(t * 1.2 + i) * 4;

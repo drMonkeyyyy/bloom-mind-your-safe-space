@@ -343,7 +343,7 @@ export default function CommunityPage() {
     try {
       if (user) {
         const { data, error } = await supabase.from("community_comments" as any).select("*").eq("post_id", post.id).order("created_at", { ascending: true });
-        if (!error && data) { setComments(data as PostComment[]); setCommentsLoading(false); return; }
+        if (!error && data) { setComments(data as unknown as PostComment[]); setCommentsLoading(false); return; }
       }
       const key = `bloom_community_comments_v3_${post.id}`;
       const raw = localStorage.getItem(key);

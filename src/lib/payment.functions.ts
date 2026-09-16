@@ -12,7 +12,7 @@ function makeOrderNumber() {
 
 const CreatePaymentInput = z.object({
   redirectUrl: z.string().url(),
-  packageType: z.enum(["mingguan", "bulanan", "tahunan"]).default("bulanan"),
+  packageType: z.enum(["bulanan", "3bulan", "tahunan"]).default("bulanan"),
 });
 
 export const createPayment = createServerFn({ method: "POST" })
@@ -38,7 +38,7 @@ export const createPayment = createServerFn({ method: "POST" })
       throw new Error("Email user tidak valid");
     }
 
-    // 2. Fetch app settings to get premium price for monthly, set yearly manually
+    // 2. Fetch app settings to get premium price for monthly, set yearly/3month manually
     const { data: settings } = await supabaseAdmin
       .from("app_settings")
       .select("premium_price")
@@ -46,14 +46,14 @@ export const createPayment = createServerFn({ method: "POST" })
       .maybeSingle();
       
     let amount = settings?.premium_price ?? 49000;
-    let packageName = "Premium Bulanan";
+    let packageName = "Program Reset Ketenangan (1 Bulan)";
 
     if (data.packageType === "tahunan") {
       amount = 490000; // Rp490.000 for Annual
-      packageName = "Premium Tahunan";
-    } else if (data.packageType === "mingguan") {
-      amount = 15000; // Rp15.000 for Weekly
-      packageName = "Premium Mingguan";
+      packageName = "Program Pendampingan Utuh (1 Tahun)";
+    } else if (data.packageType === "3bulan") {
+      amount = 119000; // Rp119.000 for 3 Months (Save 20%)
+      packageName = "Program Pemulihan Utuh (90 Hari)";
     }
 
     // 3. Cancel any existing pending orders for this package to avoid duplicate payment links and force a fresh invoice
