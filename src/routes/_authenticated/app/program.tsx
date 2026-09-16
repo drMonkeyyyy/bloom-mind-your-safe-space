@@ -1,7 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/use-auth";
-import { useProfile } from "@/hooks/use-profile";
+import { useProfile, useIsAdmin } from "@/hooks/use-profile";
+import { useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
+import { setUserPlan } from "@/lib/admin.functions";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/app/program")({
@@ -148,8 +151,22 @@ const TODAY_QUESTS = [
 export function ProgramPage() {
   const { user } = useAuth();
   const { data: profile } = useProfile(user?.id);
+  const { data: isAdmin } = useIsAdmin(user?.id);
+  const qc = useQueryClient();
+  const setPlan = useServerFn(setUserPlan);
   const [selectedDuration, setSelectedDuration] = useState<ProgramDuration>("90hari");
   const [completedQuests, setCompletedQuests] = useState<string[]>([]);
+
+  const handleAdminActivate90Days = async () => {
+    if (!user) return;
+    try {
+      await setPlan({ data: { userId: user.id, plan: "premium", days: 90 } });
+      toast.success("✅ Akun kamu berhasil diaktifkan ke Premium 3 Bulan (90 Hari)!");
+      qc.invalidateQueries({ queryKey: ["profile", user.id] });
+    } catch {
+      toast.error("Gagal mengaktifkan plan");
+    }
+  };
 
   // Load persistent completed quests for today from LocalStorage
   const getTodayKey = () => {
@@ -231,9 +248,19 @@ export function ProgramPage() {
         <div className="absolute -right-12 -top-12 h-48 w-48 rounded-full bg-primary/20 blur-3xl" />
         <div className="relative">
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-primary px-3 py-1 text-xs font-bold text-primary-foreground shadow-xs">
-              🧠 INTEGRATED HEALING PROTOCOL
-            </span>
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-primary px-3 py-1 text-xs font-bold text-primary-foreground shadow-xs">
+                🧠 INTEGRATED HEALING PROTOCOL
+              </span>
+              {isAdmin && !isPremium && (
+                <button
+                  onClick={handleAdminActivate90Days}
+                  className="rounded-full bg-amber-500/20 text-amber-800 dark:text-amber-200 border border-amber-500/40 px-3 py-1 text-xs font-bold hover:bg-amber-500/30 transition-colors shadow-xs"
+                >
+                  ⚡ (Admin) Aktifkan Prem 3 Bulan
+                </button>
+              )}
+            </div>
             <span className="rounded-full bg-card px-3.5 py-1 text-xs font-semibold text-muted-foreground ring-1 ring-border shadow-xs">
               Status Akses:{" "}
               <strong className={isPremium ? "text-emerald-600 dark:text-emerald-400 font-bold" : "text-amber-600 dark:text-amber-400 font-bold"}>
