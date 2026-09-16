@@ -127,9 +127,9 @@ export function Pricing() {
           {/* 1. Free Tier */}
           <div className="rounded-3xl bg-card p-6 ring-1 ring-border flex flex-col justify-between h-full shadow-xs">
             <div>
-              <div className="flex items-center justify-between">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Gratis</span>
-                <span className="rounded-full bg-secondary px-2.5 py-0.5 text-[10px] font-bold text-muted-foreground">
+              <div className="flex items-center justify-between gap-2 flex-wrap">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground whitespace-nowrap">Gratis</span>
+                <span className="rounded-full bg-secondary px-2.5 py-0.5 text-[10px] font-bold text-muted-foreground whitespace-nowrap shrink-0">
                   🌱 COBA
                 </span>
               </div>
@@ -170,9 +170,9 @@ export function Pricing() {
             <div className="absolute -inset-0.5 rounded-[2rem] bg-gradient-to-br from-teal-400 to-emerald-500 opacity-20 blur-md" />
             <div className="relative overflow-hidden rounded-[1.75rem] bg-card p-6 ring-1 ring-border flex flex-col justify-between h-full shadow-xs">
               <div>
-                <div className="flex items-center justify-between">
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-teal-600">1 Bulan</span>
-                  <span className="rounded-full bg-teal-100 dark:bg-teal-950/60 px-2.5 py-0.5 text-[10px] font-bold text-teal-700 dark:text-teal-300">
+                <div className="flex items-center justify-between gap-2 flex-wrap">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-teal-600 whitespace-nowrap">1 Bulan</span>
+                  <span className="rounded-full bg-teal-100 dark:bg-teal-950/60 px-2.5 py-0.5 text-[10px] font-bold text-teal-700 dark:text-teal-300 whitespace-nowrap shrink-0">
                     🌿 RESET 30 HARI
                   </span>
                 </div>
@@ -214,9 +214,9 @@ export function Pricing() {
             <div className="absolute -inset-0.5 rounded-[2rem] bg-gradient-to-br from-amber-400 via-orange-500 to-rose-500 opacity-60 blur-lg" />
             <div className="relative overflow-hidden rounded-[1.75rem] bg-card p-6 ring-2 ring-amber-500 flex flex-col justify-between h-full shadow-2xl">
               <div>
-                <div className="flex items-center justify-between">
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-amber-600">3 Bulan</span>
-                  <span className="rounded-full bg-gradient-to-r from-amber-500 to-orange-500 px-2.5 py-0.5 text-[10px] font-black text-white shadow-xs">
+                <div className="flex items-center justify-between gap-2 flex-wrap">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-amber-600 whitespace-nowrap">3 Bulan</span>
+                  <span className="rounded-full bg-gradient-to-r from-amber-500 to-orange-500 px-2.5 py-0.5 text-[10px] font-black text-white shadow-xs whitespace-nowrap shrink-0">
                     🔥 REKOMENDASI HEALING
                   </span>
                 </div>
@@ -262,9 +262,9 @@ export function Pricing() {
             <div className="absolute -inset-0.5 rounded-[2rem] bg-gradient-to-br from-violet-400 to-indigo-500 opacity-30 blur-md" />
             <div className="relative overflow-hidden rounded-[1.75rem] bg-gradient-to-br from-violet-50/60 to-indigo-50/60 dark:from-violet-950/20 dark:to-indigo-950/20 p-6 ring-1 ring-violet-300 dark:ring-violet-800 flex flex-col justify-between h-full shadow-xs">
               <div>
-                <div className="flex items-center justify-between">
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-violet-600 dark:text-violet-400">1 Tahun</span>
-                  <span className="rounded-full bg-violet-100 dark:bg-violet-950/60 px-2.5 py-0.5 text-[10px] font-bold text-violet-700 dark:text-violet-300">
+                <div className="flex items-center justify-between gap-2 flex-wrap">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-violet-600 dark:text-violet-400 whitespace-nowrap">1 Tahun</span>
+                  <span className="rounded-full bg-violet-100 dark:bg-violet-950/60 px-2.5 py-0.5 text-[10px] font-bold text-violet-700 dark:text-violet-300 whitespace-nowrap shrink-0">
                     🏆 TRANSFORMASI UTUH
                   </span>
                 </div>
