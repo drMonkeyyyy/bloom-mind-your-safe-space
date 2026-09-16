@@ -47,9 +47,11 @@ interface CommunityPost {
   is_anonymous: boolean;
   tag: string;
   hugs_count: number;
+  supports_count?: number;
   comments_count: number;
   created_at: string;
   has_hugged?: boolean;
+  has_supported?: boolean;
 }
 
 const TAG_OPTIONS = [
@@ -79,9 +81,11 @@ const DEMO_POSTS: CommunityPost[] = [
     is_anonymous: true,
     tag: "Curhat",
     hugs_count: 5,
+    supports_count: 3,
     comments_count: 2,
     created_at: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
     has_hugged: false,
+    has_supported: false,
   },
   {
     id: "demo-2",
@@ -92,9 +96,11 @@ const DEMO_POSTS: CommunityPost[] = [
     is_anonymous: false,
     tag: "SelfCare",
     hugs_count: 8,
+    supports_count: 6,
     comments_count: 3,
     created_at: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString(),
     has_hugged: true,
+    has_supported: false,
   },
   {
     id: "demo-3",
@@ -105,9 +111,11 @@ const DEMO_POSTS: CommunityPost[] = [
     is_anonymous: false,
     tag: "Motivasi",
     hugs_count: 12,
+    supports_count: 9,
     comments_count: 1,
     created_at: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
     has_hugged: false,
+    has_supported: true,
   },
   {
     id: "demo-4",
@@ -118,9 +126,11 @@ const DEMO_POSTS: CommunityPost[] = [
     is_anonymous: true,
     tag: "ButuhDukungan",
     hugs_count: 15,
+    supports_count: 11,
     comments_count: 4,
     created_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
     has_hugged: false,
+    has_supported: false,
   },
 ];
 
@@ -227,8 +237,8 @@ export default function CommunityPage() {
   const [tagFilter, setTagFilter] = useState<string | null>(null);
   const [search, setSearch] = useState("");
 
-  // Hug animation
-  const [animatingId, setAnimatingId] = useState<string | null>(null);
+  // Reaction animation
+  const [animatingReaction, setAnimatingReaction] = useState<{ id: string; emoji: string } | null>(null);
 
   // Comments
   const [commentPost, setCommentPost] = useState<CommunityPost | null>(null);
@@ -317,7 +327,7 @@ export default function CommunityPage() {
     const hugged = post.has_hugged;
     const count = hugged ? Math.max(0, post.hugs_count - 1) : post.hugs_count + 1;
 
-    if (!hugged) { setAnimatingId(post.id); setTimeout(() => setAnimatingId(null), 900); }
+    if (!hugged) { setAnimatingReaction({ id: post.id, emoji: "🫂" }); setTimeout(() => setAnimatingReaction(null), 900); }
 
     const updated = posts.map((p) => p.id === post.id ? { ...p, hugs_count: count, has_hugged: !hugged } : p);
     setPosts(updated);
@@ -333,7 +343,22 @@ export default function CommunityPage() {
         await supabase.from("community_posts" as any).update({ hugs_count: count }).eq("id", post.id);
       } catch { /* silent */ }
     }
-    if (!hugged) toast("Pelukan hangat terkirim 🩵", { description: "Kamu baru saja membuat seseorang merasa tidak sendirian." });
+    if (!hugged) toast("Pelukan hangat terkirim 🫂", { description: "Kamu baru saja membuat seseorang merasa tidak sendirian." });
+  };
+
+  // ─── Support Toggle ─────────────────────────────────────────────
+  const handleSupport = async (post: CommunityPost) => {
+    const supported = post.has_supported;
+    const currentCount = post.supports_count || 0;
+    const count = supported ? Math.max(0, currentCount - 1) : currentCount + 1;
+
+    if (!supported) { setAnimatingReaction({ id: post.id, emoji: "🤝" }); setTimeout(() => setAnimatingReaction(null), 900); }
+
+    const updated = posts.map((p) => p.id === post.id ? { ...p, supports_count: count, has_supported: !supported } : p);
+    setPosts(updated);
+    localStorage.setItem("bloom_community_v3", JSON.stringify(updated));
+
+    if (!supported) toast("Dukungan terkirim 🤝", { description: "Pesan bahwa kamu ada di sisinya telah tersampaikan." });
   };
 
   // ─── Comments ──────────────────────────────────────────────────
@@ -717,9 +742,11 @@ export default function CommunityPage() {
                 key={post.id}
                 className="group relative rounded-3xl border border-border/60 bg-card p-5 shadow-card transition-all duration-300 hover:border-border hover:shadow-elevated"
               >
-                {/* Hug animation bubble */}
-                {animatingId === post.id && (
-                  <div className="pointer-events-none absolute right-5 top-5 z-20 animate-bounce text-xl">🩵</div>
+                {/* Reaction animation bubble */}
+                {animatingReaction?.id === post.id && (
+                  <div className="pointer-events-none absolute right-5 top-5 z-20 animate-bounce text-2xl">
+                    {animatingReaction.emoji}
+                  </div>
                 )}
 
                 {/* Top Row: Author + Tag */}
@@ -751,7 +778,7 @@ export default function CommunityPage() {
                 <div className="my-4 h-px bg-border/40" />
 
                 {/* Action Row */}
-                <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center justify-between gap-2 flex-wrap">
                   {isOwner ? (
                     <button
                       type="button"
@@ -764,28 +791,42 @@ export default function CommunityPage() {
                     <span className="text-[11px] italic text-muted-foreground/40">Ruang aman bersama</span>
                   )}
 
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1.5 flex-wrap">
                     {/* Comment Button */}
                     <button
                       type="button"
                       onClick={() => openComments(post)}
-                      className="inline-flex items-center gap-1.5 rounded-2xl border border-border/70 bg-muted/30 px-3.5 py-1.5 text-xs font-semibold text-foreground/80 hover:bg-muted hover:border-border transition-all cursor-pointer"
+                      className="inline-flex items-center gap-1.5 rounded-2xl border border-border/70 bg-muted/30 px-3 py-1.5 text-xs font-semibold text-foreground/80 hover:bg-muted hover:border-border transition-all cursor-pointer"
                     >
                       <MessageSquare className="h-3.5 w-3.5 text-muted-foreground" />
                       Diskusi {post.comments_count > 0 && <span className="text-muted-foreground">({post.comments_count})</span>}
                     </button>
 
-                    {/* Hug Button */}
+                    {/* Support Button (🤝 Bersamamu) */}
+                    <button
+                      type="button"
+                      onClick={() => handleSupport(post)}
+                      className={`inline-flex items-center gap-1.5 rounded-2xl border px-3 py-1.5 text-xs font-bold transition-all duration-200 cursor-pointer active:scale-95 ${
+                        post.has_supported
+                          ? "border-amber-400 bg-amber-500 text-white shadow-xs shadow-amber-500/30"
+                          : "border-amber-200/70 bg-amber-50/70 text-amber-800 hover:bg-amber-100/80 hover:border-amber-300"
+                      }`}
+                    >
+                      <span className="text-sm leading-none">🤝</span>
+                      <span>{(post.supports_count || 0) > 0 ? post.supports_count : ""} Bersamamu</span>
+                    </button>
+
+                    {/* Hug Button (🫂 Saling Peluk) */}
                     <button
                       type="button"
                       onClick={() => handleHug(post)}
-                      className={`inline-flex items-center gap-1.5 rounded-2xl border px-3.5 py-1.5 text-xs font-bold transition-all duration-200 cursor-pointer active:scale-95 ${
+                      className={`inline-flex items-center gap-1.5 rounded-2xl border px-3 py-1.5 text-xs font-bold transition-all duration-200 cursor-pointer active:scale-95 ${
                         isHugged
                           ? "border-teal-500 bg-teal-600 text-white shadow-xs shadow-teal-600/30"
                           : "border-teal-200/70 bg-teal-50/70 text-teal-700 hover:bg-teal-100/80 hover:border-teal-300"
                       }`}
                     >
-                      <span className="text-base leading-none">🩵</span>
+                      <span className="text-base leading-none">🫂</span>
                       <span>{post.hugs_count > 0 ? post.hugs_count : ""} Saling Peluk</span>
                     </button>
                   </div>
