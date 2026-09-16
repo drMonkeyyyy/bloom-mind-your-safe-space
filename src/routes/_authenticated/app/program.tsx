@@ -10,6 +10,59 @@ export const Route = createFileRoute("/_authenticated/app/program")({
 
 type ProgramDuration = "30hari" | "90hari" | "365hari";
 
+// ── Dynamic Program Roadmaps & Details ───────────────────────────────────────
+const PROGRAM_DETAILS: Record<ProgramDuration, {
+  name: string;
+  badge: string;
+  badgeColor: string;
+  targetOutcome: string;
+  description: string;
+  recommendedFor: string;
+  milestones: { step: string; title: string; desc: string; focusModule: string; link: string; search?: Record<string, string> }[];
+}> = {
+  "30hari": {
+    name: "Program Reset 30 Hari",
+    badge: "🌿 RESET 30 HARI",
+    badgeColor: "bg-teal-500/15 text-teal-700 dark:text-teal-300 ring-teal-500/30",
+    targetOutcome: "Mengurai kepanikan mendadak, membentuk baseline ketenangan emosi, dan membangun rutinitas 3 menit harian.",
+    description: "Program intensif 30 hari untuk mereset ambang toleransi stres tubuh dan membiasakan latihan regulasi emosi dasar.",
+    recommendedFor: "Pengguna yang butuh interupsi krisis cepat & ingin membangun kebiasaan pemulihan harian.",
+    milestones: [
+      { step: "Minggu 1", title: "Stabilisasi Somatis & Crisis Emergency", desc: "Menguasai 10 alat Emergency Calm Mode saat cemas/panik meluap.", focusModule: "Modul 1: Crisis Intervention", link: "/app/calm", search: { tool: "breath" } },
+      { step: "Minggu 2", title: "Asesmen Baseline & Tracking Trigger", desc: "Melihat grafik cuaca emosi dan mengukur skor kecemasan awal (DASS-21).", focusModule: "Modul 2: Skrining Psikologis", link: "/app/calm-check" },
+      { step: "Minggu 3", title: "Cognitive Reflection & Gratitude", desc: "Mengurai 3 pikiran otomatis negatif dan menulis jurnal rasa syukur.", focusModule: "Modul 3: Terapi Kognitif", link: "/app/journal" },
+      { step: "Minggu 4", title: "Evaluasi Reset & Micro-Habit", desc: "Meningkatkan skor mood dan mempertahankan habit tracker 3 menit.", focusModule: "Modul 4: Habit Building", link: "/app/habits" }
+    ]
+  },
+  "90hari": {
+    name: "Program Pemulihan Utuh 90 Hari",
+    badge: "🔥 PEMULIHAN UTUH (IDEAL)",
+    badgeColor: "bg-amber-500/15 text-amber-700 dark:text-amber-300 ring-amber-500/30",
+    targetOutcome: "Neuro-rewiring CBT lengkap, menghentikan emotional eating, dan membangun regulasi emosi yang stabil.",
+    description: "Durasi emas 90 hari berbasis riset psikologi perilaku untuk mengurai kebiasaan impuls emosi lama dan membentuk struktur neurokognitif baru.",
+    recommendedFor: "Rekomendasi utama psikologis untuk pemulihan emosional yang bertahan lama dan terbukti klinis.",
+    milestones: [
+      { step: "Bulan 1 (Hari 1-30)", title: "Fase 1: Somatic Crisis Reset & Screening", desc: "Stabilisasi saraf Vagus, bebas serangan panik, dan pemetaan baseline DASS-21.", focusModule: "Modul 1 & 2: Emergency & Screening", link: "/app/calm", search: { tool: "panic" } },
+      { step: "Bulan 2 (Hari 31-60)", title: "Fase 2: CBT Rewiring & Emotional Eating Interruption", desc: "Menantang distorsi kognitif ANTs & memisahkan lapar fisik vs emosi.", focusModule: "Modul 3 & 4: CBT & Gut-Brain Axis", link: "/app/eating" },
+      { step: "Bulan 3 (Hari 61-90)", title: "Fase 3: Regulasis Diri, Sahabat Support & PDF Report", desc: "Integrasi komunitas aman, evaluasi progress 90 hari, dan cetak Laporan Klinis.", focusModule: "Modul 5: Dukungan Sosial & Dokumentasi", link: "/app/growth" }
+    ]
+  },
+  "365hari": {
+    name: "Program Pendampingan 365 Hari",
+    badge: "🏆 TRANSFORMASI UTUH 1 TAHUN",
+    badgeColor: "bg-violet-500/15 text-violet-700 dark:text-violet-300 ring-violet-500/30",
+    targetOutcome: "Ketahanan mental sepanjang tahun, riwayat pemulihan tersimpan penuh, dan kilas balik tahunan.",
+    description: "Pendampingan holistik tanpa batas selama 365 hari dengan akses prioritas ke seluruh inovasi pendamping AI.",
+    recommendedFor: "Pendampingan kesehatan emosi berkelanjutan sepanjang masa pasang surut kehidupan.",
+    milestones: [
+      { step: "Kuartal 1", title: "Fondasi Ketenangan & Master Emergency Mode", desc: "Stabilisasi saraf otonom & penguasaan 10 teknik grounding.", focusModule: "Modul 1 & 2: Emergency Calm", link: "/app/calm", search: { tool: "ground" } },
+      { step: "Kuartal 2", title: "Cognitive Mastery & Pendamping AI 24/7", desc: "Restrukturisasi pikiran negatif & sesi curhat AI tanpa batas.", focusModule: "Modul 3: CBT & AI Chat", link: "/app/chat" },
+      { step: "Kuartal 3", title: "Gut-Brain Balance & Komunitas Safe Space", desc: "Mengurai pemicu emotional eating & aktif di Komunitas Sahabat Support.", focusModule: "Modul 4 & 5: Gut-Brain & Community", link: "/app/community" },
+      { step: "Kuartal 4", title: "Transendensi & Kilas Balik Tahunan", desc: "Evaluasi 1 tahun penuh, retrospektif emosional & dokumen PDF perjalanan.", focusModule: "Modul 5: Growth Dashboard & PDF", link: "/app/growth" }
+    ]
+  }
+};
+
 // ── Master Clinical Modules integrating ALL Bloom Mind Features ───────────────
 const CLINICAL_MODULES = [
   {
@@ -20,16 +73,16 @@ const CLINICAL_MODULES = [
     bgColor: "bg-emerald-500/10 text-emerald-700 ring-emerald-500/30",
     desc: "Memanfaatkan seluruh 10 fitur Emergency Calm Mode untuk menenangkan sistem saraf otonom (Vagus Nerve) saat panik atau stres berat.",
     tools: [
-      { name: "Panic Attack Timer 🚨", path: "/app/calm", desc: "Interupsi panik instan & regulasi detak jantung" },
-      { name: "Breathing Exercise 4-7-8 🌬️", path: "/app/calm", desc: "Somatic breathing merangsang saraf parasimpatik" },
-      { name: "Grounding 5-4-3-2-1 🌍", path: "/app/calm", desc: "Mengembalikan kesadaran ke panca indra saat cemas" },
-      { name: "Self-Talk Carousel 🤍", path: "/app/calm", desc: "Validasi emosi & afirmasi diri hangat" },
-      { name: "Venting Box (Brain Dump) 📦", path: "/app/calm", desc: "Pelepasan beban pikiran & emosi meluap" },
-      { name: "Cognitive Reframing 🪞", path: "/app/calm", desc: "Menantang & mengubah pola pikir distorsi" },
-      { name: "Somatic Exercise 🧘", path: "/app/calm", desc: "Merilekskan otot & ketegangan fisik tubuh" },
-      { name: "Cathartic Crystal Shatter 💎", path: "/app/calm", desc: "Katarsis emosi marah/frustrasi interaktif" },
-      { name: "Star Constellation Game ✨", path: "/app/calm", desc: "Latihan fokus mindful & menenangkan pikiran" },
-      { name: "Wave Emotion Game 🌊", path: "/app/calm", desc: "Simulasi ritme gelombang emosi pasang surut" },
+      { name: "Panic Attack Timer 🚨", path: "/app/calm", search: { tool: "panic" }, desc: "Interupsi panik instan & regulasi detak jantung" },
+      { name: "Breathing Exercise 4-7-8 🌬️", path: "/app/calm", search: { tool: "breath" }, desc: "Somatic breathing merangsang saraf parasimpatik" },
+      { name: "Grounding 5-4-3-2-1 🌍", path: "/app/calm", search: { tool: "ground" }, desc: "Mengembalikan kesadaran ke panca indra saat cemas" },
+      { name: "Self-Talk Carousel 🤍", path: "/app/calm", search: { tool: "selftalk" }, desc: "Validasi emosi & afirmasi diri hangat" },
+      { name: "Venting Box (Brain Dump) 📦", path: "/app/calm", search: { tool: "vent" }, desc: "Pelepasan beban pikiran & emosi meluap" },
+      { name: "Cognitive Reframing 🪞", path: "/app/calm", search: { tool: "reframing" }, desc: "Menantang & mengubah pola pikir distorsi" },
+      { name: "Somatic Exercise 🧘", path: "/app/calm", search: { tool: "somatic" }, desc: "Merilekskan otot & ketegangan fisik tubuh" },
+      { name: "Cathartic Crystal Shatter 💎", path: "/app/calm", search: { tool: "crystal" }, desc: "Katarsis emosi marah/frustrasi interaktif" },
+      { name: "Star Constellation Game ✨", path: "/app/calm", search: { tool: "stars" }, desc: "Latihan fokus mindful & menenangkan pikiran" },
+      { name: "Wave Emotion Game 🌊", path: "/app/calm", search: { tool: "wave" }, desc: "Simulasi ritme gelombang emosi pasang surut" },
     ]
   },
   {
@@ -85,7 +138,7 @@ const CLINICAL_MODULES = [
 
 // ── Daily Quests Checklist Items ─────────────────────────────────────────────
 const TODAY_QUESTS = [
-  { id: "q-breath", title: "1. Pernapasan SOS 4-7-8 / Grounding (2 Min)", icon: "🫁", category: "Emergency Calm", link: "/app/calm" },
+  { id: "q-breath", title: "1. Pernapasan SOS 4-7-8 / Grounding (2 Min)", icon: "🫁", category: "Emergency Calm", link: "/app/calm", search: { tool: "breath" } },
   { id: "q-mood", title: "2. Catat Cuaca Emosi & Pemicu Hari Ini", icon: "🌤️", category: "Mood Tracker", link: "/app/mood" },
   { id: "q-eating", title: "3. Mindful Check: Lapar Fisik atau Emosi?", icon: "🍎", category: "Emotional Eating", link: "/app/eating" },
   { id: "q-gratitude", title: "4. Tulis 3 Hal Kecil yang Disyukuri", icon: "🌸", category: "Gratitude Journal", link: "/app/gratitude" },
@@ -136,6 +189,7 @@ export function ProgramPage() {
 
   const isPremium = profile?.plan === "premium";
   const progressPercentage = Math.round((completedQuests.length / TODAY_QUESTS.length) * 100);
+  const activeProgram = PROGRAM_DETAILS[selectedDuration];
 
   return (
     <div className="space-y-8 pb-12">
@@ -163,23 +217,89 @@ export function ProgramPage() {
           <div className="mt-6 flex flex-wrap items-center gap-2">
             <button
               onClick={() => setSelectedDuration("30hari")}
-              className={`rounded-2xl px-4 py-2.5 text-xs font-bold transition-all ${selectedDuration === "30hari" ? "bg-primary text-primary-foreground shadow-md" : "bg-card text-foreground hover:bg-muted"}`}
+              className={`rounded-2xl px-4 py-2.5 text-xs font-bold transition-all ${selectedDuration === "30hari" ? "bg-teal-600 text-white shadow-md ring-2 ring-teal-400" : "bg-card text-foreground hover:bg-muted"}`}
             >
               🌿 Program Reset (30 Hari)
             </button>
             <button
               onClick={() => setSelectedDuration("90hari")}
-              className={`rounded-2xl px-4 py-2.5 text-xs font-bold transition-all relative ${selectedDuration === "90hari" ? "bg-amber-500 text-white shadow-md" : "bg-card text-foreground hover:bg-muted"}`}
+              className={`rounded-2xl px-4 py-2.5 text-xs font-bold transition-all relative ${selectedDuration === "90hari" ? "bg-amber-500 text-white shadow-md ring-2 ring-amber-400" : "bg-card text-foreground hover:bg-muted"}`}
             >
               🔥 Program Pemulihan Utuh (90 Hari)
               <span className="ml-1.5 rounded-full bg-white/20 px-2 py-0.5 text-[9px] font-black uppercase">Ideal</span>
             </button>
             <button
               onClick={() => setSelectedDuration("365hari")}
-              className={`rounded-2xl px-4 py-2.5 text-xs font-bold transition-all ${selectedDuration === "365hari" ? "bg-violet-600 text-white shadow-md" : "bg-card text-foreground hover:bg-muted"}`}
+              className={`rounded-2xl px-4 py-2.5 text-xs font-bold transition-all ${selectedDuration === "365hari" ? "bg-violet-600 text-white shadow-md ring-2 ring-violet-400" : "bg-card text-foreground hover:bg-muted"}`}
             >
               🏆 Program Pendampingan (365 Hari)
             </button>
+          </div>
+        </div>
+      </div>
+
+      {/* ── DYNAMIC PROGRAM ROADMAP DETAILS (CONNECTS TO SELECTED DURATION) ────── */}
+      <div className="rounded-3xl bg-card p-6 ring-1 ring-border shadow-soft space-y-5">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/60 pb-4">
+          <div>
+            <span className={`inline-block rounded-full px-3 py-1 text-[11px] font-extrabold tracking-wider uppercase ring-1 ${activeProgram.badgeColor}`}>
+              {activeProgram.badge}
+            </span>
+            <h2 className="mt-2 font-display text-2xl font-bold text-foreground">
+              {activeProgram.name}
+            </h2>
+            <p className="mt-1 text-xs text-muted-foreground max-w-3xl leading-relaxed">
+              {activeProgram.description}
+            </p>
+          </div>
+
+          <Link
+            to={isPremium ? "/app/calm" : "/app/premium"}
+            className="rounded-full bg-primary px-5 py-2.5 text-xs font-bold text-primary-foreground shadow-sm hover:opacity-90 transition-opacity"
+          >
+            {isPremium ? "Mulai Program Hari Ini →" : "Aktifkan Akses Full →"}
+          </Link>
+        </div>
+
+        <div className="grid gap-3 sm:grid-cols-3 bg-muted/30 p-4 rounded-2xl ring-1 ring-border/50 text-xs">
+          <div>
+            <span className="text-muted-foreground font-medium">🎯 Target Outcome:</span>
+            <p className="font-semibold text-foreground mt-0.5">{activeProgram.targetOutcome}</p>
+          </div>
+          <div className="sm:col-span-2">
+            <span className="text-muted-foreground font-medium">💡 Direkomendasikan Untuk:</span>
+            <p className="font-semibold text-foreground mt-0.5">{activeProgram.recommendedFor}</p>
+          </div>
+        </div>
+
+        {/* Milestone Steps Timeline */}
+        <div className="pt-2 space-y-3">
+          <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Tahapan & Milestone Pemulihan</p>
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            {activeProgram.milestones.map((m, idx) => (
+              <div key={m.step} className="relative flex flex-col justify-between rounded-2xl bg-background p-4 ring-1 ring-border/80 shadow-xs">
+                <div>
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="rounded-full bg-primary/10 px-2.5 py-0.5 text-[10px] font-bold text-primary">
+                      {m.step}
+                    </span>
+                    <span className="text-[10px] text-muted-foreground font-bold">Langkah {idx + 1}</span>
+                  </div>
+                  <h4 className="mt-2 font-display text-sm font-bold text-foreground">{m.title}</h4>
+                  <p className="mt-1 text-[11px] text-muted-foreground leading-snug">{m.desc}</p>
+                </div>
+                <div className="mt-4 pt-3 border-t border-border/40 flex items-center justify-between">
+                  <span className="text-[10px] font-semibold text-primary truncate max-w-[140px]">{m.focusModule}</span>
+                  <Link
+                    to={m.link}
+                    search={m.search as any}
+                    className="text-[10px] font-bold text-foreground hover:text-primary flex items-center gap-1"
+                  >
+                    Buka →
+                  </Link>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </div>
@@ -254,10 +374,11 @@ export function ProgramPage() {
                       <span className="text-xs">{q.icon}</span>
                       <Link
                         to={q.link}
+                        search={q.search as any}
                         onClick={(e) => e.stopPropagation()}
-                        className="text-[10px] text-primary hover:underline font-medium"
+                        className="text-[10px] text-primary hover:underline font-bold"
                       >
-                        Buka Fitur →
+                        Buka Fitur Langsung →
                       </Link>
                     </div>
                   </div>
@@ -299,6 +420,7 @@ export function ProgramPage() {
                   <Link
                     key={t.name}
                     to={t.path}
+                    search={(t as any).search}
                     className="group flex items-start justify-between rounded-2xl bg-muted/30 p-3.5 ring-1 ring-border/50 transition-all hover:bg-card hover:ring-primary/40 hover:shadow-xs"
                   >
                     <div>

@@ -15,7 +15,14 @@ import { WaveEmotionGame } from "@/components/calm/WaveEmotionGame";
 import { playAmbientSound, toggleAmbientSound, subscribeAudioState } from "@/lib/audio";
 import { Music, Pause, Play } from "lucide-react";
 
+import { z } from "zod";
+
+const calmSearchSchema = z.object({
+  tool: z.enum(["breath", "ground", "selftalk", "vent", "reframing", "somatic", "panic", "crystal", "stars", "wave"]).optional(),
+});
+
 export const Route = createFileRoute("/_authenticated/app/calm")({
+  validateSearch: (search) => calmSearchSchema.parse(search),
   component: Page,
 });
 
@@ -31,7 +38,14 @@ const CATEGORIES: { key: Category; label: string }[] = [
 ];
 
 function Page() {
-  const [tool, setTool] = useState<Tool>(null);
+  const { tool: searchTool } = Route.useSearch();
+  const [tool, setTool] = useState<Tool>((searchTool as Tool) || null);
+
+  useEffect(() => {
+    if (searchTool) {
+      setTool(searchTool as Tool);
+    }
+  }, [searchTool]);
   const [activeCategory, setActiveCategory] = useState<Category>("all");
   const activeToolRef = useRef<HTMLDivElement>(null);
   const [feedbackSubmitted, setFeedbackSubmitted] = useState<boolean>(false);
