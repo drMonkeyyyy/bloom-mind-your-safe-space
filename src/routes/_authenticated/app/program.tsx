@@ -475,9 +475,12 @@ export function ProgramPage() {
         <div className="flex items-center justify-between">
           <div>
             <h2 className="font-display text-2xl font-bold text-foreground">Integrasi Modul & Fitur Pemulihan</h2>
-            <p className="text-xs text-muted-foreground">Setiap fitur aplikasi saling terhubung dalam protokol pemulihan emosionalmu.</p>
+            <p className="text-xs text-muted-foreground mt-0.5">Setiap fitur aplikasi saling terhubung dalam protokol pemulihan emosionalmu.</p>
+            <div className="mt-2.5 inline-flex items-center gap-1.5 rounded-2xl bg-emerald-500/10 px-3.5 py-1.5 text-[11px] font-medium text-emerald-800 dark:text-emerald-300 ring-1 ring-emerald-500/25">
+              💡 <span><strong>Catatan Pemulihan:</strong> Fitur-fitur ini <u>TIDAK untuk diselesaikan dalam 1 hari</u>. Cukup gunakan 2-3 menit sehari secara konsisten sesuai kebutuhan emosionalmu.</span>
+            </div>
           </div>
-          <Link to="/app/calm" className="text-xs font-bold text-primary hover:underline">
+          <Link to="/app/calm" className="text-xs font-bold text-primary hover:underline shrink-0">
             Buka Emergency Calm →
           </Link>
         </div>
