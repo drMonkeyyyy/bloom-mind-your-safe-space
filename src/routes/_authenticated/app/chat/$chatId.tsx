@@ -317,6 +317,18 @@ function ChatRoom() {
     } finally {
       setGeneratingJournal(false);
     }
+  const handleCopyChatForChatGPT = () => {
+    if (!messages || messages.length === 0) {
+      toast.error("Belum ada obrolan untuk disalin.");
+      return;
+    }
+    const text = messages
+      .map(m => `[${m.role === 'user' ? 'Saya' : comp?.name || 'JN-CALM'}]: ${m.content}`)
+      .join('\n\n');
+    navigator.clipboard.writeText(text);
+    toast.success("Riwayat obrolan disalin ke clipboard! 📋", {
+      description: "Kamu bisa langsung menempelkannya (paste) ke ChatGPT."
+    });
   };
 
   const showLimitWarning = profile?.plan === "free";
@@ -339,6 +351,15 @@ function ChatRoom() {
         </div>
         {!isNew && (
           <div className="flex items-center gap-1.5 shrink-0">
+            <button
+              onClick={handleCopyChatForChatGPT}
+              className="rounded-full border border-border px-2 py-1 sm:px-3 sm:py-1.5 text-[10px] sm:text-xs hover:bg-cream-deep flex items-center gap-1 transition-all duration-200 active:scale-95 shadow-sm"
+              title="Salin percakapan untuk ditempelkan ke ChatGPT"
+            >
+              <span>📋</span>
+              <span className="hidden sm:inline">Salin Teks</span>
+              <span className="inline sm:hidden">Salin</span>
+            </button>
             <button
               onClick={() => exportChatPDF(comp?.name ?? "Pendamping", comp?.emoji ?? "🌿", messages ?? [])}
               className="rounded-full border border-border px-2 py-1 sm:px-3 sm:py-1.5 text-[10px] sm:text-xs hover:bg-cream-deep flex items-center gap-1 transition-all duration-200 active:scale-95 shadow-sm"
