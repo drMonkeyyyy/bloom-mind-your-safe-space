@@ -317,6 +317,8 @@ function ChatRoom() {
     } finally {
       setGeneratingJournal(false);
     }
+  };
+
   const handleCopyChatForChatGPT = () => {
     if (!messages || messages.length === 0) {
       toast.error("Belum ada obrolan untuk disalin.");
