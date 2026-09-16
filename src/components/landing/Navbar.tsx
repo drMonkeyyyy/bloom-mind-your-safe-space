@@ -21,7 +21,7 @@ export function Navbar() {
   const links = [
     { href: "#fitur", label: "Fitur" },
     { href: "#cara-kerja", label: "Cara Kerja" },
-    { href: "#harga", label: "Harga" },
+    { href: "#harga", label: "Program" },
   ];
 
   return (
@@ -43,6 +43,12 @@ export function Navbar() {
               <p className="font-display text-xl font-bold tracking-widest leading-tight text-[#6E8C71]">JN-CALM</p>
             </div>
           </a>
+
+          {/* Live user count pill — desktop only */}
+          <div className="hidden md:flex items-center gap-1.5 rounded-full bg-emerald-50 dark:bg-emerald-950/40 px-3 py-1 ring-1 ring-emerald-200 dark:ring-emerald-800">
+            <span className="flex h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+            <span className="text-[10px] font-bold text-emerald-700 dark:text-emerald-400">1.200+ pengguna aktif</span>
+          </div>
 
           {/* Desktop nav */}
           <nav className="hidden items-center gap-8 md:flex" aria-label="Navigasi utama">
@@ -95,6 +101,11 @@ export function Navbar() {
           style={{ animation: "slide-up 0.3s cubic-bezier(0.16, 1, 0.3, 1) both" }}
         >
           <div className="mx-auto max-w-7xl px-5 py-5 space-y-1">
+            {/* Live indicator mobile */}
+            <div className="mb-3 flex items-center gap-2 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 px-4 py-2.5 ring-1 ring-emerald-200 dark:ring-emerald-800">
+              <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+              <span className="text-xs font-bold text-emerald-700 dark:text-emerald-400">1.200+ pengguna aktif hari ini</span>
+            </div>
             {links.map((l) => (
               <a
                 key={l.href}
@@ -110,7 +121,7 @@ export function Navbar() {
                 Masuk
               </a>
               <a href="/auth?mode=register" className="rounded-full bg-accent py-3 text-center text-sm font-semibold text-accent-foreground shadow-peach">
-                Mulai Gratis
+                Mulai Gratis — Tanpa Kartu Kredit
               </a>
             </div>
           </div>
