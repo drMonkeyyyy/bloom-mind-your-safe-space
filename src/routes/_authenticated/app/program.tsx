@@ -167,10 +167,10 @@ const PROGRAM_QUESTS: Record<ProgramDuration, {
     subtitle: "Protokol klinis harian untuk mengurai kebiasaan impuls lama dan menghentikan emotional eating.",
     items: [
       { id: "q90-1", num: "01", title: "Interupsi Panik & Somatic Exercise", desc: "Regulasi detak jantung & merilekskan otot", icon: "🚨", tag: "Emergency SOS", link: "/app/calm", search: { tool: "panic" } },
-      { id: "q90-2", num: "02", title: "Skrining Baseline DASS-21 / Mood Check", desc: "Pantau tren kecemasan & depresi harian", icon: "📋", tag: "Skrining DASS", link: "/app/calm-check" },
-      { id: "q90-3", num: "03", title: "Jurnal Refleksi CBT: Urai Pikiran ANTs", desc: "Merestrukturisasi pola pikir otomatis distorsi", icon: "📓", tag: "Terapi CBT", link: "/app/journal" },
+      { id: "q90-2", num: "02", title: "Jurnal Refleksi CBT: Urai Pikiran ANTs", desc: "Merestrukturisasi pola pikir otomatis distorsi", icon: "📓", tag: "Jurnal CBT", link: "/app/journal" },
+      { id: "q90-3", num: "03", title: "Sesi Curhat dengan Teman Curhat AI", desc: "Validasi emosi & curhat lega tanpa penghakiman 24/7", icon: "💬", tag: "Teman Curhat AI", link: "/app/chat" },
       { id: "q90-4", num: "04", title: "Emotional Eating Interruption Check", desc: "Memisahkan lapar fisik vs lapar emosional", icon: "🍎", tag: "Gut-Brain Axis", link: "/app/eating" },
-      { id: "q90-5", num: "05", title: "Dukungan Sahabat & Pelukan Komunitas", desc: "Saling menyemangati sesama pejuang pemulihan", icon: "🤝", tag: "Sahabat Support", link: "/app/community" },
+      { id: "q90-5", num: "05", title: "Buat Status & Kirim Pelukan Komunitas", desc: "Berbagi cerita anonim & menyemangati sesama pejuang", icon: "🤝", tag: "Sahabat Support", link: "/app/community" },
     ]
   },
   "365hari": {
