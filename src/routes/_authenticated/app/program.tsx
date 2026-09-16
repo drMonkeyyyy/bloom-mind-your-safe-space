@@ -139,14 +139,54 @@ const CLINICAL_MODULES = [
   }
 ];
 
-// ── Daily Quests Checklist Items ─────────────────────────────────────────────
-const TODAY_QUESTS = [
-  { id: "q-breath", title: "1. Pernapasan SOS 4-7-8 / Grounding (2 Min)", icon: "🫁", category: "Emergency Calm", link: "/app/calm", search: { tool: "breath" } },
-  { id: "q-mood", title: "2. Catat Cuaca Emosi & Pemicu Hari Ini", icon: "🌤️", category: "Mood Tracker", link: "/app/mood" },
-  { id: "q-eating", title: "3. Mindful Check: Lapar Fisik atau Emosi?", icon: "🍎", category: "Emotional Eating", link: "/app/eating" },
-  { id: "q-gratitude", title: "4. Tulis 3 Hal Kecil yang Disyukuri", icon: "🌸", category: "Gratitude Journal", link: "/app/gratitude" },
-  { id: "q-community", title: "5. Kirim 1 Pelukan Hangat di Komunitas", icon: "🩵", category: "Sahabat Support", link: "/app/community" },
-];
+// ── Dynamic Daily Quests Checklist per Program Duration ──────────────────────
+const PROGRAM_QUESTS: Record<ProgramDuration, {
+  badge: string;
+  badgeColor: string;
+  title: string;
+  subtitle: string;
+  items: { id: string; num: string; title: string; desc: string; icon: string; tag: string; link: string; search?: Record<string, string> }[];
+}> = {
+  "30hari": {
+    badge: "🌿 DAILY QUEST RESET 30 HARI",
+    badgeColor: "bg-teal-600 text-white shadow-xs",
+    title: "Misi Harian Reset Ketenangan (3 Menit)",
+    subtitle: "5 Aktivitas mikro konsisten untuk mereset ambang toleransi stres dan menenangkan pikiran.",
+    items: [
+      { id: "q30-1", num: "01", title: "Pernapasan Somatik 4-7-8 & Grounding", desc: "Stabilisasi impuls saraf otonom saat cemas", icon: "🫁", tag: "Emergency SOS", link: "/app/calm", search: { tool: "breath" } },
+      { id: "q30-2", num: "02", title: "Catat Cuaca Emosi & Pemicu Hari Ini", desc: "Pemetaan fluktuasi grafik mood harian", icon: "🌤️", tag: "Mood Tracker", link: "/app/mood" },
+      { id: "q30-3", num: "03", title: "Tulis 3 Hal Kecil yang Disyukuri", desc: "Stimulasi dopamin & serotonin malam hari", icon: "🌸", tag: "Gratitude", link: "/app/gratitude" },
+      { id: "q30-4", num: "04", title: "Curhat Singkat dengan JN-CALM AI", desc: "Validasi emosi tanpa penghakiman 24/7", icon: "💬", tag: "AI Companion", link: "/app/chat" },
+      { id: "q30-5", num: "05", title: "Kirim 1 Pelukan Hangat Anonim", desc: "Berbagi kepedulian di Komunitas Support", icon: "🩵", tag: "Sahabat Support", link: "/app/community" },
+    ]
+  },
+  "90hari": {
+    badge: "🔥 DAILY QUEST PEMULIHAN UTUH (90 HARI)",
+    badgeColor: "bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-xs",
+    title: "Misi Harian CBT & Neuro-Rewiring 90 Hari",
+    subtitle: "Protokol klinis harian untuk mengurai kebiasaan impuls lama dan menghentikan emotional eating.",
+    items: [
+      { id: "q90-1", num: "01", title: "Interupsi Panik & Somatic Exercise", desc: "Regulasi detak jantung & merilekskan otot", icon: "🚨", tag: "Emergency SOS", link: "/app/calm", search: { tool: "panic" } },
+      { id: "q90-2", num: "02", title: "Skrining Baseline DASS-21 / Mood Check", desc: "Pantau tren kecemasan & depresi harian", icon: "📋", tag: "Skrining DASS", link: "/app/calm-check" },
+      { id: "q90-3", num: "03", title: "Jurnal Refleksi CBT: Urai Pikiran ANTs", desc: "Merestrukturisasi pola pikir otomatis distorsi", icon: "📓", tag: "Terapi CBT", link: "/app/journal" },
+      { id: "q90-4", num: "04", title: "Emotional Eating Interruption Check", desc: "Memisahkan lapar fisik vs lapar emosional", icon: "🍎", tag: "Gut-Brain Axis", link: "/app/eating" },
+      { id: "q90-5", num: "05", title: "Dukungan Sahabat & Pelukan Komunitas", desc: "Saling menyemangati sesama pejuang pemulihan", icon: "🤝", tag: "Sahabat Support", link: "/app/community" },
+    ]
+  },
+  "365hari": {
+    badge: "🏆 DAILY QUEST PERSONAL 365 HARI",
+    badgeColor: "bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-xs",
+    title: "Misi Personal Resiliensi Emosi 365 Hari",
+    subtitle: "Pendampingan harian berkelanjutan sepanjang tahun untuk ketahanan mental yang kokoh.",
+    items: [
+      { id: "q365-1", num: "01", title: "Grounding 5-4-3-2-1 & Mindful Focus", desc: "Mengasah fokus kesadaran panca indra", icon: "🌍", tag: "Grounding", link: "/app/calm", search: { tool: "ground" } },
+      { id: "q365-2", num: "02", title: "Catat Grafik Mood & Refleksi Harian", desc: "Arsip perjalanan 1 tahun penuh tersimpan aman", icon: "📊", tag: "Track Record", link: "/app/mood" },
+      { id: "q365-3", num: "03", title: "Curhat Deep-Reflective dengan AI Companion", desc: "Pendampingan emosi personal 24/7", icon: "💬", tag: "AI Companion", link: "/app/chat" },
+      { id: "q365-4", num: "04", title: "Habit Tracker 3-Menit Sehari", desc: "Pertahankan streak kebiasaan pemulihan", icon: "🎯", tag: "Habit Tracker", link: "/app/habits" },
+      { id: "q365-5", num: "05", title: "Kirim Pelukan & Cek Dashboard Progress", desc: "Analisis laporan PDF & interaksi komunitas", icon: "📄", tag: "Growth & Report", link: "/app/growth" },
+    ]
+  }
+};
 
 export function ProgramPage() {
   const { user } = useAuth();
@@ -190,7 +230,7 @@ export function ProgramPage() {
       toast("Progres checklist diperbarui");
     } else {
       next = [...completedQuests, id];
-      if (next.length === TODAY_QUESTS.length) {
+      if (next.length === PROGRAM_QUESTS[selectedDuration].items.length) {
         toast.success("HEBAT! 🎉 Semua tugas harian hari ini selesai dikerjakan!", {
           description: "Kamu baru saja memberi hadiah ketenangan terbaik untuk dirimu hari ini."
         });
@@ -238,7 +278,8 @@ export function ProgramPage() {
     }
   }, [isPremium, autoSelectedDuration]);
 
-  const progressPercentage = Math.round((completedQuests.length / TODAY_QUESTS.length) * 100);
+  const activeQuestsData = PROGRAM_QUESTS[selectedDuration];
+  const progressPercentage = Math.round((completedQuests.length / activeQuestsData.items.length) * 100);
   const activeProgram = PROGRAM_DETAILS[selectedDuration];
 
   return (
@@ -385,84 +426,113 @@ export function ProgramPage() {
         </div>
       </div>
 
-      {/* ── INTERACTIVE DAILY QUEST CHECKLIST ───────────────────────────── */}
-      <div className="rounded-3xl bg-card p-6 ring-1 ring-border shadow-soft space-y-5">
+      {/* ── INTERACTIVE DAILY QUEST CHECKLIST (TAILORED PER ACTIVE PROGRAM) ─── */}
+      <div className="rounded-3xl bg-card p-6 ring-1 ring-border shadow-soft space-y-6">
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/60 pb-4">
           <div>
-            <div className="flex items-center gap-2">
-              <span className="rounded-full bg-primary/10 px-2.5 py-0.5 text-[11px] font-bold text-primary">
-                📋 CHECKLIST TUGAS HARIAN
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className={`inline-block rounded-full px-3 py-1 text-[11px] font-extrabold tracking-wider uppercase ring-1 ${activeQuestsData.badgeColor}`}>
+                {activeQuestsData.badge}
               </span>
-              <span className="text-xs text-muted-foreground font-medium">Hari Ini</span>
+              <span className="text-xs text-muted-foreground font-semibold">Tugas Harian Hari Ini</span>
             </div>
-            <h2 className="mt-1 font-display text-xl font-bold text-foreground">
-              Misi Pemulihan Emosi (3 Menit Sehari)
+            <h2 className="mt-2 font-display text-2xl font-bold text-foreground">
+              {activeQuestsData.title}
             </h2>
+            <p className="mt-1 text-xs text-muted-foreground leading-relaxed">
+              {activeQuestsData.subtitle}
+            </p>
           </div>
           
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 shrink-0">
             <div className="text-right">
-              <span className="text-xs text-muted-foreground">Kemajuan Checklist</span>
+              <span className="text-xs text-muted-foreground font-medium">Kemajuan Misi</span>
               <p className="font-display text-lg font-bold text-primary">
-                {completedQuests.length} / {TODAY_QUESTS.length} Selesai ({progressPercentage}%)
+                {completedQuests.length} / {activeQuestsData.items.length} Selesai ({progressPercentage}%)
               </p>
             </div>
-            <div className="h-10 w-10 rounded-full bg-primary/15 grid place-items-center font-bold text-primary text-xs ring-2 ring-primary/30">
+            <div className="h-11 w-11 rounded-full bg-primary/15 grid place-items-center font-bold text-primary text-xs ring-2 ring-primary/30 shadow-xs">
               {progressPercentage}%
             </div>
           </div>
         </div>
 
         {/* Progress Bar */}
-        <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
+        <div className="h-2.5 w-full overflow-hidden rounded-full bg-muted/60 p-0.5 ring-1 ring-border/40">
           <div
-            className="h-full bg-gradient-to-r from-primary to-accent transition-all duration-500 rounded-full"
+            className="h-full bg-gradient-to-r from-primary via-accent to-emerald-500 transition-all duration-500 rounded-full shadow-xs"
             style={{ width: `${progressPercentage}%` }}
           />
         </div>
 
-        {/* Checklist Items */}
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {TODAY_QUESTS.map((q) => {
+        {/* Dynamic Checklist Items Grid */}
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {activeQuestsData.items.map((q) => {
             const isDone = completedQuests.includes(q.id);
             return (
               <div
                 key={q.id}
                 onClick={() => toggleQuest(q.id)}
-                className={`group cursor-pointer flex items-center justify-between rounded-2xl p-4 ring-1 transition-all duration-200 ${
+                className={`group relative flex flex-col justify-between overflow-hidden rounded-3xl p-5 ring-1 transition-all duration-300 ${
                   isDone
                     ? "bg-emerald-500/10 ring-emerald-500/40 shadow-xs"
-                    : "bg-card hover:bg-muted/40 ring-border/80 hover:ring-primary/40"
+                    : "bg-card ring-border/80 hover:ring-primary/50 hover:shadow-soft hover:-translate-y-0.5"
                 }`}
               >
-                <div className="flex items-center gap-3 min-w-0">
-                  {/* Custom Checkbox */}
-                  <div
-                    className={`h-6 w-6 shrink-0 rounded-lg grid place-items-center text-xs font-black transition-all ${
-                      isDone
-                        ? "bg-emerald-600 text-white shadow-xs scale-105"
-                        : "border-2 border-border group-hover:border-primary text-transparent"
-                    }`}
-                  >
-                    ✓
-                  </div>
-
-                  <div className="min-w-0">
-                    <p className={`text-xs font-bold truncate transition-colors ${isDone ? "text-emerald-800 dark:text-emerald-300 line-through opacity-85" : "text-foreground group-hover:text-primary"}`}>
-                      {q.title}
-                    </p>
-                    <div className="mt-0.5 flex items-center gap-1.5">
+                <div>
+                  {/* Card Top Row: Number, Icon, & Category Tag */}
+                  <div className="flex items-center justify-between gap-2 border-b border-border/40 pb-3">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className={`h-6 w-6 rounded-full grid place-items-center text-[10px] font-black ${
+                        isDone ? "bg-emerald-600 text-white" : "bg-primary/15 text-primary"
+                      }`}>
+                        {q.num}
+                      </span>
                       <span className="text-xs">{q.icon}</span>
-                      <Link
-                        to={q.link}
-                        search={q.search as any}
-                        onClick={(e) => e.stopPropagation()}
-                        className="text-[10px] text-primary hover:underline font-bold"
-                      >
-                        Buka Fitur Langsung →
-                      </Link>
+                      <span className="rounded-full bg-muted/80 px-2.5 py-0.5 text-[10px] font-bold text-muted-foreground">
+                        {q.tag}
+                      </span>
+                    </div>
+
+                    {/* Checkmark indicator */}
+                    <div
+                      className={`h-6 w-6 shrink-0 rounded-full grid place-items-center text-xs font-black transition-all ${
+                        isDone
+                          ? "bg-emerald-600 text-white shadow-xs scale-110"
+                          : "border-2 border-border group-hover:border-primary text-transparent"
+                      }`}
+                    >
+                      ✓
                     </div>
                   </div>
+
+                  {/* Title & Desc */}
+                  <div className="mt-3">
+                    <h4 className={`text-sm font-bold leading-tight transition-colors ${
+                      isDone ? "text-emerald-800 dark:text-emerald-300 line-through opacity-85" : "text-foreground group-hover:text-primary"
+                    }`}>
+                      {q.title}
+                    </h4>
+                    <p className="mt-1 text-[11px] text-muted-foreground leading-snug">
+                      {q.desc}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Bottom Action Pill Button */}
+                <div className="mt-4 pt-3 border-t border-border/40 flex items-center justify-between">
+                  <Link
+                    to={q.link}
+                    search={q.search as any}
+                    onClick={(e) => e.stopPropagation()}
+                    className={`inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-extrabold transition-all ${
+                      isDone
+                        ? "bg-emerald-600/15 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-600/25"
+                        : "bg-primary text-primary-foreground shadow-xs hover:opacity-90 hover:shadow-md"
+                    }`}
+                  >
+                    <span>{isDone ? "✓ Selesai (Buka)" : "⚡ Jalankan Misi Ini →"}</span>
+                  </Link>
                 </div>
               </div>
             );
