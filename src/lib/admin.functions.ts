@@ -34,9 +34,11 @@ export const verifyOrder = createServerFn({ method: "POST" })
     if (data.approve) {
       const now = new Date();
       const end = new Date(now);
-      if (order.package_name === "Premium Tahunan") {
+      if (order.package_name === "Premium Tahunan" || order.package_name?.includes("1 Tahun")) {
         end.setDate(end.getDate() + 365);
-      } else if (order.package_name === "Premium Mingguan") {
+      } else if (order.package_name?.includes("3 Bulan") || order.package_name?.includes("90")) {
+        end.setDate(end.getDate() + 90);
+      } else if (order.package_name === "Premium Mingguan" || order.package_name?.includes("7")) {
         end.setDate(end.getDate() + 7);
       } else {
         end.setDate(end.getDate() + 30);
