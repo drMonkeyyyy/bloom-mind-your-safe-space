@@ -229,7 +229,7 @@ export function Pricing() {
                   <span className="text-[10px] text-muted-foreground line-through">Rp147.000</span>
                   <span className="rounded-full bg-amber-100 dark:bg-amber-950/60 px-2 py-0.5 text-[10px] font-bold text-amber-800 dark:text-amber-300">Hemat 20%</span>
                 </div>
-                <p className="mt-1 text-xs text-muted-foreground">Durasi ideal psikologis mengubah habit & emosi.</p>
+                <p className="mt-1 text-xs text-muted-foreground">Program terstruktur untuk membantu membangun kebiasaan refleksi & regulasi emosi secara konsisten.</p>
 
                 <div className="my-5 border-t border-border/60" />
 

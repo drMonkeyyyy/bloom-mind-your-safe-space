@@ -601,7 +601,7 @@ function Page() {
         <EmptyState
           emoji="🙏"
           title="Mulai bersyukur hari ini"
-          description="Menulin gratitude setiap hari terbukti meningkatkan kebahagiaan dan mengurangi stres."
+          description="Menulis gratitude setiap hari terbukti meningkatkan kebahagiaan dan mengurangi stres."
         />
       ) : (
         <div className="space-y-3">

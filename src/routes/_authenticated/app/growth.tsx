@@ -11,6 +11,7 @@ import { MoodSparkline } from "@/components/app/MoodSparkline";
 import { SkeletonCard } from "@/components/app/SkeletonCard";
 import { BottomSheet, ModalDialog } from "@/components/app/BottomSheet";
 import { exportWeeklyInsightPDF } from "@/lib/export-pdf";
+import { useProgramState } from "@/hooks/use-program-state";
 
 const TRIGGER_EMOJIS: Record<string, string> = {
   "Pekerjaan": "💼",
@@ -325,7 +326,7 @@ function MindPlant({ score, isWilted = false, onClick }: { score: number; isWilt
           {desc}
         </p>
         <div className="mt-1.5 inline-flex items-center gap-1.5 rounded-full bg-primary-soft/60 px-2.5 py-0.5 text-[11px] sm:text-xs font-semibold text-primary">
-          Skor Jiwa: {score} Pts
+          Poin Konsistensi: {score} Pts
         </div>
       </div>
     </div>
@@ -427,6 +428,7 @@ function Page() {
   const { data: profile } = useProfile(user?.id);
   const isPremium = profile?.plan === "premium";
   const navigate = useNavigate();
+  const programState = useProgramState();
   
   const weeklyInsightFn = useServerFn(getWeeklyInsight);
   const dailyInsightFn = useServerFn(getDailyInsight);
@@ -623,6 +625,86 @@ function Page() {
 
       {/* ── MINDPLANT ────────────────────────────────────────────── */}
       <MindPlant score={growthScore} isWilted={isWilted} onClick={() => setPlantModalOpen(true)} />
+
+      {/* ── PROGRAM PEMULIHAN PROGRESS WIDGET ───────────────────── */}
+      <div className="rounded-3xl border border-primary/30 bg-gradient-to-br from-primary-soft/40 via-card to-amber-50/40 p-5 sm:p-6 shadow-card space-y-4">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div className="space-y-0.5">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-0.5 text-[10px] font-bold text-primary">
+              🌱 PROGRES PROGRAM PEMULIHAN
+            </span>
+            <h3 className="font-display text-base sm:text-lg font-bold text-foreground">
+              {programState.selectedProgram === "30hari"
+                ? "Program Reset 30 Hari"
+                : programState.selectedProgram === "365hari"
+                ? "Program Pendampingan 365 Hari"
+                : "Program Pemulihan Utuh 90 Hari"}
+            </h3>
+          </div>
+          <span className="rounded-2xl bg-card px-3.5 py-1.5 text-xs font-bold text-primary ring-1 ring-border shadow-xs">
+            Hari ke-{programState.currentDay} dari {programState.totalDays}
+          </span>
+        </div>
+
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+          {/* Konsistensi Misi */}
+          <div className="rounded-2xl border border-border/70 bg-card p-3.5 space-y-1">
+            <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Konsistensi Misi Harian</p>
+            <p className="font-display text-lg font-bold text-foreground">
+              {programState.completedCount}/5 Selesai{" "}
+              <span className="text-xs text-primary font-semibold">({Math.round((programState.completedCount / 5) * 100)}%)</span>
+            </p>
+            <div className="h-1.5 w-full rounded-full bg-muted overflow-hidden">
+              <div className="h-full bg-primary rounded-full transition-all" style={{ width: `${(programState.completedCount / 5) * 100}%` }} />
+            </div>
+          </div>
+
+          {/* Fase Aktif */}
+          <div className="rounded-2xl border border-border/70 bg-card p-3.5 space-y-1">
+            <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Fase Perjalanan Saat Ini</p>
+            <p className="text-xs font-bold text-foreground leading-snug">
+              {programState.selectedProgram === "30hari"
+                ? "Fase 1: Somatic Crisis Reset & Baseline Habit"
+                : programState.selectedProgram === "365hari"
+                ? "Pendampingan Holistik & Resiliensi Emosi"
+                : programState.currentDay <= 30
+                ? "Fase 1: Somatic Reset & Crisis Screening"
+                : programState.currentDay <= 60
+                ? "Fase 2: CBT Rewiring & Mindful Eating"
+                : "Fase 3: Regulasi Diri & Laporan PDF"}
+            </p>
+          </div>
+
+          {/* Perubahan Mood vs Stres */}
+          <div className="rounded-2xl border border-border/70 bg-card p-3.5 space-y-1">
+            <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Tren Rata-Rata Mood / Stres</p>
+            <p className="text-xs font-bold text-foreground">
+              Mood: <span className="text-emerald-700 dark:text-emerald-300">{avgMood}/10</span> · Stres: <span className="text-rose-700 dark:text-rose-300">{avgStress}/10</span>
+            </p>
+            <p className="text-[10px] text-muted-foreground">
+              {Number(avgMood) >= 6 ? "Emosi stabil & terjaga 🌸" : "Butuh latihan pernapasan ekstra 🫁"}
+            </p>
+          </div>
+        </div>
+
+        {/* Rekomendasi Langkah Berikutnya */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-t border-border/60 pt-3">
+          <div className="text-xs">
+            <span className="font-bold text-foreground">Langkah Rekomendasi Selanjutnya: </span>
+            <span className="text-muted-foreground">
+              {programState.isAllCompleted
+                ? "Semua misi hari ini selesai! Pertahankan konsistensi esok hari."
+                : "Selesaikan misi berikutnya untuk memperkuat regulasi emosimu."}
+            </span>
+          </div>
+          <Link
+            to="/app"
+            className="shrink-0 rounded-xl bg-primary px-4 py-2 text-xs font-bold text-white shadow-soft hover:bg-primary/90 transition-colors"
+          >
+            Buka Misi Dashboard →
+          </Link>
+        </div>
+      </div>
 
       {/* ── STATS ─────────────────────────────────────────────────── */}
       {moodsLoading ? (
@@ -964,7 +1046,7 @@ function Page() {
       >
         <div className="space-y-4 max-h-[70vh] overflow-y-auto pr-1">
           <p className="text-xs text-muted-foreground leading-relaxed">
-            Skor Jiwa Anda dihitung berdasarkan keaktifan merawat diri:
+            Poin Konsistensi kamu dihitung berdasarkan keaktifan merawat diri:
             <br />• <strong>Check-in Mood</strong> (+8 Pts per hari)
             <br />• Menulis lembaran <strong>Diary</strong> (+12 Pts)
             <br />• Mengisi jurnal <strong>Syukur</strong> (+12 Pts)

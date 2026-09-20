@@ -110,7 +110,7 @@ const CLINICAL_MODULES = [
     tools: [
       { name: "Jurnal Refleksi CBT 📓", path: "/app/journal", desc: "Mengurai korelasi Pikiran -> Emosi -> Perilaku" },
       { name: "Jurnal Rasa Syukur 🌸", path: "/app/gratitude", desc: "Stimulasi serotonin & dopamin sebelum tidur" },
-      { name: "JN-CALM AI Companion 💬", path: "/app/chat", desc: "Curhat 24/7 dengan pendamping emosional AI" },
+      { name: "Teman Curhat AI 💬", path: "/app/chat", desc: "Curhat 24/7 dengan pendamping emosional AI" },
     ]
   },
   {
@@ -156,7 +156,7 @@ const PROGRAM_QUESTS: Record<ProgramDuration, {
       { id: "q30-1", num: "01", title: "Pernapasan Somatik 4-7-8 & Grounding", desc: "Stabilisasi impuls saraf otonom saat cemas", icon: "🫁", tag: "Emergency SOS", link: "/app/calm", search: { tool: "breath" } },
       { id: "q30-2", num: "02", title: "Catat Cuaca Emosi & Pemicu Hari Ini", desc: "Pemetaan fluktuasi grafik mood harian", icon: "🌤️", tag: "Mood Tracker", link: "/app/mood" },
       { id: "q30-3", num: "03", title: "Tulis 3 Hal Kecil yang Disyukuri", desc: "Stimulasi dopamin & serotonin malam hari", icon: "🌸", tag: "Gratitude", link: "/app/gratitude" },
-      { id: "q30-4", num: "04", title: "Curhat Singkat dengan JN-CALM AI", desc: "Validasi emosi tanpa penghakiman 24/7", icon: "💬", tag: "AI Companion", link: "/app/chat" },
+      { id: "q30-4", num: "04", title: "Curhat Singkat dengan Teman Curhat AI", desc: "Validasi emosi tanpa penghakiman 24/7", icon: "💬", tag: "Teman Curhat AI", link: "/app/chat" },
       { id: "q30-5", num: "05", title: "Kirim 1 Pelukan Hangat Anonim", desc: "Berbagi kepedulian di Komunitas Support", icon: "🩵", tag: "Sahabat Support", link: "/app/community" },
     ]
   },
@@ -181,7 +181,7 @@ const PROGRAM_QUESTS: Record<ProgramDuration, {
     items: [
       { id: "q365-1", num: "01", title: "Grounding 5-4-3-2-1 & Mindful Focus", desc: "Mengasah fokus kesadaran panca indra", icon: "🌍", tag: "Grounding", link: "/app/calm", search: { tool: "ground" } },
       { id: "q365-2", num: "02", title: "Catat Grafik Mood & Refleksi Harian", desc: "Arsip perjalanan 1 tahun penuh tersimpan aman", icon: "📊", tag: "Track Record", link: "/app/mood" },
-      { id: "q365-3", num: "03", title: "Curhat Deep-Reflective dengan AI Companion", desc: "Pendampingan emosi personal 24/7", icon: "💬", tag: "AI Companion", link: "/app/chat" },
+      { id: "q365-3", num: "03", title: "Curhat Deep-Reflective dengan Teman Curhat AI", desc: "Pendampingan emosi personal 24/7", icon: "💬", tag: "Teman Curhat AI", link: "/app/chat" },
       { id: "q365-4", num: "04", title: "Habit Tracker 3-Menit Sehari", desc: "Pertahankan streak kebiasaan pemulihan", icon: "🎯", tag: "Habit Tracker", link: "/app/habits" },
       { id: "q365-5", num: "05", title: "Kirim Pelukan & Cek Dashboard Progress", desc: "Analisis laporan PDF & interaksi komunitas", icon: "📄", tag: "Growth & Report", link: "/app/growth" },
     ]
@@ -326,7 +326,7 @@ export function ProgramPage() {
             Program Pemulihan Emosi Holistik
           </h1>
           <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted-foreground">
-            Roadmap klinis terpadu yang memobilisasi <strong>seluruh 10+ fitur Bloom Mind</strong> — termasuk 10 alat Emergency Calm Mode, CBT Journaling, DASS-21 Screening, Gut-Brain Interruption, dan Komunitas Support.
+            Roadmap klinis terpadu yang memobilisasi <strong>seluruh 10+ fitur JN-CALM</strong> — termasuk 10 alat Emergency Calm Mode, CBT Journaling, DASS-21 Screening, Gut-Brain Interruption, dan Komunitas Support.
           </p>
 
           {/* Program Duration Display for Premium vs Switcher for Free */}

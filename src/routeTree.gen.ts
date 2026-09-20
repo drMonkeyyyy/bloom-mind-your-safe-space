@@ -36,6 +36,7 @@ import { Route as AuthenticatedAppCalmRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedAdminUsersRouteImport } from './routes/_authenticated/admin/users'
 import { Route as AuthenticatedAdminTransactionsRouteImport } from './routes/_authenticated/admin/transactions'
 import { Route as AuthenticatedAdminSettingsRouteImport } from './routes/_authenticated/admin/settings'
+import { Route as AuthenticatedAdminCommunityRouteImport } from './routes/_authenticated/admin/community'
 import { Route as AuthenticatedAdminAnalyticsRouteImport } from './routes/_authenticated/admin/analytics'
 import { Route as AuthenticatedAppChatIndexRouteImport } from './routes/_authenticated/app/chat/index'
 import { Route as AuthenticatedAppChatChatIdRouteImport } from './routes/_authenticated/app/chat/$chatId'
@@ -180,6 +181,12 @@ const AuthenticatedAdminSettingsRoute =
     path: '/settings',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const AuthenticatedAdminCommunityRoute =
+  AuthenticatedAdminCommunityRouteImport.update({
+    id: '/community',
+    path: '/community',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminAnalyticsRoute =
   AuthenticatedAdminAnalyticsRouteImport.update({
     id: '/analytics',
@@ -209,6 +216,7 @@ export interface FileRoutesByFullPath {
   '/app': typeof AuthenticatedAppRouteWithChildren
   '/api/mayar-webhook': typeof ApiMayarWebhookRoute
   '/admin/analytics': typeof AuthenticatedAdminAnalyticsRoute
+  '/admin/community': typeof AuthenticatedAdminCommunityRoute
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/admin/transactions': typeof AuthenticatedAdminTransactionsRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
@@ -238,6 +246,7 @@ export interface FileRoutesByTo {
   '/terms': typeof TermsRoute
   '/api/mayar-webhook': typeof ApiMayarWebhookRoute
   '/admin/analytics': typeof AuthenticatedAdminAnalyticsRoute
+  '/admin/community': typeof AuthenticatedAdminCommunityRoute
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/admin/transactions': typeof AuthenticatedAdminTransactionsRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
@@ -271,6 +280,7 @@ export interface FileRoutesById {
   '/_authenticated/app': typeof AuthenticatedAppRouteWithChildren
   '/api/mayar-webhook': typeof ApiMayarWebhookRoute
   '/_authenticated/admin/analytics': typeof AuthenticatedAdminAnalyticsRoute
+  '/_authenticated/admin/community': typeof AuthenticatedAdminCommunityRoute
   '/_authenticated/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/_authenticated/admin/transactions': typeof AuthenticatedAdminTransactionsRoute
   '/_authenticated/admin/users': typeof AuthenticatedAdminUsersRoute
@@ -304,6 +314,7 @@ export interface FileRouteTypes {
     | '/app'
     | '/api/mayar-webhook'
     | '/admin/analytics'
+    | '/admin/community'
     | '/admin/settings'
     | '/admin/transactions'
     | '/admin/users'
@@ -333,6 +344,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/api/mayar-webhook'
     | '/admin/analytics'
+    | '/admin/community'
     | '/admin/settings'
     | '/admin/transactions'
     | '/admin/users'
@@ -365,6 +377,7 @@ export interface FileRouteTypes {
     | '/_authenticated/app'
     | '/api/mayar-webhook'
     | '/_authenticated/admin/analytics'
+    | '/_authenticated/admin/community'
     | '/_authenticated/admin/settings'
     | '/_authenticated/admin/transactions'
     | '/_authenticated/admin/users'
@@ -588,6 +601,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminSettingsRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/community': {
+      id: '/_authenticated/admin/community'
+      path: '/community'
+      fullPath: '/admin/community'
+      preLoaderRoute: typeof AuthenticatedAdminCommunityRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/admin/analytics': {
       id: '/_authenticated/admin/analytics'
       path: '/analytics'
@@ -614,6 +634,7 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminAnalyticsRoute: typeof AuthenticatedAdminAnalyticsRoute
+  AuthenticatedAdminCommunityRoute: typeof AuthenticatedAdminCommunityRoute
   AuthenticatedAdminSettingsRoute: typeof AuthenticatedAdminSettingsRoute
   AuthenticatedAdminTransactionsRoute: typeof AuthenticatedAdminTransactionsRoute
   AuthenticatedAdminUsersRoute: typeof AuthenticatedAdminUsersRoute
@@ -622,6 +643,7 @@ interface AuthenticatedAdminRouteChildren {
 
 const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminAnalyticsRoute: AuthenticatedAdminAnalyticsRoute,
+  AuthenticatedAdminCommunityRoute: AuthenticatedAdminCommunityRoute,
   AuthenticatedAdminSettingsRoute: AuthenticatedAdminSettingsRoute,
   AuthenticatedAdminTransactionsRoute: AuthenticatedAdminTransactionsRoute,
   AuthenticatedAdminUsersRoute: AuthenticatedAdminUsersRoute,

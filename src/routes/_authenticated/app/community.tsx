@@ -284,9 +284,69 @@ export default function CommunityPage() {
 
   useEffect(() => { fetchPosts(); }, [user?.id]);
 
+  // ─── Safety & Moderation States ─────────────────────────────────
+  const [blockedUserIds, setBlockedUserIds] = useState<string[]>(() => {
+    try {
+      const saved = localStorage.getItem("jn_blocked_users");
+      return saved ? JSON.parse(saved) : [];
+    } catch { return []; }
+  });
+  const [reportingPost, setReportingPost] = useState<CommunityPost | null>(null);
+  const [reportReason, setReportReason] = useState("");
+  const [crisisModalOpen, setCrisisModalOpen] = useState(false);
+
+  const handleBlockUser = (userIdToBlock: string, userName: string) => {
+    if (confirm(`Apakah kamu yakin ingin memblokir postingan & balasan dari ${userName}?`)) {
+      const updated = [...blockedUserIds, userIdToBlock];
+      setBlockedUserIds(updated);
+      try {
+        localStorage.setItem("jn_blocked_users", JSON.stringify(updated));
+      } catch { /* silent */ }
+      toast.success(`Pengguna ${userName} telah diblokir.`);
+    }
+  };
+
+  const handleReportPost = (post: CommunityPost) => {
+    setReportingPost(post);
+    setReportReason("");
+  };
+
+  const submitReport = () => {
+    if (!reportingPost || !reportReason) return;
+    try {
+      const savedReports = localStorage.getItem("jn_reported_posts");
+      const existing = savedReports ? JSON.parse(savedReports) : [];
+      const newReport = {
+        id: crypto.randomUUID(),
+        post_id: reportingPost.id,
+        post_content: reportingPost.content,
+        author_name: reportingPost.author_name,
+        reported_by: user?.id || "guest",
+        reason: reportReason,
+        created_at: new Date().toISOString(),
+      };
+      localStorage.setItem("jn_reported_posts", JSON.stringify([newReport, ...existing]));
+      toast.success("Laporan berhasil dikirim ke tim moderasi. Terima kasih telah menjaga ruang aman JN-CALM.");
+    } catch (e) {
+      console.error("Gagal mengirim laporan:", e);
+    } finally {
+      setReportingPost(null);
+      setReportReason("");
+    }
+  };
+
   // ─── Create Post ───────────────────────────────────────────────
   const handlePost = async () => {
     if (!content.trim()) return;
+
+    // Self-Harm Safety Gate Check
+    const SELF_HARM_KEYWORDS = ["bunuh diri", "menyakiti diri", "suicide", "cutting", "akhiri hidup", "ingin mati", "gantung diri"];
+    const isSelfHarmTriggered = SELF_HARM_KEYWORDS.some((kw) => content.toLowerCase().includes(kw));
+
+    if (isSelfHarmTriggered) {
+      setCrisisModalOpen(true);
+    }
+
     setSubmitting(true);
 
     const newPost: CommunityPost = {
@@ -443,6 +503,9 @@ export default function CommunityPage() {
   // ─── Derived Data ──────────────────────────────────────────────
   const filtered = useMemo(() => {
     let r = [...posts];
+    if (blockedUserIds.length > 0) {
+      r = r.filter((p) => !blockedUserIds.includes(p.user_id));
+    }
     if (search.trim()) { const q = search.toLowerCase(); r = r.filter((p) => p.content.toLowerCase().includes(q) || p.author_name.toLowerCase().includes(q)); }
     if (tagFilter) r = r.filter((p) => p.tag === tagFilter);
     if (tab === "anonim") r = r.filter((p) => p.is_anonymous);
@@ -450,7 +513,7 @@ export default function CommunityPage() {
     else if (tab === "populer") r.sort((a, b) => b.hugs_count - a.hugs_count);
     else if (tab === "saya") r = r.filter((p) => p.user_id === user?.id);
     return r;
-  }, [posts, tab, tagFilter, search, user?.id]);
+  }, [posts, tab, tagFilter, search, user?.id, blockedUserIds]);
 
   const totalHugs = useMemo(() => posts.reduce((s, p) => s + p.hugs_count, 0), [posts]);
 
@@ -471,7 +534,7 @@ export default function CommunityPage() {
         {/* Background */}
         <img
           src="/community-hero.png"
-          alt="Pulau mengambang dengan sakura dan lentera — Ruang Komunitas Bloom Mind"
+          alt="Pulau mengambang dengan sakura dan lentera — Ruang Komunitas JN-CALM"
           className="absolute inset-0 h-full w-full object-cover object-center"
           loading="eager"
           style={{ objectPosition: "50% 40%" }}
@@ -484,7 +547,7 @@ export default function CommunityPage() {
         <div className="absolute left-5 top-5 sm:left-8 sm:top-6 flex items-center gap-2">
           <span className="h-px w-8 bg-amber-400/80" />
           <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-amber-300/90">
-            Bloom Community · Safe Space
+            JN-CALM Community · Safe Space
           </span>
         </div>
 
@@ -730,7 +793,7 @@ export default function CommunityPage() {
           <div className="flex flex-col items-center justify-center gap-3 rounded-3xl border border-dashed border-border bg-card/40 py-16 text-center px-6">
             <span className="text-3xl">🌸</span>
             <h3 className="text-sm font-semibold text-foreground">Belum ada cerita di sini</h3>
-            <p className="text-xs text-muted-foreground max-w-xs">Jadilah yang pertama berbagi cerita dan menginspirasi sesama anggota Bloom.</p>
+            <p className="text-xs text-muted-foreground max-w-xs">Jadilah yang pertama berbagi cerita dan menginspirasi sesama anggota JN-CALM.</p>
           </div>
         ) : (
           filtered.map((post) => {
@@ -788,7 +851,24 @@ export default function CommunityPage() {
                       <Trash2 className="h-3.5 w-3.5" /> Hapus
                     </button>
                   ) : (
-                    <span className="text-[11px] italic text-muted-foreground/40">Ruang aman bersama</span>
+                    <div className="flex items-center gap-2.5">
+                      <button
+                        type="button"
+                        onClick={() => handleReportPost(post)}
+                        className="inline-flex items-center gap-1 text-[10px] font-semibold text-muted-foreground/60 hover:text-amber-600 transition-colors cursor-pointer"
+                        title="Laporkan postingan ini"
+                      >
+                        🚩 Laporkan
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleBlockUser(post.user_id, post.author_name)}
+                        className="inline-flex items-center gap-1 text-[10px] font-semibold text-muted-foreground/60 hover:text-rose-600 transition-colors cursor-pointer"
+                        title="Blokir pengguna ini"
+                      >
+                        🚫 Blokir
+                      </button>
+                    </div>
                   )}
 
                   <div className="flex items-center gap-1.5 flex-wrap">
@@ -942,6 +1022,104 @@ export default function CommunityPage() {
             </div>
           </div>
         )}
+      </ModalDialog>
+
+      {/* ─── Report Post Modal ───────────────────────────────── */}
+      <ModalDialog
+        open={!!reportingPost}
+        onClose={() => setReportingPost(null)}
+        title="🚩 Laporkan Postingan"
+      >
+        <div className="space-y-4">
+          <p className="text-xs text-muted-foreground leading-relaxed">
+            Terima kasih telah membantu menjaga keamanan komunitas. Pilih alasan pelaporan postingan ini:
+          </p>
+
+          <div className="space-y-2">
+            {[
+              "Mengandung perundungan atau ujaran kebencian",
+              "Spam, promosi, atau penipuan",
+              "Informasi palsu atau konten berbahaya",
+              "Alasan lainnya"
+            ].map((reason) => (
+              <label key={reason} className="flex items-center gap-2.5 rounded-xl border border-border/60 p-3 text-xs font-medium text-foreground hover:bg-muted/40 cursor-pointer">
+                <input
+                  type="radio"
+                  name="reportReason"
+                  value={reason}
+                  checked={reportReason === reason}
+                  onChange={(e) => setReportReason(e.target.value)}
+                  className="accent-primary"
+                />
+                <span>{reason}</span>
+              </label>
+            ))}
+          </div>
+
+          <div className="flex gap-2 pt-2 justify-end">
+            <button
+              type="button"
+              onClick={() => setReportingPost(null)}
+              className="rounded-xl border border-border px-4 py-2 text-xs font-semibold text-muted-foreground hover:bg-muted"
+            >
+              Batal
+            </button>
+            <button
+              type="button"
+              onClick={submitReport}
+              disabled={!reportReason}
+              className="rounded-xl bg-amber-600 px-5 py-2 text-xs font-bold text-white hover:bg-amber-700 disabled:opacity-40"
+            >
+              Kirim Laporan
+            </button>
+          </div>
+        </div>
+      </ModalDialog>
+
+      {/* ─── Self-Harm Crisis Safety Gate Modal ───────────────── */}
+      <ModalDialog
+        open={crisisModalOpen}
+        onClose={() => setCrisisModalOpen(false)}
+        title="💚 Kamu Sangat Berharga & Tidak Sendiri"
+      >
+        <div className="space-y-4 p-1 text-center">
+          <div className="mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-rose-100 text-2xl text-rose-600">
+            🫁
+          </div>
+          <div className="space-y-1.5">
+            <h3 className="font-display text-base sm:text-lg font-bold text-foreground">
+              Keselamatan & Kedamaian Batinmu Sangat Berharga
+            </h3>
+            <p className="text-xs text-muted-foreground leading-relaxed max-w-sm mx-auto">
+              Kami memperhatikan bahwa kata-kata yang kamu tulis mengindikasikan rasa lelah atau situasi emosi yang sangat berat. Kamu tidak harus menanggungnya sendirian.
+            </p>
+          </div>
+
+          <div className="rounded-2xl border border-rose-200 bg-rose-50/70 p-4 text-left text-xs text-rose-950 space-y-2 dark:bg-rose-950/30 dark:border-rose-900/40 dark:text-rose-200">
+            <p className="font-bold flex items-center gap-1.5">
+              <span>🩺</span> Langkah Aman & Rekomendasi Penting:
+            </p>
+            <p className="text-[11px] leading-relaxed">
+              Jika kamu sedang dalam situasi darurat fisik atau membutuhkan penanganan cepat, sangat disarankan untuk segera menghubungi <strong>layanan darurat medis</strong> atau <strong>profesional kesehatan jiwa terdekat</strong>.
+            </p>
+          </div>
+
+          <div className="flex flex-col gap-2 pt-2">
+            <a
+              href="/app/calm"
+              className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-primary px-5 py-3 text-xs font-bold text-white shadow-md hover:bg-primary/90 transition-all"
+            >
+              <span>🫁 Buka Emergency Calm Mode Sekarang</span>
+            </a>
+            <button
+              type="button"
+              onClick={() => setCrisisModalOpen(false)}
+              className="w-full rounded-2xl border border-border py-2.5 text-xs font-semibold text-muted-foreground hover:bg-muted"
+            >
+              Saya mengerti & tetap ingin berbagi
+            </button>
+          </div>
+        </div>
       </ModalDialog>
     </div>
   );

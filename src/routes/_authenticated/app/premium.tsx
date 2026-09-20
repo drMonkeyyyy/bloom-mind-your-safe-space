@@ -240,7 +240,7 @@ function Page() {
               </p>
             ) : packageType === "3bulan" ? (
               <p className="mt-1 text-xs text-muted-foreground">
-                Durasi ideal psikologis untuk menyembuhkan pola emosi lama & habit baru (Setara Rp39.600/bln)
+                Program terstruktur untuk membantu membangun kebiasaan refleksi dan regulasi emosi secara konsisten. (Setara Rp39.600/bln)
               </p>
             ) : (
               <p className="mt-1 text-xs text-muted-foreground">

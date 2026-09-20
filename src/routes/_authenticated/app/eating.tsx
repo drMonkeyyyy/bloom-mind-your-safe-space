@@ -319,7 +319,7 @@ function Page() {
 
       {/* Disclaimer */}
       <p className="rounded-2xl bg-cream-deep/50 px-4 py-3.5 text-xs text-center text-muted-foreground leading-relaxed">
-        JN-CALM hadir sebagai ruang aman Anda untuk memahami emosi, mengelola dorongan makan emosional, dan memulihkan ketenangan pikiran demi pola hidup yang lebih seimbang.
+        JN-CALM hadir sebagai ruang aman kamu untuk memahami emosi, mengelola dorongan makan emosional, dan memulihkan ketenangan pikiran demi pola hidup yang lebih seimbang.
       </p>
     </div>
   );
