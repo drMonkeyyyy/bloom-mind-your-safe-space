@@ -223,6 +223,18 @@ export function ProgramPage() {
     } catch { /* silent */ }
   }, []);
 
+  // Sync active program choice with localStorage for Dashboard state
+  useEffect(() => {
+    if (typeof window === "undefined" || !selectedDuration) return;
+    const userId = user?.id || "guest";
+    try {
+      localStorage.setItem(`bloom_active_program_${userId}`, selectedDuration);
+      if (!localStorage.getItem(`bloom_program_start_date_${userId}`)) {
+        localStorage.setItem(`bloom_program_start_date_${userId}`, new Date().toISOString());
+      }
+    } catch { /* silent */ }
+  }, [selectedDuration, user?.id]);
+
   const toggleQuest = (id: string) => {
     let next: string[];
     if (completedQuests.includes(id)) {

@@ -9,6 +9,7 @@ import { SkeletonCard } from "@/components/app/SkeletonCard";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { toggleAmbientSound, subscribeAudioState } from "@/lib/audio";
+import { useProgramState } from "@/hooks/use-program-state";
 
 export const Route = createFileRoute("/_authenticated/app/")({
   component: Dashboard,
@@ -238,6 +239,7 @@ function Dashboard() {
   const [affIdx, setAffIdx] = useState(() => getDailyAffirmationIndex(AFFIRMATIONS.length));
   const [flip, setFlip] = useState(false);
   const [isCanonPlaying, setIsCanonPlaying] = useState<boolean>(false);
+  const programState = useProgramState();
 
   useEffect(() => {
     const unsubscribe = subscribeAudioState((channels) => {
@@ -259,52 +261,8 @@ function Dashboard() {
     }, 250);
   };
 
-  // Daily Quest setup
-  const QUESTS = [
-    "Minum segelas air putih hangat secara perlahan dan rasakan kesegarannya. 💧",
-    "Tersenyumlah pada dirimu sendiri di cermin selama 5 detik dan ucapkan hal positif. 🪞",
-    "Lakukan peregangan leher dan bahu selama 1 menit untuk meredakan ketegangan. 🧘",
-    "Tarik napas dalam-dalam sebanyak 3 kali sebelum memulai aktivitas berikutnya. 🌬️",
-    "Kirim pesan singkat berisi ucapan terima kasih atau apresiasi kepada satu orang terdekat. ✉️",
-    "Istirahatkan matamu dari layar HP/laptop selama 5 menit dan pandanglah tanaman atau luar jendela. 🌳",
-    "Dengarkan satu lagu favoritmu dengan fokus penuh tanpa mendistraksi diri dengan hal lain. 🎵",
-    "Rapikan satu sudut kecil di meja kerja atau kamarmu agar terasa lebih lega. 🧹",
-    "Nikmati buah, camilan, atau minuman favorit secara perlahan tanpa memegang ponsel. 🍎"
-  ];
-
-  const [currentQuest, setCurrentQuest] = useState("Memuat tantangan hari ini...");
-  const [questStorageKey, setQuestStorageKey] = useState<string | null>(null);
-  const [questCompleted, setQuestCompleted] = useState(false);
-  const [questCelebrated, setQuestCelebrated] = useState(false);
-
-  // Initialize quest details and status from localStorage on client-mount to prevent SSR/hydration timezone drift
-  useEffect(() => {
-    if (typeof window !== "undefined" && user?.id) {
-      const d = new Date();
-      const year = d.getFullYear();
-      const month = String(d.getMonth() + 1).padStart(2, '0');
-      const day = String(d.getDate()).padStart(2, '0');
-      const dateStr = `${year}-${month}-${day}`;
-      
-      const storageKey = `bloom_quest_completed_${user.id}_${dateStr}`;
-      setQuestStorageKey(storageKey);
-      
-      const completed = localStorage.getItem(storageKey) === "true";
-      setQuestCompleted(completed);
-      
-      const dayOfMonth = d.getDate();
-      setCurrentQuest(QUESTS[dayOfMonth % QUESTS.length]);
-    }
-  }, [user?.id]);
-
-  const handleCompleteQuest = () => {
-    if (!questStorageKey) return;
-    setQuestCompleted(true);
-    localStorage.setItem(questStorageKey, "true");
-    setQuestCelebrated(true);
-    toast.success("Hebat! Kamu telah melakukan satu kebaikan kecil untuk dirimu hari ini. 🌸");
-    setTimeout(() => setQuestCelebrated(false), 2000);
-  };
+  // Find next uncompleted mission for quick action button
+  const nextUncompletedMission = programState.dailyMissions.find((m) => !m.completed) || programState.dailyMissions[0];
 
   const since = new Date(Date.now() - 6 * 86400000).toISOString().slice(0, 10);
   const { data: moods, isLoading: moodsLoading } = useQuery({
@@ -426,7 +384,7 @@ function Dashboard() {
               ) : (
                 <h1 className="mt-1.5 font-display text-xl sm:text-3xl font-semibold leading-tight text-foreground">
                   Halo, <span className="text-primary">{profile?.name ?? "teman"}</span>.{" "}
-                  <span className="text-foreground/80">Gimana perasaanmu hari ini?</span>
+                  <span className="text-foreground/80">Siap melanjutkan perjalanan hari ini?</span>
                 </h1>
               )}
             </div>
@@ -460,103 +418,301 @@ function Dashboard() {
         </div>
       </div>
 
-      {/* ── QUICK MOOD ────────────────────────────────────────────── */}
-      <section className="rounded-3xl bg-card p-4 sm:p-5 ring-1 ring-border/60 shadow-card">
-        <div className="flex items-center justify-between mb-3">
-          <p className="text-sm font-semibold">Cek mood cepat</p>
-          <Link to="/app/mood" className="text-xs font-medium text-primary hover:text-primary/80 transition-colors">
-            Semua →
-          </Link>
-        </div>
-        <div className="flex gap-2 overflow-x-auto pb-1" style={{ scrollbarWidth: "none" }}>
-          {MOOD_OPTIONS.slice(0, 6).map((m) => (
-            <Link
-              key={m.key}
-              to="/app/mood"
-              search={{ pre: m.key }}
-              className="group flex shrink-0 flex-col items-center gap-1.5 rounded-2xl bg-cream-deep px-3.5 py-3 text-center transition-all duration-250 hover:bg-primary-soft hover:scale-105 hover:shadow-soft active:scale-95"
-            >
-              <span
-                className="text-2xl leading-none transition-transform duration-250 group-hover:scale-125 group-hover:-translate-y-1"
-                style={{ display: "inline-block" }}
-              >
-                {m.emoji}
-              </span>
-              <span className="text-[11px] font-medium text-muted-foreground">{m.label}</span>
-            </Link>
-          ))}
-        </div>
-      </section>
-
-      {/* ── CALM CHECK ASSESSMENT BANNER ──────────────────────────── */}
-      <section className="relative overflow-hidden rounded-3xl border border-primary/20 bg-gradient-to-r from-primary-soft/80 via-cream to-accent-soft/50 p-5 shadow-card transition-all hover:shadow-soft">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <div className="space-y-1">
-            <div className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-0.5 text-[10px] font-bold text-primary">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-3 w-3">
-                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-              </svg>
-              <span>Fitur Asesmen Resmi</span>
+      {/* ── CENTRAL HIGHWAY: PROGRAM PEMULIHAN & MISI HARI INI ─────── */}
+      {!programState.hasCompletedCalmCheck && !programState.selectedProgram ? (
+        /* State 1: New User / Unassessed -> Calm Check CTA */
+        <section className="relative overflow-hidden rounded-3xl border-2 border-primary/40 bg-gradient-to-br from-primary-soft/80 via-cream to-amber-50/70 p-6 shadow-float transition-all">
+          <div className="space-y-3">
+            <div className="inline-flex items-center gap-2 rounded-full bg-primary/15 px-3.5 py-1 text-xs font-bold text-primary">
+              <span>🌟 LANGKAH PERTAMA PEMULIHAN</span>
             </div>
+            <h2 className="font-display text-2xl font-bold text-foreground sm:text-3xl">
+              Mulai dari Calm Check
+            </h2>
+            <p className="text-xs sm:text-sm text-foreground/80 leading-relaxed max-w-xl">
+              Sebelum memulai program pemulihan, mari petakan tingkat kecemasan, depresi, dan stresmu (DASS-21) dalam 2–3 menit agar sistem dapat merekomendasikan alur harian yang tepat.
+            </p>
+            <div className="pt-2">
+              <Link
+                to="/app/calm-check"
+                className="inline-flex items-center gap-2.5 rounded-2xl bg-primary px-6 py-3.5 text-xs sm:text-sm font-bold text-white shadow-soft transition-all duration-300 hover:bg-primary/90 hover:scale-[1.02] active:scale-95"
+              >
+                <span>Mulai Calm Check (2-3 Menit)</span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="h-4 w-4">
+                  <path d="M5 12h14M12 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </Link>
+            </div>
+          </div>
+        </section>
+      ) : !programState.selectedProgram ? (
+        /* State 2: Calm Check completed, but Program not selected yet */
+        <section className="relative overflow-hidden rounded-3xl border-2 border-amber-400/50 bg-gradient-to-br from-amber-500/10 via-cream to-accent-soft/40 p-6 shadow-card">
+          <div className="space-y-3">
+            <div className="inline-flex items-center gap-2 rounded-full bg-amber-500/15 px-3.5 py-1 text-xs font-bold text-amber-800 dark:text-amber-300">
+              <span>📋 ASESMEN SELESAI</span>
+            </div>
+            <h2 className="font-display text-xl font-bold text-foreground sm:text-2xl">
+              Pilih Program Pemulihanmu
+            </h2>
+            <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed max-w-xl">
+              Kamu telah menyelesaikan Calm Check! Langkah berikutnya adalah memilih durasi Program Pemulihan (30, 90, atau 365 Hari) untuk mengaktifkan Misi Harianmu.
+            </p>
+            <div className="pt-2">
+              <Link
+                to="/app/program"
+                className="inline-flex items-center gap-2 rounded-2xl bg-amber-600 px-6 py-3.5 text-xs sm:text-sm font-bold text-white shadow-soft hover:bg-amber-700 transition-all active:scale-95"
+              >
+                <span>Pilih Program Pemulihan →</span>
+              </Link>
+            </div>
+          </div>
+        </section>
+      ) : (
+        /* State 3: Active Program -> MAIN HERO: MISI HARI INI */
+        <section className="relative overflow-hidden rounded-3xl border border-primary/30 bg-card p-5 sm:p-7 ring-1 ring-border/80 shadow-card">
+          {/* Decorative background glow */}
+          <div className="absolute -right-12 -top-12 h-44 w-44 rounded-full bg-primary-soft/40 blur-2xl pointer-events-none" />
+
+          {/* Program Header & Progress Bar */}
+          <div className="space-y-3">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/15 px-3 py-1 text-xs font-bold text-primary">
+                🔥 {programState.selectedProgram === "30hari" ? "RESET 30 HARI" : programState.selectedProgram === "90hari" ? "PEMULIHAN UTUH (90 HARI)" : "TRANSFORMASI 365 HARI"}
+              </span>
+              <span className="text-xs font-bold text-muted-foreground">
+                Hari ke-{programState.currentDay} dari {programState.totalDays}
+              </span>
+            </div>
+
+            <div className="flex items-center justify-between gap-3 pt-1">
+              <div>
+                <h2 className="font-display text-xl font-bold text-foreground sm:text-2xl">
+                  Misi Hari Ini
+                </h2>
+                <p className="text-xs text-muted-foreground">
+                  Selesaikan 5 langkah terpadu di bawah untuk menjaga kestabilan emosimu.
+                </p>
+              </div>
+              <div className="text-right shrink-0">
+                <span className="font-display text-lg font-bold text-primary sm:text-2xl">
+                  {programState.completedCount}/5
+                </span>
+                <p className="text-[10px] text-muted-foreground">Selesai</p>
+              </div>
+            </div>
+
+            {/* Visual Progress Bar */}
+            <div className="h-2.5 w-full overflow-hidden rounded-full bg-muted">
+              <div
+                className="h-full rounded-full bg-gradient-to-r from-primary to-accent transition-all duration-500"
+                style={{ width: `${(programState.completedCount / 5) * 100}%` }}
+              />
+            </div>
+          </div>
+
+          {/* Dominant Primary Action Button */}
+          <div className="mt-5">
+            {programState.isAllCompleted ? (
+              <div className="rounded-2xl border border-emerald-200 bg-emerald-50/70 p-4 text-center dark:border-emerald-900/40 dark:bg-emerald-950/30">
+                <p className="text-xs font-bold text-emerald-800 dark:text-emerald-200">
+                  🎉 Luar biasa! Seluruh misi hari ini telah kamu selesaikan. Istirahatlah dengan tenang! 🌸
+                </p>
+              </div>
+            ) : (
+              <Link
+                to={nextUncompletedMission.toolPath as any}
+                search={nextUncompletedMission.searchParams ? (nextUncompletedMission.searchParams as any) : undefined}
+                className="group flex w-full items-center justify-between rounded-2xl bg-primary px-5 py-4 text-white shadow-soft transition-all duration-300 hover:bg-primary/90 hover:scale-[1.01] active:scale-98"
+              >
+                <div className="flex items-center gap-3">
+                  <span className="grid h-8 w-8 place-items-center rounded-xl bg-white/20 text-sm font-bold">
+                    🚀
+                  </span>
+                  <div className="text-left">
+                    <p className="text-[10px] font-semibold text-white/80 uppercase tracking-wider">Misi Berikutnya</p>
+                    <p className="text-xs sm:text-sm font-bold text-white">{nextUncompletedMission.title}</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-1.5 text-xs font-bold bg-white/20 px-3.5 py-1.5 rounded-full transition-transform group-hover:translate-x-1">
+                  <span>{nextUncompletedMission.toolLabel}</span>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="h-3.5 w-3.5">
+                    <path d="M5 12h14M12 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </div>
+              </Link>
+            )}
+          </div>
+
+          {/* Interactive Checklist of 5 Daily Missions */}
+          <div className="mt-5 space-y-2.5 border-t border-border/60 pt-4">
+            <p className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+              Daftar Misi Pemulihan Harian
+            </p>
+
+            {programState.dailyMissions.map((mission, idx) => (
+              <div
+                key={mission.id}
+                className={`flex items-center justify-between gap-3 rounded-2xl border p-3.5 transition-all ${
+                  mission.completed
+                    ? "border-emerald-200/80 bg-emerald-50/40 dark:border-emerald-900/30 dark:bg-emerald-950/20"
+                    : "border-border/70 bg-surface hover:border-primary/40"
+                }`}
+              >
+                <div className="flex items-start gap-3 min-w-0 flex-1">
+                  <button
+                    onClick={() => programState.toggleMission(mission.id)}
+                    className={`mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-md border transition-all ${
+                      mission.completed
+                        ? "border-emerald-600 bg-emerald-600 text-white"
+                        : "border-muted-foreground/40 hover:border-primary"
+                    }`}
+                  >
+                    {mission.completed && (
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" className="h-3.5 w-3.5">
+                        <path d="M20 6L9 17l-5-5" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    )}
+                  </button>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2">
+                      <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[9px] font-bold text-primary">
+                        {mission.badge}
+                      </span>
+                      <span className={`text-xs font-bold ${mission.completed ? "line-through text-muted-foreground" : "text-foreground"}`}>
+                        {mission.title}
+                      </span>
+                    </div>
+                    <p className="mt-0.5 text-[11px] leading-relaxed text-muted-foreground truncate sm:whitespace-normal">
+                      {mission.desc}
+                    </p>
+                  </div>
+                </div>
+
+                <Link
+                  to={mission.toolPath as any}
+                  search={mission.searchParams ? (mission.searchParams as any) : undefined}
+                  className="shrink-0 rounded-xl bg-cream-deep px-3 py-1.5 text-[10px] font-bold text-primary hover:bg-primary/10 transition-colors"
+                >
+                  {mission.toolLabel} →
+                </Link>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* ── ALAT PENDUKUNG (SUPPORTING TOOLKIT) ────────────────────── */}
+      <section className="space-y-3 pt-2">
+        <div className="flex items-center justify-between">
+          <div>
             <h3 className="font-display text-lg font-bold text-foreground">
-              Calm Check — Cek Kesehatan Mental
+              Alat Pendukung Program (Toolkit)
             </h3>
-            <p className="text-xs text-muted-foreground max-w-md">
-              Kenali tingkat stres, kecemasan, dan suasana hatimu dalam 3–5 menit dengan metode teruji DASS-21.
+            <p className="text-xs text-muted-foreground">
+              Fitur mandiri untuk membantu perjalanan pemulihanmu kapan saja.
             </p>
           </div>
+        </div>
+
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 sm:gap-3.5">
+          <Link
+            to="/app/chat"
+            className="group flex flex-col justify-between rounded-2xl border border-border/70 bg-card p-4 shadow-xs transition-all hover:scale-[1.02] hover:border-primary/50"
+          >
+            <div className="space-y-2">
+              <span className="grid h-9 w-9 place-items-center rounded-xl bg-teal-100 text-teal-800 dark:bg-teal-950 dark:text-teal-300 text-base">
+                💬
+              </span>
+              <div>
+                <h4 className="text-xs font-bold text-foreground group-hover:text-primary transition-colors">Safe Space Chat</h4>
+                <p className="text-[10px] text-muted-foreground">Curhat tanpa dinilai</p>
+              </div>
+            </div>
+            <span className="mt-3 text-[10px] font-bold text-primary">Buka Chat →</span>
+          </Link>
 
           <Link
-            to="/app/calm-check"
-            className="group flex shrink-0 items-center gap-2 rounded-2xl bg-primary px-5 py-3 text-xs font-bold text-white shadow-soft transition-all duration-300 hover:bg-primary/90 hover:scale-105 active:scale-95"
+            to="/app/calm"
+            className="group flex flex-col justify-between rounded-2xl border border-border/70 bg-card p-4 shadow-xs transition-all hover:scale-[1.02] hover:border-primary/50"
           >
-            <span>Mulai Cek Kesehatan Mental</span>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4 transition-transform group-hover:translate-x-1">
-              <path d="M5 12h14M12 5l7 7-7 7" />
-            </svg>
+            <div className="space-y-2">
+              <span className="grid h-9 w-9 place-items-center rounded-xl bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300 text-base">
+                🫁
+              </span>
+              <div>
+                <h4 className="text-xs font-bold text-foreground group-hover:text-primary transition-colors">Emergency Calm</h4>
+                <p className="text-[10px] text-muted-foreground">Latihan pernapasan & panik</p>
+              </div>
+            </div>
+            <span className="mt-3 text-[10px] font-bold text-primary">Mulai Tenang →</span>
+          </Link>
+
+          <Link
+            to="/app/mood"
+            className="group flex flex-col justify-between rounded-2xl border border-border/70 bg-card p-4 shadow-xs transition-all hover:scale-[1.02] hover:border-primary/50"
+          >
+            <div className="space-y-2">
+              <span className="grid h-9 w-9 place-items-center rounded-xl bg-sky-100 text-sky-800 dark:bg-sky-950 dark:text-sky-300 text-base">
+                🌤️
+              </span>
+              <div>
+                <h4 className="text-xs font-bold text-foreground group-hover:text-primary transition-colors">Mood & Emosi</h4>
+                <p className="text-[10px] text-muted-foreground">Pelacakan tren emosi</p>
+              </div>
+            </div>
+            <span className="mt-3 text-[10px] font-bold text-primary">Catat Mood →</span>
+          </Link>
+
+          <Link
+            to="/app/journal"
+            className="group flex flex-col justify-between rounded-2xl border border-border/70 bg-card p-4 shadow-xs transition-all hover:scale-[1.02] hover:border-primary/50"
+          >
+            <div className="space-y-2">
+              <span className="grid h-9 w-9 place-items-center rounded-xl bg-violet-100 text-violet-800 dark:bg-violet-950 dark:text-violet-300 text-base">
+                📓
+              </span>
+              <div>
+                <h4 className="text-xs font-bold text-foreground group-hover:text-primary transition-colors">Jurnal CBT</h4>
+                <p className="text-[10px] text-muted-foreground">Refleksi & kognitif</p>
+              </div>
+            </div>
+            <span className="mt-3 text-[10px] font-bold text-primary">Tulis Jurnal →</span>
+          </Link>
+
+          <Link
+            to="/app/eating"
+            className="group flex flex-col justify-between rounded-2xl border border-border/70 bg-card p-4 shadow-xs transition-all hover:scale-[1.02] hover:border-primary/50"
+          >
+            <div className="space-y-2">
+              <span className="grid h-9 w-9 place-items-center rounded-xl bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300 text-base">
+                🍎
+              </span>
+              <div>
+                <h4 className="text-xs font-bold text-foreground group-hover:text-primary transition-colors">Emotional Eating</h4>
+                <p className="text-[10px] text-muted-foreground">Lapar emosi vs fisik</p>
+              </div>
+            </div>
+            <span className="mt-3 text-[10px] font-bold text-primary">Cek Lapar →</span>
+          </Link>
+
+          <Link
+            to="/app/growth"
+            className="group flex flex-col justify-between rounded-2xl border border-border/70 bg-card p-4 shadow-xs transition-all hover:scale-[1.02] hover:border-primary/50"
+          >
+            <div className="space-y-2">
+              <span className="grid h-9 w-9 place-items-center rounded-xl bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 text-base">
+                📊
+              </span>
+              <div>
+                <h4 className="text-xs font-bold text-foreground group-hover:text-primary transition-colors">Laporan Growth</h4>
+                <p className="text-[10px] text-muted-foreground">Grafik & riwayat klinis</p>
+              </div>
+            </div>
+            <span className="mt-3 text-[10px] font-bold text-primary">Lihat Grafik →</span>
           </Link>
         </div>
       </section>
-
-      {/* ── QUICK ACTIONS ─────────────────────────────────────────── */}
-      <div className="grid grid-cols-2 gap-2.5 sm:gap-4">
-        <Link
-          to="/app/chat"
-          className="group relative overflow-hidden rounded-3xl p-4 sm:p-6 text-primary-foreground transition-all duration-300 hover:-translate-y-1.5 hover:shadow-float active:scale-98"
-          style={{ background: "var(--gradient-sage)" }}
-        >
-          {/* Bokeh blobs */}
-          <div className="absolute -right-6 -top-6 h-20 w-20 rounded-full bg-white/12 transition-transform duration-500 group-hover:scale-125" />
-          <div className="absolute right-4 bottom-4 h-12 w-12 rounded-full bg-white/6" />
-          <div className="relative">
-            <div className="grid h-9 w-9 sm:h-11 sm:w-11 place-items-center rounded-xl sm:rounded-2xl bg-white/20 backdrop-blur-sm transition-transform duration-250 group-hover:scale-110">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="h-4.5 w-4.5" aria-hidden="true">
-                <path d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 0 1-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-              </svg>
-            </div>
-            <h3 className="mt-2.5 font-display text-[13px] sm:text-lg font-semibold leading-tight">Teman Curhat</h3>
-            <p className="mt-0.5 text-[9.5px] sm:text-sm opacity-85 leading-tight">Mulai obrolan baru.</p>
-          </div>
-        </Link>
-
-        <Link
-          to="/app/calm"
-          className="group relative overflow-hidden rounded-3xl p-4 sm:p-6 text-accent-foreground transition-all duration-300 hover:-translate-y-1.5 hover:shadow-float active:scale-98"
-          style={{ background: "var(--gradient-warm)" }}
-        >
-          <div className="absolute -right-6 -top-6 h-20 w-20 rounded-full bg-white/12 transition-transform duration-500 group-hover:scale-125" />
-          <div className="absolute right-4 bottom-4 h-12 w-12 rounded-full bg-white/6" />
-          <div className="relative">
-            <div className="grid h-9 w-9 sm:h-11 sm:w-11 place-items-center rounded-xl sm:rounded-2xl bg-white/20 backdrop-blur-sm transition-transform duration-250 group-hover:scale-110">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="h-4.5 w-4.5" aria-hidden="true">
-                <circle cx="12" cy="12" r="10" /><path d="M12 8v4M12 16h.01" />
-              </svg>
-            </div>
-            <h3 className="mt-2.5 font-display text-[13px] sm:text-lg font-semibold leading-tight">Butuh Tenang</h3>
-            <p className="mt-0.5 text-[9.5px] sm:text-sm opacity-85 leading-tight">Mode tenangkan diri.</p>
-          </div>
-        </Link>
-      </div>
 
       {/* ── DAILY AFFIRMATION WIDGET ────────────────────────────── */}
       <div className="relative overflow-hidden rounded-3xl p-4.5 sm:p-6 ring-1 ring-border/60 shadow-card bg-gradient-to-br from-card to-cream-deep/20">
@@ -665,69 +821,6 @@ function Dashboard() {
               </p>
             )}
           </div>
-        </div>
-      </div>
-
-      {/* ── DAILY SELF-CARE QUEST ───────────────────────────────── */}
-      <div 
-        className={`relative overflow-hidden rounded-3xl p-5 sm:p-6 ring-1 transition-all duration-500 ${
-          questCompleted 
-            ? "border-primary/20 bg-primary-soft/20 shadow-sm" 
-            : "border-border/60 bg-card shadow-card card-hover"
-        }`}
-      >
-        {/* Confetti leaves/blossoms on complete */}
-        {questCelebrated && (
-          <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
-            {["🌸", "✨", "🌸", "💚", "🌱", "✨"].map((p, i) => (
-              <span
-                key={i}
-                className="absolute text-lg"
-                style={{
-                  left: `${10 + i * 16}%`,
-                  top: "50%",
-                  animation: `confetti-burst 0.9s ease-out ${i * 60}ms both`,
-                }}
-              >
-                {p}
-              </span>
-            ))}
-          </div>
-        )}
-
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <div className="flex items-center gap-3.5">
-            <div className={`grid h-12 w-12 shrink-0 place-items-center rounded-2xl text-2xl transition-all duration-300 ${
-              questCompleted ? "bg-primary text-primary-foreground scale-105 shadow-sm" : "bg-primary-soft/60"
-            }`}>
-              {questCompleted ? "🌸" : "🎯"}
-            </div>
-            <div>
-              <p className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-primary">Misi Kebaikan Kecil</p>
-              <h3 className={`mt-0.5 font-display text-base sm:text-lg font-semibold transition-all duration-300 ${
-                questCompleted ? "text-muted-foreground line-through" : "text-foreground"
-              }`}>
-                {questCompleted ? "Misi hari ini selesai!" : "Tantangan Hari Ini"}
-              </h3>
-              <p className={`mt-1 text-xs sm:text-sm leading-relaxed transition-all duration-300 ${
-                questCompleted ? "text-muted-foreground/80 italic" : "text-foreground/80"
-              }`}>
-                {questCompleted 
-                  ? "Terima kasih sudah meluangkan waktu sejenak untuk merawat dirimu sendiri. Sampai jumpa besok! ✨" 
-                  : currentQuest
-                }
-              </p>
-            </div>
-          </div>
-
-          {!questCompleted && (
-            <button
-              onClick={handleCompleteQuest}
-              className="w-full sm:w-auto shrink-0 rounded-full bg-primary px-5 py-2.5 text-xs font-bold text-primary-foreground shadow-soft hover:-translate-y-0.5 active:scale-95 transition-all duration-250 btn-spring"
-            >
-              Selesaikan Misi 🌸
-            </button>
-          )}
         </div>
       </div>
 

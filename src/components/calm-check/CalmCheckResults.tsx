@@ -200,11 +200,123 @@ export function CalmCheckResults({
         <div className="rounded-2xl border border-primary/30 bg-gradient-to-r from-primary-soft/50 via-cream to-accent-soft/40 p-4.5 space-y-2">
           <div className="flex items-center gap-2 text-xs font-bold text-primary">
             <Sparkles className="h-4 w-4 text-amber-500" />
-            <span>Panduan Pemulihan Mandiri JN-CALM</span>
+            <span>Panduan Pemulihan Mandiri Bloom Mind</span>
           </div>
           <p className="text-xs leading-relaxed text-foreground/90 font-medium">
-            "Hasil skrining ini adalah kompas emosionalmu. Dengan rutin menjalankan rekomendasi fitur JN-CALM di bawah ini secara berkala, kamu dapat memulihkan energi, merilis rasa cemas, dan menemukan kembali kedamaian batinmu."
+            "Hasil skrining ini adalah kompas emosionalmu. Berdasarkan pemetaan ini, kami merekomendasikan Program Pemulihan harian yang terstruktur untuk mendampingi langkahmu."
           </p>
+        </div>
+
+        {/* Dynamic Program Recommendation Section */}
+        <div className="space-y-4 rounded-3xl border border-primary/30 bg-gradient-to-br from-primary-soft/30 via-cream/50 to-amber-50/40 p-5 sm:p-6">
+          <div className="flex items-center justify-between">
+            <div className="space-y-1">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-[11px] font-bold text-primary">
+                🎯 REKOMENDASI JALAN UTAMA
+              </span>
+              <h3 className="font-display text-lg font-bold text-foreground sm:text-xl">
+                Pilih Program Pemulihan Emosionalmu
+              </h3>
+            </div>
+          </div>
+          <p className="text-xs text-muted-foreground">
+            Berdasarkan hasil asesmen di atas, pilih durasi program yang ingin kamu jalani. Program ini akan memandu Misi Harianmu setiap hari di Dashboard:
+          </p>
+
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+            {/* 30 Hari */}
+            <div className="flex flex-col justify-between rounded-2xl border border-teal-200 bg-white/80 p-4 shadow-xs dark:border-teal-900/40 dark:bg-card">
+              <div className="space-y-2">
+                <span className="inline-block rounded-full bg-teal-100 px-2.5 py-0.5 text-[10px] font-bold text-teal-800 dark:bg-teal-950 dark:text-teal-300">
+                  🌿 RESET 30 HARI
+                </span>
+                <h4 className="text-xs font-bold text-foreground">Program Reset Somatis</h4>
+                <p className="text-[11px] leading-relaxed text-muted-foreground">
+                  Fokus interupsi krisis cepat, mereset kecemasan mendadak, dan membangun baseline 3 menit harian.
+                </p>
+              </div>
+              <button
+                onClick={() => {
+                  try {
+                    const userId = localStorage.getItem("sb-auth-token") ? "user" : "guest";
+                    localStorage.setItem(`bloom_active_program_${userId}`, "30hari");
+                    localStorage.setItem(`bloom_program_start_date_${userId}`, new Date().toISOString());
+                    toast.success("Program Reset 30 Hari diaktifkan! 🌿");
+                    window.location.href = "/app";
+                  } catch (e) {
+                    console.error(e);
+                  }
+                }}
+                className="mt-4 flex w-full items-center justify-center gap-1.5 rounded-xl bg-teal-600 px-3 py-2 text-xs font-bold text-white shadow-xs hover:bg-teal-700 transition-colors"
+              >
+                <span>Mulai Program 30 Hari</span>
+                <ArrowRight className="h-3.5 w-3.5" />
+              </button>
+            </div>
+
+            {/* 90 Hari (Recommended) */}
+            <div className="relative flex flex-col justify-between rounded-2xl border-2 border-primary bg-white/95 p-4 shadow-md dark:bg-card">
+              <span className="absolute -top-3 right-3 rounded-full bg-amber-500 px-2.5 py-0.5 text-[9px] font-bold text-white shadow-xs">
+                ⭐ IDEAL & KLINIS
+              </span>
+              <div className="space-y-2">
+                <span className="inline-block rounded-full bg-amber-100 px-2.5 py-0.5 text-[10px] font-bold text-amber-800 dark:bg-amber-950 dark:text-amber-300">
+                  🔥 PEMULIHAN UTUH (90 HARI)
+                </span>
+                <h4 className="text-xs font-bold text-foreground">Program Pemulihan Utuh</h4>
+                <p className="text-[11px] leading-relaxed text-muted-foreground">
+                  Rewiring CBT lengkap, menghentikan emotional eating, dan regulasi emosi jangka panjang.
+                </p>
+              </div>
+              <button
+                onClick={() => {
+                  try {
+                    const userId = localStorage.getItem("sb-auth-token") ? "user" : "guest";
+                    localStorage.setItem(`bloom_active_program_${userId}`, "90hari");
+                    localStorage.setItem(`bloom_program_start_date_${userId}`, new Date().toISOString());
+                    toast.success("Program Pemulihan Utuh 90 Hari diaktifkan! 🔥");
+                    window.location.href = "/app";
+                  } catch (e) {
+                    console.error(e);
+                  }
+                }}
+                className="mt-4 flex w-full items-center justify-center gap-1.5 rounded-xl bg-primary px-3 py-2 text-xs font-bold text-white shadow-md hover:bg-primary/90 transition-colors"
+              >
+                <span>Mulai Program 90 Hari</span>
+                <ArrowRight className="h-3.5 w-3.5" />
+              </button>
+            </div>
+
+            {/* 365 Hari */}
+            <div className="flex flex-col justify-between rounded-2xl border border-violet-200 bg-white/80 p-4 shadow-xs dark:border-violet-900/40 dark:bg-card">
+              <div className="space-y-2">
+                <span className="inline-block rounded-full bg-violet-100 px-2.5 py-0.5 text-[10px] font-bold text-violet-800 dark:bg-violet-950 dark:text-violet-300">
+                  🏆 PENDAMPINGAN 1 TAHUN
+                </span>
+                <h4 className="text-xs font-bold text-foreground">Transformasi 365 Hari</h4>
+                <p className="text-[11px] leading-relaxed text-muted-foreground">
+                  Ketahanan mental sepanjang tahun dengan riwayat lengkap dan evaluasi berkala.
+                </p>
+              </div>
+              <button
+                onClick={() => {
+                  try {
+                    const userId = localStorage.getItem("sb-auth-token") ? "user" : "guest";
+                    localStorage.setItem(`bloom_active_program_${userId}`, "365hari");
+                    localStorage.setItem(`bloom_program_start_date_${userId}`, new Date().toISOString());
+                    toast.success("Program Pendampingan 365 Hari diaktifkan! 🏆");
+                    window.location.href = "/app";
+                  } catch (e) {
+                    console.error(e);
+                  }
+                }}
+                className="mt-4 flex w-full items-center justify-center gap-1.5 rounded-xl bg-violet-600 px-3 py-2 text-xs font-bold text-white shadow-xs hover:bg-violet-700 transition-colors"
+              >
+                <span>Mulai Program 365 Hari</span>
+                <ArrowRight className="h-3.5 w-3.5" />
+              </button>
+            </div>
+          </div>
         </div>
 
         {/* Questionnaire Answers inside card (always visible, included in export) */}
