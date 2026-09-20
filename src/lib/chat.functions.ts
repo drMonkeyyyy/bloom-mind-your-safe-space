@@ -207,7 +207,7 @@ export const sendChatMessage = createServerFn({ method: "POST" })
     const namePrompt = cleanName 
       ? cleanName 
       : "[Nama tidak diketahui. Sapa dengan sebutan yang sangat alami sesuai dengan peran hubunganmu dengan user. Misalnya: jika kamu berperan sebagai Ibu/Ayah gunakan 'nak'/'anakku', jika Kakak gunakan 'adik'/'kamu', jika Sahabat/Coach gunakan 'kamu'/'sahabat', jika Partner gunakan 'sayang'/'kamu'. JANGAN gunakan sebutan formal kaku seperti 'Saudara' atau 'User']";
-    const sysPrompt = `${companion.system_prompt}\n\nGaya komunikasi user: ${profile?.communication_style ?? "supportive"}. Nama user: ${namePrompt}.${journalContext}\n\nSelalu Bahasa Indonesia. Maksimal 4-6 kalimat. Akhiri dengan 1 pertanyaan reflektif singkat (opsional).`;
+    const sysPrompt = `${companion.system_prompt}\n\nGaya komunikasi user: ${profile?.communication_style ?? "supportive"}. Nama user: ${namePrompt}.${journalContext}\n\nSelalu dalam Bahasa Indonesia yang hangat. Balas secara alami, mengalir, empati, dan menyesuaikan sesuai dengan apa yang dirasakan user. Izinkan untuk sekadar mendengarkan dan memvalidasi emosi tanpa harus selalu memberikan pertanyaan balik di setiap pesan.`;
 
     let reply = "";
     try {
