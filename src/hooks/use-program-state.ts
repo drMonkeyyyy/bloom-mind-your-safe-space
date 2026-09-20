@@ -133,7 +133,7 @@ export function useProgramState(): ProgramState {
   if (startDate) {
     const start = new Date(startDate);
     const now = new Date();
-    const diffTime = Math.abs(now.getTime() - start.getTime());
+    const diffTime = Math.max(0, now.getTime() - start.getTime());
     const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
     currentDay = Math.min(diffDays, totalDays);
   }
