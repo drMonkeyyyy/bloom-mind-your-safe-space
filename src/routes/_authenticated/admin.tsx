@@ -18,6 +18,7 @@ const nav = [
   { to: "/admin/users", label: "User", icon: "👥" },
   { to: "/admin/community", label: "Moderasi", icon: "🛡️" },
   { to: "/admin/transactions", label: "Transaksi", icon: "💳" },
+  { to: "/admin/referrals", label: "Afiliasi", icon: "🎁" },
   { to: "/admin/analytics", label: "Analytics", icon: "📈" },
   { to: "/admin/settings", label: "Settings", icon: "⚙️" },
 ];
@@ -46,8 +47,8 @@ function AdminLayout() {
         <Link to="/app" className="text-xs">← App</Link>
       </header>
       <main className="lg:pl-60 pb-20"><div className="mx-auto max-w-5xl px-5 py-6"><Outlet /></div></main>
-      <nav className="fixed bottom-0 inset-x-0 z-10 border-t border-border bg-card lg:hidden">
-        <div className="grid grid-cols-5">
+      <nav className="fixed bottom-0 inset-x-0 z-10 border-t border-border bg-card lg:hidden overflow-x-auto">
+        <div className="grid grid-cols-7 min-w-[340px]">
           {nav.map((n)=>(
             <Link key={n.to} to={n.to} className={`flex flex-col items-center py-2 text-[10px] ${path===n.to?"text-primary font-semibold":"text-muted-foreground"}`}>
               <span className="text-lg">{n.icon}</span>{n.label}

@@ -5,7 +5,10 @@ import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
 import { z } from "zod";
 
-const searchSchema = z.object({ mode: z.enum(["login", "register", "forgot", "verify"]).optional() });
+const searchSchema = z.object({
+  mode: z.enum(["login", "register", "forgot", "verify"]).optional(),
+  ref: z.string().optional(),
+});
 
 export const Route = createFileRoute("/auth")({
   validateSearch: searchSchema,
@@ -37,15 +40,35 @@ const TESTIMONIAL = {
 };
 
 function AuthPage() {
-  const { mode = "login" } = useSearch({ from: "/auth" });
+  const { mode = "login", ref: refQuery } = useSearch({ from: "/auth" });
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
+  const [referralCode, setReferralCode] = useState("");
+  const [isLockedFromLink, setIsLockedFromLink] = useState(false);
   const [showPw, setShowPw] = useState(false);
   const [loading, setLoading] = useState(false);
   const [resendCooldown, setResendCooldown] = useState(0);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const urlParams = new URLSearchParams(window.location.search);
+    const fromUrl = refQuery || urlParams.get("ref");
+    if (fromUrl) {
+      const clean = fromUrl.trim().toUpperCase();
+      setReferralCode(clean);
+      setIsLockedFromLink(true);
+      localStorage.setItem("bloom_referral_code", clean);
+    } else {
+      const saved = localStorage.getItem("bloom_referral_code");
+      if (saved) {
+        setReferralCode(saved.trim().toUpperCase());
+        setIsLockedFromLink(true);
+      }
+    }
+  }, [refQuery]);
 
   useEffect(() => {
     if (resendCooldown <= 0) return;
@@ -106,9 +129,19 @@ function AuthPage() {
     setLoading(true);
     try {
       if (mode === "register") {
+        const cleanRef = referralCode.trim().toUpperCase();
+        if (cleanRef) {
+          localStorage.setItem("bloom_referral_code", cleanRef);
+        }
         const { error } = await supabase.auth.signUp({
           email, password,
-          options: { data: { name }, emailRedirectTo: `${window.location.origin}/app` },
+          options: {
+            data: {
+              name,
+              referred_by: cleanRef || undefined,
+            },
+            emailRedirectTo: `${window.location.origin}/app`,
+          },
         });
         if (error) throw error;
         toast.success("Registrasi berhasil! Silakan verifikasi email Anda.");
@@ -346,6 +379,47 @@ function AuthPage() {
                             <p className="text-[11px] text-muted-foreground">{pwStrength!.label}</p>
                           </div>
                         )}
+                      </div>
+                    )}
+
+                    {mode === "register" && (
+                      <div>
+                        <div className="mb-1.5 flex items-center justify-between">
+                          <label className="text-sm font-medium" htmlFor="auth-referral">
+                            Kode Referral (Opsional)
+                          </label>
+                          {referralCode && (
+                            <span className="text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md flex items-center gap-1 border border-emerald-200/60">
+                              <span>{isLockedFromLink ? "🔒" : "✓"}</span>
+                              {isLockedFromLink ? "Terkunci dari Link Teman" : "Dari Teman"}
+                            </span>
+                          )}
+                        </div>
+                        <div className="relative">
+                          <input
+                            id="auth-referral"
+                            value={referralCode}
+                            readOnly={isLockedFromLink}
+                            onChange={(e) => {
+                              if (isLockedFromLink) return;
+                              const val = e.target.value.toUpperCase();
+                              setReferralCode(val);
+                              if (val.trim()) localStorage.setItem("bloom_referral_code", val.trim());
+                              else localStorage.removeItem("bloom_referral_code");
+                            }}
+                            placeholder="Contoh: BM-MH25FH"
+                            className={`w-full rounded-2xl border px-4 py-3 text-sm font-mono uppercase placeholder:font-sans placeholder:normal-case placeholder:text-muted-foreground ${
+                              isLockedFromLink
+                                ? "bg-emerald-50/50 border-emerald-300 text-emerald-950 font-bold cursor-not-allowed select-none pr-24"
+                                : "border-border bg-background"
+                            }`}
+                          />
+                          {isLockedFromLink && (
+                            <span className="absolute right-3.5 top-1/2 -translate-y-1/2 rounded-full bg-emerald-600 px-2 py-0.5 text-[10px] font-bold text-white shadow-xs">
+                              Hemat 5%
+                            </span>
+                          )}
+                        </div>
                       </div>
                     )}
 

@@ -24,6 +24,8 @@ export type Database = {
           id: number
           maintenance_mode: boolean
           premium_price: number
+          referral_commission_percent: number
+          referral_discount_percent: number
           updated_at: string
         }
         Insert: {
@@ -35,6 +37,8 @@ export type Database = {
           id?: number
           maintenance_mode?: boolean
           premium_price?: number
+          referral_commission_percent?: number
+          referral_discount_percent?: number
           updated_at?: string
         }
         Update: {
@@ -46,6 +50,8 @@ export type Database = {
           id?: number
           maintenance_mode?: boolean
           premium_price?: number
+          referral_commission_percent?: number
+          referral_discount_percent?: number
           updated_at?: string
         }
         Relationships: []
@@ -496,6 +502,10 @@ export type Database = {
           transfer_proof_url: string | null
           user_id: string
           verified_at: string | null
+          referrer_id: string | null
+          referral_code: string | null
+          commission_amount: number
+          commission_status: string
         }
         Insert: {
           admin_note?: string | null
@@ -512,6 +522,10 @@ export type Database = {
           transfer_proof_url?: string | null
           user_id: string
           verified_at?: string | null
+          referrer_id?: string | null
+          referral_code?: string | null
+          commission_amount?: number
+          commission_status?: string
         }
         Update: {
           admin_note?: string | null
@@ -528,6 +542,10 @@ export type Database = {
           transfer_proof_url?: string | null
           user_id?: string
           verified_at?: string | null
+          referrer_id?: string | null
+          referral_code?: string | null
+          commission_amount?: number
+          commission_status?: string
         }
         Relationships: []
       }
@@ -554,6 +572,7 @@ export type Database = {
           last_active_at: string | null
           lifetime_points: number | null
           sync_journal_memory: boolean
+          referral_code: string | null
         }
         Insert: {
           age?: number | null
@@ -577,6 +596,7 @@ export type Database = {
           last_active_at?: string | null
           lifetime_points?: number | null
           sync_journal_memory?: boolean
+          referral_code?: string | null
         }
         Update: {
           age?: number | null
@@ -600,6 +620,46 @@ export type Database = {
           last_active_at?: string | null
           lifetime_points?: number | null
           sync_journal_memory?: boolean
+          referral_code?: string | null
+        }
+        Relationships: []
+      }
+      referral_payouts: {
+        Row: {
+          account_name: string
+          account_number: string
+          admin_note: string | null
+          amount: number
+          bank_name: string
+          created_at: string
+          id: string
+          processed_at: string | null
+          status: string
+          user_id: string
+        }
+        Insert: {
+          account_name: string
+          account_number: string
+          admin_note?: string | null
+          amount: number
+          bank_name: string
+          created_at?: string
+          id?: string
+          processed_at?: string | null
+          status?: string
+          user_id: string
+        }
+        Update: {
+          account_name?: string
+          account_number?: string
+          admin_note?: string | null
+          amount?: number
+          bank_name?: string
+          created_at?: string
+          id?: string
+          processed_at?: string | null
+          status?: string
+          user_id?: string
         }
         Relationships: []
       }

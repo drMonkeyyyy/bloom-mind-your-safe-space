@@ -20,6 +20,7 @@ import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/ap
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedAppIndexRouteImport } from './routes/_authenticated/app/index'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin/index'
+import { Route as AuthenticatedAppReferralRouteImport } from './routes/_authenticated/app/referral'
 import { Route as AuthenticatedAppProgramRouteImport } from './routes/_authenticated/app/program'
 import { Route as AuthenticatedAppProfileRouteImport } from './routes/_authenticated/app/profile'
 import { Route as AuthenticatedAppPremiumRouteImport } from './routes/_authenticated/app/premium'
@@ -36,6 +37,7 @@ import { Route as AuthenticatedAppCalmRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedAdminUsersRouteImport } from './routes/_authenticated/admin/users'
 import { Route as AuthenticatedAdminTransactionsRouteImport } from './routes/_authenticated/admin/transactions'
 import { Route as AuthenticatedAdminSettingsRouteImport } from './routes/_authenticated/admin/settings'
+import { Route as AuthenticatedAdminReferralsRouteImport } from './routes/_authenticated/admin/referrals'
 import { Route as AuthenticatedAdminCommunityRouteImport } from './routes/_authenticated/admin/community'
 import { Route as AuthenticatedAdminAnalyticsRouteImport } from './routes/_authenticated/admin/analytics'
 import { Route as AuthenticatedAppChatIndexRouteImport } from './routes/_authenticated/app/chat/index'
@@ -95,6 +97,12 @@ const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AuthenticatedAdminRoute,
 } as any)
+const AuthenticatedAppReferralRoute =
+  AuthenticatedAppReferralRouteImport.update({
+    id: '/referral',
+    path: '/referral',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
 const AuthenticatedAppProgramRoute = AuthenticatedAppProgramRouteImport.update({
   id: '/program',
   path: '/program',
@@ -181,6 +189,12 @@ const AuthenticatedAdminSettingsRoute =
     path: '/settings',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const AuthenticatedAdminReferralsRoute =
+  AuthenticatedAdminReferralsRouteImport.update({
+    id: '/referrals',
+    path: '/referrals',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminCommunityRoute =
   AuthenticatedAdminCommunityRouteImport.update({
     id: '/community',
@@ -217,6 +231,7 @@ export interface FileRoutesByFullPath {
   '/api/mayar-webhook': typeof ApiMayarWebhookRoute
   '/admin/analytics': typeof AuthenticatedAdminAnalyticsRoute
   '/admin/community': typeof AuthenticatedAdminCommunityRoute
+  '/admin/referrals': typeof AuthenticatedAdminReferralsRoute
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/admin/transactions': typeof AuthenticatedAdminTransactionsRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
@@ -233,6 +248,7 @@ export interface FileRoutesByFullPath {
   '/app/premium': typeof AuthenticatedAppPremiumRoute
   '/app/profile': typeof AuthenticatedAppProfileRoute
   '/app/program': typeof AuthenticatedAppProgramRoute
+  '/app/referral': typeof AuthenticatedAppReferralRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
   '/app/': typeof AuthenticatedAppIndexRoute
   '/app/chat/$chatId': typeof AuthenticatedAppChatChatIdRoute
@@ -247,6 +263,7 @@ export interface FileRoutesByTo {
   '/api/mayar-webhook': typeof ApiMayarWebhookRoute
   '/admin/analytics': typeof AuthenticatedAdminAnalyticsRoute
   '/admin/community': typeof AuthenticatedAdminCommunityRoute
+  '/admin/referrals': typeof AuthenticatedAdminReferralsRoute
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/admin/transactions': typeof AuthenticatedAdminTransactionsRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
@@ -263,6 +280,7 @@ export interface FileRoutesByTo {
   '/app/premium': typeof AuthenticatedAppPremiumRoute
   '/app/profile': typeof AuthenticatedAppProfileRoute
   '/app/program': typeof AuthenticatedAppProgramRoute
+  '/app/referral': typeof AuthenticatedAppReferralRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
   '/app': typeof AuthenticatedAppIndexRoute
   '/app/chat/$chatId': typeof AuthenticatedAppChatChatIdRoute
@@ -281,6 +299,7 @@ export interface FileRoutesById {
   '/api/mayar-webhook': typeof ApiMayarWebhookRoute
   '/_authenticated/admin/analytics': typeof AuthenticatedAdminAnalyticsRoute
   '/_authenticated/admin/community': typeof AuthenticatedAdminCommunityRoute
+  '/_authenticated/admin/referrals': typeof AuthenticatedAdminReferralsRoute
   '/_authenticated/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/_authenticated/admin/transactions': typeof AuthenticatedAdminTransactionsRoute
   '/_authenticated/admin/users': typeof AuthenticatedAdminUsersRoute
@@ -297,6 +316,7 @@ export interface FileRoutesById {
   '/_authenticated/app/premium': typeof AuthenticatedAppPremiumRoute
   '/_authenticated/app/profile': typeof AuthenticatedAppProfileRoute
   '/_authenticated/app/program': typeof AuthenticatedAppProgramRoute
+  '/_authenticated/app/referral': typeof AuthenticatedAppReferralRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/_authenticated/app/': typeof AuthenticatedAppIndexRoute
   '/_authenticated/app/chat/$chatId': typeof AuthenticatedAppChatChatIdRoute
@@ -315,6 +335,7 @@ export interface FileRouteTypes {
     | '/api/mayar-webhook'
     | '/admin/analytics'
     | '/admin/community'
+    | '/admin/referrals'
     | '/admin/settings'
     | '/admin/transactions'
     | '/admin/users'
@@ -331,6 +352,7 @@ export interface FileRouteTypes {
     | '/app/premium'
     | '/app/profile'
     | '/app/program'
+    | '/app/referral'
     | '/admin/'
     | '/app/'
     | '/app/chat/$chatId'
@@ -345,6 +367,7 @@ export interface FileRouteTypes {
     | '/api/mayar-webhook'
     | '/admin/analytics'
     | '/admin/community'
+    | '/admin/referrals'
     | '/admin/settings'
     | '/admin/transactions'
     | '/admin/users'
@@ -361,6 +384,7 @@ export interface FileRouteTypes {
     | '/app/premium'
     | '/app/profile'
     | '/app/program'
+    | '/app/referral'
     | '/admin'
     | '/app'
     | '/app/chat/$chatId'
@@ -378,6 +402,7 @@ export interface FileRouteTypes {
     | '/api/mayar-webhook'
     | '/_authenticated/admin/analytics'
     | '/_authenticated/admin/community'
+    | '/_authenticated/admin/referrals'
     | '/_authenticated/admin/settings'
     | '/_authenticated/admin/transactions'
     | '/_authenticated/admin/users'
@@ -394,6 +419,7 @@ export interface FileRouteTypes {
     | '/_authenticated/app/premium'
     | '/_authenticated/app/profile'
     | '/_authenticated/app/program'
+    | '/_authenticated/app/referral'
     | '/_authenticated/admin/'
     | '/_authenticated/app/'
     | '/_authenticated/app/chat/$chatId'
@@ -488,6 +514,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin/'
       preLoaderRoute: typeof AuthenticatedAdminIndexRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/app/referral': {
+      id: '/_authenticated/app/referral'
+      path: '/referral'
+      fullPath: '/app/referral'
+      preLoaderRoute: typeof AuthenticatedAppReferralRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
     }
     '/_authenticated/app/program': {
       id: '/_authenticated/app/program'
@@ -601,6 +634,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminSettingsRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/referrals': {
+      id: '/_authenticated/admin/referrals'
+      path: '/referrals'
+      fullPath: '/admin/referrals'
+      preLoaderRoute: typeof AuthenticatedAdminReferralsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/admin/community': {
       id: '/_authenticated/admin/community'
       path: '/community'
@@ -635,6 +675,7 @@ declare module '@tanstack/react-router' {
 interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminAnalyticsRoute: typeof AuthenticatedAdminAnalyticsRoute
   AuthenticatedAdminCommunityRoute: typeof AuthenticatedAdminCommunityRoute
+  AuthenticatedAdminReferralsRoute: typeof AuthenticatedAdminReferralsRoute
   AuthenticatedAdminSettingsRoute: typeof AuthenticatedAdminSettingsRoute
   AuthenticatedAdminTransactionsRoute: typeof AuthenticatedAdminTransactionsRoute
   AuthenticatedAdminUsersRoute: typeof AuthenticatedAdminUsersRoute
@@ -644,6 +685,7 @@ interface AuthenticatedAdminRouteChildren {
 const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminAnalyticsRoute: AuthenticatedAdminAnalyticsRoute,
   AuthenticatedAdminCommunityRoute: AuthenticatedAdminCommunityRoute,
+  AuthenticatedAdminReferralsRoute: AuthenticatedAdminReferralsRoute,
   AuthenticatedAdminSettingsRoute: AuthenticatedAdminSettingsRoute,
   AuthenticatedAdminTransactionsRoute: AuthenticatedAdminTransactionsRoute,
   AuthenticatedAdminUsersRoute: AuthenticatedAdminUsersRoute,
@@ -667,6 +709,7 @@ interface AuthenticatedAppRouteChildren {
   AuthenticatedAppPremiumRoute: typeof AuthenticatedAppPremiumRoute
   AuthenticatedAppProfileRoute: typeof AuthenticatedAppProfileRoute
   AuthenticatedAppProgramRoute: typeof AuthenticatedAppProgramRoute
+  AuthenticatedAppReferralRoute: typeof AuthenticatedAppReferralRoute
   AuthenticatedAppIndexRoute: typeof AuthenticatedAppIndexRoute
   AuthenticatedAppChatChatIdRoute: typeof AuthenticatedAppChatChatIdRoute
   AuthenticatedAppChatIndexRoute: typeof AuthenticatedAppChatIndexRoute
@@ -686,6 +729,7 @@ const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
   AuthenticatedAppPremiumRoute: AuthenticatedAppPremiumRoute,
   AuthenticatedAppProfileRoute: AuthenticatedAppProfileRoute,
   AuthenticatedAppProgramRoute: AuthenticatedAppProgramRoute,
+  AuthenticatedAppReferralRoute: AuthenticatedAppReferralRoute,
   AuthenticatedAppIndexRoute: AuthenticatedAppIndexRoute,
   AuthenticatedAppChatChatIdRoute: AuthenticatedAppChatChatIdRoute,
   AuthenticatedAppChatIndexRoute: AuthenticatedAppChatIndexRoute,

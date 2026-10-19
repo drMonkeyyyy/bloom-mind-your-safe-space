@@ -40,6 +40,7 @@ const wellnessNav = [
 ];
 
 const accountNav = [
+  { to: "/app/referral", label: "Ajak Teman & Komisi", icon: "M20 12v10H4V12M2 7h20v5H2zM12 22V7M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7zM12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z" },
   { to: "/app/premium", label: "Premium", icon: "M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" },
   { to: "/app/profile", label: "Profil & Pengaturan", icon: "M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z" },
 ];
@@ -52,6 +53,7 @@ const bottomNav = [
 ];
 
 const moreNavItems = [
+  { to: "/app/referral", label: "Ajak Teman & Komisi", icon: "M20 12v10H4V12M2 7h20v5H2zM12 22V7M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7zM12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z", color: "bg-emerald-50 text-emerald-600" },
   { to: "/app/program", label: "Program Pemulihan", icon: "M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5", color: "bg-amber-50 text-amber-600" },
   { to: "/app/community", label: "Dinding Dukungan Anonim", icon: "M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75", color: "bg-teal-50 text-teal-600" },
   { to: "/app/profile", label: "Profil Saya", icon: "M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z", color: "bg-indigo-50 text-indigo-600" },

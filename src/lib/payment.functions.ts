@@ -13,6 +13,7 @@ function makeOrderNumber() {
 const CreatePaymentInput = z.object({
   redirectUrl: z.string().url(),
   packageType: z.enum(["bulanan", "3bulan", "tahunan"]).default("bulanan"),
+  referralCode: z.string().optional(),
 });
 
 export const createPayment = createServerFn({ method: "POST" })
@@ -38,10 +39,10 @@ export const createPayment = createServerFn({ method: "POST" })
       throw new Error("Email user tidak valid");
     }
 
-    // 2. Fetch app settings to get premium price for monthly, set yearly/3month manually
+    // 2. Fetch app settings to get premium price for monthly & referral commission rate
     const { data: settings } = await supabaseAdmin
       .from("app_settings")
-      .select("premium_price")
+      .select("premium_price, referral_commission_percent")
       .eq("id", 1)
       .maybeSingle();
       
@@ -54,6 +55,32 @@ export const createPayment = createServerFn({ method: "POST" })
     } else if (data.packageType === "3bulan") {
       amount = 119000; // Rp119.000 for 3 Months (Save 20%)
       packageName = "Program Pemulihan Utuh (90 Hari)";
+    }
+
+    // 2b. Check and validate referral code & apply 5% discount for buyer
+    let referrerId: string | null = null;
+    let validReferralCode: string | null = null;
+    let commissionAmount = 0;
+
+    if (data.referralCode && data.referralCode.trim()) {
+      const cleanCode = data.referralCode.trim().toUpperCase();
+      const { data: referrer } = await supabaseAdmin
+        .from("profiles")
+        .select("id")
+        .eq("referral_code", cleanCode)
+        .maybeSingle();
+
+      if (referrer && referrer.id !== userId) {
+        referrerId = referrer.id;
+        validReferralCode = cleanCode;
+        // Apply 5% discount for buyer
+        const discountPercent = settings?.referral_discount_percent ?? 5;
+        const discountAmount = Math.round((amount * discountPercent) / 100);
+        amount = Math.max(1000, amount - discountAmount);
+        
+        const commissionPercent = settings?.referral_commission_percent ?? 15;
+        commissionAmount = Math.round((amount * commissionPercent) / 100);
+      }
     }
 
     // 3. Cancel any existing pending orders for this package to avoid duplicate payment links and force a fresh invoice
@@ -75,6 +102,10 @@ export const createPayment = createServerFn({ method: "POST" })
         package_name: packageName,
         payment_method: "mayar",
         payment_status: "menunggu_pembayaran",
+        referrer_id: referrerId,
+        referral_code: validReferralCode,
+        commission_amount: commissionAmount,
+        commission_status: referrerId ? "pending" : "none",
       })
       .select("*")
       .single();

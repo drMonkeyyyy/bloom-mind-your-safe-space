@@ -120,15 +120,20 @@ export const Route = createFileRoute('/api/mayar-webhook')({
             });
           }
 
-          // 5. Update order status to 'disetujui' (approved)
+          // 5. Update order status to 'disetujui' (approved) and approve referral commission if any
           const now = new Date();
+          const updateData: Record<string, any> = {
+            payment_status: 'disetujui',
+            verified_at: now.toISOString(),
+            admin_note: 'Paid automatically via Mayar Gateway',
+          };
+          if (order.referrer_id) {
+            updateData.commission_status = 'approved';
+          }
+
           const { error: updateOrderErr } = await supabaseAdmin
             .from('orders')
-            .update({
-              payment_status: 'disetujui',
-              verified_at: now.toISOString(),
-              admin_note: 'Paid automatically via Mayar Gateway',
-            })
+            .update(updateData)
             .eq('id', order.id);
 
           if (updateOrderErr) {

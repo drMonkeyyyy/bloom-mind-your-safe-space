@@ -148,6 +148,15 @@ function RootInner() {
   }, []);
 
   useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    const ref = params.get("ref");
+    if (ref && ref.trim()) {
+      localStorage.setItem("bloom_referral_code", ref.trim().toUpperCase());
+    }
+  }, []);
+
+  useEffect(() => {
     const { data: sub } = supabase.auth.onAuthStateChange((event) => {
       if (event !== "SIGNED_IN" && event !== "SIGNED_OUT" && event !== "USER_UPDATED") return;
       router.invalidate();

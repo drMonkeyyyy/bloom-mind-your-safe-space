@@ -43,21 +43,29 @@ export const verifyOrder = createServerFn({ method: "POST" })
       } else {
         end.setDate(end.getDate() + 30);
       }
-      await client.from("orders").update({
+      const updateOrderPayload: Record<string, any> = {
         payment_status: "disetujui",
         verified_at: now.toISOString(),
         admin_note: data.note ?? null,
-      }).eq("id", data.orderId);
+      };
+      if (order.referrer_id) {
+        updateOrderPayload.commission_status = "approved";
+      }
+      await client.from("orders").update(updateOrderPayload).eq("id", data.orderId);
       await client.from("profiles").update({
         plan: "premium",
         premium_start_date: now.toISOString(),
         premium_end_date: end.toISOString(),
       }).eq("id", order.user_id);
     } else {
-      await client.from("orders").update({
+      const rejectPayload: Record<string, any> = {
         payment_status: "ditolak",
         admin_note: data.note ?? "Bukti transfer tidak valid",
-      }).eq("id", data.orderId);
+      };
+      if (order.referrer_id) {
+        rejectPayload.commission_status = "cancelled";
+      }
+      await client.from("orders").update(rejectPayload).eq("id", data.orderId);
     }
     return { ok: true };
   });

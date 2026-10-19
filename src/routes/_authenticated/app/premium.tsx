@@ -1,11 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { useProfile } from "@/hooks/use-profile";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { createPayment } from "@/lib/payment.functions";
+import { validateReferralCode } from "@/lib/referral.functions";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/app/premium")({
@@ -70,12 +71,71 @@ function Page() {
   const activeOrder = orders?.find((o) => (o.payment_status === "menunggu_pembayaran" || o.payment_status === "menunggu_verifikasi") && o.payment_method === "mayar");
   const [creating, setCreating] = useState(false);
 
+  // Referral state
+  const [referralInput, setReferralInput] = useState("");
+  const [appliedReferral, setAppliedReferral] = useState<string | null>(null);
+  const [validatingRef, setValidatingRef] = useState(false);
+  const validateRefFn = useServerFn(validateReferralCode);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const urlParams = new URLSearchParams(window.location.search);
+    const refFromUrl = urlParams.get("ref");
+    const savedRef = refFromUrl || localStorage.getItem("bloom_referral_code");
+
+    if (savedRef) {
+      const clean = savedRef.trim().toUpperCase();
+      setReferralInput(clean);
+      validateRefFn({ data: { code: clean } })
+        .then((res) => {
+          if (res.valid) {
+            setAppliedReferral(clean);
+            localStorage.setItem("bloom_referral_code", clean);
+          }
+        })
+        .catch(() => {});
+    }
+  }, []);
+
+  const handleApplyReferral = async () => {
+    if (!referralInput.trim()) return;
+    setValidatingRef(true);
+    try {
+      const clean = referralInput.trim().toUpperCase();
+      const res = await validateRefFn({ data: { code: clean } });
+      if (res.valid) {
+        setAppliedReferral(clean);
+        localStorage.setItem("bloom_referral_code", clean);
+        toast.success(res.message || "Kode referral berhasil diterapkan!");
+      } else {
+        toast.error(res.message || "Kode referral tidak valid");
+      }
+    } catch (err: any) {
+      toast.error(err.message || "Gagal memvalidasi kode referral");
+    } finally {
+      setValidatingRef(false);
+    }
+  };
+
+  const handleRemoveReferral = () => {
+    setAppliedReferral(null);
+    setReferralInput("");
+    localStorage.removeItem("bloom_referral_code");
+    toast.info("Kode referral dihapus");
+  };
+
   const createOrder = async () => {
     if (!user) return;
     setCreating(true);
     try {
       const redirectUrl = window.location.origin + "/app/premium";
-      const result = await startPayment({ data: { redirectUrl, packageType } });
+      const result = await startPayment({
+        data: {
+          redirectUrl,
+          packageType,
+          referralCode: appliedReferral ?? undefined,
+        },
+      });
       if (result && result.paymentLink) {
         toast.success("Mengarahkan ke halaman pembayaran...");
         window.location.href = result.paymentLink;
@@ -221,18 +281,36 @@ function Page() {
               )}
             </div>
 
-            <div className="mt-4 flex items-baseline gap-2">
-              <span className="font-display text-4xl sm:text-5xl font-bold text-foreground">
-                Rp{packageType === "tahunan"
-                  ? "490.000"
+            {(() => {
+              const basePrice =
+                packageType === "tahunan"
+                  ? 490000
                   : packageType === "3bulan"
-                    ? "119.000"
-                    : (settings?.premium_price ?? 49000).toLocaleString("id-ID")}
-              </span>
-              <span className="text-base text-muted-foreground">
-                /{packageType === "tahunan" ? "tahun" : packageType === "3bulan" ? "3 bulan" : "bulan"}
-              </span>
-            </div>
+                    ? 119000
+                    : (settings?.premium_price ?? 49000);
+              const finalPrice = appliedReferral ? Math.round(basePrice * 0.95) : basePrice;
+
+              return (
+                <div className="mt-4 flex flex-wrap items-baseline gap-2">
+                  <span className="font-display text-4xl sm:text-5xl font-bold text-foreground">
+                    Rp{finalPrice.toLocaleString("id-ID")}
+                  </span>
+                  {appliedReferral && (
+                    <span className="text-lg text-muted-foreground line-through decoration-destructive/60">
+                      Rp{basePrice.toLocaleString("id-ID")}
+                    </span>
+                  )}
+                  <span className="text-base text-muted-foreground">
+                    /{packageType === "tahunan" ? "tahun" : packageType === "3bulan" ? "3 bulan" : "bulan"}
+                  </span>
+                  {appliedReferral && (
+                    <span className="rounded-full bg-emerald-500/15 border border-emerald-500/30 px-2.5 py-0.5 text-xs font-bold text-emerald-800">
+                      Diskon 5% Aktif
+                    </span>
+                  )}
+                </div>
+              );
+            })()}
 
             {packageType === "tahunan" ? (
               <p className="mt-1 text-xs text-muted-foreground">
@@ -300,11 +378,60 @@ function Page() {
               </p>
             </div>
 
+            {/* Referral / Promo Code Box */}
+            {!activeOrder && (
+              <div className="mt-5 rounded-2xl border border-dashed border-border bg-card/60 p-3.5">
+                <div className="flex items-center justify-between gap-2 mb-2">
+                  <span className="text-xs font-semibold text-foreground flex items-center gap-1.5">
+                    <span>🎁</span> Punya Kode Referral / Promo?
+                  </span>
+                  {appliedReferral && (
+                    <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[11px] font-semibold text-emerald-700 border border-emerald-200">
+                      ✓ Hemat 5%
+                    </span>
+                  )}
+                </div>
+                {appliedReferral ? (
+                  <div className="flex items-center justify-between rounded-xl bg-emerald-50/60 border border-emerald-200/60 px-3 py-2 text-xs">
+                    <div className="flex items-center gap-2">
+                      <span className="font-mono font-bold text-emerald-800">{appliedReferral}</span>
+                      <span className="text-[11px] text-emerald-700 font-medium">· Potongan 5% Aktif 🎉</span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handleRemoveReferral}
+                      className="text-[11px] text-muted-foreground hover:text-destructive underline"
+                    >
+                      Hapus
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      placeholder="Contoh: BM-X7K9P2"
+                      value={referralInput}
+                      onChange={(e) => setReferralInput(e.target.value.toUpperCase())}
+                      className="flex-1 rounded-xl border border-border bg-background px-3 py-1.5 text-xs font-mono uppercase placeholder:font-sans placeholder:normal-case placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                    />
+                    <button
+                      type="button"
+                      onClick={handleApplyReferral}
+                      disabled={validatingRef || !referralInput.trim()}
+                      className="rounded-xl bg-primary-soft px-3.5 py-1.5 text-xs font-semibold text-primary hover:bg-primary hover:text-primary-foreground transition-colors disabled:opacity-50"
+                    >
+                      {validatingRef ? "Cek…" : "Terapkan"}
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+
             {!activeOrder && (
               <button
                 onClick={createOrder}
                 disabled={creating}
-                className="mt-6 w-full rounded-full bg-accent py-4 text-sm font-bold text-accent-foreground shadow-peach transition-all duration-300 hover:-translate-y-0.5 disabled:opacity-60"
+                className="mt-4 w-full rounded-full bg-accent py-4 text-sm font-bold text-accent-foreground shadow-peach transition-all duration-300 hover:-translate-y-0.5 disabled:opacity-60"
               >
                 {creating
                   ? "Membuat pesanan…"
